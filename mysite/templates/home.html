@@ -1,10 +1,15 @@
+{% extends 'base.html' %}
 {% load static %}
 
-<h1>{{created}}</h1>
+{% block body_block %}
+  <h1>{{created}}</h1>
+  <p>LMAO</p>
 
-{% if created%}
-<img
-  style="height: 200px; width: 200px"
-  src="{% static 'Assets/created/new.png' %}"
-/>
-{% endif %}
+  {% if created%}
+  <img
+    style="height: 200px; width: 200px"
+    src="/media/user_assets/1.png"
+  />
+  {% endif %}
+
+{% endblock %}

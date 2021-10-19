@@ -1,32 +1,34 @@
-{% block content %}
+{% extends 'base.html' %}
 
-<div class="container">
-  <!--Simple Form-->
-  <h2 class="my-4">Add a new movie poster</h2>
-  <form method="post" enctype="multipart/form-data">
-    {% csrf_token %}
-    <input type="file" name="upload" accept="image/*" />
-    <br />
-    <button class="btn btn-dark my-4" type="submit">Submit</button>
-  </form>
+{% block body_block %}
+  <div class="container">
+    <!--Simple Form-->
+    <h2 class="my-4">Add a new movie poster</h2>
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      <input type="file" name="upload" accept="image/*" />
+      <input type="text" name="name" placeholder="Input Collection name">
 
-  <!--See Image Uploaded-->
-  <h2 class="my-4">Movie Poster</h2>
-  <div class="row">
-    {% if file_url %}
-    <div class="col-lg-4 col-md-6 col-sm-12 pb-4">
-      <img
-        style="height: 200px; width: 200px"
-        src="{{ file_url }}"
-        class="img-fluid"
-      />
       <br />
-      <a class="btn btn-dark my-4" href="/polls">Return to Homepage</a>
+      <button class="btn btn-dark my-4" type="submit">Submit</button>
+    </form>
+
+    <!--See Image Uploaded-->
+    <h2 class="my-4">Your Gallery!!</h2>
+    <div class="row">
+      {% if user_imgs %}
+      <div class="col-lg-4 col-md-6 col-sm-12 pb-4 custom_grid">
+        {% for img in user_imgs%}
+          <img
+          style="height: 200px; width: 200px"
+          src="/media/{{img.image}}"
+          class="img-fluid"
+        />
+        {% endfor %}
       {% else %}
-      <p>No movies posters added.</p>
+        <p>No movies posters added.</p>
       {% endif %}
+      </div>
     </div>
   </div>
-
-  {% endblock %}
-</div>
+{% endblock %}

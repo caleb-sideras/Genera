@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+<h1 class="top-space-heading">Login to MilkStudents</h1>
+
+{% block body_block %}
+    {% if user.is_authenticated %}
+        <strong>YOU ARE ALREADY LOGGED IN SICK BASTARD</strong>
+
+    {% else %}
+        <div class="text-center">
+            
+            <form id="login_form" method="post" action="{% url 'polls:login' %}">
+                {% csrf_token %}
+                {{ login_form|crispy }}
+
+                <button class = "btn btn-outline-dark btn-lg" type="submit" name="submit"> Log in </button>
+            </form>
+        </div>
+
+    {% endif %}
+{% endblock %}

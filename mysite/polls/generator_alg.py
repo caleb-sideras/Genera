@@ -84,6 +84,6 @@ def createImage():
     # body.show()
 
     # if you wanted to save
-    body.save("static/Assets/created/new.png", "PNG")
+    body.save("media/user_assets/new.png", "PNG")
 
     return "success"

@@ -1,0 +1,8 @@
+body {
+    background-color: aqua;
+}
+
+.custom_grid *{
+    margin: 5px;
+    border-radius: 5px;
+}
