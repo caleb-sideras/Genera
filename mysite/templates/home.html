@@ -1,0 +1,10 @@
+{% load static %}
+
+<h1>{{created}}</h1>
+
+{% if created%}
+<img
+  style="height: 200px; width: 200px"
+  src="{% static 'Assets/created/new.png' %}"
+/>
+{% endif %}
