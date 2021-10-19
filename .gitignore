@@ -22,8 +22,10 @@ test5.py
 .cpython-38.pyc
 __pycache__
 db.sqlite3
+.sqlite3
 db.sql
 media
+_migrations/*
 
 # Backup files # 
 *.bak 
