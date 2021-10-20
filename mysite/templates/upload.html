@@ -6,7 +6,14 @@
     <h2 class="my-4">Add a new movie poster</h2>
     <form method="post" enctype="multipart/form-data">
       {% csrf_token %}
-      <input type="file" name="upload" accept="image/*" />
+
+      TEXTURE1<input class="input_file" type="file" name="texture1">
+      TEXTURE2<input class="input_file" type="file" name="texture2" style="margin-top: 5px;">
+      ASSET1<input class="input_file" type="file" name="file1" id="file2" style="margin-top: 5px;">
+      ASSET2<input class="input_file" type="file" name="file2" id="file3" style="margin-top: 5px;">
+      ASSET3<input class="input_file" type="file" name="file3" id="file3" style="margin-top: 5px;">
+      ASSET4<input class="input_file" type="file" name="file4" id="file3" style="margin-top: 5px;">
+
       <input type="text" name="name" placeholder="Input Collection name">
 
       <br />
