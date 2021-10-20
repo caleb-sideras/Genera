@@ -22,6 +22,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
 
     # include other apps
-    path('polls/', include('polls.urls')),
+    path('', include('polls.urls')),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
