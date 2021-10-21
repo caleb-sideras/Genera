@@ -2,6 +2,7 @@ from PIL import Image
 import numpy as np
 import asset_index
 from random_number import generateRandomNumber
+import random
 
 # Notes
 # - the current textures Samoshin sent me are buggy, they only use A (Alpha) values in the RGBA format. He will fix
@@ -14,15 +15,13 @@ from random_number import generateRandomNumber
 #
 # 1) full website integration
 #
-#   Method 1 (best?) - could import all asset names into a global 3D array, then input the length of individual 2D arrays into the random number generator to choose an asset
-#   pros: no duplicate/excessive imports, no need to use modulus(%), renaming assets not needed
-#   cons: none perfect system :)
-#
-#   Method 2 - ughhhhh idk
+#   - Using rarity attribute do determine which assets/textures are selected
 #
 # ---DONE---
 #
 #   - the texture mapping process can be put into a function so any asset can have a texture put on it (maybe you can do this: DD)
+#   - an example dictionary that would store all the collection data, that would be passed from the website
+#   - assembling image and textures based on this example dictionary
 #
 
 def textureMapping(asset, texture):
@@ -58,37 +57,153 @@ def textureMapping(asset, texture):
 
     return shirt
 
+# Example assets
+body1 = Image.open("./Assets/" + "Body/" + "1" + ".png")
 
-def main():
-    # returns a 6 length array of random numbers ranging from 1 - 5
-    rnd = generateRandomNumber(1, 5, 6)
+hair1 = Image.open("./Assets/" + "Hair/" + "1" + ".png")
+hair2 = Image.open("./Assets/" + "Hair/" + "2" + ".png")
 
-    # opening assets based on their random number e.g. /Assets/Body/1.png
-    # (randomNumber % 4) + 1 = number has a range from 1–4
-    # each random number range should be limited based on how many assets there are
-    body = Image.open("./Assets/" + "Body/" + str((rnd[0] % 1) + 1) + ".png")
-    shirt = Image.open("./Assets/" + "Shirt/" + str((rnd[1] % 2) + 1) + ".png")
-    hair = Image.open("./Assets/" + "Hair/" + str((rnd[2] % 2) + 1) + ".png")
-    accessories = Image.open("./Assets/" + "Accessories/" +
-                             str((rnd[3] % 1) + 1) + ".png")
-    texture = Image.open("./Assets/" + "Texture/" +
-                         str((rnd[4] % 4) + 1) + ".png")
+shirt1 = Image.open("./Assets/" + "Shirt/" + "1" + ".png")
+shirt2 = Image.open("./Assets/" + "Shirt/" + "2" + ".png")
 
-    # maps texture onto an asset
-    shirt = textureMapping(shirt, texture)
-    hair = textureMapping(hair, texture)
+accessories1 = Image.open("./Assets/" + "Accessories/" + "1" + ".png")
 
-    # combining all assets to body
-    body.paste(shirt, (0, 0), shirt)
-    body.paste(hair, (0, 0), hair)
-    body.paste(accessories, (0, 0), accessories)
+texture1 = Image.open("./Assets/" + "Texture/" + "1" + ".png")
+texture2 = Image.open("./Assets/" + "Texture/" + "2" + ".png")
+texture3 = Image.open("./Assets/" + "Texture/" + "3" + ".png")
+texture4 = Image.open("./Assets/" + "Texture/" + "4" + ".png")
 
-    # shirt.show()
-    # hair.show()
-    # body.show()
+# Example dictionary
+tempDict = {
+    'CollectionName': 'Void Chan',
+    'Description': 'Void NFTs for void chans',
+    'Resolution' : 4000,
+    'Layers': [
+        {
+            'LayerName': 'Body',
+            'Assets': [
+                {
+                    'Name': 'Pink Sky',
+                    'PIL': body1,
+                    'Rarity': 1
+                },
+            ],
+            'Textures': []
+        },
+        {
+            'LayerName': 'Hair',
+            'Assets': [
+                {
+                    'Name': 'Anime',
+                    'PIL': hair1,
+                    'Rarity': 0.5
+                }, 
+                {
+                    'Name': 'Long',
+                    'PIL': hair2,
+                    'Rarity': 0.5
+                },
+            ],
+            'Textures': [
+                {
+                    'Name': 'Texture 1',
+                    'PIL': texture1,
+                    'Rarity': 0.25
+                },
+                {
+                    'Name': 'Texture 2',
+                    'PIL': texture2,
+                    'Rarity': 0.25
+                },
+                {
+                    'Name': 'Texture 3',
+                    'PIL': texture3,
+                    'Rarity': 0.25
+                },
+                {
+                    'Name': 'Texture 4',
+                    'PIL': texture4,
+                    'Rarity': 0.25
+                },
+            ]
+        },
+        {
+            'LayerName': 'Shirt',
+            'Assets': [
+                {
+                    'Name': 'T-Shirt',
+                    'PIL': shirt1,
+                    'Rarity': 0.5
+                },
+                {
+                    'Name': 'Crop Tee',
+                    'PIL': shirt2,
+                    'Rarity': 0.5
+                },
+            ],
+            'Textures': [
+                {
+                    'Name': 'Texture 1',
+                    'PIL': texture1,
+                    'Rarity': 0.25
+                },
+                {
+                    'Name': 'Texture 2',
+                    'PIL': texture2,
+                    'Rarity': 0.25
+                },
+                {
+                    'Name': 'Texture 3',
+                    'PIL': texture3,
+                    'Rarity': 0.25
+                },
+                {
+                    'Name': 'Texture 4',
+                    'PIL': texture4,
+                    'Rarity': 0.25
+                },
+            ]
+        },
+        {
+            'LayerName': 'Accessories',
+            'Assets': [
+                {
+                    'Name': 'Choker',
+                    'PIL': accessories1,
+                    'Rarity': 1
+                },
+            ],
+            'Textures': []
+        },
+    ],
+}
 
-    # saving
-    body.save("new.png", "PNG")
+print(tempDict['CollectionName'])
+print(tempDict['Description'])
 
+# creating a base image to paste on
+mode = 'RGBA'
+size = (4000, 4000)
+color = (0, 0, 0, 0)
+im = Image.new(mode, size, color)
 
-main()
+for var in tempDict['Layers']:
+    chosenAsset = 0
+    textexturedAsset = 0
+    print(var['LayerName'])
+    
+    if var['Assets'] and var['Textures']:
+        chosenAsset = random.choice(var['Assets'])
+        chosenTexture = random.choice(var['Textures'])
+
+        texturedAsset = textureMapping(chosenAsset['PIL'], chosenTexture['PIL'])
+
+        im.paste(texturedAsset, (0, 0), texturedAsset)
+    else: 
+        if var['Assets']:
+            chosenAsset = random.choice(var['Assets'])
+            im.paste(chosenAsset['PIL'], (0, 0), chosenAsset['PIL'])
+
+# saving
+im.save("new.png", "PNG")
+
