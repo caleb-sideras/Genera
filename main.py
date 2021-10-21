@@ -16,7 +16,45 @@ import random
 # 1) full website integration
 #
 #   - Using rarity attribute do determine which assets/textures are selected
-#
+#       1) Convert each layer/texture rarity section into an array of numbers corresponding to it rarity
+#           E.g. RarityA: 3 |
+#                RarityB: 2 |=> Array[10] = {A,A,A,B,B,C,C,C,C,C}, then random.choice()
+#                RarityC: 5 |
+#          pros: Easy implementation/elegant
+#          cons: If you give users a large rarity choice (aka 0.31245), you would need a LARGE array. So not scalable.
+# 
+#       2) Collection Size Method: (collection size * (asset rarity *asset))
+#           E.g. Layer 1 Assets = (100/10 *(3A, 2B, 5C)) = (30A, 20B, 50C) = 100 total assets.
+#           Then you would random.choice(), subtract an element, and do this until its empty
+
+#       3) Collection Size Method with texture rarity: (collection size * (texture rarity *asset))
+#           E.g. Layer 1 Assets = (100/10 * (3A, 2B, 5C)) = (30A, 20B, 50C) = 100 total assets.
+#           E.g. Layer 1 Textures = (100/10 * (3A, 2B, 5C)) = (30A, 20B, 50C) = 100 total textures.
+#           random.choice both arrays, and subtract both elements.
+#           => (29A, 20B, 50C) = 99 total assets
+#           => (30A, 20B, 49C) = 99 total assets
+#           
+#       Collection size rant. Collection size has to affect the rarity. EXAMPLE a 1% and 99% asset rarity on collection size 10. Cannot have exact asset creation for rarity in this case. Collection size would have to be 100. 
+#       Solution 1) collection sizes determine the rarity aka collection size 50 = smallest rarity is 100/50 = 2%. So rarity has to be incremented in intervals based on collection size. slider up and down. damn.
+#       Solution 2) not have deterministic probability, so NFTs published will have different percentages than ones stated
+#       Solution 3) have a warning to the user that some of their assets rarities will be altered based on their collection size
+
+#       I think we screw deterministic rarity for now
+
+# head
+# 1 20 -> 2
+# 2 20 -> 2
+# 3 60 -> 6
+
+# body			collection size 10
+# 1 50 -> 5
+# 2 50 -> 5
+
+# face
+# 1 5 ? // if we pick one, will show asset rarity 10 % on opensea
+# 2 5 ?
+# 3 90 -> 9
+
 # ---DONE---
 #
 #   - the texture mapping process can be put into a function so any asset can have a texture put on it (maybe you can do this: DD)
@@ -85,7 +123,7 @@ tempDict = {
                 {
                     'Name': 'Pink Sky',
                     'PIL': body1,
-                    'Rarity': 1
+                    'Rarity': 10
                 },
             ],
             'Textures': []
@@ -96,19 +134,19 @@ tempDict = {
                 {
                     'Name': 'Anime',
                     'PIL': hair1,
-                    'Rarity': 0.5
+                    'Rarity': 5
                 }, 
                 {
                     'Name': 'Long',
                     'PIL': hair2,
-                    'Rarity': 0.5
+                    'Rarity': 5
                 },
             ],
             'Textures': [
                 {
                     'Name': 'Texture 1',
                     'PIL': texture1,
-                    'Rarity': 0.25
+                    'Rarity': 2.5
                 },
                 {
                     'Name': 'Texture 2',
