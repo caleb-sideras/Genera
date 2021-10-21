@@ -40,6 +40,7 @@ import random
 #       Solution 3) have a warning to the user that some of their assets rarities will be altered based on their collection size
 
 #       I think we screw deterministic rarity for now
+#       OR RARITY ISNT A PERCENTAGE! BUT ITS THE AMOUNT OF ITEMS YOU WANT IN THE COLLECTION. SO THE USER WOULD CHOOSE FOR ASSET X, THEY WANT IT 10 TIMES IN A COLLECTION OF 100!!!! EASY!!! omg!!!!
 
 # head
 # 1 20 -> 2
