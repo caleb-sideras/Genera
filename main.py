@@ -12,8 +12,12 @@ import random
 # TODO
 #
 # ---ACTIVE---
+# 1) Create metadata per image generated - adjusted names for asset + texture
+#   https://github.com/ProjectOpenSea/metadata-api-python
+#   https://docs.opensea.io/docs/metadata-standards
+#   https://docs.opensea.io/docs/2-adding-metadata
 #
-# 1) full website integration
+# 2) full website integration
 #
 #   - Using rarity attribute do determine which assets/textures are selected
 #       1) Convert each layer/texture rarity section into an array of numbers corresponding to it rarity
@@ -96,6 +100,8 @@ def textureMapping(asset, texture):
 
     return shirt
 
+def metadatacreation():
+    print(temp)
 # Example assets
 body1 = Image.open("./Assets/" + "Body/" + "1" + ".png")
 
