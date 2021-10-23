@@ -9,6 +9,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from pathlib import Path
+import json
 import base64
 from PIL import Image
 import numpy as np
@@ -48,35 +49,81 @@ def get_or_create_subdirectory(sd):
 def upload_view(request):
     users_imgs = UserAsset.objects.filter(user=request.user)
 
+    def file_to_pil(file): #take POSt.request file that user sent over the form, and convert it into a PIL object.
+        return Image.open(io.BytesIO(file.read()))
+
     if request.method == 'POST':
         if len(request.FILES) != 0:
+            calebs_gay_dict = {}
+            calebs_gay_dict["CollectionName"] = request.POST["name"]
+            calebs_gay_dict["Description"] = request.POST["description"]
+            calebs_gay_dict["Resolution"] = 4000 #request.POST["resolution"]
+            calebs_gay_dict["CollectionSize"] = int(request.POST["size"])
+#             layers = {
+#                 "layername(body)" : {
+#                     "Assets" : [{
+# #                     'Name': 'Pink Sky',
+# #                     'PIL': body1,
+# #                     'Rarity': 10
+# #                 }],
+#                     "Layers" : []
+#                     }
+#                 }
+#             }
+            layers = {}
+            all_textures = []
+
             files_array = []
             n_textures = 0
 
             for filename, file in request.FILES.items():
+                filename_components = filename.split(".")
+                if filename_components[-1] != "png":
+                    continue
+                if filename_components[0] == "asset": #if asset detected from post request
+                    if filename_components[1] in layers:
+                        layers[filename_components[1]]["Assets"].append({
+                            'Name': filename_components[-2],
+                            'PIL': "TEST FOR JSON" , # REPLACE WITH file_to_pil(file) WHEN NEED ACTUAL FILE OBJECT IN NUMPY
+                            'Rarity': random.randint(1,10)
+                        })
+                    else:
+                         layers[filename_components[1]] = {
+                             "Assets" : [],
+                             "Textures" : []
+                         }
+                         layers[filename_components[1]]["Assets"].append({
+                            'Name': filename_components[-2],
+                            'PIL': "TEST FOR JSON" , # REPLACE WITH file_to_pil(file) WHEN NEED ACTUAL FILE OBJECT IN NUMPY
+                            'Rarity': random.randint(1,10)
+                        })
+                elif filename_components[0] == "texture": #if texture detected - add to all texture list for later processing
+                    print(filename_components[-2])
+                    all_textures.append({
+                        'Name': filename_components[-2],
+                        'PIL': "TEST FOR JSON" , # REPLACE WITH file_to_pil(file) WHEN NEED ACTUAL FILE OBJECT IN NUMPY
+                        'Rarity': random.randint(1,10)
+                    } )
                 
-                file_obj = file.read()
-                image = Image.open(io.BytesIO(file_obj))
-                if filename.startswith("texture"):
-                    files_array.insert(0, image)
-                    n_textures += 1
-                else:
-                    files_array.append(image)
-                
-            generated_img = createImage(files_array, n_textures)
-        
-        file_dir = f"user_asset_storage/{request.user.username}"
-        get_or_create_subdirectory(file_dir)
-        filename = uuid.uuid4().hex[:5]
-        generated_img.save(f"media/{file_dir}/{filename}.png")
+            for layer in layers.keys():
+                layers[layer]["Textures"] = all_textures[0:random.randint(1, len(all_textures)) + 1] ##Adds random number of textures, from all textures list
 
-        asset_db = UserAsset.objects.create(user=request.user)
-        asset_db.name = request.POST["name"]
-        asset_db.image = f"{file_dir}/{filename}.png"
-        asset_db.save()
-        users_imgs = UserAsset.objects.filter(user=request.user)
+            calebs_gay_dict["Layers"] = layers #calebd gay dict complete
+
+            print(json.dumps(layers, indent=4, sort_keys=True))
+
+        # file_dir = f"user_asset_storage/{request.user.username}"
+        # get_or_create_subdirectory(file_dir)
+        # filename = uuid.uuid4().hex[:5]
+        # generated_img.save(f"media/{file_dir}/{filename}.png")
+
+        # asset_db = UserAsset.objects.create(user=request.user)
+        # asset_db.name = request.POST["name"]
+        # asset_db.image = f"{file_dir}/{filename}.png"
+        # asset_db.save()
+        # users_imgs = UserAsset.objects.filter(user=request.user)
         
-        print("SAVED TO DB")
+        # print("SAVED TO DB")
         messages.success(request, message="YOU HAVE GENERATED THE IMAGE IDIOTTERMAN.... ITS IN DB !!!!")
         return render(request, 'upload.html', {'user_imgs': users_imgs})
     return render(request, 'upload.html', {'user_imgs': users_imgs})

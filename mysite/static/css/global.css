@@ -1,10 +1,60 @@
+:root {
+    --dark-grey-color: #535242;
+    --light-grey-color: #cdcdc5;
+    --orange-color: #e7a97e;
+    --white-color: #e2e2da;
+}
+
+h4,h5,h6 { font-weight:lighter; }
+
 body {
-    background-color: aqua;
+    background-color: var(--dark-grey-color);
+    font-family: 'Trebuchet MS', sans-serif;
+    color: #343432;
+}
+
+.light_grey_background {
+    background-color: var(--light-grey-color);
+}
+
+.dark_grey_background {
+    background-color: var(--dark-grey-color);
+}
+
+.orange_background {
+    background-color: var(--orange-color);
+}
+
+.white_background {
+    background-color: var(--white-color);
+}
+
+.no_margin {
+    margin: 0;
+}
+
+.center {
+    text-align: center;
 }
 
 .custom_grid *{
     margin: 5px;
     border-radius: 5px;
+}
+
+.general_button {
+    padding: 10px 20px;
+    border-radius: 15px;
+    cursor: pointer;
+    border: none;
+}
+
+.general_input {
+    border-radius: 5px;
+    background-color: #e2e2da;
+    border: none;
+    padding: 10px;
+    width: 80%;
 }
 
 .input_file::-webkit-file-upload-button {
@@ -16,3 +66,78 @@ body {
     cursor: pointer;
     font-weight: bold;
 }
+
+.rounded_container {
+    border-radius: 15px;
+    padding: 10px 5px;
+}
+
+.upload_wrapper {
+    padding: 10px 25px;
+    height: 95vh;
+}
+
+.upload_upper {
+    height: 50px;
+    width: 100%;
+}
+
+.upload_section_swap {
+    background-color: var(--light-grey-color);
+    height: 90%;
+    width: 20vw;
+}
+
+.upload_main {
+    margin-top: 25px;
+    width: 100%;
+    min-height: 85vh;
+    display: flex;
+    gap: 20px;
+}
+
+.upload_layers {
+    background-color: var(--light-grey-color);
+    flex: 0 0 20vw;
+}
+
+.upload_layers_buttons {
+    margin: 0 15px;
+}
+
+.upload_layers_buttons > div{
+    margin: 10px 5px;
+    padding-top: 15px;
+    padding-bottom: 15px;
+}
+
+.upload_preview {
+    flex: 1 0 300px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.upload_preview > img {
+    height: 300px;
+    aspect-ratio: 1;
+    margin-bottom: 100px;
+}
+
+.upload_properties {
+    flex: 0 0 20vw;
+}
+
+.upload_properties > :first-child {
+    box-sizing: border-box;
+    min-height: 300px;
+    width: 100%;
+    background-color: var(--light-grey-color);
+    margin-bottom: 5px;
+}
+
+.upload_properties > button {
+    margin: 5px auto;
+    width: 100%;
+}
+
