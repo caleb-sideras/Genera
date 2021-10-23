@@ -24,8 +24,6 @@ import random
 #           E.g. RarityA: 3 |
 #                RarityB: 2 |=> Array[10] = {A,A,A,B,B,C,C,C,C,C}, then random.choice()
 #                RarityC: 5 |
-#          pros: Easy implementation/elegant
-#          cons: If you give users a large rarity choice (aka 0.31245), you would need a LARGE array. So not scalable.
 # 
 #       2) Collection Size Method: (collection size * (asset rarity *asset))
 #           E.g. Layer 1 Assets = (100/10 *(3A, 2B, 5C)) = (30A, 20B, 50C) = 100 total assets.
@@ -38,14 +36,6 @@ import random
 #           => (29A, 20B, 50C) = 99 total assets
 #           => (30A, 20B, 49C) = 99 total assets
 #           
-#       Collection size rant. Collection size has to affect the rarity. EXAMPLE a 1% and 99% asset rarity on collection size 10. Cannot have exact asset creation for rarity in this case. Collection size would have to be 100. 
-#       Solution 1) collection sizes determine the rarity aka collection size 50 = smallest rarity is 100/50 = 2%. So rarity has to be incremented in intervals based on collection size. slider up and down. damn.
-#       Solution 2) not have deterministic probability, so NFTs published will have different percentages than ones stated
-#       Solution 3) have a warning to the user that some of their assets rarities will be altered based on their collection size
-
-#       I think we screw deterministic rarity for now
-#       OR RARITY ISNT A PERCENTAGE! BUT ITS THE AMOUNT OF ITEMS YOU WANT IN THE COLLECTION. SO THE USER WOULD CHOOSE FOR ASSET X, THEY WANT IT 10 TIMES IN A COLLECTION OF 100!!!! EASY!!! omg!!!!
-
 # head
 # 1 20 -> 2
 # 2 20 -> 2
@@ -124,6 +114,7 @@ tempDict = {
     'CollectionName': 'Void Chan',
     'Description': 'Void NFTs for void chans',
     'Resolution' : 4000,
+    'Collection Size' : 10,
     'Layers': [
         {
             'LayerName': 'Body',
