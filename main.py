@@ -1,7 +1,7 @@
 from PIL import Image
 import numpy as np
-import asset_index
-from random_number import generateRandomNumber
+# import asset_index
+# from random_number import generateRandomNumber
 import random
 
 # Notes
@@ -102,6 +102,7 @@ def textureMapping(asset, texture):
 
 def metadatacreation():
     print(temp)
+
 # Example assets
 body1 = Image.open("./Assets/" + "Body/" + "1" + ".png")
 
@@ -153,22 +154,22 @@ tempDict = {
                 {
                     'Name': 'Texture 1',
                     'PIL': texture1,
-                    'Rarity': 2.5
+                    'Rarity': 2
                 },
                 {
                     'Name': 'Texture 2',
                     'PIL': texture2,
-                    'Rarity': 0.25
+                    'Rarity': 2
                 },
                 {
                     'Name': 'Texture 3',
                     'PIL': texture3,
-                    'Rarity': 0.25
+                    'Rarity': 2
                 },
                 {
                     'Name': 'Texture 4',
                     'PIL': texture4,
-                    'Rarity': 0.25
+                    'Rarity': 4
                 },
             ]
         },
