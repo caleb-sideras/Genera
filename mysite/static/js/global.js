@@ -57,6 +57,7 @@ function add_layer() {
     }
 }
 
+
 //recolor the notification colors - already done the warning one
 function create_notification(title, message, duration=5000, theme) { // success, info, warning, error, and none
     window.createNotification({theme: theme, showDuration: duration})({title: title, message: message})
