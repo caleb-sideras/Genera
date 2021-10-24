@@ -109,6 +109,7 @@ body {
     background-color: var(--light-grey-color);
     height: 90%;
     width: min(30vw,350px);
+    min-width: 280px;
 }
 
 .upload_main {
@@ -120,8 +121,10 @@ body {
 }
 
 .upload_layers {
+    text-overflow: ellipsis;
     background-color: var(--light-grey-color);
     width: min(30vw,350px);
+    min-width: 280px;
     flex: 0 0 min(30vw,350px);
     position: relative;
 }
@@ -132,13 +135,52 @@ body {
     max-height: 85%;
 }
 
-.upload_layers_buttons > div{
-    margin: 10px 5px;
-    padding-top: 15px;
-    padding-bottom: 15px;
+.upload_layers_buttons {
+    margin:5px 0 5px 15px;
+    overflow-y: scroll;
+    max-height: 85%;
 }
 
-.upload_layers img{
+.upload_layers_buttons > div{
+    margin: 10px 5px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.upload_layers_buttons > div > img {
+    height: 40px;
+    aspect-ratio: 1;
+    flex: 0 0 40px;
+    margin: 5px 5px 0 0;
+}
+
+.upload_layers_buttons > div > h5{
+    flex: 1 0 50%;
+}
+
+.upload_layers_buttons > div > div {
+    flex: 0 0 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    max-width: 100%;
+    gap: 5px;
+}
+
+.upload_layers_buttons > div > div > input{
+    flex: 1 0 150px;
+}
+
+.upload_layers_buttons > div > div > h5{
+    margin: 0;
+    margin-bottom: 5px;
+    color: var(--orange-color);
+
+}
+
+.upload_layers > img{
     position: absolute;
     right: 0;
     bottom: 0;
@@ -152,7 +194,8 @@ body {
     left: 0;
     bottom: 0;
     margin: 0 0 12px 10px;
-    width: min(20vw, 250px) ;
+    width: min(20vw, 250px);
+    min-width: 200px;
 }
 
 .upload_preview {

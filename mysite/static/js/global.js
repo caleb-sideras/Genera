@@ -34,8 +34,7 @@ function add_smart_input(self) {
     uploadbtn.addEventListener('change', function() {uploadbtn.name = uploadbtn.name + "." + uploadbtn.files[0].name; console.log(uploadbtn.name)});
     //make delete element: 
     let deletetext = document.createElement('h5');
-    deletetext.textContent = 'Delete';
-    deletetext.className = "no_margin"
+    deletetext.textContent = 'Remove';
     upload_section.appendChild(deletetext);
     self.parentElement.appendChild(upload_section);
     //Add an event listener to remove the original button and the delete link on click:
@@ -52,7 +51,9 @@ function add_layer() {
     if (add_layer_input.value == "") {
         create_notification("FAMILY IS CRYING", "FORGOT GIVE LAYER NAME !!!!! !! !!", duration=20000, "error") //20 years duration for sins
     } else {
-        button_section.insertAdjacentHTML("beforeend", '<div class="general_button white_background"><h6 class="no_margin center" onclick="add_smart_input(this)">' + add_layer_input.value + '</h6></div>');
+        var img_src = '"' + "static/icons/plus.svg" + '"'
+        smart_row = '<div class="general_button white_background"><h5 class="no_margin"">' + add_layer_input.value + '</h5><img onclick="add_smart_input(this)" class="color_image" src=' + img_src + ' onclick="add_layer()"></div>'
+        button_section.insertAdjacentHTML("beforeend", smart_row);
         add_layer_input.value = ""
     }
 }
