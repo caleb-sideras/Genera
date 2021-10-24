@@ -56,29 +56,14 @@ def upload_view(request):
         if len(request.FILES) != 0:
             calebs_gay_dict = {}
 
-            calebs_gay_dict["CollectionName"] = "idiot user forgot to name collection"
-            calebs_gay_dict["Description"] = "idiot user forgot to give description"
-            calebs_gay_dict["Resolution"] = "idiot user no resolution smh"
-            calebs_gay_dict["CollectionSize"] = "idiot user no collection size"
-            if "name" in request.POST:
-                calebs_gay_dict["CollectionName"] = request.POST["name"]
-            if "description" in request.POST:
-                calebs_gay_dict["Description"] = request.POST["description"]
-            if "resolution" in request.POST:
-                calebs_gay_dict["Resolution"] = request.POST["resolution"]
-            if "size" in request.POST:
-                calebs_gay_dict["CollectionSize"] = int(request.POST["size"])
-#             layers = {
-#                 "layername(body)" : {
-#                     "Assets" : [{
-# #                     'Name': 'Pink Sky',
-# #                     'PIL': body1,
-# #                     'Rarity': 10
-# #                 }],
-#                     "Layers" : []
-#                     }
-#                 }
-#             }
+            # calebs_gay_dict["CollectionName"] = "idiot user forgot to name collection"
+            # calebs_gay_dict["Description"] = "idiot user forgot to give description"
+            # calebs_gay_dict["Resolution"] = "idiot user no resolution smh"
+            # calebs_gay_dict["CollectionSize"] = "idiot user no collection size"
+            calebs_gay_dict["CollectionName"] = request.POST["name"]
+            calebs_gay_dict["Description"] = request.POST["description"]
+            calebs_gay_dict["Resolution"] = request.POST["resolution"]
+            calebs_gay_dict["CollectionSize"] = request.POST["size"]
             layers = {}
             all_textures = []
 
@@ -119,7 +104,9 @@ def upload_view(request):
             calebs_gay_dict["Layers"] = layers #calebd gay dict complete
 
             print(json.dumps(calebs_gay_dict, indent=4, sort_keys=True))
+            ##BEFORE U SEND THIS SHIT OFF TO UR NUMPY DONT FORGET TO UNCOMMENT PIL ENTRIES IN THE DICT CREATOR ABOVE !!!
 
+        #OLD TRASHCAN CODE FOR STORING IMG IN DATABASE HEHEHE
         # file_dir = f"user_asset_storage/{request.user.username}"
         # get_or_create_subdirectory(file_dir)
         # filename = uuid.uuid4().hex[:5]

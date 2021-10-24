@@ -33,7 +33,7 @@ function add_smart_input(self) {
     //add an event listener that appends the file name to the input name field for submission (8000 iq)
     uploadbtn.addEventListener('change', function() {uploadbtn.name = uploadbtn.name + "." + uploadbtn.files[0].name; console.log(uploadbtn.name)});
     //make delete element: 
-    let deletetext = document.createElement('p');
+    let deletetext = document.createElement('h5');
     deletetext.textContent = 'Delete';
     deletetext.className = "no_margin"
     upload_section.appendChild(deletetext);
@@ -44,9 +44,23 @@ function add_smart_input(self) {
       uploadbtn.remove();
       deletetext.remove();
     });
+}
 
-  }
+function add_layer() {
+    add_layer_input = document.getElementById("add_layer_input")
+    button_section = document.getElementsByClassName("upload_layers_buttons")[0]
+    if (add_layer_input.value == "") {
+        create_notification("FAMILY IS CRYING", "FORGOT GIVE LAYER NAME !!!!! !! !!", duration=20000, "error") //20 years duration for sins
+    } else {
+        button_section.insertAdjacentHTML("beforeend", '<div class="general_button white_background"><h6 class="no_margin center" onclick="add_smart_input(this)">' + add_layer_input.value + '</h6></div>');
+        add_layer_input.value = ""
+    }
+}
 
+//recolor the notification colors - already done the warning one
+function create_notification(title, message, duration=5000, theme) { // success, info, warning, error, and none
+    window.createNotification({theme: theme, showDuration: duration})({title: title, message: message})
+}
 
 
 
