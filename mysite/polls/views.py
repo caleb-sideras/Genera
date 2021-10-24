@@ -55,10 +55,19 @@ def upload_view(request):
     if request.method == 'POST':
         if len(request.FILES) != 0:
             calebs_gay_dict = {}
-            calebs_gay_dict["CollectionName"] = request.POST["name"]
-            calebs_gay_dict["Description"] = request.POST["description"]
-            calebs_gay_dict["Resolution"] = 4000 #request.POST["resolution"]
-            calebs_gay_dict["CollectionSize"] = int(request.POST["size"])
+
+            calebs_gay_dict["CollectionName"] = "idiot user forgot to name collection"
+            calebs_gay_dict["Description"] = "idiot user forgot to give description"
+            calebs_gay_dict["Resolution"] = "idiot user no resolution smh"
+            calebs_gay_dict["CollectionSize"] = "idiot user no collection size"
+            if "name" in request.POST:
+                calebs_gay_dict["CollectionName"] = request.POST["name"]
+            if "description" in request.POST:
+                calebs_gay_dict["Description"] = request.POST["description"]
+            if "resolution" in request.POST:
+                calebs_gay_dict["Resolution"] = request.POST["resolution"]
+            if "size" in request.POST:
+                calebs_gay_dict["CollectionSize"] = int(request.POST["size"])
 #             layers = {
 #                 "layername(body)" : {
 #                     "Assets" : [{
@@ -98,7 +107,6 @@ def upload_view(request):
                             'Rarity': random.randint(1,10)
                         })
                 elif filename_components[0] == "texture": #if texture detected - add to all texture list for later processing
-                    print(filename_components[-2])
                     all_textures.append({
                         'Name': filename_components[-2],
                         'PIL': "TEST FOR JSON" , # REPLACE WITH file_to_pil(file) WHEN NEED ACTUAL FILE OBJECT IN NUMPY
@@ -110,7 +118,7 @@ def upload_view(request):
 
             calebs_gay_dict["Layers"] = layers #calebd gay dict complete
 
-            print(json.dumps(layers, indent=4, sort_keys=True))
+            print(json.dumps(calebs_gay_dict, indent=4, sort_keys=True))
 
         # file_dir = f"user_asset_storage/{request.user.username}"
         # get_or_create_subdirectory(file_dir)
