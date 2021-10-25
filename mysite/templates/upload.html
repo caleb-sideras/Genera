@@ -5,29 +5,41 @@
   <form method="post" enctype="multipart/form-data" class="upload_wrapper">
     {% csrf_token %}
     <div class="upload_upper">
-      <div class="upload_section_swap rounded_container">
-        WILL NOT PUT IDIOT ICONS 
+      <div class="upload_section_swap rounded_container shadow_strong">
+        <img class="grow" src="{% static 'icons/layer.svg' %}">
+        <img class="grow" src="{% static 'icons/texture.svg' %}">
+        <img class="grow" src="{% static 'icons/rarity.svg' %}">
       </div>
     </div>
 
     <div class="upload_main">
-      <div class="upload_layers rounded_container">
+      <div class="upload_layers rounded_container shadow_strong">
         <h4 class="no_margin center">Layers</h4>
         <div class="upload_layers_buttons">
-          <div class="general_button white_background"><h5 class="no_margin"">Textures</h5><img data-layer="textures" onclick="add_smart_input(this)" class="color_image" src="{% static 'icons/plus.svg' %}" onclick="add_layer()">
+          <div class="general_button white_background"><h5 class="no_margin"">Textures</h5><img data-layer="textures" onclick="add_smart_input(this)" class="color_image grow" src="{% static 'icons/plus.svg' %}" onclick="add_layer()">
           </div>
         </div>
 
         <input id="add_layer_input" class="general_input" type="text" placeholder="Add Layer">
-        <img class="color_image" src="{% static 'icons/plus.svg' %}" onclick="add_layer()">
+        <img class="color_image grow" src="{% static 'icons/plus.svg' %}" onclick="add_layer()">
 
         
       </div>
-      <div class="upload_preview">
-        <img src="{% static 'Assets/Examples/1.png' %}">
+      <div class="upload_preview" style="color: aliceblue;">
+        {% if not complete_json %}
+          <img src="{% static 'Assets/Examples/1.png' %}">
+        {% else %}
+           {% for key,value in complete_json.items%}
+            <tr>
+              <br>
+              <td>"{{key}}" = "{{value}}"</td>
+              <br>
+            </tr>
+           {% endfor %}
+        {% endif %}
       </div>
       <div class="upload_properties">
-        <div class="rounded_container">
+        <div class="rounded_container shadow_strong">
           <h4 class="no_margin center">Project properties</h4>
           <div style="margin-top: 15px; display: flex; flex-direction: column; gap: 10px; align-items: center; justify-content: space-around;">
             <input class="general_input" name="name" type="text" value="" placeholder="Project name">
@@ -36,10 +48,10 @@
             <input class="general_input" name="description" type="text" value="" placeholder="Description">
           </div>
         </div>
-        <button type="button" class="general_button light_grey_bacground">
+        <button type="button" class="general_button light_grey_bacground shadow_weak" style="cursor: default;">
           <h4 class="no_margin">Preview</h4>
         </button>
-        <button type="submit" class="general_button orange_background">
+        <button type="submit" class="general_button orange_background grow shadow_weak">
           <h4 class="no_margin">Generate</h4>
         </button>      
       </div>

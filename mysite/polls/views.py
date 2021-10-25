@@ -47,14 +47,13 @@ def get_or_create_subdirectory(sd):
     Path(f"{MEDIA_DIR}/{sd}").mkdir(parents=True, exist_ok=True)
 
 def upload_view(request):
-    users_imgs = UserAsset.objects.filter(user=request.user)
+    # users_imgs = UserAsset.objects.filter(user=request.user)
 
     def file_to_pil(file): #take POSt.request file that user sent over the form, and convert it into a PIL object.
         return Image.open(io.BytesIO(file.read()))
-
+    calebs_gay_dict = {}
     if request.method == 'POST':
         if len(request.FILES) != 0:
-            calebs_gay_dict = {}
 
             # calebs_gay_dict["CollectionName"] = "idiot user forgot to name collection"
             # calebs_gay_dict["Description"] = "idiot user forgot to give description"
@@ -119,9 +118,10 @@ def upload_view(request):
         # users_imgs = UserAsset.objects.filter(user=request.user)
         
         # print("SAVED TO DB")
-        messages.success(request, message="YOU HAVE GENERATED THE IMAGE IDIOTTERMAN.... ITS IN DB !!!!")
-        return render(request, 'upload.html', {'user_imgs': users_imgs})
-    return render(request, 'upload.html', {'user_imgs': users_imgs})
+            print(calebs_gay_dict)
+            messages.success(request, message="YOU HAVE GENERATED THE IMAGE IDIOTTERMAN.... ITS IN DB !!!!")
+            return render(request, 'upload.html', {'complete_json': calebs_gay_dict})
+    return render(request, 'upload.html', {'complete_json': None})
 
 def login_view(request):
     login_form = LoginForm()

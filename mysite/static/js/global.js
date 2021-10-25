@@ -52,7 +52,7 @@ function add_layer() {
         create_notification("FAMILY IS CRYING", "FORGOT GIVE LAYER NAME !!!!! !! !!", duration=20000, "error") //20 years duration for sins
     } else {
         var img_src = '"' + "static/icons/plus.svg" + '"'
-        smart_row = '<div class="general_button white_background"><h5 class="no_margin"">' + add_layer_input.value + "</h5><img data-layer='" + add_layer_input.value + "' onclick='add_smart_input(this)' class='color_image' src=" + img_src + " onclick='add_layer()'></div>"
+        smart_row = '<div class="general_button white_background"><h5 class="no_margin"">' + add_layer_input.value + "</h5><img data-layer='" + add_layer_input.value + "' onclick='add_smart_input(this)' class='color_image grow' src=" + img_src + " onclick='add_layer()'></div>"
         button_section.insertAdjacentHTML("beforeend", smart_row);
         add_layer_input.value = ""
     }
