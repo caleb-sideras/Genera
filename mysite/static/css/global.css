@@ -100,8 +100,12 @@ body {
     width: 80%;
 }
 
-.color_image, a::after {
-    filter: opacity(0.4) drop-shadow(0 0 0 var(--orange-color)) brightness(2.5);
+.color_image_orange {
+    filter: invert(74%) sepia(37%) saturate(553%) hue-rotate(332deg) brightness(95%) contrast(91%);
+}
+
+.color_image_dark {
+    filter: invert(30%) sepia(13%) saturate(663%) hue-rotate(19deg) brightness(92%) contrast(83%);
 }
 
 .input_file::-webkit-file-upload-button {
@@ -247,6 +251,11 @@ body {
     height: 300px;
     aspect-ratio: 1;
     margin-bottom: 100px;
+    cursor: pointer;
+}
+
+.upload_preview > img:hover {
+    filter: invert(74%) sepia(37%) saturate(553%) hue-rotate(332deg) brightness(95%) contrast(91%);
 }
 
 .upload_properties {

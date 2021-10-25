@@ -6,28 +6,28 @@
     {% csrf_token %}
     <div class="upload_upper">
       <div class="upload_section_swap rounded_container shadow_strong">
-        <img class="grow" src="{% static 'icons/layer.svg' %}">
-        <img class="grow" src="{% static 'icons/texture.svg' %}">
-        <img class="grow" src="{% static 'icons/rarity.svg' %}">
-      </div>
+        <img class="grow color_image_dark" src="{% static 'icons/layer.svg' %}">
+        <img class="grow color_image_dark" src="{% static 'icons/texture.svg' %}">
+        <img class="grow color_image_dark" src="{% static 'icons/rarity.svg' %}">
+      </div> 
     </div>
 
     <div class="upload_main">
       <div class="upload_layers rounded_container shadow_strong">
         <h4 class="no_margin center">Layers</h4>
         <div class="upload_layers_buttons">
-          <div class="general_button white_background"><h5 class="no_margin"">Textures</h5><img data-layer="textures" onclick="add_smart_input(this)" class="color_image grow" src="{% static 'icons/plus.svg' %}" onclick="add_layer()">
+          <div class="general_button white_background"><h5 class="no_margin"">Textures</h5><img data-layer="textures" onclick="add_smart_input(this)" class="color_image_orange grow" src="{% static 'icons/plus.svg' %}" onclick="add_layer()">
           </div>
         </div>
 
         <input id="add_layer_input" class="general_input" type="text" placeholder="Add Layer">
-        <img class="color_image grow" src="{% static 'icons/plus.svg' %}" onclick="add_layer()">
+        <img class="color_image_orange grow" src="{% static 'icons/plus.svg' %}" onclick="add_layer()">
 
         
       </div>
       <div class="upload_preview" style="color: aliceblue;">
         {% if not complete_json %}
-          <img src="{% static 'Assets/Examples/1.png' %}">
+          <img class="grow" src="{% static 'Assets/Examples/1.png' %}">
         {% else %}
            {% for key,value in complete_json.items%}
             <tr>
