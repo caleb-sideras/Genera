@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block body_block %}
   <div class="container">
@@ -7,21 +8,59 @@
     <form method="post" enctype="multipart/form-data">
       {% csrf_token %}
       
-      TEXTURE1<input class="input_file" type="file" name="texture1">
+      <!-- TEXTURE1<input class="input_file" type="file" name="texture1">
       TEXTURE2<input class="input_file" type="file" name="texture2" style="margin-top: 5px;">
       ASSET1<input class="input_file" type="file" name="file1" id="file2" style="margin-top: 5px;">
       ASSET2<input class="input_file" type="file" name="file2" id="file3" style="margin-top: 5px;">
       ASSET3<input class="input_file" type="file" name="file3" id="file3" style="margin-top: 5px;">
-      ASSET4<input class="input_file" type="file" name="file4" id="file3" style="margin-top: 5px;">
+      ASSET4<input class="input_file" type="file" name="file4" id="file3" style="margin-top: 5px;"> -->
 
-      <input type="text" name="name" placeholder="Input Collection name">
+    <div class="upload_main">
+      <div class="upload_layers rounded_container shadow_strong">
+        <h4 class="no_margin center">Layers</h4>
+        <div class="upload_layers_buttons">
+          <div class="general_button white_background"><h5 class="no_margin"">Textures</h5><img data-layer="textures" onclick="add_smart_input(this)" class="color_image_orange grow" src="{% static 'icons/plus.svg' %}" onclick="add_layer()">
+          </div>
+        </div>
 
-      <br />
-      <button class="btn btn-dark my-4" type="submit">Submit</button>
-    </form>
+        <input id="add_layer_input" class="general_input" type="text" placeholder="Add Layer">
+        <img class="color_image_orange grow" src="{% static 'icons/plus.svg' %}" onclick="add_layer()">
 
+        
+      </div>
+      <div class="upload_preview" style="color: aliceblue;">
+        {% if not complete_json %}
+          <img class="grow" src="{% static 'Assets/Examples/1.png' %}">
+        {% else %}
+           {% for key,value in complete_json.items%}
+            <tr>
+              <br>
+              <td>"{{key}}" = "{{value}}"</td>
+              <br>
+            </tr>
+           {% endfor %}
+        {% endif %}
+      </div>
+      <div class="upload_properties">
+        <div class="rounded_container shadow_strong">
+          <h4 class="no_margin center">Project properties</h4>
+          <div style="margin-top: 15px; display: flex; flex-direction: column; gap: 10px; align-items: center; justify-content: space-around;">
+            <input class="general_input" name="name" type="text" value="" placeholder="Project name">
+            <input class="general_input" name="resolution" type="number" min="4000" max="4000" placeholder="Dimensions">
+            <input class="general_input" name="size" type="number" value="" placeholder="Collection size">
+            <input class="general_input" name="description" type="text" value="" placeholder="Description">
+          </div>
+        </div>
+        <button type="button" class="general_button light_grey_bacground shadow_weak" style="cursor: default;">
+          <h4 class="no_margin">Preview</h4>
+        </button>
+        <button type="submit" class="general_button orange_background grow shadow_weak">
+          <h4 class="no_margin">Generate</h4>
+        </button>      
+      </div>
+    </div>
     <!--See Image Uploaded-->
-    <h2 class="my-4">Your Gallery!!</h2>
+    <!-- <h2 class="my-4">Your Gallery!!</h2>
     <div class="row">
       {% if user_imgs %}
       <div class="col-lg-4 col-md-6 col-sm-12 pb-4 custom_grid">
@@ -36,6 +75,6 @@
         <p>No movies posters added.</p>
       {% endif %}
       </div>
-    </div>
-  </div>
+    </div> -->
+  </form>
 {% endblock %}
