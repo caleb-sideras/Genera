@@ -2,18 +2,15 @@
 {% load static %}
 
 {% block body_block %}
-  <div class="container">
-    <!--Simple Form-->
-    <h2 class="my-4">Add a new movie poster</h2>
-    <form method="post" enctype="multipart/form-data">
-      {% csrf_token %}
-      
-      <!-- TEXTURE1<input class="input_file" type="file" name="texture1">
-      TEXTURE2<input class="input_file" type="file" name="texture2" style="margin-top: 5px;">
-      ASSET1<input class="input_file" type="file" name="file1" id="file2" style="margin-top: 5px;">
-      ASSET2<input class="input_file" type="file" name="file2" id="file3" style="margin-top: 5px;">
-      ASSET3<input class="input_file" type="file" name="file3" id="file3" style="margin-top: 5px;">
-      ASSET4<input class="input_file" type="file" name="file4" id="file3" style="margin-top: 5px;"> -->
+  <form method="post" enctype="multipart/form-data" class="upload_wrapper">
+    {% csrf_token %}
+    <div class="upload_upper">
+      <div class="upload_section_swap rounded_container shadow_strong">
+        <img class="grow color_image_dark" src="{% static 'icons/layer.svg' %}">
+        <img class="grow color_image_dark" src="{% static 'icons/texture.svg' %}">
+        <img class="grow color_image_dark" src="{% static 'icons/rarity.svg' %}">
+      </div> 
+    </div>
 
     <div class="upload_main">
       <div class="upload_layers rounded_container shadow_strong">
