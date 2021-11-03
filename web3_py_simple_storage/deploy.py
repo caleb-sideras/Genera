@@ -42,9 +42,9 @@ with open("./SimpleStorage.sol", "r") as file:
         )
     )
     chain_id = 4  # 1337 ganache
-    my_address = ""
+    my_address = "0x36aCd77CA5bF2c84C0a60786581b322546d68193"
     # private_key = os.getenv("PRIVATE_KEY")
-    private_key = ""
+    private_key = "0xce28813bca7605f221e0b6df63be9b5f8a28e90e1b12f71627978e030a324ee2"
 
     # creating the contract
     SimpleStorage = w3.eth.contract(abi=abi, bytecode=bytecode)
