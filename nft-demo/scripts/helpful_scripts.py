@@ -3,16 +3,24 @@ from web3 import Web3
 
 LOCAL_BLOCKCHAIN_ENVIRONMENTS = ["hardhat", "ganache", "development", "mainnet-fork"]
 OPENSEA_URL = "https://testnets.opensea.io/assets/{}/{}"
+BREED_MAPPING = {0: "PUG", 1: "SHIBA_INU", 2: "ST_BERNARD"}
+
+
+def get_breed(breed_number):
+    return BREED_MAPPING[breed_number]
+
 
 contract_to_mock = {"link_token": LinkToken, "vrf_coordinator": VRFCoordinatorMock}
+
 
 def get_accounts(index=None, id=None):
     if index:
         return accounts[index]
     if network.show_active() in LOCAL_BLOCKCHAIN_ENVIRONMENTS:
         return accounts[0]
-    return accounts.load('caleb-metamask-1')  # caleb-metamask-1?
+    return accounts.load("caleb-metamask-1")  # caleb-metamask-1?
     # return accounts.add(config["wallets"]["from_key"])
+
 
 def get_contract(contract_name):
     """
@@ -41,6 +49,7 @@ def get_contract(contract_name):
         )
     return contract
 
+
 def deploy_mocks():
     """
     Use this script if you want to deploy mocks to a testnet
@@ -55,6 +64,7 @@ def deploy_mocks():
     vrf_coordinator = VRFCoordinatorMock.deploy(link_token.address, {"from": account})
     print(f"VRFCoordinator deployed to {vrf_coordinator.address}")
     print("All done!")
+
 
 def fund_with_link(
     contract_address, account=None, link_token=None, amount=Web3.toWei(0.3, "ether")

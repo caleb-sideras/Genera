@@ -1,4 +1,4 @@
-from scripts.helpful_scripts import get_accounts, OPENSEA_URL
+from scripts.simple_collectible.helpful_scripts import get_accounts, OPENSEA_URL
 from brownie import SimpleCollectible
 
 sample_tokenURI = "https://ipfs.io/ipfs/QmWEwhPyRRV7aGQpY45hY6B6wZLNrK7KAjDGLFAhrPwQws?filename=new.png"
