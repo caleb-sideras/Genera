@@ -1,12 +1,13 @@
 from PIL import Image
 import numpy as np
+
 # import asset_index
 # from random_number import generateRandomNumber
 import random
 
 # Notes
 # - the current textures Samoshin sent me are buggy, they only use A (Alpha) values in the RGBA format. He will fix
-# - good luck :) Caleb in yr13 would have no idea how this works!!!
+# - good luck 🙂 Caleb in yr13 would have no idea how this works!!!
 
 
 # TODO
@@ -24,7 +25,7 @@ import random
 #           E.g. RarityA: 3 |
 #                RarityB: 2 |=> Array[10] = {A,A,A,B,B,C,C,C,C,C}, then random.choice()
 #                RarityC: 5 |
-# 
+#
 #       2) Collection Size Method: (collection size * (asset rarity *asset))
 #           E.g. Layer 1 Assets = (100/10 *(3A, 2B, 5C)) = (30A, 20B, 50C) = 100 total assets.
 #           Then you would random.choice(), subtract an element, and do this until its empty
@@ -35,7 +36,7 @@ import random
 #           random.choice both arrays, and subtract both elements.
 #           => (29A, 20B, 50C) = 99 total assets
 #           => (30A, 20B, 49C) = 99 total assets
-#           
+#
 # head
 # 1 20 -> 2
 # 2 20 -> 2
@@ -57,11 +58,12 @@ import random
 #   - assembling image and textures based on this example dictionary
 #
 
+
 def textureMapping(asset, texture):
 
     # converting to an RGBA format
-    asset_rgba = asset.convert('RGBA')
-    texture_rgba = texture.convert('RGBA')
+    asset_rgba = asset.convert("RGBA")
+    texture_rgba = texture.convert("RGBA")
 
     # converting into an array of RGBA, height x width x 4 numpy array (4000x4000x4)
     asset_data = np.array(asset_rgba)
@@ -80,7 +82,8 @@ def textureMapping(asset, texture):
 
     # resizes the texture to the same shape of the asset, so they can be assigned to each other
     texture_white_area_resized = np.resize(
-        texture_data[...][asset_white_area.T], texture_white_area)
+        texture_data[...][asset_white_area.T], texture_white_area
+    )
 
     # replacing all the white areas in the asset with the texture
     asset_data[...][asset_white_area.T] = texture_white_area_resized
@@ -90,8 +93,10 @@ def textureMapping(asset, texture):
 
     return shirt
 
+
 def metadatacreation():
     print(temp)
+
 
 # Example assets
 body1 = Image.open("./Assets/" + "Body/" + "1" + ".png")
@@ -111,136 +116,142 @@ texture4 = Image.open("./Assets/" + "Texture/" + "4" + ".png")
 
 # Example dictionary
 tempDict = {
-    'CollectionName': 'Void Chan',
-    'Description': 'Void NFTs for void chans',
-    'Resolution' : 4000,
-    'Collection Size' : 10,
-    'Layers': [
+    "CollectionName": "Void Chan",
+    "Description": "Void NFTs for void chans",
+    "Resolution": 4000,
+    "Collection Size": 10,
+    "Layers": [
         {
-            'LayerName': 'Body',
-            'Assets': [
-                {
-                    'Name': 'Pink Sky',
-                    'PIL': body1,
-                    'Rarity': 10
-                },
+            "LayerName": "Body",
+            "Assets": [
+                {"Name": "Pink Sky", "PIL": body1, "Rarity": 10},
             ],
-            'Textures': []
+            "Textures": [],
         },
         {
-            'LayerName': 'Hair',
-            'Assets': [
-                {
-                    'Name': 'Anime',
-                    'PIL': hair1,
-                    'Rarity': 5
-                }, 
-                {
-                    'Name': 'Long',
-                    'PIL': hair2,
-                    'Rarity': 5
-                },
+            "LayerName": "Hair",
+            "Assets": [
+                {"Name": "Anime", "PIL": hair1, "Rarity": 5},
+                {"Name": "Long", "PIL": hair2, "Rarity": 5},
             ],
-            'Textures': [
-                {
-                    'Name': 'Texture 1',
-                    'PIL': texture1,
-                    'Rarity': 2
-                },
-                {
-                    'Name': 'Texture 2',
-                    'PIL': texture2,
-                    'Rarity': 2
-                },
-                {
-                    'Name': 'Texture 3',
-                    'PIL': texture3,
-                    'Rarity': 2
-                },
-                {
-                    'Name': 'Texture 4',
-                    'PIL': texture4,
-                    'Rarity': 4
-                },
-            ]
+            "Textures": [
+                {"Name": "Texture 1", "PIL": texture1, "Rarity": 2},
+                {"Name": "Texture 2", "PIL": texture2, "Rarity": 2},
+                {"Name": "Texture 3", "PIL": texture3, "Rarity": 2},
+                {"Name": "Texture 4", "PIL": texture4, "Rarity": 4},
+            ],
         },
         {
-            'LayerName': 'Shirt',
-            'Assets': [
-                {
-                    'Name': 'T-Shirt',
-                    'PIL': shirt1,
-                    'Rarity': 0.5
-                },
-                {
-                    'Name': 'Crop Tee',
-                    'PIL': shirt2,
-                    'Rarity': 0.5
-                },
+            "LayerName": "Shirt",
+            "Assets": [
+                {"Name": "T-Shirt", "PIL": shirt1, "Rarity": 5},
+                {"Name": "Crop Tee", "PIL": shirt2, "Rarity": 5},
             ],
-            'Textures': [
-                {
-                    'Name': 'Texture 1',
-                    'PIL': texture1,
-                    'Rarity': 0.25
-                },
-                {
-                    'Name': 'Texture 2',
-                    'PIL': texture2,
-                    'Rarity': 0.25
-                },
-                {
-                    'Name': 'Texture 3',
-                    'PIL': texture3,
-                    'Rarity': 0.25
-                },
-                {
-                    'Name': 'Texture 4',
-                    'PIL': texture4,
-                    'Rarity': 0.25
-                },
-            ]
+            "Textures": [
+                {"Name": "Texture 1", "PIL": texture1, "Rarity": 2},
+                {"Name": "Texture 2", "PIL": texture2, "Rarity": 2},
+                {"Name": "Texture 3", "PIL": texture3, "Rarity": 2},
+                {"Name": "Texture 4", "PIL": texture4, "Rarity": 4},
+            ],
         },
         {
-            'LayerName': 'Accessories',
-            'Assets': [
-                {
-                    'Name': 'Choker',
-                    'PIL': accessories1,
-                    'Rarity': 1
-                },
+            "LayerName": "Accessories",
+            "Assets": [
+                {"Name": "Choker", "PIL": accessories1, "Rarity": 10},
             ],
-            'Textures': []
+            "Textures": [],
         },
     ],
 }
 
-print(tempDict['CollectionName'])
-print(tempDict['Description'])
+print(tempDict["CollectionName"])
+print(tempDict["Description"])
 
-# creating a base image to paste on
-mode = 'RGBA'
-size = (4000, 4000)
-color = (0, 0, 0, 0)
-im = Image.new(mode, size, color)
 
-for var in tempDict['Layers']:
+rarityArrayAsset = []
+rarityArrayTexture = []
+texturedAssetArray = [0, 0, 0]
+
+# for i in range(tempDict['Collection Size']):
+
+for var in tempDict["Layers"]:
     chosenAsset = 0
     textexturedAsset = 0
-    print(var['LayerName'])
-    
-    if var['Assets'] and var['Textures']:
-        chosenAsset = random.choice(var['Assets'])
-        chosenTexture = random.choice(var['Textures'])
+    print(var["LayerName"])
 
-        texturedAsset = textureMapping(chosenAsset['PIL'], chosenTexture['PIL'])
+    if var["Assets"] and var["Textures"]:
 
-        im.paste(texturedAsset, (0, 0), texturedAsset)
-    else: 
-        if var['Assets']:
-            chosenAsset = random.choice(var['Assets'])
-            im.paste(chosenAsset['PIL'], (0, 0), chosenAsset['PIL'])
+        for asset in var["Assets"]:
+            rarity = asset["Rarity"]
+            for x in range(rarity):
+                rarityArrayAsset.append(asset["PIL"])
+
+        for asset in var["Textures"]:
+            rarity = asset["Rarity"]
+            for x in range(rarity):
+                rarityArrayTexture.append(asset["PIL"])
+
+        # change the range so it updates to the range of rarityArrayAsset or rarityArraytexure or Collection Size (they're all the same size)
+        for temps in range(0, 10):
+            tempAsset = random.choice(rarityArrayAsset)
+            tempTexture = random.choice(rarityArrayTexture)
+
+            texturedAsset = textureMapping(
+                tempAsset, tempTexture
+            )  # no need to do variable["PIL"] because we do it on line 198 and 193
+
+            texturedAssetArray.append(
+                texturedAsset
+            )  # with this append, you're adding all the textured assets to the same 'texturedAssetArray' array
+            # somehow, each layer should have their own array, or maybe a shared 3D numpy array or dictionary?
+
+            rarityArrayAsset.remove(tempAsset)
+            rarityArrayTexture.remove(tempTexture)
+
+        #     im.paste(texturedAsset, (0, 0), texturedAsset)
+
+    else:
+        if var["Assets"]:
+            for asset in var["Assets"]:
+                rarity = asset["Rarity"]
+                for x in range(rarity):
+                    rarityArrayAsset.append(asset["PIL"])
+            texturedAssetArray.append(rarityArrayAsset)  # same problem here as above
+
+    rarityArrayAsset = []
+    textexturedAsset = []
+
+
+# Now you should combine all the arrays together to form 10 images.
+
+# 1. Creating a base image to paste on. Type, Size, Color paramters
+im = Image.new("RGBA", (4000, 4000), (0, 0, 0, 0))
+# can use 'im.paste(asset1, (0, 0), asset2)'
+# then can save this image like: im.save("new.png", "PNG") or save to an array
+
+
+# print(texturedAssetArray)
+
+#     print(rarityArrayAsset)
+
+# im.paste(chosenAsset['PIL'], (0, 0), chosenAsset['PIL'])
+
+# im.paste(texturedAsset, (0, 0), texturedAsset)
+
+
+# Looping through json
+# creating both arrays (texture and asset) of 10
+# random.choice/removing them
+# texureMapping function()
+# store these new assets in another array
+# once iterated over all json, use these array to combine into final 10 images
+# store these images in an array and/or save them an .png
+
+
+# temp = random.choice(rarityArrayAsset)
+# print(rarityArrayAsset)
+# rarityArrayAsset.remove(temp)
+# print(rarityArrayAsset)
 
 # saving
-im.save("new.png", "PNG")
-
+# im.save("new.png", "PNG")
