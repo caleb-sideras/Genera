@@ -64,42 +64,39 @@ def upload_view(request):
             calebs_gay_dict["Resolution"] = request.POST["resolution"]
             calebs_gay_dict["CollectionSize"] = request.POST["size"]
             layers = {}
-            all_textures = []
 
             files_array = []
             n_textures = 0
 
             for filename, file in request.FILES.items():
                 filename_components = filename.split(".")
-                if filename_components[-1] != "png":
-                    continue
-                if filename_components[0] == "asset": #if asset detected from post request
-                    if filename_components[1] in layers:
-                        layers[filename_components[1]]["Assets"].append({
-                            'Name': filename_components[-2],
-                            'PIL': "TEST FOR JSON" , # REPLACE WITH file_to_pil(file) WHEN NEED ACTUAL FILE OBJECT IN NUMPY
-                            'Rarity': random.randint(1,10)
-                        })
-                    else:
-                         layers[filename_components[1]] = {
-                             "Assets" : [],
-                             "Textures" : []
-                         }
-                         layers[filename_components[1]]["Assets"].append({
-                            'Name': filename_components[-2],
-                            'PIL': "TEST FOR JSON" , # REPLACE WITH file_to_pil(file) WHEN NEED ACTUAL FILE OBJECT IN NUMPY
-                            'Rarity': random.randint(1,10)
-                        })
-                elif filename_components[0] == "texture": #if texture detected - add to all texture list for later processing
-                    all_textures.append({
-                        'Name': filename_components[-2],
-                        'PIL': "TEST FOR JSON" , # REPLACE WITH file_to_pil(file) WHEN NEED ACTUAL FILE OBJECT IN NUMPY
-                        'Rarity': random.randint(1,10)
-                    } )
-                
-            for layer in layers.keys():
-                layers[layer]["Textures"] = all_textures[0:random.randint(1, len(all_textures)) + 1] ##Adds random number of textures, from all textures list
+                layer_name = filename_components[1]
+                layer_type = filename_components[0] #asset or layer ?
+                file_name = filename_components[-2]
 
+                if filename_components[-1].lower() != "png":
+                    continue
+
+                if layer_name not in layers:
+                    layers[layer_name] = {
+                        "Assets" : [],
+                        "Textures" : [],
+                    }
+
+                if layer_name in layers:
+                    if layer_type == "asset":
+                        layers[layer_name]["Assets"].append({
+                            'Name': file_name,
+                            'PIL': "TEST FOR JSON" , # REPLACE WITH file_to_pil(file) WHEN NEED ACTUAL FILE OBJECT IN NUMPY
+                            'Rarity': random.randint(1,10)
+                        })
+                    if layer_type == "texture":
+                        layers[layer_name]["Textures"].append({
+                            'Name': file_name,
+                            'PIL': "TEST FOR JSON" , # REPLACE WITH file_to_pil(file) WHEN NEED ACTUAL FILE OBJECT IN NUMPY
+                            'Rarity': random.randint(1,10)
+                        })
+                    
             calebs_gay_dict["Layers"] = layers #calebd gay dict complete
 
             print(json.dumps(calebs_gay_dict, indent=4, sort_keys=True))

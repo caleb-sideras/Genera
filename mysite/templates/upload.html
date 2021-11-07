@@ -6,8 +6,8 @@
     {% csrf_token %}
     <div class="upload_upper">
       <div class="upload_section_swap rounded_container shadow_strong">
-        <img class="grow color_image_dark" src="{% static 'icons/layer.svg' %}">
-        <img class="grow color_image_dark" src="{% static 'icons/texture.svg' %}">
+        <img class="grow color_image_dark" src="{% static 'icons/layer.svg' %} " onclick="switch_tabs('layers')">
+        <img class="grow color_image_dark" src="{% static 'icons/texture.svg' %}" onclick="switch_tabs('textures')">
         <img class="grow color_image_dark" src="{% static 'icons/rarity.svg' %}">
       </div> 
     </div>
@@ -16,8 +16,8 @@
       <div class="upload_layers rounded_container shadow_strong">
         <h4 class="no_margin center">Layers</h4>
         <div class="upload_layers_buttons">
-          <div class="general_button white_background"><h5 class="no_margin"">Textures</h5><img data-layer="textures" onclick="add_smart_input(this)" class="color_image_orange grow" src="{% static 'icons/plus.svg' %}" onclick="add_layer()">
-          </div>
+          <!-- <div class="general_button white_background"><div class="close_button" onclick="delete_button()">X</div><h5 class="no_margin"">Textures</h5><img data-layer="textures" onclick="add_smart_input(this)" class="color_image_orange grow" src="{% static 'icons/plus.svg' %}" onclick="add_layer()">
+          </div> -->
         </div>
 
         <input id="add_layer_input" class="general_input" type="text" placeholder="Add Layer">
@@ -25,6 +25,18 @@
 
         
       </div>
+      <div class="upload_layers rounded_container shadow_strong" style="display: none;">
+        <h4 class="no_margin center">Textures</h4>
+        <div class="upload_layers_buttons">
+          <!-- <div class="general_button white_background"><h5 class="no_margin"">Textures</h5><img data-layer="textures" onclick="add_smart_input(this)" class="color_image_orange grow" src="{% static 'icons/plus.svg' %}" onclick="add_layer()">
+          </div> -->
+        </div>
+
+      </div>
+
+
+
+
       <div class="upload_preview" style="color: aliceblue;">
         {% if not complete_json %}
           <img class="grow" src="{% static 'Assets/Examples/1.png' %}">
