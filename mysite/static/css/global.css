@@ -175,19 +175,32 @@ body {
     max-height: 85%;
 }
 
-.upload_layers_buttons {
-    margin:5px 0 5px 15px;
-    overflow-y: scroll;
-    max-height: 85%;
-}
-
 .upload_layers_buttons > div{
+    position: relative;
     margin: 10px 5px;
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
     align-items: center;
     cursor: default;
+}
+
+.upload_layers_buttons > div .close_button{
+    display: none;
+    text-align: center;
+    position: absolute;
+    height: 15px;
+    aspect-ratio: 1;
+    box-sizing: border-box;
+    border-radius: 10px 0 0 0;
+    overflow: hidden;
+    left: 5px;
+    top: 0;
+    cursor: pointer;
+}
+
+.upload_layers_buttons > div:hover .close_button {
+    display: block;
 }
 
 .upload_layers_buttons > div > img {
