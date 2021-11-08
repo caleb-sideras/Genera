@@ -22,10 +22,10 @@ contract NFTGenerator is ERC721 {
 
     function createNewCollectible(string memory _tokenURI) public {
         uint256 newTokenId = tokenCounter;
-        require(
-            _isApprovedOrOwner(_msgSender(), newTokenId),
-            "ERC721: caller is not owner nor approved"
-        ); //only the owner of contract can change tokenURI?
+        // require(
+        //     _isApprovedOrOwner(_msgSender(), newTokenId),
+        //     "ERC721: caller is not owner nor approved"
+        // ); //only the owner of contract can change tokenURI?
         _safeMint(msg.sender, newTokenId); // openzeppelin safe mint
         _setTokenURI(newTokenId, _tokenURI); // openzeppelin set token uri
         tokenCounter = tokenCounter + 1;
