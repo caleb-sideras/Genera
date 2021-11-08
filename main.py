@@ -91,7 +91,7 @@ tempDict = {
     "CollectionName": "Void Chan",
     "Description": "Void NFTs for void chans",
     "Resolution": 4000,
-    "Collection Size": 10,
+    "CollectionSize": 10,
     "Layers": [
         {
             "LayerName": "Body",
@@ -136,6 +136,52 @@ tempDict = {
     ],
 }
 
+# Artem's implmentation of the dict. Might be better, we'll choose which format to use later
+tempDict2 = {
+    "CollectionName": "Void Chain",
+    "CollectionSize": 10,
+    "Resolution": 4000,
+    "Description": "Void NFTs for void chans",
+    "Layers": {
+        "Body": {
+            "Assets": [
+                {"Name": "Pink Sky", "PIL": body1, "Rarity": 10},
+            ],
+            "Textures": [],
+        },
+        "Hair": {
+            "Assets": [
+                {"Name": "Anime", "PIL": hair1, "Rarity": 5},
+                {"Name": "Long", "PIL": hair2, "Rarity": 5},
+            ],
+            "Textures": [
+                {"Name": "Texture 1", "PIL": texture1, "Rarity": 2},
+                {"Name": "Texture 2", "PIL": texture2, "Rarity": 2},
+                {"Name": "Texture 3", "PIL": texture3, "Rarity": 2},
+                {"Name": "Texture 4", "PIL": texture4, "Rarity": 4},
+            ],
+        },
+        "Shirt": {
+            "Assets": [
+                {"Name": "T-Shirt", "PIL": shirt1, "Rarity": 5},
+                {"Name": "Crop Tee", "PIL": shirt2, "Rarity": 5},
+            ],
+            "Textures": [
+                {"Name": "Texture 1", "PIL": texture1, "Rarity": 2},
+                {"Name": "Texture 2", "PIL": texture2, "Rarity": 2},
+                {"Name": "Texture 3", "PIL": texture3, "Rarity": 2},
+                {"Name": "Texture 4", "PIL": texture4, "Rarity": 4},
+            ],
+        },
+        "Accessories": {
+            "Assets": [
+                {"Name": "Choker", "PIL": accessories1, "Rarity": 10},
+            ],
+            "Textures": [],
+        },
+    },
+}
+
 print(tempDict["CollectionName"])
 print(tempDict["Description"])
 
@@ -157,7 +203,7 @@ for var in tempDict["Layers"]:
         rarityAppend(var, "Assets", rarityArrayAsset)
         rarityAppend(var, "Textures", rarityArrayTexture)
 
-        for temps in range(tempDict["Collection Size"]):
+        for temps in range(tempDict["CollectionSize"]):
 
             # randomly choosing assets/textures
             tempAsset = random.choice(rarityArrayAsset)
@@ -180,7 +226,7 @@ for var in tempDict["Layers"]:
             rarityAppend(var, "Assets", rarityArrayAsset)
 
             # adding just assets to an individual array
-            for temps in range(tempDict["Collection Size"]):
+            for temps in range(tempDict["CollectionSize"]):
 
                 # randomly choosing assets
                 tempAsset = random.choice(rarityArrayAsset)
@@ -200,7 +246,7 @@ im = Image.new("RGBA", (tempDict["Resolution"], tempDict["Resolution"]), (0, 0, 
 image = 0
 
 # iterating over textured assets dictionary, and combining them
-for i in range(tempDict["Collection Size"]):
+for i in range(tempDict["CollectionSize"]):
 
     for value in texturedAssetDict:
 
