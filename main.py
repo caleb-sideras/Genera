@@ -170,63 +170,83 @@ print(tempDict["Description"])
 
 rarityArrayAsset = []
 rarityArrayTexture = []
-texturedAssetArray = [0, 0, 0]
+texturedAssetArray = []
+texturedAssetDict = {}
 
-# for i in range(tempDict['Collection Size']):
+
+def rarityAppend(json_object, json_name, rarity_list):
+    for asset in json_object[json_name]:
+        rarity = asset["Rarity"]
+        for x in range(rarity):
+            rarity_list.append(asset["PIL"])
+
 
 for var in tempDict["Layers"]:
     chosenAsset = 0
-    textexturedAsset = 0
+    texturedAsset = 0
+    temps = 0
     print(var["LayerName"])
 
     if var["Assets"] and var["Textures"]:
 
-        for asset in var["Assets"]:
-            rarity = asset["Rarity"]
-            for x in range(rarity):
-                rarityArrayAsset.append(asset["PIL"])
+        # adding assets/textures to individual arrays
+        rarityAppend(var, "Assets", rarityArrayAsset)
+        rarityAppend(var, "Textures", rarityArrayTexture)
 
-        for asset in var["Textures"]:
-            rarity = asset["Rarity"]
-            for x in range(rarity):
-                rarityArrayTexture.append(asset["PIL"])
+        for temps in range(tempDict["Collection Size"]):
 
-        # change the range so it updates to the range of rarityArrayAsset or rarityArraytexure or Collection Size (they're all the same size)
-        for temps in range(0, 10):
+            # randomly choosing assets/textures
             tempAsset = random.choice(rarityArrayAsset)
             tempTexture = random.choice(rarityArrayTexture)
 
-            texturedAsset = textureMapping(
-                tempAsset, tempTexture
-            )  # no need to do variable["PIL"] because we do it on line 198 and 193
+            # mapping texture to asset
+            texturedAsset = textureMapping(tempAsset, tempTexture)
 
-            texturedAssetArray.append(
-                texturedAsset
-            )  # with this append, you're adding all the textured assets to the same 'texturedAssetArray' array
-            # somehow, each layer should have their own array, or maybe a shared 3D numpy array or dictionary?
+            # adding final asset
+            texturedAssetArray.append(texturedAsset)
 
+            # removing used assets/textures
             rarityArrayAsset.remove(tempAsset)
             rarityArrayTexture.remove(tempTexture)
 
-        #     im.paste(texturedAsset, (0, 0), texturedAsset)
-
     else:
+
         if var["Assets"]:
-            for asset in var["Assets"]:
-                rarity = asset["Rarity"]
-                for x in range(rarity):
-                    rarityArrayAsset.append(asset["PIL"])
-            texturedAssetArray.append(rarityArrayAsset)  # same problem here as above
 
-    rarityArrayAsset = []
-    textexturedAsset = []
+            rarityAppend(var, "Assets", rarityArrayAsset)
+
+            # adding just assets to an individual array
+            for temps in range(tempDict["Collection Size"]):
+
+                # randomly choosing assets
+                tempAsset = random.choice(rarityArrayAsset)
+
+                # adding final asset
+                texturedAssetArray.append(tempAsset)
+
+                # removing used asset
+                rarityArrayAsset.remove(tempAsset)
+
+    name = var["LayerName"]
+    texturedAssetDict.update({name: texturedAssetArray})
+    texturedAssetArray = []
+
+# creating a base image to paste on. Type, Size, Color paramters
+im = Image.new("RGBA", (tempDict["Resolution"], tempDict["Resolution"]), (0, 0, 0, 0))
+image = 0
+
+# iterating over textured assets dictionary, and combining them
+for i in range(tempDict["Collection Size"]):
+
+    for value in texturedAssetDict:
+
+        temp_asset = texturedAssetDict[value][i]
+
+        im.paste(temp_asset, (0, 0), temp_asset)
+
+    im.save(f"new{i}.png", "PNG")
 
 
-# Now you should combine all the arrays together to form 10 images.
-
-# 1. Creating a base image to paste on. Type, Size, Color paramters
-im = Image.new("RGBA", (4000, 4000), (0, 0, 0, 0))
-# can use 'im.paste(asset1, (0, 0), asset2)'
 # then can save this image like: im.save("new.png", "PNG") or save to an array
 
 
