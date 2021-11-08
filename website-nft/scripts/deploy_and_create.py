@@ -1,11 +1,5 @@
-from scripts.helpful_scripts import (
-    get_accounts,
-    OPENSEA_URL,
-    get_contract,
-    config,
-    network,
-    fund_with_link,
-)
+from scripts.helpful_scripts import get_accounts, OPENSEA_URL
+
 from brownie import NFTGenerator
 
 sample_metadata = (
@@ -17,22 +11,25 @@ sample_metadata = (
     },
 )
 
+sample_uri = "ipfs://bafybeiha4htobdjlk5vyusnjksxk5bxoc3oq746uxofpvnt2ua6vh7pvhe/?filename=Void01.json"
+
 
 def deploy_and_create():
     account = get_accounts()
-    collectible = NFTGenerator.deploy(
-        "VoidChan",
-        "vde",
-        {"from": account},
-    )
-    creating_tx = collectible.createNewCollectible({"from": account})
+    collectible = NFTGenerator.deploy("VoidChan", "vde", {"from": account})
+    creating_tx = collectible.createNewCollectible(sample_uri, {"from": account})
     creating_tx.wait(1)
     print("New token has been created!")
-    return NFTGenerator, creating_tx
+    return collectible, creating_tx
+
+
+def get_OPENSEA_URL(nft_contract):
+    print(
+        f"Awesome! You can view your NFT at {OPENSEA_URL.format(nft_contract.address, 0)}"
+    )
+    print("Please wait up to 20 minutes, and hit the refresh metadata button")
 
 
 def main():
-    deploy_and_create()
-
-
-metadata_file_name = f"./metadata/{network.show_active()}/{token_id}-{breed}.json"
+    contract, tx = deploy_and_create()
+    get_OPENSEA_URL(contract)

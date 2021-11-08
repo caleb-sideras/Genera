@@ -2,6 +2,9 @@ from pathlib import Path
 import requests
 import json
 import os
+from brownie import network
+
+metadata_file_name = f"./metadata/{network.show_active()}/sample_metadata.json"
 
 
 def upload_to_ipfs(filepath):
@@ -16,3 +19,10 @@ def upload_to_ipfs(filepath):
         image_uri = f"https://ipfs.io/ipfs/{ipfs_hash}?filename={filename}"
         print(image_uri)
         return image_uri
+
+
+def main():
+    # for x in range(1, 2):
+    #     upload_to_ipfs(f"./img/Void{x}.png")
+    #     upload_to_ipfs(f"./metadata/{network.show_active()}/Void{x}.json")
+    upload_to_ipfs(f"./metadata/{network.show_active()}/Void01.json")
