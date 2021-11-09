@@ -40,18 +40,18 @@ red, green, blue, alpha = asset_data.T
 #   - assembling image and textures based on this example dictionary
 #   - tat added deterministic probability
 
-# red, green, blue, texture_data
-def textureMapping(asset, texture):
+
+def textureMapping(asset_data, texture_data):
 
     # converting to an RGBA format
-    asset_rgba = asset.convert("RGBA")
-    texture_rgba = texture.convert("RGBA")
+    # asset_rgba = asset.convert("RGBA")
+    # texture_rgba = texture.convert("RGBA")
 
-    # converting into an array of RGBA, height x width x 4 numpy array (4000x4000x4)
-    asset_data = np.array(asset_rgba)
-    texture_data = np.array(texture_rgba)
+    # # converting into an array of RGBA, height x width x 4 numpy array (4000x4000x4)
+    # asset_data = np.array(asset_rgba)
+    # texture_data = np.array(texture_rgba)
 
-    # unpack the color bands of the asset for readability
+    # # unpack the color bands of the asset for readability
     red, green, blue, alpha = asset_data.T
 
     # extracting the area that is white (255,255,255) from asset
@@ -80,11 +80,25 @@ def metadatacreation():
     print(temp)
 
 
-def rarityAppend(json_object, json_name, rarity_list):
+def rarityAppend(json_object, json_name, rarity_list, asset_dict):
     for asset in json_object[json_name]:
         rarity = asset["Rarity"]
+        # converting to an RGBA format
+        asset_rgba = asset["PIL"].convert("RGBA")
+        # converting into an array of RGBA, height x width x 4 numpy array (4000x4000x4)
+        asset_data = np.array(asset_rgba)
+
+        asset_dict.update({asset["Name"]: asset_data})
         for x in range(rarity):
-            rarity_list.append(asset["PIL"])
+            rarity_list.append(asset["Name"])
+
+
+def rarityAppend2(json_object, json_name, rarity_list, asset_dict):
+    for asset in json_object[json_name]:
+        rarity = asset["Rarity"]
+        asset_dict.update({asset["Name"]: asset["PIL"]})
+        for x in range(rarity):
+            rarity_list.append(asset["Name"])
 
 
 # Example assets
@@ -207,6 +221,9 @@ rarityArrayAsset = []
 rarityArrayTexture = []
 texturedAssetArray = []
 texturedAssetDict = {}
+rarityDictAsset = {}
+rarityDictTexture = {}
+
 
 for var in tempDict["Layers"]:
     chosenAsset = 0
@@ -217,17 +234,18 @@ for var in tempDict["Layers"]:
     if var["Assets"] and var["Textures"]:
 
         # adding assets/textures to individual arrays
-        rarityAppend(var, "Assets", rarityArrayAsset)
-        rarityAppend(var, "Textures", rarityArrayTexture)
+        rarityAppend(var, "Assets", rarityArrayAsset, rarityDictAsset)
+        rarityAppend(var, "Textures", rarityArrayTexture, rarityDictTexture)
 
         for temps in range(tempDict["CollectionSize"]):
 
             # randomly choosing assets/textures
             tempAsset = random.choice(rarityArrayAsset)
             tempTexture = random.choice(rarityArrayTexture)
-
             # mapping texture to asset
-            texturedAsset = textureMapping(tempAsset, tempTexture)
+            texturedAsset = textureMapping(
+                rarityDictAsset[tempAsset], rarityDictTexture[tempTexture]
+            )
 
             # adding final asset
             texturedAssetArray.append(texturedAsset)
@@ -240,7 +258,7 @@ for var in tempDict["Layers"]:
 
         if var["Assets"]:
 
-            rarityAppend(var, "Assets", rarityArrayAsset)
+            rarityAppend2(var, "Assets", rarityArrayAsset, rarityDictAsset)
 
             # adding just assets to an individual array
             for temps in range(tempDict["CollectionSize"]):
@@ -249,7 +267,7 @@ for var in tempDict["Layers"]:
                 tempAsset = random.choice(rarityArrayAsset)
 
                 # adding final asset
-                texturedAssetArray.append(tempAsset)
+                texturedAssetArray.append(rarityDictAsset[tempAsset])
 
                 # removing used asset
                 rarityArrayAsset.remove(tempAsset)
@@ -257,7 +275,10 @@ for var in tempDict["Layers"]:
     name = var["LayerName"]
     texturedAssetDict.update({name: texturedAssetArray})
     texturedAssetArray = []
+    rarityDictAsset = {}
+    rarityDictTexture = {}
 
+print(texturedAssetDict)
 # creating a base image to paste on. Type, Size, Color paramters
 im = Image.new("RGBA", (tempDict["Resolution"], tempDict["Resolution"]), (0, 0, 0, 0))
 image = 0
