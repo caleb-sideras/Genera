@@ -16,22 +16,8 @@ import random
 # 2) Full website integration
 #   Update json format / iteration to fit artems json
 #
-# 3) This algo is REALLY slow, these are some optimizing ideas
+# 3) These are some optimizing ideas
 #   -Using metadata, we can see if an asset/texture combo has already been created within the individual asset arrays. Then use that PIL object, and assign it.
-#   -We calling textureMapping for every asset/texture, even for duplicates. So this:
-"""
-# converting to an RGBA format
-asset_rgba = asset.convert("RGBA")
-texture_rgba = texture.convert("RGBA")
-
-# converting into an array of RGBA, height x width x 4 numpy array (4000x4000x4)
-asset_data = np.array(asset_rgba)
-texture_data = np.array(texture_rgba)
-
-# unpack the color bands of the asset for readability
-red, green, blue, alpha = asset_data.T
-"""
-#   is redunant. We should call this at the beginning, using the json.
 #
 # ---DONE---
 #
@@ -39,6 +25,8 @@ red, green, blue, alpha = asset_data.T
 #   - an example dictionary that would store all the collection data, that would be passed from the website
 #   - assembling image and textures based on this example dictionary
 #   - tat added deterministic probability
+#   - optimized texture mapping so there is no duplicate procedures
+#   - optimized how rarity data is stored, this method is MUCH more scalable now
 
 
 def textureMapping(asset_data, texture_data):
