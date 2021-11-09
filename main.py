@@ -266,13 +266,12 @@ for var in tempDict["Layers"]:
     rarityDictAsset = {}
     rarityDictTexture = {}
 
-print(texturedAssetDict)
-# creating a base image to paste on. Type, Size, Color paramters
-im = Image.new("RGBA", (tempDict["Resolution"], tempDict["Resolution"]), (0, 0, 0, 0))
-image = 0
-
 # iterating over textured assets dictionary, and combining them
 for i in range(tempDict["CollectionSize"]):
+    # creating a base image to paste on. Type, Size, Color paramters
+    im = Image.new(
+        "RGBA", (tempDict["Resolution"], tempDict["Resolution"]), (0, 0, 0, 0)
+    )
 
     for value in texturedAssetDict:
 
@@ -280,4 +279,4 @@ for i in range(tempDict["CollectionSize"]):
 
         im.paste(temp_asset, (0, 0), temp_asset)
 
-    im.save(f"new{i}.png", "PNG")
+    im.save(f"{tempDict['CollectionName']}{i}.png", "PNG")
