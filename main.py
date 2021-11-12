@@ -303,7 +303,7 @@ for var in tempDict["Layers"]:
 
 
 image_path = f"collections/{tempDict['CollectionName']}"
-os.mkdir(image_path)
+os.makedirs(image_path)
 
 # iterating over textured assets dictionary, and combining them
 for i in range(tempDict["CollectionSize"]):
