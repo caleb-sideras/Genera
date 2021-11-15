@@ -243,19 +243,19 @@ rarityDictTexture = {}
 metadataArray = []
 metadataDict = {}
 
-for var in tempDict["Layers"]:
+for key, value in tempDict2["Layers"].items():
     chosenAsset = 0
     texturedAsset = 0
     temps = 0
-    print(var["LayerName"])
+    print(key)
 
-    if var["Assets"] and var["Textures"]:
+    if value["Assets"] and value["Textures"]:
 
         # adding assets/textures to individual arrays
-        rarityAppend(var, "Assets", rarityArrayAsset, rarityDictAsset)
-        rarityAppend(var, "Textures", rarityArrayTexture, rarityDictTexture)
+        rarityAppend(value, "Assets", rarityArrayAsset, rarityDictAsset)
+        rarityAppend(value, "Textures", rarityArrayTexture, rarityDictTexture)
 
-        for i in range(tempDict["CollectionSize"]):
+        for i in range(tempDict2["CollectionSize"]):
             # randomly choosing assets/textures
             tempAsset = random.choice(rarityArrayAsset)
             tempTexture = random.choice(rarityArrayTexture)
@@ -276,12 +276,12 @@ for var in tempDict["Layers"]:
 
     else:
 
-        if var["Assets"]:
+        if value["Assets"]:
 
-            rarityAppend2(var, "Assets", rarityArrayAsset, rarityDictAsset)
+            rarityAppend2(value, "Assets", rarityArrayAsset, rarityDictAsset)
 
             # adding just assets to an individual array
-            for i in range(tempDict["CollectionSize"]):
+            for i in range(tempDict2["CollectionSize"]):
 
                 # randomly choosing assets
                 tempAsset = random.choice(rarityArrayAsset)
@@ -293,7 +293,7 @@ for var in tempDict["Layers"]:
                 # removing used asset
                 rarityArrayAsset.remove(tempAsset)
 
-    name = var["LayerName"]
+    name = key
     texturedAssetDict.update({name: texturedAssetArray})
     metadataDict.update({name: metadataArray})
     texturedAssetArray = []
@@ -302,18 +302,18 @@ for var in tempDict["Layers"]:
     rarityDictTexture = {}
 
 
-image_path = f"collections/{tempDict['CollectionName']}"
+image_path = f"collections/{tempDict2['CollectionName']}"
 os.makedirs(image_path)
 
 # iterating over textured assets dictionary, and combining them
-for i in range(tempDict["CollectionSize"]):
+for i in range(tempDict2["CollectionSize"]):
     # creating a base image to paste on. Type, Size, Color paramters
     im = Image.new(
-        "RGBA", (tempDict["Resolution"], tempDict["Resolution"]), (0, 0, 0, 0)
+        "RGBA", (tempDict2["Resolution"], tempDict2["Resolution"]), (0, 0, 0, 0)
     )
     temp_json = {
-        "name": f"{tempDict['CollectionName']}#{i}",
-        "description": tempDict["Description"],
+        "name": f"{tempDict2['CollectionName']}#{i}",
+        "description": tempDict2["Description"],
         "image": "",
     }
     temp_list = []
@@ -326,6 +326,6 @@ for i in range(tempDict["CollectionSize"]):
             {"trait_type": value, "value": metadataDict[value][i]},
         )
     temp_json.update({"attributes": temp_list})
-    im.save(f"{image_path}/{tempDict['CollectionName']}{i}.png", "PNG")
-    with open(f"{image_path}/{tempDict['CollectionName']}{i}.json", "w") as json_file:
+    im.save(f"{image_path}/{tempDict2['CollectionName']}{i}.png", "PNG")
+    with open(f"{image_path}/{tempDict2['CollectionName']}{i}.json", "w") as json_file:
         json.dump(temp_json, json_file)
