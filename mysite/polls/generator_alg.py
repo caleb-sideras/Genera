@@ -131,7 +131,7 @@ def createImage(tempDict):
         chosenAsset = 0
         texturedAsset = 0
         temps = 0
-        print(key)
+        print(f"Generating {key} layer")
 
         if value["Assets"] and value["Textures"]:
 
@@ -184,7 +184,7 @@ def createImage(tempDict):
         metadataArray = []
         rarityDictAsset = {}
         rarityDictTexture = {}
-
+    print("Creating/saving .png & .json")
     image_path = f"collections/{tempDict['CollectionName']}"
     os.makedirs(image_path)
 
@@ -214,3 +214,5 @@ def createImage(tempDict):
             f"{image_path}/{tempDict['CollectionName']}{i}.json", "w"
         ) as json_file:
             json.dump(temp_json, json_file)
+
+    print("Finished generation")
