@@ -4,13 +4,12 @@ from django.conf.urls.static import static
 from django.conf import settings
 from polls.views import *
 
-app_name = 'polls'
+app_name = "polls"
 urlpatterns = [
-
     # include other apps
-    path('', main_view, name="main_view"),
-    path('temp', temp_view, name="temp_view"),
-    path('upload', upload_view, name="upload"),
-    path('login', login_view, name="login")
-
+    path("", main_view, name="main_view"),
+    path("temp", temp_view, name="temp_view"),
+    path("upload", upload_view, name="upload"),
+    path("login", login_view, name="login"),
+    path("mint", mint_view, name="mint"),
 ]
