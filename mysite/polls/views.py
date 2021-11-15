@@ -66,8 +66,8 @@ def upload_view(request):
             # calebs_gay_dict["CollectionSize"] = "idiot user no collection size"
             calebs_gay_dict["CollectionName"] = request.POST["name"]
             calebs_gay_dict["Description"] = request.POST["description"]
-            calebs_gay_dict["Resolution"] = request.POST["resolution"]
-            calebs_gay_dict["CollectionSize"] = request.POST["size"]
+            calebs_gay_dict["Resolution"] = int(float(request.POST["resolution"]))
+            calebs_gay_dict["CollectionSize"] = int(float(request.POST["size"]))
             layers = {}
 
             files_array = []
@@ -93,22 +93,26 @@ def upload_view(request):
                         layers[layer_name]["Assets"].append(
                             {
                                 "Name": file_name,
-                                "PIL": "TEST FOR JSON",  # REPLACE WITH file_to_pil(file) WHEN NEED ACTUAL FILE OBJECT IN NUMPY
-                                "Rarity": random.randint(1, 10),
+                                "PIL": file_to_pil(
+                                    file
+                                ),  # REPLACE WITH file_to_pil(file) WHEN NEED ACTUAL FILE OBJECT IN NUMPY
+                                "Rarity": 5,
                             }
                         )
                     if layer_type == "texture":
                         layers[layer_name]["Textures"].append(
                             {
                                 "Name": file_name,
-                                "PIL": "TEST FOR JSON",  # REPLACE WITH file_to_pil(file) WHEN NEED ACTUAL FILE OBJECT IN NUMPY
-                                "Rarity": random.randint(1, 10),
+                                "PIL": file_to_pil(
+                                    file
+                                ),  # REPLACE WITH file_to_pil(file) WHEN NEED ACTUAL FILE OBJECT IN NUMPY
+                                "Rarity": 5,
                             }
                         )
 
             calebs_gay_dict["Layers"] = layers  # calebd gay dict complete
 
-            print(json.dumps(calebs_gay_dict, indent=4, sort_keys=True))
+            # print(json.dumps(calebs_gay_dict, indent=4, sort_keys=True))
             ##BEFORE U SEND THIS SHIT OFF TO UR NUMPY DONT FORGET TO UNCOMMENT PIL ENTRIES IN THE DICT CREATOR ABOVE !!!
 
             # OLD TRASHCAN CODE FOR STORING IMG IN DATABASE HEHEHE
@@ -125,11 +129,12 @@ def upload_view(request):
 
             # print("SAVED TO DB")
             print(calebs_gay_dict)
+            createImage(calebs_gay_dict)
             messages.success(
                 request,
                 message="YOU HAVE GENERATED THE IMAGE IDIOTTERMAN.... ITS IN DB !!!!",
             )
-            return render(request, "upload.html", {"complete_json": calebs_gay_dict})
+            # return render(request, "upload.html", {"complete_json": calebs_gay_dict})
     return render(request, "upload.html", {"complete_json": None})
 
 

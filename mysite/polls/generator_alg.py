@@ -1,165 +1,216 @@
 from PIL import Image
 import numpy as np
-import time
-import io
 import random
+import os
+import json
 
-# Seed for our random number generator, based on time
+# Notes
+# - the current textures Samoshin sent me are buggy, they only use A (Alpha) values in the RGBA format
 
-# returns a sizeIn length array of random numbers ranging from lowIn - highIn
-
-
-def generateRandomNumber(lowIn, highIn, sizeIn):
-    SEED = time.localtime()
-    rng = np.random.default_rng(SEED)
-    ranNumberArray = rng.integers(low=lowIn, high=highIn, size=sizeIn)
-    # return int(ranNumberArray[0]) - if you wanted to return an integer
-    return ranNumberArray
-
-# NOTES
-# - the current textures Samoshin sent me are buggy, they only use A (Alpha) values in the RGBA format. He will fix
-# - the whole texture mapping process can be put into a function so any asset can have a texture put on it (maybe you can do this :DD)
-# - good luck :) Caleb in yr13 would have no idea how this works!!!
-
-# Example dictionary
-# tempDict = {
-#     'CollectionName': 'Void Chan',
-#     'Description': 'Void NFTs for void chans',
-#     'Resolution' : 4000,
-#     'Layers': [
-#         {
-#             'LayerName': 'Body',
-#             'Assets': [
-#                 {
-#                     'Name': 'Pink Sky',
-#                     'PIL': body1,
-#                     'Rarity': 10
-#                 },
-#             ],
-#             'Textures': []
-#         },
-#         {
-#             'LayerName': 'Hair',
-#             'Assets': [
-#                 {
-#                     'Name': 'Anime',
-#                     'PIL': hair1,
-#                     'Rarity': 5
-#                 }, 
-#                 {
-#                     'Name': 'Long',
-#                     'PIL': hair2,
-#                     'Rarity': 5
-#                 },
-#             ],
-#             'Textures': [
-#                 {
-#                     'Name': 'Texture 1',
-#                     'PIL': texture1,
-#                     'Rarity': 2.5
-#                 },
-#                 {
-#                     'Name': 'Texture 2',
-#                     'PIL': texture2,
-#                     'Rarity': 0.25
-#                 },
-#                 {
-#                     'Name': 'Texture 3',
-#                     'PIL': texture3,
-#                     'Rarity': 0.25
-#                 },
-#                 {
-#                     'Name': 'Texture 4',
-#                     'PIL': texture4,
-#                     'Rarity': 0.25
-#                 },
-#             ]
-#         },
-#         {
-#             'LayerName': 'Shirt',
-#             'Assets': [
-#                 {
-#                     'Name': 'T-Shirt',
-#                     'PIL': shirt1,
-#                     'Rarity': 0.5
-#                 },
-#                 {
-#                     'Name': 'Crop Tee',
-#                     'PIL': shirt2,
-#                     'Rarity': 0.5
-#                 },
-#             ],
-#             'Textures': [
-#                 {
-#                     'Name': 'Texture 1',
-#                     'PIL': texture1,
-#                     'Rarity': 0.25
-#                 },
-#                 {
-#                     'Name': 'Texture 2',
-#                     'PIL': texture2,
-#                     'Rarity': 0.25
-#                 },
-#                 {
-#                     'Name': 'Texture 3',
-#                     'PIL': texture3,
-#                     'Rarity': 0.25
-#                 },
-#                 {
-#                     'Name': 'Texture 4',
-#                     'PIL': texture4,
-#                     'Rarity': 0.25
-#                 },
-#             ]
-#         },
-#         {
-#             'LayerName': 'Accessories',
-#             'Assets': [
-#                 {
-#                     'Name': 'Choker',
-#                     'PIL': accessories1,
-#                     'Rarity': 1
-#                 },
-#             ],
-#             'Textures': []
-#         },
-#     ],
+# TODO
+#
+# ---ACTIVE---
+# 1) Create metadata per image generated - adjusted names for asset + texture
+#   https://github.com/ProjectOpenSea/metadata-api-python
+#   https://docs.opensea.io/docs/metadata-standards
+#   https://docs.opensea.io/docs/2-adding-metadata
+#
+# 2) Full website integration
+#   Update json format / iteration to fit artems json
+#
+# 3) These are some optimizing ideas
+#   -Using metadata, we can see if an asset/texture combo has already been created within the individual asset arrays. Then use that PIL object, and assign it.
+#
+# 4) Metadata:
+# {
+#   "name": "Void#1",
+#   "description": "Void NFT girl for void chans",
+#   "image": "https://ipfs.io/ipfs/QmZb77bDc39me3HMcK7zQC5z6yzqm88fdxDe82NRNz2qUZ?filename=Void1.png",
+#   "attributes": [
+#     {
+#       "trait_type": "Body",
+#       "value": "Girl"
+#     },
+#     {
+#       "trait_type": "Shirt",
+#       "value": "Crop Top (Dotted)"
+#     },
+#     {
+#       "trait_type": "Hair",
+#       "value": "Anime (Striped)"
+#     },
+#     {
+#       "trait_type": "Accessories",
+#       "value": "Choker"
+#     }
+#   ]
 # }
+# ---DONE---
+#
+#   - the texture mapping process can be put into a function so any asset can have a texture put on it (maybe you can do this: DD)
+#   - an example dictionary that would store all the collection data, that would be passed from the website
+#   - assembling image and textures based on this example dictionary
+#   - tat added deterministic probability
+#   - optimized texture mapping so there is no duplicate procedures
+#   - optimized how rarity data is stored, this method is MUCH more scalable now
 
 
-    
-def createImage(files=[], n_textures=1):
-    rnd = generateRandomNumber(1, 5, 6)
-    body = Image.open("static/Assets/" + "Body/" +
-                        str((rnd[0] % 1) + 1) + ".png")
-    if files:
-        textures_array = files[:n_textures]
-        assets_array = files[n_textures:]
-        print(len(textures_array))
-        print(len(assets_array))
+def textureMapping(asset_data, texture_data):
 
-        for img in assets_array:
+    # converting to an RGBA format
+    # asset_rgba = asset.convert("RGBA")
+    # texture_rgba = texture.convert("RGBA")
 
-            texture_rgba = random.choice(textures_array).convert('RGBA')
-            texture_data = np.array(texture_rgba)
+    # # converting into an array of RGBA, height x width x 4 numpy array (4000x4000x4)
+    # asset_data = np.array(asset_rgba)
+    # texture_data = np.array(texture_rgba)
 
-            temp_rgba = img.convert('RGBA')
-            temp_data = np.array(temp_rgba)
+    # print(type(asset_data))
+    # print(type(texture_data))
 
-            red, green, blue, alpha = temp_data.T
-            temp_white_areas = (red == 255) & (blue == 255) & (green == 255)
+    # # unpack the color bands of the asset for readability
+    red, green, blue, alpha = asset_data.T
 
-            texture_asset_white_area = texture_data[...][temp_white_areas.T].shape
+    # extracting the area that is white (255,255,255) from asset
+    # it creates an array of boolean, True = white point, False = not a white point (leaving alpha values cuz they are just opacity)
+    asset_white_area = (red == 255) & (blue == 255) & (green == 255)
 
-            texture_asset_white_areas_resized = np.resize(
-            texture_data[...][temp_white_areas.T], texture_asset_white_area)
+    # using the white area boolean array, points that are True are taken out of the texture array
+    # aka forming the exact shape needed, but with the texture
+    texture_white_area = texture_data[...][asset_white_area.T].shape
 
-            temp_data[...][temp_white_areas.T] = texture_asset_white_areas_resized
+    # resizes the texture to the same shape of the asset, so they can be assigned to each other
+    texture_white_area_resized = np.resize(
+        texture_data[...][asset_white_area.T], texture_white_area
+    )
 
-            temp = Image.fromarray(temp_data)
-            body.paste(temp, (0, 0), temp)
-            # body.save("media/user_assets/BOSSMAN.png", "PNG")
+    # replacing all the white areas in the asset with the texture
+    asset_data[...][asset_white_area.T] = texture_white_area_resized
 
-        return body
-    else:
-        print("NO FILES LMAO")
+    # converting them back into an image
+    shirt = Image.fromarray(asset_data)
+
+    return shirt
+
+
+def rarityAppend(json_object, json_name, rarity_list, asset_dict):
+    for asset in json_object[json_name]:
+        rarity = asset["Rarity"]
+        # converting to an RGBA format
+        asset_rgba = asset["PIL"].convert("RGBA")
+        # converting into an array of RGBA, height x width x 4 numpy array (4000x4000x4)
+        asset_data = np.array(asset_rgba)
+
+        asset_dict.update({asset["Name"]: asset_data})
+        for x in range(rarity):
+            rarity_list.append(asset["Name"])
+
+
+def rarityAppend2(json_object, json_name, rarity_list, asset_dict):
+    for asset in json_object[json_name]:
+        rarity = asset["Rarity"]
+        asset_dict.update({asset["Name"]: asset["PIL"]})
+        for x in range(rarity):
+            rarity_list.append(asset["Name"])
+
+
+def createImage(tempDict):
+    print(tempDict["CollectionName"])
+    print(tempDict["Description"])
+
+    rarityArrayAsset = []
+    rarityArrayTexture = []
+    texturedAssetArray = []
+    texturedAssetDict = {}
+    rarityDictAsset = {}
+    rarityDictTexture = {}
+    metadataArray = []
+    metadataDict = {}
+
+    for key, value in tempDict["Layers"].items():
+        chosenAsset = 0
+        texturedAsset = 0
+        temps = 0
+        print(key)
+
+        if value["Assets"] and value["Textures"]:
+
+            # adding assets/textures to individual arrays
+            rarityAppend(value, "Assets", rarityArrayAsset, rarityDictAsset)
+            rarityAppend(value, "Textures", rarityArrayTexture, rarityDictTexture)
+
+            for i in range(tempDict["CollectionSize"]):
+                # randomly choosing assets/textures
+                tempAsset = random.choice(rarityArrayAsset)
+                tempTexture = random.choice(rarityArrayTexture)
+
+                # mapping texture to asset
+                texturedAsset = textureMapping(
+                    rarityDictAsset[tempAsset], rarityDictTexture[tempTexture]
+                )
+
+                # adding final asset
+                texturedAssetArray.append(texturedAsset)
+                # adding metadata
+                metadataArray.append(f"{tempAsset} ({tempTexture})")
+
+                # removing used assets/textures
+                rarityArrayAsset.remove(tempAsset)
+                rarityArrayTexture.remove(tempTexture)
+
+        else:
+
+            if value["Assets"]:
+
+                rarityAppend2(value, "Assets", rarityArrayAsset, rarityDictAsset)
+
+                # adding just assets to an individual array
+                for i in range(tempDict["CollectionSize"]):
+
+                    # randomly choosing assets
+                    tempAsset = random.choice(rarityArrayAsset)
+
+                    # adding final asset
+                    texturedAssetArray.append(rarityDictAsset[tempAsset])
+                    # adding metadata
+                    metadataArray.append(f"{tempAsset}")
+                    # removing used asset
+                    rarityArrayAsset.remove(tempAsset)
+
+        name = key
+        texturedAssetDict.update({name: texturedAssetArray})
+        metadataDict.update({name: metadataArray})
+        texturedAssetArray = []
+        metadataArray = []
+        rarityDictAsset = {}
+        rarityDictTexture = {}
+
+    image_path = f"collections/{tempDict['CollectionName']}"
+    os.makedirs(image_path)
+
+    # iterating over textured assets dictionary, and combining them
+    for i in range(tempDict["CollectionSize"]):
+        # creating a base image to paste on. Type, Size, Color paramters
+        im = Image.new(
+            "RGBA", (tempDict["Resolution"], tempDict["Resolution"]), (0, 0, 0, 0)
+        )
+        temp_json = {
+            "name": f"{tempDict['CollectionName']}#{i}",
+            "description": tempDict["Description"],
+            "image": "",
+        }
+        temp_list = []
+        for value in texturedAssetDict:
+
+            temp_asset = texturedAssetDict[value][i]
+
+            im.paste(temp_asset, (0, 0), temp_asset)
+            temp_list.append(
+                {"trait_type": value, "value": metadataDict[value][i]},
+            )
+        temp_json.update({"attributes": temp_list})
+        im.save(f"{image_path}/{tempDict['CollectionName']}{i}.png", "PNG")
+        with open(
+            f"{image_path}/{tempDict['CollectionName']}{i}.json", "w"
+        ) as json_file:
+            json.dump(temp_json, json_file)
