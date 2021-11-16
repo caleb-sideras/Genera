@@ -126,9 +126,9 @@ function add_collection() {
         layers_row2.classList = "nft_bottom bottom_round_container"
 
         add_layer_img = document.createElement('img')
-        add_layer_img.src = "static/Assets/Examples/" + step + ".png"
+        add_layer_img.src = "media/collections/Void/Void" + step + ".png"
         add_layer_img.classList = "nft_preview"
-
+        console.log(add_layer_img.src)
         add_layer_img.dataset.layer = add_layer_input.value
 
         layers_row2.appendChild(Object.assign(document.createElement('h4'), { textContent: "#" + step, classList: "nft_text center" }))

@@ -12,4 +12,5 @@ urlpatterns = [
     path("upload", upload_view, name="upload"),
     path("login", login_view, name="login"),
     path("mint", mint_view, name="mint"),
+    path("metamask", metamask_view, name="metamask"),
 ]

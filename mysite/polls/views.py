@@ -170,3 +170,8 @@ def mint_view(request):
     # context = {}
 
     return render(request, "mint.html")
+
+
+def metamask_view(request):
+
+    return render(request, "metamask.html")

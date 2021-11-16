@@ -185,7 +185,7 @@ def createImage(tempDict):
         rarityDictAsset = {}
         rarityDictTexture = {}
     print("Creating/saving .png & .json")
-    image_path = f"collections/{tempDict['CollectionName']}"
+    image_path = f"media/collections/{tempDict['CollectionName']}"
     os.makedirs(image_path)
 
     # iterating over textured assets dictionary, and combining them
