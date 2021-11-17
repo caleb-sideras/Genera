@@ -1,4 +1,11 @@
-{% extends 'base.html' %} {% load static %} {% block body_block %}
+{% extends 'base.html' %}
+{% load static %}
+
+{% block head_block %}
+  <script type="text/javascript" src="{% static 'js/upload_page.js' %}"></script>
+{% endblock %}
+
+{% block body_block %}
 <form method="post" enctype="multipart/form-data" class="upload_wrapper">
   {% csrf_token %}
   <div class="upload_upper">

@@ -1,133 +1,140 @@
-{% extends 'base.html' %} {% load static %} {% block body_block %}
-<form method="post" enctype="multipart/form-data" class="upload_wrapper">
-  {% csrf_token %}
-  <!-- <div class="upload_upper">
-    <div class="upload_section_swap rounded_container shadow_strong">
-      <img
-        class="grow color_image_dark"
-        src="{% static 'icons/layer.svg' %} "
-        onclick="switch_tabs('layers')"
-      />
-      <img
-        class="grow color_image_dark"
-        src="{% static 'icons/texture.svg' %}"
-        onclick="switch_tabs('textures')"
-      />
-      <img
-        class="grow color_image_dark"
-        src="{% static 'icons/rarity.svg' %}"
-      />
-    </div>
-  </div> -->
+{% extends 'base.html' %}
+{% load static %}
 
-  <div class="upload_main">
-    <div class="nft_main rounded_container_no_padding">
-      <img
-        class="color_image_orange grow, top_close_button"
-        src="{% static 'icons/plus.svg' %}"
-      />
-      <div class="nft_preview" style="color: aliceblue">
-        <img src="{% static 'Assets/Examples/1.png' %}" />
+{% block head_block %}
+  <script type="text/javascript" src="{% static 'js/upload_page.js' %}"></script>
+{% endblock %}
+
+{% block body_block %}
+  <form method="post" enctype="multipart/form-data" class="upload_wrapper">
+    {% csrf_token %}
+    <!-- <div class="upload_upper">
+      <div class="upload_section_swap rounded_container shadow_strong">
+        <img
+          class="grow color_image_dark"
+          src="{% static 'icons/layer.svg' %} "
+          onclick="switch_tabs('layers')"
+        />
+        <img
+          class="grow color_image_dark"
+          src="{% static 'icons/texture.svg' %}"
+          onclick="switch_tabs('textures')"
+        />
+        <img
+          class="grow color_image_dark"
+          src="{% static 'icons/rarity.svg' %}"
+        />
       </div>
+    </div> -->
 
-      <div class="nft_bottom bottom_round_container">
-        <h4 class="nft_text center">Void#1</h4>
-        <div
-          class="view_metadata orange_background rounded_container_no_padding"
-        >
-          View Metadata
+    <div class="upload_main">
+      <div class="nft_main rounded_container_no_padding">
+        <img
+          class="color_image_orange grow top_close_button"
+          src="{% static 'icons/plus.svg' %}"
+        />
+        <div class="nft_preview" style="color: aliceblue">
+          <img src="{% static 'Assets/Examples/1.png' %}" />
+        </div>
+
+        <div class="nft_bottom bottom_round_container">
+          <h4 class="nft_text center">Void#1</h4>
+          <div
+            class="view_metadata orange_background rounded_container_no_padding"
+          >
+            View Metadata
+          </div>
         </div>
       </div>
-    </div>
 
-    <div class="upload_layers rounded_container shadow_strong">
-      <h4 class="no_margin center">Layers</h4>
-      <div class="upload_layers_buttons">
-        <!-- <div class="general_button white_background"><div class="close_button" onclick="delete_button()">X</div><h5 class="no_margin"">Textures</h5><img data-layer="textures" onclick="add_smart_input(this)" class="color_image_orange grow" src="{% static 'icons/plus.svg' %}" onclick="add_collection()">
-          </div> -->
-      </div>
-
-      <input
-        id="add_layer_input"
-        class="general_input"
-        type="text"
-        placeholder="Add Layer"
-      />
-      <img
-        class="color_image_orange grow"
-        src="{% static 'icons/plus.svg' %}"
-        onclick="add_collection()"
-      />
-    </div>
-    <!-- <div class="upload_preview" style="color: aliceblue">
-      {% if not complete_json %}
-      <img class="grow" src="{% static 'Assets/Examples/1.png' %}" />
-      {% else %} {% for key,value in complete_json.items%}
-      <tr>
-        <br />
-        <td>"{{key}}" = "{{value}}"</td>
-        <br />
-      </tr>
-      {% endfor %} {% endif %}
-    </div> -->
-    <!-- <div class="upload_properties">
-      <div class="rounded_container shadow_strong">
-        <h4 class="no_margin center">Project properties</h4>
-        <div
-          style="
-            margin-top: 15px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            align-items: center;
-            justify-content: space-around;
-          "
-        >
-          <input
-            class="general_input"
-            name="name"
-            type="text"
-            value=""
-            placeholder="Project name"
-          />
-          <input
-            class="general_input"
-            name="resolution"
-            type="number"
-            min="4000"
-            max="4000"
-            placeholder="Dimensions"
-          />
-          <input
-            class="general_input"
-            name="size"
-            type="number"
-            value=""
-            placeholder="Collection size"
-          />
-          <input
-            class="general_input"
-            name="description"
-            type="text"
-            value=""
-            placeholder="Description"
-          />
+      <div class="upload_layers rounded_container shadow_strong">
+        <h4 class="no_margin center">Layers</h4>
+        <div class="upload_layers_buttons">
+          <!-- <div class="general_button white_background"><div class="close_button" onclick="delete_button()">X</div><h5 class="no_margin"">Textures</h5><img data-layer="textures" onclick="add_smart_input(this)" class="color_image_orange grow" src="{% static 'icons/plus.svg' %}" onclick="add_collection()">
+            </div> -->
         </div>
+
+        <input
+          id="add_layer_input"
+          class="general_input"
+          type="text"
+          placeholder="Add Layer"
+        />
+        <img
+          class="color_image_orange grow"
+          src="{% static 'icons/plus.svg' %}"
+          onclick="add_collection()"
+        />
       </div>
-      <button
-        type="button"
-        class="general_button light_grey_bacground shadow_weak"
-        style="cursor: default"
-      >
-        <h4 class="no_margin">Delete Duplicates</h4>
-      </button>
-      <button
-        type="submit"
-        class="general_button orange_background grow shadow_weak"
-      >
-        <h4 class="no_margin">Mint</h4>
-      </button>
-    </div> -->
-  </div>
-</form>
+      <!-- <div class="upload_preview" style="color: aliceblue">
+        {% if not complete_json %}
+        <img class="grow" src="{% static 'Assets/Examples/1.png' %}" />
+        {% else %} {% for key,value in complete_json.items%}
+        <tr>
+          <br />
+          <td>"{{key}}" = "{{value}}"</td>
+          <br />
+        </tr>
+        {% endfor %} {% endif %}
+      </div> -->
+      <!-- <div class="upload_properties">
+        <div class="rounded_container shadow_strong">
+          <h4 class="no_margin center">Project properties</h4>
+          <div
+            style="
+              margin-top: 15px;
+              display: flex;
+              flex-direction: column;
+              gap: 10px;
+              align-items: center;
+              justify-content: space-around;
+            "
+          >
+            <input
+              class="general_input"
+              name="name"
+              type="text"
+              value=""
+              placeholder="Project name"
+            />
+            <input
+              class="general_input"
+              name="resolution"
+              type="number"
+              min="4000"
+              max="4000"
+              placeholder="Dimensions"
+            />
+            <input
+              class="general_input"
+              name="size"
+              type="number"
+              value=""
+              placeholder="Collection size"
+            />
+            <input
+              class="general_input"
+              name="description"
+              type="text"
+              value=""
+              placeholder="Description"
+            />
+          </div>
+        </div>
+        <button
+          type="button"
+          class="general_button light_grey_bacground shadow_weak"
+          style="cursor: default"
+        >
+          <h4 class="no_margin">Delete Duplicates</h4>
+        </button>
+        <button
+          type="submit"
+          class="general_button orange_background grow shadow_weak"
+        >
+          <h4 class="no_margin">Mint</h4>
+        </button>
+      </div> -->
+    </div>
+  </form>
 {% endblock %}
