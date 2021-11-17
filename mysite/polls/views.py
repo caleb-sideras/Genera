@@ -96,7 +96,7 @@ def upload_view(request):
                                 "PIL": file_to_pil(
                                     file
                                 ),  # REPLACE WITH file_to_pil(file) WHEN NEED ACTUAL FILE OBJECT IN NUMPY
-                                "Rarity": 5,
+                                "Rarity": 2,
                             }
                         )
                     if layer_type == "texture":
@@ -106,7 +106,7 @@ def upload_view(request):
                                 "PIL": file_to_pil(
                                     file
                                 ),  # REPLACE WITH file_to_pil(file) WHEN NEED ACTUAL FILE OBJECT IN NUMPY
-                                "Rarity": 5,
+                                "Rarity": 2,
                             }
                         )
 

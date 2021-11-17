@@ -321,7 +321,8 @@ body {
   text-overflow: ellipsis;
   background-color: var(--white-color);
   width: min(30vw, 200px);
-  height: min(45vw, 300px);
+  height: min(45vh, 300px);
+  /* flex-wrap: wrap; */
   /* min-width: 280px; */
   /* flex: 0 0 min(30vw, 350px); */
   position: relative;
