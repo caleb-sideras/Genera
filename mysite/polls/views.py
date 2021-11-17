@@ -10,6 +10,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from pathlib import Path
 import json
+from django.core.exceptions import PermissionDenied
 import base64
 from PIL import Image
 import numpy as np
@@ -24,7 +25,7 @@ def main_view(request):
 
     # if request.METHOD == "POST":
 
-    created = createImage
+    created = create_and_save_collection
 
     # x = generateRandomNumber(1, 3, 5)
     context = {}
@@ -36,7 +37,7 @@ def temp_view(request):
 
     # if request.METHOD == "POST":
 
-    # created = createImage
+    # created = create_and_save_collection
 
     # x = generateRandomNumber(1, 3, 5)
     # context = {}
@@ -50,6 +51,7 @@ def get_or_create_subdirectory(sd):
 
 def upload_view(request):
     # users_imgs = UserAsset.objects.filter(user=request.user)
+    context = {}
 
     def file_to_pil(
         file,
@@ -70,8 +72,21 @@ def upload_view(request):
             calebs_gay_dict["CollectionSize"] = int(float(request.POST["size"]))
             layers = {}
 
-            files_array = []
-            n_textures = 0
+            db_collection = UserCollection.objects.get_or_create(user=request.user, collection_name=calebs_gay_dict["CollectionName"])
+            if db_collection[1]:
+                db_collection = db_collection[0]
+            else:
+                messages.error(
+                    request,
+                    message="YOU ALREADY HAVE A COLLECTION WITH THAT NAME! !!! ! ! ! !! ",
+                )
+                raise PermissionDenied()
+
+            db_collection.description = calebs_gay_dict["Description"]
+            db_collection.dimension_x = calebs_gay_dict["Resolution"]
+            db_collection.dimension_y = calebs_gay_dict["Resolution"]
+            db_collection.collection_size = calebs_gay_dict["CollectionSize"]
+            db_collection.collection_size()
 
             for filename, file in request.FILES.items():
                 filename_components = filename.split(".")
@@ -96,7 +111,7 @@ def upload_view(request):
                                 "PIL": file_to_pil(
                                     file
                                 ),  # REPLACE WITH file_to_pil(file) WHEN NEED ACTUAL FILE OBJECT IN NUMPY
-                                "Rarity": 2,
+                                "Rarity": 5,
                             }
                         )
                     if layer_type == "texture":
@@ -106,7 +121,7 @@ def upload_view(request):
                                 "PIL": file_to_pil(
                                     file
                                 ),  # REPLACE WITH file_to_pil(file) WHEN NEED ACTUAL FILE OBJECT IN NUMPY
-                                "Rarity": 2,
+                                "Rarity": 5,
                             }
                         )
 
@@ -129,13 +144,32 @@ def upload_view(request):
 
             # print("SAVED TO DB")
             print(calebs_gay_dict)
-            createImage(calebs_gay_dict)
+
+            create_and_save_collection(calebs_gay_dict, db_collection, request.user)
+
+            CollectionImage.objects.filter(linked_collection__id=db_collection.id)
+            
+            db_collection_images = CollectionImage.objects.filter(linked_collection__id=db_collection.id)
+
+            context["collection"] = db_collection
+            context["collection_images"] = db_collection_images
+            context["complete_json"] = calebs_gay_dict
+
             messages.success(
                 request,
                 message="YOU HAVE GENERATED THE IMAGE IDIOTTERMAN.... ITS IN DB !!!!",
             )
             # return render(request, "upload.html", {"complete_json": calebs_gay_dict})
-    return render(request, "upload.html", {"complete_json": None})
+
+    else:
+        print("ASS")
+        db_collection = UserCollection.objects.filter(user=request.user).first()
+        if db_collection:
+            db_collection_images = CollectionImage.objects.filter(linked_collection__id=db_collection.id)
+            context["collection"] = db_collection
+            context["collection_images"] = db_collection_images
+
+    return render(request, "upload.html", context)
 
 
 def login_view(request):
@@ -164,7 +198,7 @@ def mint_view(request):
 
     # if request.METHOD == "POST":
 
-    # created = createImage
+    # created = create_and_save_collection
 
     # x = generateRandomNumber(1, 3, 5)
     # context = {}

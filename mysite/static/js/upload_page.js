@@ -110,7 +110,6 @@ function delete_button() {
 }
 
 
-
 //EXTRA TEST STUFF
 function add_collection() {
     add_layer_input = document.getElementById("add_layer_input")

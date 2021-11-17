@@ -3,6 +3,7 @@ import numpy as np
 import random
 import os
 import json
+from polls.models import *
 
 # Notes
 # - the current textures Samoshin sent me are buggy, they only use A (Alpha) values in the RGBA format
@@ -110,11 +111,11 @@ def rarityAppend2(json_object, json_name, rarity_list, asset_dict):
     for asset in json_object[json_name]:
         rarity = asset["Rarity"]
         asset_dict.update({asset["Name"]: asset["PIL"]})
-        for x in range(rarity):
+        for _ in range(rarity):
             rarity_list.append(asset["Name"])
 
 
-def createImage(tempDict):
+def create_and_save_collection(tempDict, db_collection, user = None):
     print(tempDict["CollectionName"])
     print(tempDict["Description"])
 
@@ -128,9 +129,7 @@ def createImage(tempDict):
     metadataDict = {}
 
     for key, value in tempDict["Layers"].items():
-        chosenAsset = 0
         texturedAsset = 0
-        temps = 0
         print(f"Generating {key} layer")
 
         if value["Assets"] and value["Textures"]:
@@ -185,17 +184,20 @@ def createImage(tempDict):
         rarityDictAsset = {}
         rarityDictTexture = {}
     print("Creating/saving .png & .json")
-    image_path = f"media/collections/{tempDict['CollectionName']}"
-    os.makedirs(image_path)
+    collection_path = f"media/users/{user.username}/collections/{tempDict['CollectionName']}"
+    os.makedirs(collection_path)
 
     # iterating over textured assets dictionary, and combining them
     for i in range(tempDict["CollectionSize"]):
+        image_to_collection_db = CollectionImage.objects.create(linked_collection=db_collection)
+        image_to_collection_db.name = f"{tempDict['CollectionName']}{i}"
+
         # creating a base image to paste on. Type, Size, Color paramters
         im = Image.new(
             "RGBA", (tempDict["Resolution"], tempDict["Resolution"]), (0, 0, 0, 0)
         )
         temp_json = {
-            "name": f"{tempDict['CollectionName']}#{i}",
+            "name": f"{tempDict['CollectionName']}{i}",
             "description": tempDict["Description"],
             "image": "",
         }
@@ -209,10 +211,17 @@ def createImage(tempDict):
                 {"trait_type": value, "value": metadataDict[value][i]},
             )
         temp_json.update({"attributes": temp_list})
-        im.save(f"{image_path}/{tempDict['CollectionName']}{i}.png", "PNG")
-        with open(
-            f"{image_path}/{tempDict['CollectionName']}{i}.json", "w"
-        ) as json_file:
-            json.dump(temp_json, json_file)
+        image_to_collection_db.metadata = temp_json
 
+        current_image_path = f"{collection_path}/{image_to_collection_db.name}.png"
+        im.save(current_image_path, "PNG")
+        image_to_collection_db.image_reference = current_image_path
+        image_to_collection_db.save()
+
+        # with open(
+        #     f"{collection_path}/{tempDict['CollectionName']}#{i}.json", "w"
+        # ) as json_file:
+        #     json.dump(temp_json, json_file)
     print("Finished generation")
+
+    

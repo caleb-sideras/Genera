@@ -6,6 +6,7 @@
   --white-color: #e2e2da;
 }
 
+/* GENERAL */
 input[type="text"],
 input[type="number"] {
   background-color: var(--white-color);
@@ -115,13 +116,11 @@ body {
 }
 
 .color_image_orange {
-  filter: invert(74%) sepia(37%) saturate(553%) hue-rotate(332deg)
-    brightness(95%) contrast(91%);
+  filter: invert(74%) sepia(37%) saturate(553%) hue-rotate(332deg) brightness(95%) contrast(91%);
 }
 
 .color_image_dark {
-  filter: invert(30%) sepia(13%) saturate(663%) hue-rotate(19deg)
-    brightness(92%) contrast(83%);
+  filter: invert(30%) sepia(13%) saturate(663%) hue-rotate(19deg) brightness(92%) contrast(83%);
 }
 
 .input_file::-webkit-file-upload-button {
@@ -150,7 +149,10 @@ body {
 .rounded_container_no_padding {
   border-radius: 30px;
 }
+/* GENERAL */
 
+
+/* UPLOAD PAGE */
 .upload_wrapper {
   padding: 10px 25px;
   height: 95vh;
@@ -296,8 +298,7 @@ body {
 }
 
 .upload_preview > img:hover {
-  filter: invert(74%) sepia(37%) saturate(553%) hue-rotate(332deg)
-    brightness(95%) contrast(91%);
+  filter: invert(74%) sepia(37%) saturate(553%) hue-rotate(332deg) brightness(95%) contrast(91%);
 }
 
 .upload_properties {
@@ -316,7 +317,9 @@ body {
   margin: 5px auto;
   width: 100%;
 }
+/* UPLOAD PAGE */
 
+/* COLLECTION PAGE */
 .nft_main {
   text-overflow: ellipsis;
   background-color: var(--white-color);
@@ -382,6 +385,7 @@ body {
   /* margin-bottom: 100px; */
   /* cursor: pointer; */
 }
+/* COLLECTION PAGE */
 
 
 /* METAMASK */
