@@ -72,7 +72,9 @@ def upload_view(request):
             calebs_gay_dict["CollectionSize"] = int(float(request.POST["size"]))
             layers = {}
 
-            db_collection = UserCollection.objects.get_or_create(user=request.user, collection_name=calebs_gay_dict["CollectionName"])
+            db_collection = UserCollection.objects.get_or_create(
+                user=request.user, collection_name=calebs_gay_dict["CollectionName"]
+            )
             if db_collection[1]:
                 db_collection = db_collection[0]
             else:
@@ -86,7 +88,6 @@ def upload_view(request):
             db_collection.dimension_x = calebs_gay_dict["Resolution"]
             db_collection.dimension_y = calebs_gay_dict["Resolution"]
             db_collection.collection_size = calebs_gay_dict["CollectionSize"]
-            db_collection.collection_size()
 
             for filename, file in request.FILES.items():
                 filename_components = filename.split(".")
@@ -148,8 +149,10 @@ def upload_view(request):
             create_and_save_collection(calebs_gay_dict, db_collection, request.user)
 
             CollectionImage.objects.filter(linked_collection__id=db_collection.id)
-            
-            db_collection_images = CollectionImage.objects.filter(linked_collection__id=db_collection.id)
+
+            db_collection_images = CollectionImage.objects.filter(
+                linked_collection__id=db_collection.id
+            )
 
             context["collection"] = db_collection
             context["collection_images"] = db_collection_images
@@ -165,7 +168,9 @@ def upload_view(request):
         print("ASS")
         db_collection = UserCollection.objects.filter(user=request.user).first()
         if db_collection:
-            db_collection_images = CollectionImage.objects.filter(linked_collection__id=db_collection.id)
+            db_collection_images = CollectionImage.objects.filter(
+                linked_collection__id=db_collection.id
+            )
             context["collection"] = db_collection
             context["collection_images"] = db_collection_images
 
