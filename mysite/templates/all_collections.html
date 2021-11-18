@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block body_block %}
+    <div class="collection_structure">
+        <h1>Collections</h1>
+        <div class="all_collections_layout">
+        {% if users_collections %}
+            {% for collection in users_collections %}
+                <div class="collection_card">
+                    <img src="https://via.placeholder.com/150">
+                    <div>
+                        <p class="no_margin center">{{collection.collection_name}}</p>
+                        <a href="{% url 'polls:collection' user.username collection.collection_name%}">
+                            <button class="general_button orange_background">open</button>
+                        </a>
+                    </div>
+                </div>
+            {% endfor %}
+        {% endif %}
+        </div>
+    </div>
+{% endblock %}

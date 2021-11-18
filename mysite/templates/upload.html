@@ -59,22 +59,7 @@
     </div>
 
     <div class="upload_preview" style="color: aliceblue">
-      {% if not collection %}
         <img class="grow" src="{% static 'Assets/Examples/1.png' %}" />
-      {% else %}
-        <p>{{collection.collection_name}}</p>
-        <p>{{collection.description}}</p>
-        <p>{{collection.collection_size}}</p>
-
-        <div style="display: flex; flex-wrap: wrap;">
-          {% for image in collection_images %}
-            <div style="max-width: 300px; max-height: 300px;">
-              <p> {{image.name}} </p>
-              <img style="width: 100px; aspect-ratio: 1;" src="{{image.image_reference}}">
-            </div>
-          {% endfor %}
-        </div>
-      {% endif %}
     </div>
     <div class="upload_properties">
       <div class="rounded_container shadow_strong">

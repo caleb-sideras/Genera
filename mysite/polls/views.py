@@ -61,8 +61,6 @@ def upload_view(request):
 
     calebs_gay_dict = {}
 
-
-
     if request.method == "POST":
         if len(request.FILES) != 0:
             calebs_gay_dict["CollectionName"] = request.POST["name"]
@@ -156,12 +154,13 @@ def upload_view(request):
             context["collection"] = db_collection
             context["collection_images"] = db_collection_images
             context["complete_json"] = calebs_gay_dict
+            redirect(reverse("polls:collection", kwargs= {'username': request.user.username, 'collection_name': db_collection.collection_name}))
 
             messages.success(
                 request,
-                message="YOU HAVE GENERATED THE IMAGE IDIOTTERMAN.... ITS IN DB !!!!",
+                message="YOU HAVE GENERATED THE IMAGE - Redirecting to My Collections page!!!!",
             )
-            # return render(request, "upload.html", {"complete_json": calebs_gay_dict})
+            
 
     else:
         print("ASS")
@@ -207,6 +206,36 @@ def mint_view(request):
 
     return render(request, "mint.html")
 
+def all_collections_view(request, username):
+    context = {}
+
+    user = User.objects.filter(username=username).first()
+    context["user"] = user
+
+    if user:
+        users_collections = UserCollection.objects.filter(user=user)
+        print(users_collections)
+        if users_collections:
+            context["users_collections"] = users_collections
+        else:
+            print("User has no collections.")
+            raise PermissionDenied()
+    
+    return render(request, "all_collections.html", context)
+
+def collection_view(request, username, collection_name):
+    context = {}
+
+    user = User.objects.filter(username=username).first()
+    context["user"] = user
+
+    if user:
+        user_collection = UserCollection.objects.filter(user=user, collection_name=collection_name).first()
+        collection_images = CollectionImage.objects.filter(linked_collection__id=user_collection.id)
+    context["collection_data"] = user_collection
+    context["collection_images"] = collection_images
+
+    return render(request, "collection.html", context)
 
 def metamask_view(request):
     if request.method == "POST":

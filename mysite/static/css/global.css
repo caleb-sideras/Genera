@@ -399,6 +399,54 @@ body {
 /* COLLECTION PAGE */
 
 
+/* all collections */
+.collection_structure {
+  margin: 0 50px;
+}
+
+.collection_structure > h1 {
+  color: var(--medium-grey-color);
+}
+
+.all_collections_layout {
+  display: flex;
+  flex-wrap: wrap;
+  width: 70vw;
+  gap: 15px;
+}
+
+.collection_card {
+  border-radius: 15px;
+  height: 250px;
+  width: 200px;
+  background-color: var(--medium-grey-color);
+  overflow: hidden;
+}
+
+/* fix overflow borderadius.. */
+.collection_card img {
+  height: 150px;
+  aspect-ratio: 1;
+  height: 70%;
+  width: 100%;
+  margin-bottom: 5px;
+}
+
+.collection_card > div{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  height: auto;
+}
+
+/* .collection_card button {
+  width: 75%;
+} */
+
+/* all collections */
+
+
 /* METAMASK */
 .metamask_login_button {
   margin: 15px;
