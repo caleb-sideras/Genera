@@ -59,13 +59,11 @@ def upload_view(request):
         return Image.open(io.BytesIO(file.read()))
 
     calebs_gay_dict = {}
+
+
+
     if request.method == "POST":
         if len(request.FILES) != 0:
-
-            # calebs_gay_dict["CollectionName"] = "idiot user forgot to name collection"
-            # calebs_gay_dict["Description"] = "idiot user forgot to give description"
-            # calebs_gay_dict["Resolution"] = "idiot user no resolution smh"
-            # calebs_gay_dict["CollectionSize"] = "idiot user no collection size"
             calebs_gay_dict["CollectionName"] = request.POST["name"]
             calebs_gay_dict["Description"] = request.POST["description"]
             calebs_gay_dict["Resolution"] = int(float(request.POST["resolution"]))
@@ -86,7 +84,7 @@ def upload_view(request):
             db_collection.dimension_x = calebs_gay_dict["Resolution"]
             db_collection.dimension_y = calebs_gay_dict["Resolution"]
             db_collection.collection_size = calebs_gay_dict["CollectionSize"]
-            db_collection.collection_size()
+            rarity_map = json.loads(request.POST["rarity_map"])
 
             for filename, file in request.FILES.items():
                 filename_components = filename.split(".")
@@ -111,7 +109,7 @@ def upload_view(request):
                                 "PIL": file_to_pil(
                                     file
                                 ),  # REPLACE WITH file_to_pil(file) WHEN NEED ACTUAL FILE OBJECT IN NUMPY
-                                "Rarity": 5,
+                                "Rarity": rarity_map[filename],
                             }
                         )
                     if layer_type == "texture":
@@ -121,7 +119,7 @@ def upload_view(request):
                                 "PIL": file_to_pil(
                                     file
                                 ),  # REPLACE WITH file_to_pil(file) WHEN NEED ACTUAL FILE OBJECT IN NUMPY
-                                "Rarity": 5,
+                                "Rarity": rarity_map[filename],
                             }
                         )
 

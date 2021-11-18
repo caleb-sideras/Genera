@@ -11,9 +11,11 @@ function main() {
 async function login() {
     console.log("login clicked");
     var user = await Moralis.Web3.authenticate();
+
     if (user) {
         create_notification("Connection status", "Wallet connected succesfully!", duration = 10000, "success")
         console.log(user);
+        
         user.set("nickname", "Caleb");
         user.set("fav_color", "blue");
         user.save();

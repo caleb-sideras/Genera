@@ -248,14 +248,25 @@ body {
 .upload_layers_buttons > div > div {
   flex: 0 0 100%;
   display: flex;
+  flex-wrap: wrap;
   justify-content: center;
   align-items: center;
   max-width: 100%;
   gap: 5px;
 }
 
-.upload_layers_buttons > div > div > input {
-  flex: 1 0 150px;
+.upload_layers_buttons > div > div > input[type=file] {
+  flex: 1 0 100px;
+}
+
+.upload_layers_buttons > div > div > input[type=range] {
+  background-color: var(--orange-color);
+}
+
+.upload_slider_section {
+  display: flex;
+  gap: 5px;
+  margin-bottom: 15px;
 }
 
 .upload_layers_buttons > div > div > h5 {
