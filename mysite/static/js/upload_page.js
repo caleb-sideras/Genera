@@ -5,7 +5,6 @@ rarity_map = {}
 
 function main() {
     rarity_map = {}
-    console.log("LMAO")
 
     document.getElementById("collection_size").addEventListener("change", function(e) {
         if (e.target.value > 0) {

@@ -10,6 +10,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from pathlib import Path
 import json
+from django.http import JsonResponse, RawPostDataException
 from django.core.exceptions import PermissionDenied
 import base64
 from PIL import Image
@@ -78,13 +79,14 @@ def upload_view(request):
                     request,
                     message="YOU ALREADY HAVE A COLLECTION WITH THAT NAME! !!! ! ! ! !! ",
                 )
-                raise PermissionDenied()
+                # raise PermissionDenied()
 
             db_collection.description = calebs_gay_dict["Description"]
             db_collection.dimension_x = calebs_gay_dict["Resolution"]
             db_collection.dimension_y = calebs_gay_dict["Resolution"]
             db_collection.collection_size = calebs_gay_dict["CollectionSize"]
             rarity_map = json.loads(request.POST["rarity_map"])
+            print(rarity_map)
 
             for filename, file in request.FILES.items():
                 filename_components = filename.split(".")
@@ -109,7 +111,7 @@ def upload_view(request):
                                 "PIL": file_to_pil(
                                     file
                                 ),  # REPLACE WITH file_to_pil(file) WHEN NEED ACTUAL FILE OBJECT IN NUMPY
-                                "Rarity": rarity_map[filename],
+                                "Rarity": int(float(rarity_map[filename])),
                             }
                         )
                     if layer_type == "texture":
@@ -119,7 +121,7 @@ def upload_view(request):
                                 "PIL": file_to_pil(
                                     file
                                 ),  # REPLACE WITH file_to_pil(file) WHEN NEED ACTUAL FILE OBJECT IN NUMPY
-                                "Rarity": rarity_map[filename],
+                                "Rarity": int(float(rarity_map[filename])),
                             }
                         )
 
@@ -205,5 +207,25 @@ def mint_view(request):
 
 
 def metamask_view(request):
+    if request.method == "POST":
+        ##AJAX HANDLING SECTION START
+        try:
+            received_json_data = json.loads(request.body)
+            if 'ajax_test' in received_json_data: #handle
+                print(received_json_data["ajax_test"]) ##print on server console the clientside message - u can pass any data u want from the js like this
+                ##Here you can do anything you want now. Access models, make changes, etc..
+                if request.user.is_authenticated:
+                    return JsonResponse(
+                        {"server_message": f"Server said hello from {request.user.username}!"}, status=200
+                    )
+                else:
+                    return JsonResponse(
+                        {"server_message": f"Server said hello from Anonymouse user!"}, status=200
+                    )
+       
+        except RawPostDataException: #NO AJAX DATA PROVIDED - DIFFERENT POST REQUEST INSTEAD
+            pass
+        ##AJAX HANDLING SECTION END
 
-    return render(request, "metamask.html")
+
+    return render(request, "metamask.html", {"url": reverse("polls:metamask")})

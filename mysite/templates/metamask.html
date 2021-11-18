@@ -16,4 +16,5 @@
 
 {% block body_block %}
   <button class="metamask_login_button general_button orange_background grow">Login with Metamask</button>
+  <button id="ajax_test" data-url="{{url}}" class="general_button orange_background grow" onclick="ajax_server_post(this.dataset.url)">Ajax button</button>
 {% endblock %}
