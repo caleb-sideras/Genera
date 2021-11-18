@@ -14,7 +14,6 @@ function main() {
             update_sliders(2)
         }
     })
-
     button_section_layers = document.getElementsByClassName("upload_layers_buttons")[0]
     button_section_textures = document.getElementsByClassName("upload_layers_buttons")[1]
     button_section_collection = document.getElementsByClassName("upload_main")[0]

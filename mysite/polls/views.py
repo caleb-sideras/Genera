@@ -79,7 +79,7 @@ def upload_view(request):
                     request,
                     message="YOU ALREADY HAVE A COLLECTION WITH THAT NAME! !!! ! ! ! !! ",
                 )
-                # raise PermissionDenied()
+                raise PermissionDenied()
 
             db_collection.description = calebs_gay_dict["Description"]
             db_collection.dimension_x = calebs_gay_dict["Resolution"]
@@ -105,25 +105,27 @@ def upload_view(request):
 
                 if layer_name in layers:
                     if layer_type == "asset":
-                        layers[layer_name]["Assets"].append(
-                            {
-                                "Name": file_name,
-                                "PIL": file_to_pil(
-                                    file
-                                ),  # REPLACE WITH file_to_pil(file) WHEN NEED ACTUAL FILE OBJECT IN NUMPY
-                                "Rarity": int(float(rarity_map[filename])),
-                            }
-                        )
+                        if (int(float(rarity_map[filename])) > 0):
+                            layers[layer_name]["Assets"].append(
+                                {
+                                    "Name": file_name,
+                                    "PIL": file_to_pil(
+                                        file
+                                    ),  # REPLACE WITH file_to_pil(file) WHEN NEED ACTUAL FILE OBJECT IN NUMPY
+                                    "Rarity": int(float(rarity_map[filename])),
+                                }
+                            )
                     if layer_type == "texture":
-                        layers[layer_name]["Textures"].append(
-                            {
-                                "Name": file_name,
-                                "PIL": file_to_pil(
-                                    file
-                                ),  # REPLACE WITH file_to_pil(file) WHEN NEED ACTUAL FILE OBJECT IN NUMPY
-                                "Rarity": int(float(rarity_map[filename])),
-                            }
-                        )
+                        if (int(float(rarity_map[filename])) > 0):
+                            layers[layer_name]["Textures"].append(
+                                {
+                                    "Name": file_name,
+                                    "PIL": file_to_pil(
+                                        file
+                                    ),  # REPLACE WITH file_to_pil(file) WHEN NEED ACTUAL FILE OBJECT IN NUMPY
+                                    "Rarity": int(float(rarity_map[filename])),
+                                }
+                            )
 
             calebs_gay_dict["Layers"] = layers  # calebd gay dict complete
 
@@ -226,6 +228,8 @@ def metamask_view(request):
         except RawPostDataException: #NO AJAX DATA PROVIDED - DIFFERENT POST REQUEST INSTEAD
             pass
         ##AJAX HANDLING SECTION END
+
+
 
 
     return render(request, "metamask.html", {"url": reverse("polls:metamask")})
