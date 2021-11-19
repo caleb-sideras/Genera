@@ -228,6 +228,10 @@ def collection_view(request, username, collection_name):
     return render(request, "collection.html", context)
 
 def metamask_view(request):
+    context = {}
+    json_string = {"lmao": "lol"}
+    context["json_string"] = json.dumps(json_string)
+    
     if request.method == "POST":
         ##AJAX HANDLING SECTION START
         try:
@@ -248,4 +252,7 @@ def metamask_view(request):
             pass
         ##AJAX HANDLING SECTION END
 
-    return render(request, "metamask.html", {"url": reverse("polls:metamask")})
+    context["url"] = reverse("polls:metamask")
+    return render(request, "metamask.html", context)
+
+

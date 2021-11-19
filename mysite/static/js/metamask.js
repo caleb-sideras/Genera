@@ -1,6 +1,14 @@
+ajax_script = {}
+
 function main() {
 
     login_button = document.getElementsByClassName("metamask_login_button")[0]
+
+    ajax_button = document.getElementById("ajax_test")
+    
+    ajax_script = ajax_button.dataset.json
+    console.log(JSON.parse(ajax_script))
+
     Moralis.initialize("5rreQED2xNHYym6yIRdpRdG21XXiwUV7en5biB3y"); // Application id from moralis.io
     Moralis.serverURL = "https://6hrohfqr0ddj.usemoralis.com:2053/server"; //Server url from moralis.io
     login_button.addEventListener("click", function() {

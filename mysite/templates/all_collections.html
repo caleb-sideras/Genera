@@ -12,7 +12,7 @@
                     <div>
                         <p class="no_margin center">{{collection.collection_name}}</p>
                         <p style="font-size: smaller;" class="no_margin center">description: {{collection.description}}</p>
-                        <a href="{% url 'polls:collection' user.username collection.collection_name%}">
+                        <a href="{% url 'polls:collection' user.username collection.collection_name %}">
                             <button class="general_button orange_background">open</button>
                         </a>
                     </div>
