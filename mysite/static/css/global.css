@@ -116,11 +116,13 @@ body {
 }
 
 .color_image_orange {
-  filter: invert(74%) sepia(37%) saturate(553%) hue-rotate(332deg) brightness(95%) contrast(91%);
+  filter: invert(74%) sepia(37%) saturate(553%) hue-rotate(332deg)
+    brightness(95%) contrast(91%);
 }
 
 .color_image_dark {
-  filter: invert(30%) sepia(13%) saturate(663%) hue-rotate(19deg) brightness(92%) contrast(83%);
+  filter: invert(30%) sepia(13%) saturate(663%) hue-rotate(19deg)
+    brightness(92%) contrast(83%);
 }
 
 .input_file::-webkit-file-upload-button {
@@ -150,7 +152,6 @@ body {
   border-radius: 30px;
 }
 /* GENERAL */
-
 
 /* UPLOAD PAGE */
 .upload_wrapper {
@@ -298,7 +299,8 @@ body {
 }
 
 .upload_preview > img:hover {
-  filter: invert(74%) sepia(37%) saturate(553%) hue-rotate(332deg) brightness(95%) contrast(91%);
+  filter: invert(74%) sepia(37%) saturate(553%) hue-rotate(332deg)
+    brightness(95%) contrast(91%);
 }
 
 .upload_properties {
@@ -387,9 +389,11 @@ body {
 }
 /* COLLECTION PAGE */
 
-
 /* METAMASK */
 .metamask_login_button {
+  margin: 15px;
+}
+.enableEthereumButton {
   margin: 15px;
 }
 /* METAMASK */

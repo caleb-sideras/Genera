@@ -75,7 +75,7 @@ def deploy_and_create(uri_list):
 
 def main():
     # deploy_and_create(uri_list)
-    x = {"abi": NFTGenerator.abi}
+    x = {"abi": NFTGenerator.bytecode}
     print(x)
     with open("data.json", "w") as outfile:
         json.dump(x, outfile)
