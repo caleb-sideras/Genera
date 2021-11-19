@@ -147,7 +147,6 @@ function update_sliders(update_type) {
                         slider.max = Number(slider.value) + (collection_size - cum_sum)
                     else //if empty
                         slider.max = (collection_size - cum_sum)
-
                     slider_count.innerHTML =  slider.value
                     if (collection_size > 0)
                         slider.disabled = false

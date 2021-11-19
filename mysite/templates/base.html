@@ -13,12 +13,22 @@
   </head>
 
   <body>
+    {% if messages %}
+      <ul class="messages">
+          {% for message in messages %}
+          <li  {% if message.tags %} style="color: red; font-size: 2em;" class=" {{ message.tags }} " {% endif %}> {{ message }} </li>
+          {% endfor %}
+      </ul>
+    {% endif %}
+
     {% if request.user.is_authenticated%}
       <p style="color: aqua;">Logged in as: {{request.user.username}}</p>
-      <a href="{% url 'polls:all_collections' request.user.username %}"><p style="color: aqua;">View your collections!</p></a>
+      <a href="{% url 'polls:all_collections' request.user.username %}"><p style="color: aqua;">View All of your collections!</p></a>
     {% else %}
       <a href="{% url 'polls:login' %}"><p style="color: aqua;">You are not logged in. Please log in!</p></a>
     {% endif %}
+
+    
     
 
     {% block body_block %}{% endblock %}

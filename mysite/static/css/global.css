@@ -417,27 +417,43 @@ body {
 
 .collection_card {
   border-radius: 15px;
-  height: 250px;
+  min-height: 250px;
+  max-height: 350px;
   width: 200px;
   background-color: var(--medium-grey-color);
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding-bottom: 15px;
 }
 
-/* fix overflow borderadius.. */
 .collection_card img {
-  height: 150px;
+  max-height: 150px;
   aspect-ratio: 1;
   height: 70%;
   width: 100%;
-  margin-bottom: 5px;
+  margin-bottom: 15px;
 }
 
-.collection_card > div{
+.collection_card > div {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: 5px;
-  height: auto;
+}
+
+.collection_card > div > :last-child {
+  flex-grow: 1;
+}
+
+.collection_card > div > p{
+  margin: 0 5px;
+}
+
+.collection_card > div button {
+  margin-top: 10px;
 }
 
 /* .collection_card button {

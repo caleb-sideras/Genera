@@ -29,11 +29,12 @@ class UserCollection(Model):
     dimension_y = models.IntegerField(default=4000)
     collection_size = models.IntegerField(default=10)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
+    path = models.CharField(max_length=250)
 
 class CollectionImage(Model):
     linked_collection = models.ForeignKey(UserCollection, on_delete=models.CASCADE)
     name = models.CharField(max_length=50, unique=False)
-    image_reference = models.ImageField()
+    path = models.FilePathField()
     metadata = models.JSONField(null = True, blank = True)
 
 
