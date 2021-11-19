@@ -1,5 +1,4 @@
-{% extends 'base.html' %}
-{% load static %}
+{% extends 'base.html' %} {% load static %}
 
 <!--
 	1) AUTHENTICATE WITH METAMASK
@@ -8,12 +7,23 @@
 -->
 
 {% block head_block %}
-  <title>Metamask Demo</title>
-  <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
-  <script src="https://unpkg.com/moralis/dist/moralis.js"></script>
-  <script type="text/javascript" src="{% static 'js/metamask.js' %}"></script>
-{% endblock %}
-
-{% block body_block %}
-  <button class="metamask_login_button general_button orange_background grow">Login with Metamask</button>
+<title>Metamask Demo</title>
+<script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
+<!-- <script src="data.js"></script> -->
+<script src="https://cdn.jsdelivr.net/npm/requirejs@2.3.6/bin/r.min.js"></script>
+<script src="https://unpkg.com/@metamask/detect-provider/dist/detect-provider.min.js"></script>
+<!-- <script src="https://cdn.jsdelivr.net/npm/@metamask/detect-provider@1.2.0/dist/index.min.js"></script> -->
+<!-- <script src="https://unpkg.com/moralis/dist/moralis.js"></script> -->
+<script type="text/javascript" src="{% static 'js/metamask.js' %}"></script>
+{% endblock %} {% block body_block %}
+<button class="metamask_login_button general_button orange_background grow">
+  Login with Metamask
+</button>
+<button class="enableEthereumButton general_button orange_background grow">
+  Enable Ethereum
+</button>
+<!-- <h2>Account: <span class="showAccount"></span></h2> -->
+<button class="sendEthButton btn general_button orange_background grow">
+  Send Eth
+</button>
 {% endblock %}
