@@ -1,10 +1,9 @@
 ajax_script = {}
 let web3 = new Web3(Web3.givenProvider);//Web3.givenProvider || "ws://localhost:8545"
-
+contract_address = null
 function main() {
 
     ajax_button = document.getElementById("ajax_test")
-
     ajax_script = ajax_button.dataset.json
     console.log(JSON.parse(ajax_script))
     parsed_json = JSON.parse(ajax_script)
@@ -29,10 +28,11 @@ function main() {
                     },
                 ],
             })
-            .then(function (txHash) {
+            .then(async function (txHash) {
                 console.log('Transaction sent')
                 console.dir(txHash)
-                waitForTxToBeMined(txHash)
+                contract_address = await waitForTxToBeMined(txHash)
+                console.log(contract_address)
             })
             // .catch(console.error)
             // .then((txHash) => console.log(txHash)).catch((error) => console.error);
@@ -40,14 +40,15 @@ function main() {
 
     add_token.addEventListener('click', async () => {
         console.log("addToken clicked");
-        token_uri = abi_token_uri('https://ipfs.io/ipfs/QmNco8G5hrJfLdJpYwsxrygWXS1zcmW9AuY9Q8PstJFX9c'); // ipfs metadata (token uri)
+        token_uri = abi_token_uri('https://ipfs.io/ipfs/QmNco8G5hrJfLdJpYwsxrygWXS1zcmW9AuY9Q8PstJFX9c');// ipfs metadata (token uri)
+        console.log(contract_address) 
         deployed_token = await ethereum
             .request({
                 method: 'eth_sendTransaction',
                 params: [
                     {
                         from: '0x36acd77ca5bf2c84c0a60786581b322546d68193',
-                        to: '0xe749232000961dD3faBc6eca02095f501D16277e',
+                        to: contract_address,
                         gas: '0x210000',//180-200k usually
                         gasLimit: '0x21000000',
                         data: token_uri,
@@ -62,6 +63,7 @@ function main() {
             })
             // .then((txHash) => console.log(txHash))
             // .catch((error) => console.error);
+
     });
 
     login_metamask.addEventListener('click', async () => {
@@ -94,6 +96,7 @@ async function waitForTxToBeMined(txHash) {
     }
     console.log("success")
     console.log(txReceipt)
+    return txReceipt['contractAddress']
 }
 
 function ajax_server_post(url) {
