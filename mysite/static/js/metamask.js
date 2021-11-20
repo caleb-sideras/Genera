@@ -1,5 +1,5 @@
 ajax_script = {}
-let web3 = new Web3();//Web3.givenProvider || "ws://localhost:8545"
+let web3 = new Web3(Web3.givenProvider);//Web3.givenProvider || "ws://localhost:8545"
 
 function main() {
 
@@ -12,6 +12,7 @@ function main() {
     mint_collection = document.querySelector('.sendEthButton');
     add_token = document.querySelector('.addToken');
     login_metamask = document.querySelector('.ethereumButton');
+    test_button = document.querySelector('.testButton');
 
     mint_collection.addEventListener('click', async () => {
         constructor_paramter = constructor_string('Void', 'vde'); // User parameters
@@ -28,9 +29,13 @@ function main() {
                     },
                 ],
             })
-            .then((txHash) => console.log(txHash))
-            .catch((error) => console.error);
-        console.log(deployed_contract)
+            .then(function (txHash) {
+                console.log('Transaction sent')
+                console.dir(txHash)
+                waitForTxToBeMined(txHash)
+            })
+            // .catch(console.error)
+            // .then((txHash) => console.log(txHash)).catch((error) => console.error);
     });
 
     add_token.addEventListener('click', async () => {
@@ -42,7 +47,7 @@ function main() {
                 params: [
                     {
                         from: '0x36acd77ca5bf2c84c0a60786581b322546d68193',
-                        to: '0x178d22f33bE656101C0cCB864f33094F6C7A0d41',
+                        to: '0xe749232000961dD3faBc6eca02095f501D16277e',
                         gas: '0x210000',//180-200k usually
                         gasLimit: '0x21000000',
                         data: token_uri,
@@ -50,9 +55,13 @@ function main() {
                     },
                 ],
             })
-            .then((txHash) => console.log(txHash))
-            .catch((error) => console.error);
-        console.log(deployed_token)
+            .then(function (txHash) {
+                console.log('Transaction sent')
+                console.dir(txHash)
+                waitForTxToBeMined(txHash)
+            })
+            // .then((txHash) => console.log(txHash))
+            // .catch((error) => console.error);
     });
 
     login_metamask.addEventListener('click', async () => {
@@ -68,8 +77,23 @@ function main() {
         }
     });
 
+    test_button.addEventListener('click', async () =>{
+        txReceipt = web3.eth.getTransactionReceipt("0xc2ab8b9d5a965d918585f012fa4bfc6d6faf8987c74c56bf07501a04b51dbf9d").then(console.log);
+    });
     // ethereum.on('chainChanged', (_chainId) => window.location.reload());
     // ethereum.on('disconnect', (ProviderRpcError) => window.location.reload());
+}
+async function waitForTxToBeMined(txHash) {
+    let txReceipt
+    while (!txReceipt) {
+        try {
+            txReceipt = await web3.eth.getTransactionReceipt(txHash)
+        } catch (err) {
+            return console.log("failure")
+        }
+    }
+    console.log("success")
+    console.log(txReceipt)
 }
 
 function ajax_server_post(url) {
