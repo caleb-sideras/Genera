@@ -11,7 +11,7 @@ function main() {
     mint_collection = document.querySelector('.sendEthButton');
     add_token = document.querySelector('.addToken');
     login_metamask = document.querySelector('.ethereumButton');
-    test_button = document.querySelector('.testButton');
+    gas_estimate = document.querySelector('.testButton');
 
     mint_collection.addEventListener('click', async () => {
         constructor_paramter = constructor_string('Void', 'vde'); // User parameters
@@ -79,8 +79,21 @@ function main() {
         }
     });
 
-    test_button.addEventListener('click', async () =>{
-        txReceipt = web3.eth.getTransactionReceipt("0xc2ab8b9d5a965d918585f012fa4bfc6d6faf8987c74c56bf07501a04b51dbf9d").then(console.log);
+    gas_estimate.addEventListener('click', async () =>{
+        // mainnet
+        // gas estimate when deploying contract
+        constructor_paramter = constructor_string('Void', 'vde');
+        var result = await web3.eth.estimateGas({
+            data: parsed_json['bytecode'] + constructor_paramter
+        }).then(console.log);
+
+        // gas estimate when deploying token (doesnt work on Rinkeby testnet)
+        // token_uri = abi_token_uri('https://ipfs.io/ipfs/QmNco8G5hrJfLdJpYwsxrygWXS1zcmW9AuY9Q8PstJFX9c');
+        // var result = await web3.eth.estimateGas({
+        //     to: "0x240D3014Cdc300A9939AeDCcb508DD34cDcd815e", // ERC721: mint to the zero address error
+        //     data: token_uri
+        // }).then(console.log);
+            
     });
     // ethereum.on('chainChanged', (_chainId) => window.location.reload());
     // ethereum.on('disconnect', (ProviderRpcError) => window.location.reload());
@@ -175,7 +188,7 @@ function constructor_string(name, symbol) {
 
 function abi_token_uri(ifps_link) {
     console.log("Setting Token URI");
-    temp_token_uri = web3.eth.abi.encodeFunctionCall({
+    token_uri = web3.eth.abi.encodeFunctionCall({
         "inputs": [
             {
                 "internalType": "string",
@@ -189,7 +202,6 @@ function abi_token_uri(ifps_link) {
         "type": "function"
     }, [ifps_link]
     );
-    token_uri = temp_token_uri.replace('0x', '');
     console.log(token_uri);
 
     return token_uri;
