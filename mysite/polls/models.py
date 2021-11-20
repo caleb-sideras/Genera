@@ -34,8 +34,14 @@ class UserCollection(Model):
 class CollectionImage(Model):
     linked_collection = models.ForeignKey(UserCollection, on_delete=models.CASCADE)
     name = models.CharField(max_length=50, unique=False)
+
     path = models.FilePathField()
     metadata = models.JSONField(null = True, blank = True)
+
+
+
+
+
 
 
 

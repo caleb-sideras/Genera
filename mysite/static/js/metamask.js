@@ -1,8 +1,10 @@
-ajax_script = {}
+ajax_script = null
 let web3 = new Web3(Web3.givenProvider);//Web3.givenProvider || "ws://localhost:8545"
 contract_address = null
-function main() {
+ipfs_links = null
 
+function main() {
+    ipfs_links = []
     ajax_button = document.getElementById("ajax_test")
     ajax_script = ajax_button.dataset.json
     console.log(JSON.parse(ajax_script))
@@ -41,26 +43,30 @@ function main() {
     add_token.addEventListener('click', async () => {
         console.log("addToken clicked");
         token_uri = abi_token_uri('https://ipfs.io/ipfs/QmNco8G5hrJfLdJpYwsxrygWXS1zcmW9AuY9Q8PstJFX9c');// ipfs metadata (token uri)
-        console.log(contract_address) 
-        deployed_token = await ethereum
-            .request({
-                method: 'eth_sendTransaction',
-                params: [
-                    {
-                        from: '0x36acd77ca5bf2c84c0a60786581b322546d68193',
-                        to: contract_address,
-                        gas: '0x210000',//180-200k usually
-                        gasLimit: '0x21000000',
-                        data: token_uri,
-                        chainId: '0x4',
-                    },
-                ],
-            })
-            .then(function (txHash) {
-                console.log('Transaction sent')
-                console.dir(txHash)
-                waitForTxToBeMined(txHash)
-            })
+        console.log(contract_address)
+        for (let index = 0; index < ipfs_links.length; index++) {
+            deployed_token = await ethereum
+                .request({
+                    method: 'eth_sendTransaction',
+                    params: [
+                        {
+                            from: '0x36acd77ca5bf2c84c0a60786581b322546d68193',
+                            to: contract_address,
+                            gas: '0x210000',//180-200k usually
+                            gasLimit: '0x21000000',
+                            data: abi_token_uri(ipfs_links[index]),
+                            chainId: '0x4',
+                        },
+                    ],
+                })
+                .then(function (txHash) {
+                    console.log('Transaction sent')
+                    console.dir(txHash)
+                    waitForTxToBeMined(txHash)
+                })
+        } 
+        
+        
             // .then((txHash) => console.log(txHash))
             // .catch((error) => console.error);
 
@@ -128,8 +134,11 @@ function ajax_server_post(url) {
 
             if (http_request.status === 200) { //Status can also be different and defined within the JSONResponse
                 var response = JSON.parse(http_request.responseText)
+                ipfs_links = response["ipfs_links"]
+                //DO THE BS SWITCHERMAN
 
-                alert(response["server_message"]) //access specific key from the reponse object - we only pass server message in this example
+                // alert(response["server_message"]) //access specific key from the reponse object - we only pass server message in this example
+                console.log(ipfs_links)
 
             } else { //if status is not 200 - assume fail, unless different status handled explicitly
                 alert('There was a problem with the request.');
@@ -149,7 +158,7 @@ function ajax_server_post(url) {
         JSON.stringify(
             {
                 'csrfmiddlewaretoken': get_cookie('csrftoken'), //compulsory
-                'ajax_test': "This is a test message, from the clientside JS" //can add as many other entries to dict as necessary
+                'notneeded': "balls :)" //can add as many other entries to dict as necessary
             })
     )
 }
@@ -162,7 +171,7 @@ async function startApp(provider) {
     } else {
         account = await ethereum
             .request({ method: 'eth_requestAccounts' })
-            .then(handleAccountsChanged)
+            .then(handleAccountsChanged) //define handleAccountsChanged
             .catch((err) => {
                 if (err.code === 4001) {
                     // EIP-1193 userRejectedRequest error

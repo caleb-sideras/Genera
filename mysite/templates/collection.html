@@ -1,6 +1,14 @@
 {% extends 'base.html' %}
 {% load static %}
 
+{% block head_block %}
+<!-- <title>Metamask Demo</title> -->
+<script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
+<script src="https://unpkg.com/@metamask/detect-provider/dist/detect-provider.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
+<script type="text/javascript" src="{% static 'js/metamask.js' %}"></script>
+{% endblock %}
+
 {% block body_block %}
     <div class="collection_structure">
         <h1>{{collection_data.collection_name}} Collection</h1>
@@ -20,4 +28,17 @@
         {% endif %}
         </div>
     </div>
+    <button class="ethereumButton general_button orange_background grow">Login with Metamask</button>
+    <button class="sendEthButton btn general_button orange_background grow">Deploy contract</button>
+    <button class="addToken btn general_button orange_background grow">Add Token</button>
+    <button class="testButton btn general_button orange_background grow">Mainnet gas estimate</button>
+    <button
+    data-json="{{erc721_json}}"
+    id="ajax_test"
+    data-url="{{url}}"
+    class="general_button orange_background grow"
+    onclick="ajax_server_post(this.dataset.url)"
+    >
+    Ajax button
+    </button>
 {% endblock %}
