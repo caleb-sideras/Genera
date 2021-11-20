@@ -1,89 +1,117 @@
-function main() {
-    console.log("METAMASK")
-    login_button = document.getElementsByClassName("metamask_login_button")[0]
-    ethereumButton = document.querySelector('.enableEthereumButton');
-    sendEthButton = document.querySelector('.sendEthButton');
-    let accounts = [];
-    // const showAccount = document.querySelector('.showAccount');
-    // Moralis.initialize("5rreQED2xNHYym6yIRdpRdG21XXiwUV7en5biB3y"); // Application id from moralis.io
-    // Moralis.serverURL = "https://6hrohfqr0ddj.usemoralis.com:2053/server"; //Server url from moralis.io
-    login_button.addEventListener("click", function () {
-        login().then().catch(error => create_notification("Connection error", error.message, duration = 10000, "error"))
-    })
-    ethereumButton.addEventListener('click', () => {
-        getAccount();
-    });
+ajax_script = {}
+let web3 = new Web3();//Web3.givenProvider || "ws://localhost:8545"
 
-    sendEthButton.addEventListener('click', async () => {
-        account1 = await ethereum
+function main() {
+
+    ajax_button = document.getElementById("ajax_test")
+
+    ajax_script = ajax_button.dataset.json
+    console.log(JSON.parse(ajax_script))
+    parsed_json = JSON.parse(ajax_script)
+
+    mint_collection = document.querySelector('.sendEthButton');
+    add_token = document.querySelector('.addToken');
+    login_metamask = document.querySelector('.ethereumButton');
+
+    mint_collection.addEventListener('click', async () => {
+        constructor_paramter = constructor_string('Void', 'vde'); // User parameters
+        deployed_contract = await ethereum
             .request({
                 method: 'eth_sendTransaction',
                 params: [
-                    // "VoidChan", "vde",
                     {
                         from: '0x36acd77ca5bf2c84c0a60786581b322546d68193',
-                        // to: '0x2f318C334780961FB129D2a6c30D0763d9a5C970',
-                        // value: '0x29a2241af62c0000',
-                        // gasPrice: '0x09184e72a000',
                         gas: '0x210000',//180-200k usually
-                        // gasLimit: '0x21000000',
-                        data: '608060405234801561001057600080fd5b506040516102553803806102558339818101604052604081101561003357600080fd5b810190808051604051939291908464010000000082111561005357600080fd5b90830190602082018581111561006857600080fd5b825164010000000081118282018810171561008257600080fd5b82525081516020918201929091019080838360005b838110156100af578181015183820152602001610097565b50505050905090810190601f1680156100dc5780820380516001836020036101000a031916815260200191505b50604052602001805160405193929190846401000000008211156100ff57600080fd5b90830190602082018581111561011457600080fd5b825164010000000081118282018810171561012e57600080fd5b82525081516020918201929091019080838360005b8381101561015b578181015183820152602001610143565b50505050905090810190601f1680156101885780820380516001836020036101000a031916815260200191505b5060405250506000805550505060b2806101a36000396000f3fe6080604052348015600f57600080fd5b506004361060325760003560e01c80637feb5078146037578063d082e381146053575b600080fd5b605160048036036020811015604b57600080fd5b5035606b565b005b60596076565b60408051918252519081900360200190f35b600080549091019055565b6000548156fea2646970667358221220382579b8a00d817231ba48b8362dea47ae0461f4fcf263093d72e828d66f265f64736f6c63430006060033000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000004566f69640000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000035664650000000000000000000000000000000000000000000000000000000000',
+                        gasLimit: '0x21000000',
+                        data: parsed_json['bytecode'] + constructor_paramter,
                         chainId: '0x4',
-                        // piss: ["VoidChan", "vde"],
-
                     },
                 ],
             })
             .then((txHash) => console.log(txHash))
             .catch((error) => console.error);
-        console.log(account1)
+        console.log(deployed_contract)
     });
+
+    add_token.addEventListener('click', async () => {
+        console.log("addToken clicked");
+        token_uri = abi_token_uri('https://ipfs.io/ipfs/QmNco8G5hrJfLdJpYwsxrygWXS1zcmW9AuY9Q8PstJFX9c'); // ipfs metadata (token uri)
+        deployed_token = await ethereum
+            .request({
+                method: 'eth_sendTransaction',
+                params: [
+                    {
+                        from: '0x36acd77ca5bf2c84c0a60786581b322546d68193',
+                        to: '0x178d22f33bE656101C0cCB864f33094F6C7A0d41',
+                        gas: '0x210000',//180-200k usually
+                        gasLimit: '0x21000000',
+                        data: token_uri,
+                        chainId: '0x4',
+                    },
+                ],
+            })
+            .then((txHash) => console.log(txHash))
+            .catch((error) => console.error);
+        console.log(deployed_token)
+    });
+
+    login_metamask.addEventListener('click', async () => {
+        console.log("Login clicked");
+        console.log("Eth clicked");
+        const provider = await detectEthereumProvider();
+
+        if (provider) {
+            console.log('Installed!');
+            startApp(provider);
+        } else {
+            console.log('Please install MetaMask!');
+        }
+    });
+
     // ethereum.on('chainChanged', (_chainId) => window.location.reload());
     // ethereum.on('disconnect', (ProviderRpcError) => window.location.reload());
 }
 
-async function login() {
+function ajax_server_post(url) {
 
-    // temp = web3.eth.abi.encodeParameter('string[]', ['Voide', 'vdf']);
-    // console.log(temp)
-    // // var user = await Moralis.Web3.authenticate();
-    // // if (user) {
-    // //     create_notification("Connection status", "Wallet connected succesfully!", duration = 10000, "success")
-    // //     console.log(user);
-    // //     // user.set("nickname", "Caleb");
-    // //     // user.set("fav_color", "blue");
-    // //     // user.save();
-    // //     // console.log(user.get("nickname"));
-    // // }
-    // // Compile the source code
-    // // const input = fs.readFileSync('Token.sol');
-    // // const output = solc.compile(input.toString(), 1);
-    // // const bytecode = output.contracts['Token'].bytecode;
-    // // const abi = JSON.parse(output.contracts['Token'].interface);
-    // var mydata = JSON.parse(temp);
-    // // Contract object
-    // const contract = web3.eth.contract(temydatamp);
-    // console.log("mother")
-    // console.log(DATA["abi"][0])
-
-
-
-}
-async function getAccount() {
-    console.log("Eth clicked");
-    const provider = await detectEthereumProvider();
-    if (provider) {
-        console.log('Installed!');
-        // if (ethereum.isConnected()) {
-        // console.log("account already connected!")
-        // } else {
-        startApp(provider); // Initialize your app
-        // }
-
-    } else {
-        console.log('Please install MetaMask!');
+    //HTTPREQUEST INIT CODE
+    if (window.XMLHttpRequest) { // Mozilla, Safari, IE7+ ...
+        http_request = new XMLHttpRequest();
+    } else if (window.ActiveXObject) { // IE 6 and older
+        http_request = new ActiveXObject("Microsoft.XMLHTTP");
     }
+    //HTTPREQUEST INIT CODE
 
+    http_request.onreadystatechange = function () {
+        // Process the server response here (Sent from Django view inside JsonResponse)
+        if (http_request.readyState === XMLHttpRequest.DONE) {
+
+            if (http_request.status === 200) { //Status can also be different and defined within the JSONResponse
+                var response = JSON.parse(http_request.responseText)
+
+                alert(response["server_message"]) //access specific key from the reponse object - we only pass server message in this example
+
+            } else { //if status is not 200 - assume fail, unless different status handled explicitly
+                alert('There was a problem with the request.');
+            }
+        }
+    };
+
+    // Send the POST request to the url/DJANGO VIEW
+    //setup for request header - not important
+    http_request.open('POST', url, true);
+    http_request.setRequestHeader('X-CSRFToken', get_cookie('csrftoken'));
+    http_request.setRequestHeader('contentType', 'application/json');
+    //end of setup
+
+    // Send the request as a JSON MAKE SURE TO ALWAYS HAVE THE CSRFTOKEN COOKIE !!! !! ! ! ! !! 
+    http_request.send(
+        JSON.stringify(
+            {
+                'csrfmiddlewaretoken': get_cookie('csrftoken'), //compulsory
+                'ajax_test': "This is a test message, from the clientside JS" //can add as many other entries to dict as necessary
+            })
+    )
 }
 
 async function startApp(provider) {
@@ -109,5 +137,35 @@ async function startApp(provider) {
     console.log(account)
 }
 
+function constructor_string(name, symbol) {
+    console.log("Contructor");
+    temp_constructor_params = web3.eth.abi.encodeParameters(['string', 'string'], [name, symbol]);
+    constructor_params = temp_constructor_params.replace('0x', '');
+    console.log(constructor_params);
+
+    return constructor_params;
+}
+
+function abi_token_uri(ifps_link) {
+    console.log("Setting Token URI");
+    temp_token_uri = web3.eth.abi.encodeFunctionCall({
+        "inputs": [
+            {
+                "internalType": "string",
+                "name": "_tokenURI",
+                "type": "string"
+            }
+        ],
+        "name": "createNewCollectible",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    }, [ifps_link]
+    );
+    token_uri = temp_token_uri.replace('0x', '');
+    console.log(token_uri);
+
+    return token_uri;
+}
 
 window.addEventListener("load", main);

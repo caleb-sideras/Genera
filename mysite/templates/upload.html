@@ -59,22 +59,7 @@
     </div>
 
     <div class="upload_preview" style="color: aliceblue">
-      {% if not collection %}
         <img class="grow" src="{% static 'Assets/Examples/1.png' %}" />
-      {% else %}
-        <p>{{collection.collection_name}}</p>
-        <p>{{collection.description}}</p>
-        <p>{{collection.collection_size}}</p>
-
-        <div style="display: flex; flex-wrap: wrap;">
-          {% for image in collection_images %}
-            <div style="max-width: 300px; max-height: 300px;">
-              <p> {{image.name}} </p>
-              <img style="width: 100px; aspect-ratio: 1;" src="{{image.image_reference}}">
-            </div>
-          {% endfor %}
-        </div>
-      {% endif %}
     </div>
     <div class="upload_properties">
       <div class="rounded_container shadow_strong">
@@ -90,6 +75,7 @@
           "
         >
           <input
+            required
             class="general_input"
             name="name"
             type="text"
@@ -97,6 +83,7 @@
             placeholder="Project name"
           />
           <input
+            required
             class="general_input"
             name="resolution"
             type="number"
@@ -105,13 +92,18 @@
             placeholder="Dimensions"
           />
           <input
+            required
+            id="collection_size"
             class="general_input"
+            min="0"
+            max="1000"
             name="size"
             type="number"
-            value=""
+            value= ""
             placeholder="Collection size"
           />
           <input
+            required
             class="general_input"
             name="description"
             type="text"
@@ -127,6 +119,8 @@
       >
         <h4 class="no_margin">Preview</h4>
       </button>
+
+      <input type="hidden" name="rarity_map" id="rarity_map" value="">
       <button
         type="submit"
         class="general_button orange_background grow shadow_weak"

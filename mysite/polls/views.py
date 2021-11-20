@@ -10,6 +10,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from pathlib import Path
 import json
+from django.http import JsonResponse, RawPostDataException
 from django.core.exceptions import PermissionDenied
 import base64
 from PIL import Image
@@ -17,6 +18,9 @@ import numpy as np
 import io
 from .forms import *
 from .models import *
+from django.dispatch import receiver
+from django.db.models.signals import pre_delete
+import shutil
 
 # Create your views here.
 
@@ -59,13 +63,14 @@ def upload_view(request):
         return Image.open(io.BytesIO(file.read()))
 
     calebs_gay_dict = {}
+
     if request.method == "POST":
         if len(request.FILES) != 0:
+            if request.POST["rarity_map"] == "":
+                messages.error(request, message="No rarities attached")
+                return render(request, "upload.html", context)
 
-            # calebs_gay_dict["CollectionName"] = "idiot user forgot to name collection"
-            # calebs_gay_dict["Description"] = "idiot user forgot to give description"
-            # calebs_gay_dict["Resolution"] = "idiot user no resolution smh"
-            # calebs_gay_dict["CollectionSize"] = "idiot user no collection size"
+            rarity_map = json.loads(request.POST["rarity_map"])
             calebs_gay_dict["CollectionName"] = request.POST["name"]
             calebs_gay_dict["Description"] = request.POST["description"]
             calebs_gay_dict["Resolution"] = int(float(request.POST["resolution"]))
@@ -82,12 +87,14 @@ def upload_view(request):
                     request,
                     message="YOU ALREADY HAVE A COLLECTION WITH THAT NAME! !!! ! ! ! !! ",
                 )
-                raise PermissionDenied()
+                return render(request, "upload.html", context)
 
             db_collection.description = calebs_gay_dict["Description"]
             db_collection.dimension_x = calebs_gay_dict["Resolution"]
             db_collection.dimension_y = calebs_gay_dict["Resolution"]
             db_collection.collection_size = calebs_gay_dict["CollectionSize"]
+            db_collection.path = f"/media/users/{request.user.username}/collections/{calebs_gay_dict['CollectionName'].replace(' ', '_')}"
+            db_collection.save()
 
             for filename, file in request.FILES.items():
                 filename_components = filename.split(".")
@@ -106,73 +113,54 @@ def upload_view(request):
 
                 if layer_name in layers:
                     if layer_type == "asset":
-                        layers[layer_name]["Assets"].append(
-                            {
-                                "Name": file_name,
-                                "PIL": file_to_pil(
-                                    file
-                                ),  # REPLACE WITH file_to_pil(file) WHEN NEED ACTUAL FILE OBJECT IN NUMPY
-                                "Rarity": 5,
-                            }
-                        )
+                        if int(float(rarity_map[filename])) > 0:  # if rarity > 0
+                            layers[layer_name]["Assets"].append(
+                                {
+                                    "Name": file_name,
+                                    "PIL": file_to_pil(
+                                        file
+                                    ),  # REPLACE WITH file_to_pil(file) WHEN NEED ACTUAL FILE OBJECT IN NUMPY
+                                    "Rarity": int(float(rarity_map[filename])),
+                                }
+                            )
                     if layer_type == "texture":
-                        layers[layer_name]["Textures"].append(
-                            {
-                                "Name": file_name,
-                                "PIL": file_to_pil(
-                                    file
-                                ),  # REPLACE WITH file_to_pil(file) WHEN NEED ACTUAL FILE OBJECT IN NUMPY
-                                "Rarity": 5,
-                            }
-                        )
+                        if int(float(rarity_map[filename])) > 0:  # if rarity > 0
+                            layers[layer_name]["Textures"].append(
+                                {
+                                    "Name": file_name,
+                                    "PIL": file_to_pil(
+                                        file
+                                    ),  # REPLACE WITH file_to_pil(file) WHEN NEED ACTUAL FILE OBJECT IN NUMPY
+                                    "Rarity": int(float(rarity_map[filename])),
+                                }
+                            )
 
             calebs_gay_dict["Layers"] = layers  # calebd gay dict complete
 
             # print(json.dumps(calebs_gay_dict, indent=4, sort_keys=True))
             ##BEFORE U SEND THIS SHIT OFF TO UR NUMPY DONT FORGET TO UNCOMMENT PIL ENTRIES IN THE DICT CREATOR ABOVE !!!
 
-            # OLD TRASHCAN CODE FOR STORING IMG IN DATABASE HEHEHE
-            # file_dir = f"user_asset_storage/{request.user.username}"
-            # get_or_create_subdirectory(file_dir)
-            # filename = uuid.uuid4().hex[:5]
-            # generated_img.save(f"media/{file_dir}/{filename}.png")
-
-            # asset_db = UserAsset.objects.create(user=request.user)
-            # asset_db.name = request.POST["name"]
-            # asset_db.image = f"{file_dir}/{filename}.png"
-            # asset_db.save()
-            # users_imgs = UserAsset.objects.filter(user=request.user)
-
             # print("SAVED TO DB")
-            print(calebs_gay_dict)
+            # print(calebs_gay_dict)
 
             create_and_save_collection(calebs_gay_dict, db_collection, request.user)
 
-            CollectionImage.objects.filter(linked_collection__id=db_collection.id)
-
-            db_collection_images = CollectionImage.objects.filter(
-                linked_collection__id=db_collection.id
-            )
-
-            context["collection"] = db_collection
-            context["collection_images"] = db_collection_images
-            context["complete_json"] = calebs_gay_dict
-
             messages.success(
                 request,
-                message="YOU HAVE GENERATED THE IMAGE IDIOTTERMAN.... ITS IN DB !!!!",
+                message="YOU HAVE GENERATED THE IMAGE - Redirectied to the newly created collection!!!!",
             )
-            # return render(request, "upload.html", {"complete_json": calebs_gay_dict})
-
-    else:
-        print("ASS")
-        db_collection = UserCollection.objects.filter(user=request.user).first()
-        if db_collection:
-            db_collection_images = CollectionImage.objects.filter(
-                linked_collection__id=db_collection.id
+            return redirect(
+                reverse(
+                    "polls:collection",
+                    kwargs={
+                        "username": request.user.username,
+                        "collection_name": db_collection.collection_name,
+                    },
+                )
             )
-            context["collection"] = db_collection
-            context["collection_images"] = db_collection_images
+        else:  # no files submitted
+            messages.success(request, message="NO FIELS ATTACHED!!!!")
+            return render(request, "upload.html", context)
 
     return render(request, "upload.html", context)
 
@@ -211,6 +199,95 @@ def mint_view(request):
     return render(request, "mint.html")
 
 
-def metamask_view(request):
+@receiver(pre_delete, sender=UserCollection)
+def model_delete(sender, instance, **kwargs):
+    try:
+        shutil.rmtree(instance.path[1:])
+        print("Collection folder deleted from server succesfully")
+    except:
+        print("Deletion of files failed OR files did not exist in the first place")
 
-    return render(request, "metamask.html")
+
+def all_collections_view(request, username):
+    context = {}
+
+    user = User.objects.filter(username=username).first()
+    context["user"] = user
+
+    if user:
+        users_collections = UserCollection.objects.filter(user=user)
+        print(users_collections)
+        if users_collections:
+            context["users_collections"] = users_collections
+        else:
+            print("User has no collections.")
+            messages.error(request, "You have no collections!")
+            return render(request, "collection.html", context)
+
+    return render(request, "all_collections.html", context)
+
+
+def collection_view(request, username, collection_name):
+    context = {}
+
+    user = User.objects.filter(username=username).first()
+    context["user"] = user
+
+    if user:
+        user_collection = UserCollection.objects.filter(
+            user=user, collection_name=collection_name
+        ).first()
+        if user_collection:
+            collection_images = CollectionImage.objects.filter(
+                linked_collection__id=user_collection.id
+            )
+            context["collection_data"] = user_collection
+            context["collection_images"] = collection_images
+        else:
+            messages.error(
+                request, "COLLECTION DOES NOT EXIST !! !! !!!! !! ! !  !!!!!"
+            )
+            return render(request, "collection.html", context)
+    else:
+        messages.error(request, "NOT LOGGED IN !!!!!")
+        return render(request, "collection.html", context)
+
+    return render(request, "collection.html", context)
+
+
+def metamask_view(request):
+    context = {}
+
+    with open("static/Contracts/erc721_contract.json", "r") as myfile:
+        data = myfile.read()
+    json_string = json.loads(data)
+    context["erc721_json"] = json.dumps(json_string)
+    
+    if request.method == "POST":
+        ##AJAX HANDLING SECTION START
+        try:
+            received_json_data = json.loads(request.body)
+            if "ajax_test" in received_json_data:  # handle
+                print(
+                    received_json_data["ajax_test"]
+                )  ##print on server console the clientside message - u can pass any data u want from the js like this
+                ##Here you can do anything you want now. Access models, make changes, etc..
+                if request.user.is_authenticated:
+                    return JsonResponse(
+                        {
+                            "server_message": f"Server said hello from {request.user.username}!"
+                        },
+                        status=200,
+                    )
+                else:
+                    return JsonResponse(
+                        {"server_message": f"Server said hello from Anonymouse user!"},
+                        status=200,
+                    )
+
+        except RawPostDataException:  # NO AJAX DATA PROVIDED - DIFFERENT POST REQUEST INSTEAD
+            pass
+        ##AJAX HANDLING SECTION END
+
+    context["url"] = reverse("polls:metamask")
+    return render(request, "metamask.html", context)

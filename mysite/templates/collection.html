@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block body_block %}
+    <div class="collection_structure">
+        <h1>{{collection_data.collection_name}} Collection</h1>
+        <div class="all_collections_layout">
+        {% if collection_images %}
+            {% for entry in collection_images %}
+                <div class="collection_card">
+                    <img src="{{entry.path}}" alt="{{entry.name}} image should be here">
+                    <div>
+                        <p class="no_margin center">{{entry.name}}</p>
+                        <a href="https://moralis.io/" target="_blank" rel="noopener noreferrer">
+                            <button class="general_button orange_background">view metadata</button>
+                        </a>
+                    </div>
+                </div>
+            {% endfor %}
+        {% endif %}
+        </div>
+    </div>
+{% endblock %}

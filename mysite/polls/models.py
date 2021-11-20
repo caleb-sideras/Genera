@@ -22,9 +22,6 @@ class UserAsset(Model):
     def __str__(self):
         return str(self.name)
 
-
-
-
 class UserCollection(Model):
     collection_name = models.CharField(max_length=50, unique=False)
     description = models.CharField(max_length=150, unique=False)
@@ -32,13 +29,14 @@ class UserCollection(Model):
     dimension_y = models.IntegerField(default=4000)
     collection_size = models.IntegerField(default=10)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-
- ## Folder will be created EG. media/{user.name}/collections/{collection_name}/[list of imgs...]
+    path = models.CharField(max_length=250)
 
 class CollectionImage(Model):
     linked_collection = models.ForeignKey(UserCollection, on_delete=models.CASCADE)
     name = models.CharField(max_length=50, unique=False)
-    image_reference = models.ImageField()
+    path = models.FilePathField()
     metadata = models.JSONField(null = True, blank = True)
+
+
 
 

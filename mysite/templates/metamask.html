@@ -9,21 +9,23 @@
 {% block head_block %}
 <title>Metamask Demo</title>
 <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
-<!-- <script src="data.js"></script> -->
-<script src="https://cdn.jsdelivr.net/npm/requirejs@2.3.6/bin/r.min.js"></script>
 <script src="https://unpkg.com/@metamask/detect-provider/dist/detect-provider.min.js"></script>
-<!-- <script src="https://cdn.jsdelivr.net/npm/@metamask/detect-provider@1.2.0/dist/index.min.js"></script> -->
-<!-- <script src="https://unpkg.com/moralis/dist/moralis.js"></script> -->
+<script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
 <script type="text/javascript" src="{% static 'js/metamask.js' %}"></script>
 {% endblock %} {% block body_block %}
-<button class="metamask_login_button general_button orange_background grow">
-  Login with Metamask
+
+<button
+  data-json="{{erc721_json}}"
+  id="ajax_test"
+  data-url="{{url}}"
+  class="general_button orange_background grow"
+  onclick="ajax_server_post(this.dataset.url)"
+>
+  Ajax button
 </button>
-<button class="enableEthereumButton general_button orange_background grow">
-  Enable Ethereum
-</button>
-<!-- <h2>Account: <span class="showAccount"></span></h2> -->
-<button class="sendEthButton btn general_button orange_background grow">
-  Send Eth
-</button>
+
+<!-- <p style="color: red">{{erc721_json}}</p> -->
+<button class="ethereumButton general_button orange_background grow">Login with Metamask</button>
+<button class="sendEthButton btn general_button orange_background grow">Deploy contract</button>
+<button class="addToken btn general_button orange_background grow">Add Token</button>
 {% endblock %}

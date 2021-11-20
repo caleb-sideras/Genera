@@ -4,7 +4,8 @@ import random
 import os
 import json
 from polls.models import *
-
+import hashlib
+import string
 # Notes
 # - the current textures Samoshin sent me are buggy, they only use A (Alpha) values in the RGBA format
 
@@ -54,7 +55,8 @@ from polls.models import *
 #   - tat added deterministic probability
 #   - optimized texture mapping so there is no duplicate procedures
 #   - optimized how rarity data is stored, this method is MUCH more scalable now
-
+def alphanum_random(size = 8):
+    return ''.join(random.choices(string.ascii_letters + string.digits, k=size))
 
 def textureMapping(asset_data, texture_data):
 
@@ -184,20 +186,21 @@ def create_and_save_collection(tempDict, db_collection, user = None):
         rarityDictAsset = {}
         rarityDictTexture = {}
     print("Creating/saving .png & .json")
-    collection_path = f"media/users/{user.username}/collections/{tempDict['CollectionName']}"
-    os.makedirs(collection_path)
+    
+    os.makedirs(db_collection.path[1:])
 
     # iterating over textured assets dictionary, and combining them
     for i in range(tempDict["CollectionSize"]):
+        img_name = f"{tempDict['CollectionName']} {i+1}"
         image_to_collection_db = CollectionImage.objects.create(linked_collection=db_collection)
-        image_to_collection_db.name = f"{tempDict['CollectionName']}{i}"
+        image_to_collection_db.name = img_name
 
         # creating a base image to paste on. Type, Size, Color paramters
         im = Image.new(
             "RGBA", (tempDict["Resolution"], tempDict["Resolution"]), (0, 0, 0, 0)
         )
         temp_json = {
-            "name": f"{tempDict['CollectionName']}{i}",
+            "name": img_name,
             "description": tempDict["Description"],
             "image": "",
         }
@@ -213,9 +216,9 @@ def create_and_save_collection(tempDict, db_collection, user = None):
         temp_json.update({"attributes": temp_list})
         image_to_collection_db.metadata = temp_json
 
-        current_image_path = f"{collection_path}/{image_to_collection_db.name}.png"
-        im.save(current_image_path, "PNG")
-        image_to_collection_db.image_reference = current_image_path
+        current_image_path = f"{db_collection.path}/{alphanum_random(6)}.png"
+        im.save(current_image_path[1:], "PNG")
+        image_to_collection_db.path = current_image_path
         image_to_collection_db.save()
 
         # with open(

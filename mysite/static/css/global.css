@@ -249,14 +249,25 @@ body {
 .upload_layers_buttons > div > div {
   flex: 0 0 100%;
   display: flex;
+  flex-wrap: wrap;
   justify-content: center;
   align-items: center;
   max-width: 100%;
   gap: 5px;
 }
 
-.upload_layers_buttons > div > div > input {
-  flex: 1 0 150px;
+.upload_layers_buttons > div > div > input[type=file] {
+  flex: 1 0 100px;
+}
+
+.upload_layers_buttons > div > div > input[type=range] {
+  background-color: var(--orange-color);
+}
+
+.upload_slider_section {
+  display: flex;
+  gap: 5px;
+  margin-bottom: 15px;
 }
 
 .upload_layers_buttons > div > div > h5 {
@@ -389,6 +400,70 @@ body {
 }
 /* COLLECTION PAGE */
 
+/* all collections */
+.collection_structure {
+  margin: 0 50px;
+}
+
+.collection_structure > h1 {
+  color: var(--medium-grey-color);
+}
+
+.all_collections_layout {
+  display: flex;
+  flex-wrap: wrap;
+  width: 70vw;
+  gap: 15px;
+}
+
+.collection_card {
+  border-radius: 15px;
+  min-height: 250px;
+  max-height: 350px;
+  width: 200px;
+  background-color: var(--medium-grey-color);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding-bottom: 15px;
+}
+
+.collection_card img {
+  max-height: 150px;
+  aspect-ratio: 1;
+  height: 70%;
+  width: 100%;
+  margin-bottom: 15px;
+}
+
+.collection_card > div {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+
+.collection_card > div > :last-child {
+  flex-grow: 1;
+}
+
+.collection_card > div > p{
+  margin: 0 5px;
+}
+
+.collection_card > div button {
+  margin-top: 10px;
+}
+
+/* .collection_card button {
+  width: 75%;
+} */
+
+/* all collections */
+
+
 /* METAMASK */
 .metamask_login_button {
   margin: 15px;
@@ -396,4 +471,13 @@ body {
 .enableEthereumButton {
   margin: 15px;
 }
+.addToken{
+  margin: 15px;
+}
 /* METAMASK */
+
+/* WEB3 */
+.parseAbi{
+  margin: 15px;
+}
+/* WEB3 */
