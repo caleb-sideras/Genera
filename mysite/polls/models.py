@@ -38,6 +38,11 @@ class CollectionImage(Model):
     path = models.FilePathField()
     metadata = models.JSONField(null = True, blank = True)
 
+    # IPFS
+    ipfs_image_path = models.URLField(null = True, blank = True, max_length=50) #CharField
+    ipfs_metadata_path =  models.URLField(null = True, blank = True, max_length=50)
+    ipfs_bool = models.BooleanField(default=False)
+
 
 
 

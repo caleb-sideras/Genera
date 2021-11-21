@@ -16,7 +16,11 @@
         {% if collection_images %}
             {% for entry in collection_images %}
                 <div class="collection_card">
+                    {% if entry.ipfs_bool%}
+                     <img src="{{entry.ipfs_image_path}}" alt="{{entry.name}} image should be here">
+                    {% else %}
                     <img src="{{entry.path}}" alt="{{entry.name}} image should be here">
+                    {% endif %}
                     <div>
                         <p class="no_margin center">{{entry.name}}</p>
                         <a href="https://moralis.io/" target="_blank" rel="noopener noreferrer">

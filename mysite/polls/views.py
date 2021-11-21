@@ -264,18 +264,28 @@ def collection_view(request, username, collection_name):
                 ##Here you can do anything you want now. Access models, make changes, etc..
                 pinata_links =[]
                 if request.user.is_authenticated:     
-                    for entry in collection_images: 
-                        print(entry.name)
-                        
-                        # uploading image to ipfs
-                        pinata_link_image = upload_pinata_filepath(entry.path[1:], entry.name)
-                        temp_metadata = entry.metadata
-                        temp_metadata["image"] = f"https://ipfs.io/ipfs/{pinata_link_image['IpfsHash']}"
+                    for entry in collection_images:
+                        if not entry.ipfs_bool: 
+                            print(entry.name)
+                            
+                            # uploading image to ipfs & updating db
+                            pinata_link_image = upload_pinata_filepath(entry.path[1:], entry.name)
+                            entry.ipfs_image_path = f"https://ipfs.io/ipfs/{pinata_link_image['IpfsHash']}"
 
-                        # uploading metadata w/image to ipfs
-                        pinata_link_data = upload_pinata_object(json.dumps(temp_metadata), entry.name)
-                        pinata_links.append(f"https://ipfs.io/ipfs/{pinata_link_data['IpfsHash']}")
-                    print(pinata_links)
+                            # getting entry metadata
+                            temp_metadata = entry.metadata
+                            temp_metadata["image"] = f"https://ipfs.io/ipfs/{pinata_link_image['IpfsHash']}"
+
+                            # uploading metadata w/image to ipfs & updating db
+                            pinata_link_data = upload_pinata_object(json.dumps(temp_metadata), entry.name)
+                            entry.ipfs_metadata_path = f"https://ipfs.io/ipfs/{pinata_link_data['IpfsHash']}"
+                            entry.ipfs_bool = True
+                            entry.save() 
+                        pinata_links.append(entry.ipfs_metadata_path)
+
+                    
+                    for entry in collection_images:
+                        print(entry.ipfs_metadata_path)
                     return JsonResponse(
                         {
                             "ipfs_links": pinata_links
@@ -298,27 +308,31 @@ def collection_view(request, username, collection_name):
 def upload_pinata_filepath(filepath, filename):
     with Path(filepath).open("rb") as fp:
         image_binary = fp.read()
-        response = requests.post(
-            "https://api.pinata.cloud/" + "pinning/pinFileToIPFS",
-            files={"file": (filename, image_binary)},
-            headers={
-                "pinata_api_key": "d15d7ee40273fd0f49ad",
-                "pinata_secret_api_key": "ed514d486b0c4ab94dcfbff65174d98cc044a3885d40ec65d1dff4ffb2cb1c68",
-            },
-        ) # handle edge cases
-        # print(response.json())
+        try:
+            response = requests.post(
+                "https://api.pinata.cloud/" + "pinning/pinFileToIPFS",
+                files={"file": (filename, image_binary)},
+                headers={
+                    "pinata_api_key": "d15d7ee40273fd0f49ad",
+                    "pinata_secret_api_key": "ed514d486b0c4ab94dcfbff65174d98cc044a3885d40ec65d1dff4ffb2cb1c68",
+                },
+            ) 
+        except requests.exceptions.HTTPError as e:
+            print(e.response.text)
         return response.json()
 
 def upload_pinata_object(fileobject, filename):
-    response = requests.post(
+    try:
+        response = requests.post(
             "https://api.pinata.cloud/" + "pinning/pinFileToIPFS",
             files={"file": (filename, fileobject)},
             headers={
                 "pinata_api_key": "d15d7ee40273fd0f49ad",
                 "pinata_secret_api_key": "ed514d486b0c4ab94dcfbff65174d98cc044a3885d40ec65d1dff4ffb2cb1c68",
             },
-        ) # handle edge cases
-        # print(response.json())
+        ) 
+    except requests.exceptions.HTTPError as e:
+        print(e.response.text)
     return response.json()
 
 

@@ -195,7 +195,7 @@ function constructor_string(name, symbol) {
     return constructor_params;
 }
 
-function abi_token_uri(ifps_link) {
+function abi_token_uri(ipfs_link) {
     console.log("Setting Token URI");
     token_uri = web3.eth.abi.encodeFunctionCall({
         "inputs": [
@@ -209,7 +209,7 @@ function abi_token_uri(ifps_link) {
         "outputs": [],
         "stateMutability": "nonpayable",
         "type": "function"
-    }, [ifps_link]
+    }, [ipfs_link]
     );
     console.log(token_uri);
 
