@@ -16,73 +16,15 @@ function main() {
     gas_estimate = document.querySelector('.testButton');
 
     mint_collection.addEventListener('click', async () => {
-        constructor_paramter = constructor_string('Void', 'vde'); // User parameters
-        deployed_contract = await ethereum
-            .request({
-                method: 'eth_sendTransaction',
-                params: [
-                    {
-                        from: '0x36acd77ca5bf2c84c0a60786581b322546d68193',
-                        gas: '0x210000',//180-200k usually
-                        gasLimit: '0x21000000',
-                        data: parsed_json['bytecode'] + constructor_paramter,
-                        chainId: '0x4',
-                    },
-                ],
-            })
-            .then(async function (txHash) {
-                console.log('Transaction sent')
-                console.dir(txHash)
-                contract_address = await waitForTxToBeMined(txHash)
-                console.log(contract_address)
-            })
-            // .catch(console.error)
-            // .then((txHash) => console.log(txHash)).catch((error) => console.error);
+        deploy_contract();
     });
 
-    add_token.addEventListener('click', async () => {
-        console.log("addToken clicked");
-        token_uri = abi_token_uri('https://ipfs.io/ipfs/QmNco8G5hrJfLdJpYwsxrygWXS1zcmW9AuY9Q8PstJFX9c');// ipfs metadata (token uri)
-        console.log(contract_address)
-        for (let index = 0; index < ipfs_links.length; index++) {
-            deployed_token = await ethereum
-                .request({
-                    method: 'eth_sendTransaction',
-                    params: [
-                        {
-                            from: '0x36acd77ca5bf2c84c0a60786581b322546d68193',
-                            to: contract_address,
-                            gas: '0x210000',//180-200k usually
-                            gasLimit: '0x21000000',
-                            data: abi_token_uri(ipfs_links[index]),
-                            chainId: '0x4',
-                        },
-                    ],
-                })
-                .then(function (txHash) {
-                    console.log('Transaction sent')
-                    console.dir(txHash)
-                    waitForTxToBeMined(txHash)
-                })
-        } 
-        
-        
-            // .then((txHash) => console.log(txHash))
-            // .catch((error) => console.error);
-
+    add_token.addEventListener('click', async () => {   
+        add_tokens();
     });
 
     login_metamask.addEventListener('click', async () => {
-        console.log("Login clicked");
-        console.log("Eth clicked");
-        const provider = await detectEthereumProvider();
-
-        if (provider) {
-            console.log('Installed!');
-            startApp(provider);
-        } else {
-            console.log('Please install MetaMask!');
-        }
+        metamask_check();
     });
 
     gas_estimate.addEventListener('click', async () =>{
@@ -104,6 +46,74 @@ function main() {
     // ethereum.on('chainChanged', (_chainId) => window.location.reload());
     // ethereum.on('disconnect', (ProviderRpcError) => window.location.reload());
 }
+
+async function metamask_check(){
+    console.log("Login clicked");
+    const provider = await detectEthereumProvider();
+
+    if (provider) {
+        console.log('Installed!');
+        var active_account = startApp(provider);
+    } else {
+        alert('Please install MetaMask!');
+    }
+    return active_account;
+}
+
+async function deploy_contract(){
+    var active_account = await metamask_check()
+    constructor_paramter = constructor_string('Void', 'vde'); // User parameters
+    deployed_contract = await ethereum
+        .request({
+            method: 'eth_sendTransaction',
+            params: [
+                {
+                    from: active_account[0],
+                    gas: '0x210000',//180-200k usually
+                    gasLimit: '0x21000000',
+                    data: parsed_json['bytecode'] + constructor_paramter,
+                    chainId: '0x4',
+                },
+            ],
+        })
+        .then(async function (txHash) {
+            console.log('Transaction sent')
+            console.dir(txHash)
+            contract_address = await waitForTxToBeMined(txHash)
+            console.log(contract_address)
+        })
+            // .catch(console.error)
+            // .then((txHash) => console.log(txHash)).catch((error) => console.error);
+    return active_account;
+}
+
+async function add_tokens(active_account) {
+ // ipfs metadata (token uri)
+    console.log(contract_address)
+    for (let index = 0; index < ipfs_links.length; index++) {
+        deployed_token = await ethereum
+            .request({
+                method: 'eth_sendTransaction',
+                params: [
+                    {
+                        from: active_account[0],
+                        to: contract_address,
+                        gas: '0x210000',//180-200k usually
+                        gasLimit: '0x21000000',
+                        data: abi_token_uri(ipfs_links[index]),
+                        chainId: '0x4',
+                    },
+                ],
+            })
+            .then(function (txHash) {
+                console.log('Transaction sent')
+                console.dir(txHash)
+                waitForTxToBeMined(txHash)
+            })
+            // .then((txHash) => console.log(txHash))
+            // .catch((error) => console.error);
+    } }
+
 async function waitForTxToBeMined(txHash) {
     let txReceipt
     while (!txReceipt) {
@@ -118,7 +128,7 @@ async function waitForTxToBeMined(txHash) {
     return txReceipt['contractAddress']
 }
 
-function ajax_server_post(url) {
+async function ajax_server_post(url) {
 
     //HTTPREQUEST INIT CODE
     if (window.XMLHttpRequest) { // Mozilla, Safari, IE7+ ...
@@ -128,7 +138,7 @@ function ajax_server_post(url) {
     }
     //HTTPREQUEST INIT CODE
 
-    http_request.onreadystatechange = function () {
+    http_request.onreadystatechange = async function () {
         // Process the server response here (Sent from Django view inside JsonResponse)
         if (http_request.readyState === XMLHttpRequest.DONE) {
 
@@ -138,6 +148,12 @@ function ajax_server_post(url) {
                 //DO THE BS SWITCHERMAN
 
                 // alert(response["server_message"]) //access specific key from the reponse object - we only pass server message in this example
+                active_account = await deploy_contract(); // deploying contract
+                console.log("post deploy contract");
+                await add_tokens(active_account);
+                console.log("post add tokens");
+
+
                 console.log(ipfs_links)
 
             } else { //if status is not 200 - assume fail, unless different status handled explicitly
@@ -171,11 +187,12 @@ async function startApp(provider) {
     } else {
         account = await ethereum
             .request({ method: 'eth_requestAccounts' })
-            .then(handleAccountsChanged) //define handleAccountsChanged
+            .then(console.log("handleAccountsChanged")) //define handleAccountsChanged
             .catch((err) => {
                 if (err.code === 4001) {
                     // EIP-1193 userRejectedRequest error
                     // If this happens, the user rejected the connection request.
+                    alert('Please connect to MetaMask.');
                     console.log('Please connect to MetaMask.');
                 } else {
                     console.error(err);
@@ -183,7 +200,7 @@ async function startApp(provider) {
             });
 
     }
-    console.log(account)
+    return account;
 }
 
 function constructor_string(name, symbol) {

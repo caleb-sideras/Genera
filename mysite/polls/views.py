@@ -295,7 +295,7 @@ def collection_view(request, username, collection_name):
                 else:
                     return JsonResponse(
                         {"server_message": "USER NOT LOGGED IN"},
-                        status=200,
+                        status=201,
                     )
 
         except RawPostDataException:  # NO AJAX DATA PROVIDED - DIFFERENT POST REQUEST INSTEAD
