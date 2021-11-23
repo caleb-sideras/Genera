@@ -90,6 +90,7 @@ async function deploy_contract(){
 async function add_tokens(active_account) {
  // ipfs metadata (token uri)
     console.log(contract_address)
+    console.log(ipfs_links)
     for (let index = 0; index < ipfs_links.length; index++) {
         deployed_token = await ethereum
             .request({
@@ -128,7 +129,7 @@ async function waitForTxToBeMined(txHash) {
     return txReceipt['contractAddress']
 }
 
-async function ajax_server_post(url) {
+function ajax_server_post(url) {
 
     //HTTPREQUEST INIT CODE
     if (window.XMLHttpRequest) { // Mozilla, Safari, IE7+ ...
@@ -138,23 +139,14 @@ async function ajax_server_post(url) {
     }
     //HTTPREQUEST INIT CODE
 
-    http_request.onreadystatechange = async function () {
+    http_request.onreadystatechange = function () {
         // Process the server response here (Sent from Django view inside JsonResponse)
         if (http_request.readyState === XMLHttpRequest.DONE) {
 
             if (http_request.status === 200) { //Status can also be different and defined within the JSONResponse
                 var response = JSON.parse(http_request.responseText)
                 ipfs_links = response["ipfs_links"]
-                //DO THE BS SWITCHERMAN
-
-                // alert(response["server_message"]) //access specific key from the reponse object - we only pass server message in this example
-                active_account = await deploy_contract(); // deploying contract
-                console.log("post deploy contract");
-                await add_tokens(active_account);
-                console.log("post add tokens");
-
-
-                console.log(ipfs_links)
+                ajax_server_post2(url)
 
             } else { //if status is not 200 - assume fail, unless different status handled explicitly
                 alert('There was a problem with the request.');
@@ -178,6 +170,108 @@ async function ajax_server_post(url) {
             })
     )
 }
+
+
+async function ajax_server_post2(url) {
+
+    //HTTPREQUEST INIT CODE
+    if (window.XMLHttpRequest) { // Mozilla, Safari, IE7+ ...
+        http_request = new XMLHttpRequest();
+    } else if (window.ActiveXObject) { // IE 6 and older
+        http_request = new ActiveXObject("Microsoft.XMLHTTP");
+    }
+    //HTTPREQUEST INIT CODE
+
+    http_request.onreadystatechange = async function () {
+        // Process the server response here (Sent from Django view inside JsonResponse)
+        if (http_request.readyState === XMLHttpRequest.DONE) {
+
+            if (http_request.status === 200) { //Status can also be different and defined within the JSONResponse
+                var response = JSON.parse(http_request.responseText)
+                address_check = response['address_bool']
+
+                // if the contract has already been deployed/in db
+                if (address_check){
+                    contract_address = response["collection_address"]
+                    console.log(contract_address)
+                }
+                else {
+                    active_account = await deploy_contract();
+                }
+
+                // double checking user account
+                active_account = await metamask_check()
+
+                ajax_server_post3(url) // if contract adress not saved could have issues later.
+
+                await add_tokens(active_account);
+
+
+            } else { //if status is not 200 - assume fail, unless different status handled explicitly
+                alert('There was a problem with the request.');
+            }
+        }
+    };
+
+    // Send the POST request to the url/DJANGO VIEW
+    //setup for request header - not important
+    http_request.open('POST', url, true);
+    http_request.setRequestHeader('X-CSRFToken', get_cookie('csrftoken'));
+    http_request.setRequestHeader('contentType', 'application/json');
+    //end of setup
+
+    // Send the request as a JSON MAKE SURE TO ALWAYS HAVE THE CSRFTOKEN COOKIE !!! !! ! ! ! !! 
+    http_request.send(
+        JSON.stringify(
+            {
+                'csrfmiddlewaretoken': get_cookie('csrftoken'), //compulsory
+                'address_check': contract_address //can add as many other entries to dict as necessary
+            })
+    )
+}
+
+function ajax_server_post3(url) {
+
+    //HTTPREQUEST INIT CODE
+    if (window.XMLHttpRequest) { // Mozilla, Safari, IE7+ ...
+        http_request = new XMLHttpRequest();
+    } else if (window.ActiveXObject) { // IE 6 and older
+        http_request = new ActiveXObject("Microsoft.XMLHTTP");
+    }
+    //HTTPREQUEST INIT CODE
+
+    http_request.onreadystatechange = function () {
+        // Process the server response here (Sent from Django view inside JsonResponse)
+        if (http_request.readyState === XMLHttpRequest.DONE) {
+
+            if (http_request.status === 200) { //Status can also be different and defined within the JSONResponse
+                var response = JSON.parse(http_request.responseText)
+                console.log(response["server_message"])
+                
+
+            } else { //if status is not 200 - assume fail, unless different status handled explicitly
+                alert('There was a problem with the request.');
+            }
+        }
+    };
+
+    // Send the POST request to the url/DJANGO VIEW
+    //setup for request header - not important
+    http_request.open('POST', url, true);
+    http_request.setRequestHeader('X-CSRFToken', get_cookie('csrftoken'));
+    http_request.setRequestHeader('contentType', 'application/json');
+    //end of setup
+
+    // Send the request as a JSON MAKE SURE TO ALWAYS HAVE THE CSRFTOKEN COOKIE !!! !! ! ! ! !! 
+    http_request.send(
+        JSON.stringify(
+            {
+                'csrfmiddlewaretoken': get_cookie('csrftoken'), //compulsory
+                'address_set': contract_address //can add as many other entries to dict as necessary
+            })
+    )
+}
+
 
 async function startApp(provider) {
     // If the provider returned by detectEthereumProvider is not the same as

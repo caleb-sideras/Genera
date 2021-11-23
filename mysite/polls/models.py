@@ -31,6 +31,10 @@ class UserCollection(Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     path = models.CharField(max_length=250)
 
+    # Smart Contract
+    contract_address = models.CharField(max_length=50, unique=False, blank = True, null = True)
+    contract_bool =  models.BooleanField(default=False)
+
 class CollectionImage(Model):
     linked_collection = models.ForeignKey(UserCollection, on_delete=models.CASCADE)
     name = models.CharField(max_length=50, unique=False)
@@ -42,6 +46,10 @@ class CollectionImage(Model):
     ipfs_image_path = models.URLField(null = True, blank = True, max_length=50) #CharField
     ipfs_metadata_path =  models.URLField(null = True, blank = True, max_length=50)
     ipfs_bool = models.BooleanField(default=False)
+
+    # Smart Contract
+    deployed =  models.BooleanField(default=False)
+    
 
 
 

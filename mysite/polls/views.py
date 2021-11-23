@@ -238,13 +238,20 @@ def collection_view(request, username, collection_name):
     json_string = json.loads(data)
     context["erc721_json"] = json.dumps(json_string)
     # print(context)
-
+    
     user = User.objects.filter(username=username).first()
     context["user"] = user
+    
 
     if user:
         user_collection = UserCollection.objects.filter(user=user, collection_name=collection_name).first()
+        
         if user_collection:
+            context["url"] = reverse("polls:collection", 
+                    kwargs={
+                        "username": request.user.username,
+                        "collection_name": user_collection.collection_name,
+                    },)
             collection_images = CollectionImage.objects.filter(linked_collection__id=user_collection.id)
             context["collection_data"] = user_collection
             context["collection_images"] = collection_images
@@ -260,8 +267,6 @@ def collection_view(request, username, collection_name):
         try:
             received_json_data = json.loads(request.body)
             if "notneeded" in received_json_data:  # handle
-                print(received_json_data["notneeded"])  ##print on server console the clientside message - u can pass any data u want from the js like this
-                ##Here you can do anything you want now. Access models, make changes, etc..
                 pinata_links =[]
                 if request.user.is_authenticated:     
                     for entry in collection_images:
@@ -295,7 +300,45 @@ def collection_view(request, username, collection_name):
                 else:
                     return JsonResponse(
                         {"server_message": "USER NOT LOGGED IN"},
-                        status=201,
+                        status=200,
+                    )
+            elif "address_check" in received_json_data:
+                if request.user.is_authenticated:
+                    if user_collection.contract_bool:
+                        print("In db")
+                        temp ={
+                        'address_bool': True,
+                        'collection_address': user_collection.contract_address
+                        }
+                    else:
+                        print("Not in db")
+                        temp ={
+                        'address_bool': False
+                        }
+                    return JsonResponse(
+                        temp,
+                        status=200,
+                    )
+                else:
+                    return JsonResponse(
+                        {"server_message": "USER NOT LOGGED IN"},
+                        status=200,
+                    )
+            elif "address_set" in received_json_data:
+                if request.user.is_authenticated:
+
+                    user_collection.contract_address = received_json_data["address_set"]
+                    user_collection.contract_bool = True
+                    user_collection.save()
+    
+                    return JsonResponse(
+                        {"server_message" :"success"},
+                        status = 200
+                    )
+                else:
+                    return JsonResponse(
+                        {"server_message": "USER NOT LOGGED IN"},
+                        status=200,
                     )
 
         except RawPostDataException:  # NO AJAX DATA PROVIDED - DIFFERENT POST REQUEST INSTEAD
@@ -335,40 +378,3 @@ def upload_pinata_object(fileobject, filename):
         print(e.response.text)
     return response.json()
 
-
-def metamask_view(request):
-    context = {}
-
-    with open("static/Contracts/erc721_contract.json", "r") as myfile:
-        data = myfile.read()
-    json_string = json.loads(data)
-    context["erc721_json"] = json.dumps(json_string)
-
-    if request.method == "POST":
-        ##AJAX HANDLING SECTION START
-        try:
-            received_json_data = json.loads(request.body)
-            if "ajax_test" in received_json_data:  # handle
-                print(
-                    received_json_data["ajax_test"]
-                )  ##print on server console the clientside message - u can pass any data u want from the js like this
-                ##Here you can do anything you want now. Access models, make changes, etc..
-                if request.user.is_authenticated:
-                    return JsonResponse(
-                        {
-                            "server_message": f"Server said hello from {request.user.username}!"
-                        },
-                        status=200,
-                    )
-                else:
-                    return JsonResponse(
-                        {"server_message": f"Server said hello from Anonymouse user!"},
-                        status=200,
-                    )
-
-        except RawPostDataException:  # NO AJAX DATA PROVIDED - DIFFERENT POST REQUEST INSTEAD
-            pass
-        ##AJAX HANDLING SECTION END
-
-    context["url"] = reverse("polls:metamask")
-    return render(request, "metamask.html", context)
