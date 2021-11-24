@@ -1,14 +1,15 @@
-{% extends 'base.html' %}
-{% load static %}
-
-{% block head_block %}
-  <script type="text/javascript" src="{% static 'js/upload_page.js' %}"></script>
-{% endblock %}
-
-{% block body_block %}
-  <form method="post" enctype="multipart/form-data" class="upload_wrapper">
-    {% csrf_token %}
-    <!-- <div class="upload_upper">
+{% extends 'base.html' %} {% load static %} {% block head_block %}
+<!-- <script type="text/javascript" src="{% static 'js/upload_page.js' %}"></script> -->
+<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script> -->
+<script type="text/javascript" src="{% static 'js/temp.js' %}"></script>
+<link rel="stylesheet" href="" />
+<!-- <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css"></script> -->
+<!-- <link rel="stylesheet" type="text/css" href="{% static 'css/temp.css' %}" /> -->
+{% endblock %} {% block body_block %}
+<div class="upload_wrapper">
+  {% csrf_token %}
+  <!-- <div class="upload_upper">
       <div class="upload_section_swap rounded_container shadow_strong">
         <img
           class="grow color_image_dark"
@@ -27,34 +28,34 @@
       </div>
     </div> -->
 
-    <div class="upload_main">
-      <div class="nft_main rounded_container_no_padding">
-        <img
-          class="color_image_orange grow top_close_button"
-          src="{% static 'icons/plus.svg' %}"
-        />
-        <div class="nft_preview" style="color: aliceblue">
-          <img src="{% static 'Assets/Examples/1.png' %}" />
-        </div>
-
-        <div class="nft_bottom bottom_round_container">
-          <h4 class="nft_text center">Void#1</h4>
-          <div
-            class="view_metadata orange_background rounded_container_no_padding"
-          >
-            View Metadata
-          </div>
-        </div>
+  <!-- <div class="upload_main">
+    <div class="nft_main rounded_container_no_padding">
+      <img
+        class="color_image_orange grow top_close_button"
+        src="{% static 'icons/plus.svg' %}"
+      />
+      <div class="nft_preview" style="color: aliceblue">
+        <img src="{% static 'Assets/Examples/1.png' %}" />
       </div>
 
-      <div class="upload_layers rounded_container shadow_strong">
-        <h4 class="no_margin center">Layers</h4>
-        <div class="upload_layers_buttons">
-          <!-- <div class="general_button white_background"><div class="close_button" onclick="delete_button()">X</div><h5 class="no_margin"">Textures</h5><img data-layer="textures" onclick="add_smart_input(this)" class="color_image_orange grow" src="{% static 'icons/plus.svg' %}" onclick="add_collection()">
-            </div> -->
+      <div class="nft_bottom bottom_round_container">
+        <h4 class="nft_text center">Void#1</h4>
+        <div
+          class="view_metadata orange_background rounded_container_no_padding"
+        >
+          View Metadata
         </div>
+      </div>
+    </div>
 
-        <input
+    <!-- <div class="upload_layers rounded_container shadow_strong">
+        <h4 class="no_margin center">Layers</h4>
+        <div class="upload_layers_buttons"> -->
+  <!-- <div class="general_button white_background"><div class="close_button" onclick="delete_button()">X</div><h5 class="no_margin"">Textures</h5><img data-layer="textures" onclick="add_smart_input(this)" class="color_image_orange grow" src="{% static 'icons/plus.svg' %}" onclick="add_collection()">
+            </div> -->
+  <!-- </div> -->
+
+  <!-- <input
           id="add_layer_input"
           class="general_input"
           type="text"
@@ -65,8 +66,8 @@
           src="{% static 'icons/plus.svg' %}"
           onclick="add_collection()"
         />
-      </div>
-      <!-- <div class="upload_preview" style="color: aliceblue">
+      </div> -->
+  <!-- <div class="upload_preview" style="color: aliceblue">
         {% if not complete_json %}
         <img class="grow" src="{% static 'Assets/Examples/1.png' %}" />
         {% else %} {% for key,value in complete_json.items%}
@@ -77,7 +78,7 @@
         </tr>
         {% endfor %} {% endif %}
       </div> -->
-      <!-- <div class="upload_properties">
+  <!-- <div class="upload_properties">
         <div class="rounded_container shadow_strong">
           <h4 class="no_margin center">Project properties</h4>
           <div
@@ -135,6 +136,51 @@
           <h4 class="no_margin">Mint</h4>
         </button>
       </div> -->
+  <!-- </div> -->
+
+  
+  <div class="upload_layers_buttons">
+    <div class="general_button white_background">
+      <img
+        src="static/icons/close.svg"
+        class="close_button color_image_orange"
+      />
+      <h5 class="no_margin">background</h5>
+      <img
+        src="static/icons/plus.svg"
+        class="color_image_orange grow"
+        data-layer="background"
+      />
+      <button onclick="myFunction(this)">Toggle Expand/Collapse</button>
+      <div id="wrapper" class="open">
+        <div id="list">
+          <div style="display: flex">
+            <input
+              type="file"
+              name="asset.background"
+              style="margin-bottom: 5px"
+            />
+            <h5>Remove</h5>
+          </div>
+          <div style="display: flex">
+            <input
+              type="file"
+              name="asset.background"
+              style="margin-bottom: 5px"
+            />
+            <h5>Remove</h5>
+          </div>
+          <div style="display: flex">
+            <input
+              type="file"
+              name="asset.background"
+              style="margin-bottom: 5px"
+            />
+            <h5>Remove</h5>
+          </div>
+        </div>
+      </div>
     </div>
-  </form>
-{% endblock %}
+  </div>
+  {% endblock %}
+</div>

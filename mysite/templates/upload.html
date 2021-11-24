@@ -3,6 +3,9 @@
 
 {% block head_block %}
   <script type="text/javascript" src="{% static 'js/upload_page.js' %}"></script>
+  <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script> -->
+  <!-- <script type="text/javascript" src="{% static 'js/temp.js' %}"></script> -->
+<link rel="stylesheet" href="">
 {% endblock %}
 
 {% block body_block %}
@@ -11,25 +14,38 @@
   <div class="upload_upper">
     <div class="upload_section_swap rounded_container shadow_strong">
       <img
-        class="grow color_image_dark"
-        src="{% static 'icons/layer.svg' %} "
+        src="{% static 'icons/layer2.svg' %} "
         onclick="switch_tabs('layers')"
+        tabindex="0"
+        
       />
+      <!-- class="color_icon_background" -->
       <img
-        class="grow color_image_dark"
-        src="{% static 'icons/texture.svg' %}"
+        src="{% static 'icons/texture2.svg' %}"
         onclick="switch_tabs('textures')"
+        tabindex="0"
+        
       />
-      <img
+      <!-- class="color_icon_background" -->
+      <!-- <img
         class="grow color_image_dark"
         src="{% static 'icons/rarity.svg' %}"
-      />
+      /> -->
     </div>
   </div>
 
   <div class="upload_main">
     <div class="upload_layers rounded_container shadow_strong">
+      <!-- shadow_strong -->
       <h4 class="no_margin center">Layers</h4>
+<!-- <div id="wrapper" class="open">
+  <div id="list">
+    <div style="display: flex;"><input type="file" name="asset.background" style="margin-bottom: 5px;"><h5>Remove</h5></div>
+    <div style="display: flex;"><input type="file" name="asset.background" style="margin-bottom: 5px;"><h5>Remove</h5></div>
+    <div style="display: flex;"><input type="file" name="asset.background" style="margin-bottom: 5px;"><h5>Remove</h5></div>
+    <div style="display: flex;"><input type="file" name="asset.background" style="margin-bottom: 5px;"><h5>Remove</h5></div>
+  </div>
+</div> -->
       <div class="upload_layers_buttons">
         <!-- <div class="general_button white_background"><div class="close_button" onclick="delete_button()">X</div><h5 class="no_margin"">Textures</h5><img data-layer="textures" onclick="add_smart_input(this)" class="color_image_orange grow" src="{% static 'icons/plus.svg' %}" onclick="add_layer()">
           </div> -->
@@ -42,15 +58,16 @@
         placeholder="Add Layer"
       />
       <img
-        class="color_image_orange grow"
+        class="color_image_orange"
         src="{% static 'icons/plus.svg' %}"
         onclick="add_layer()"
       />
     </div>
     <div
-      class="upload_layers rounded_container shadow_strong"
+      class="upload_layers rounded_container"
       style="display: none"
     >
+    <!-- shadow_strong -->
       <h4 class="no_margin center">Textures</h4>
       <div class="upload_layers_buttons">
         <!-- <div class="general_button white_background"><h5 class="no_margin"">Textures</h5><img data-layer="textures" onclick="add_smart_input(this)" class="color_image_orange grow" src="{% static 'icons/plus.svg' %}" onclick="add_layer()">
@@ -114,7 +131,7 @@
       </div>
       <button
         type="button"
-        class="general_button light_grey_bacground shadow_weak"
+        class="general_button_no_border orange_background shadow_strong"
         style="cursor: default"
       >
         <h4 class="no_margin">Preview</h4>
@@ -123,9 +140,9 @@
       <input type="hidden" name="rarity_map" id="rarity_map" value="">
       <button
         type="submit"
-        class="general_button orange_background grow shadow_weak"
+        class="general_button_no_border light_purple_background shadow_strong"
       >
-        <h4 class="no_margin">Generate</h4>
+        <h4 class="no_margin generate">Generate</h4>
       </button>
     </div>
   </div>

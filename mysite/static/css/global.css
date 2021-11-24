@@ -1,9 +1,32 @@
 :root {
   --dark-grey-color: #535242;
-  --light-grey-color: #cdcdc5;
-  --medium-grey-color: #bebcae;
-  --orange-color: #e7a97e;
-  --white-color: #e2e2da;
+  background-image: linear-gradient(#6a74ff1f, #FFFFFF);
+  --light-grey-color: #FFFFFF;
+  --medium-grey-color: #627EEA;
+  --orange-color: #627dea85;
+  --white-color: #F7F8FA;
+  --off-white-color: #2C2F36;
+  --border-color: #EDEEF2;
+  --text-generate-color: #FFFFFF;
+  --text-preview-color: #5090EA;
+  /* --filter-color: invert(15%) sepia(91%) saturate(4511%) hue-rotate(321deg) brightness(78%) contrast(110%); */
+  --filter-color: invert(52%) sepia(52%) saturate(1041%) hue-rotate(200deg) brightness(88%) contrast(111%);
+  --icon-color: invert(0%) sepia(3%) saturate(7485%) hue-rotate(139deg) brightness(87%) contrast(101%);
+}
+
+body.dark-mode { 
+  --dark-grey-color: #FFFFFF;
+  background-image: linear-gradient(#2D222E, #212429);
+  --light-grey-color: #191B1F;
+  --medium-grey-color: #755A7A;
+  --orange-color: #16273C;
+  --white-color: #212429;
+  --off-white-color: #2C2F36;
+  --border-color: #FFFFFF;
+  --text-generate-color: #BE92C6;
+  --text-preview-color: #5090EA;
+  --filter-color: invert(32%) sepia(82%) saturate(1660%) hue-rotate(202deg) brightness(84%) contrast(98%);
+
 }
 
 /* GENERAL */
@@ -53,9 +76,14 @@ h6 {
 }
 
 body {
-  background-color: var(--dark-grey-color);
+  /* background-color: var(--dark-grey-color); */
+  /* background-image: linear-gradient(#2D222E, #212429); */
   font-family: "Trebuchet MS", sans-serif;
   color: var(--dark-grey-color);
+}
+
+.light_purple_background {
+  background-color: var(--medium-grey-color);
 }
 
 .light_grey_background {
@@ -83,8 +111,8 @@ body {
 }
 
 .shadow_strong {
-  box-shadow: rgba(0, 0, 0, 0.25) 0px 14px 28px,
-    rgba(0, 0, 0, 0.22) 0px 10px 10px;
+  box-shadow: rgba(0, 0, 0, 0.055) 0px 14px 20px
+    /* rgba(0, 0, 0, 0.22) 0px 10px 10px; */
 }
 
 .shadow_weak {
@@ -94,6 +122,7 @@ body {
 
 .grow {
   transition: all 0.2s ease-in-out;
+
 }
 .grow:hover {
   transform: scale(1.1);
@@ -108,7 +137,28 @@ body {
   padding: 10px 20px;
   border-radius: 15px;
   cursor: pointer;
+  /* border: none; */
+  border-style: solid;
+  border-width: 1px;
+  border-color: var(--border-color);
+}
+
+.general_button_no_border {
+  padding: 10px 20px;
+  border-radius: 15px;
+  cursor: pointer;
   border: none;
+}
+
+.general_button_no_border > h4 {
+  color:var(--text-preview-color);
+  font-weight: bold;
+  
+}
+.general_button_no_border > .generate {
+  color: var(--text-generate-color);
+  font-weight: bold;
+  
 }
 
 .general_input {
@@ -116,13 +166,20 @@ body {
 }
 
 .color_image_orange {
-  filter: invert(74%) sepia(37%) saturate(553%) hue-rotate(332deg)
-    brightness(95%) contrast(91%);
+    /* filter: invert(74%) sepia(37%) saturate(553%) hue-rotate(332deg)
+    brightness(95%) contrast(91%); */
+    filter: var(--filter-color)
+}
+
+.color_icon_background {
+    filter: var(--icon-color);
 }
 
 .color_image_dark {
-  filter: invert(30%) sepia(13%) saturate(663%) hue-rotate(19deg)
-    brightness(92%) contrast(83%);
+  /* filter: invert(30%) sepia(13%) saturate(663%) hue-rotate(19deg)
+    brightness(92%) contrast(83%); */
+    filter: invert(100%) sepia(0%) saturate(7500%) hue-rotate(18deg) brightness(123%) contrast(102%);
+    display: block;
 }
 
 .input_file::-webkit-file-upload-button {
@@ -151,6 +208,13 @@ body {
 .rounded_container_no_padding {
   border-radius: 30px;
 }
+#wrapper {
+  overflow: hidden;
+  /* transition: height 200ms; */
+}
+#wrapper > div {
+  overflow: hidden;
+}
 /* GENERAL */
 
 /* UPLOAD PAGE */
@@ -173,16 +237,27 @@ body {
   justify-content: space-evenly;
   align-items: center;
   gap: 25px;
+  float: left;
 }
 
 .upload_section_swap > img {
-  height: 40px;
+  height: 35px;
   aspect-ratio: 1;
-  padding-top: 10px;
+  /* padding-top: 10px; */
   cursor: pointer;
   border-radius: 5px;
+  width: 33%;
 }
 
+.upload_section_swap > img:active {
+  background-color: var( --off-white-color);
+}
+.upload_section_swap > img:focus {
+  background-color: var( --off-white-color);
+}
+.upload_section_swap > img:hover {
+  background-color: var( --off-white-color);
+}
 .upload_main {
   margin-top: 25px;
   width: 100%;
@@ -256,13 +331,14 @@ body {
   gap: 5px;
 }
 
-.upload_layers_buttons > div > div > input[type=file] {
+.upload_layers_buttons > div > div > div > input[type=file] {
   flex: 1 0 100px;
 }
 
-.upload_layers_buttons > div > div > input[type=range] {
+.upload_layers_buttons > div > div > div > div  input[type=range] {
   background-color: var(--orange-color);
 }
+/* how to fix above? */
 
 .upload_slider_section {
   display: flex;
@@ -270,7 +346,10 @@ body {
   margin-bottom: 15px;
 }
 
-.upload_layers_buttons > div > div > h5 {
+#wrapper > div {
+ flex-wrap: wrap;
+}
+.upload_layers_buttons > div > div > div > h5 {
   margin: 0;
   margin-bottom: 5px;
   color: var(--orange-color);
@@ -481,3 +560,5 @@ body {
   margin: 15px;
 }
 /* WEB3 */
+
+

@@ -91,8 +91,9 @@ function add_smart_input(self, category) {
     deletetext.textContent = 'Remove'
     
     upload_section.appendChild(deletetext)
-
-    self.parentElement.appendChild(upload_section);
+    
+    var temp = self.parentNode.children[self.parentNode.children.length - 1]
+    temp.appendChild(upload_section);
     //Add an event listener to remove the original button and the delete link on click:
     deletetext.addEventListener('click', function () {
         this.upload.remove()
@@ -185,12 +186,29 @@ function add_layer() {
         layers_row.classList = "general_button white_background"
         textures_row = layers_row.cloneNode(true)
 
+        expand_collapse_parent = document.createElement('div')
+        expand_collapse_parent.id = "wrapper"
+        expand_collapse_parent.classList = "open"
+
+        expand_collapse_parent_2 = expand_collapse_parent.cloneNode(true)
+
         add_layer_img = document.createElement('img')
         add_layer_img.src = "static/icons/plus.svg"
         add_layer_img.classList = "color_image_orange grow"
+
         add_layer_img.addEventListener('click', function () { add_smart_input(this, 1)})
 
+        expand_button = document.createElement('button');
+        expand_button.appendChild(Object.assign(document.createElement('h5'), { textContent: "v", classList: 'no_margin' }))
+
+        expand_button_2 = expand_button.cloneNode(true)
+
+        expand_button.addEventListener('click', function () { expand_collapse_button(this) })
+
+        expand_button_2.addEventListener('click', function () { expand_collapse_button(this) })
+
         add_layer_img.dataset.layer = add_layer_input.value
+
         add_layer_img_2 = add_layer_img.cloneNode(true)
         add_layer_img_2.addEventListener('click', function () { add_smart_input(this, 2)})
 
@@ -199,10 +217,18 @@ function add_layer() {
         close_button_img.classList = "close_button color_image_orange"
 
         layers_row.appendChild(close_button_img)
+
         layers_row.appendChild(Object.assign(document.createElement('h5'), { textContent: add_layer_input.value, classList: 'no_margin' }))
+
         layers_row.appendChild(add_layer_img)
+        layers_row.appendChild(expand_button)
+        layers_row.appendChild(expand_collapse_parent)
+
         textures_row.appendChild(Object.assign(document.createElement('h5'), { textContent: add_layer_input.value, classList: 'no_margin' }))
+
         textures_row.appendChild(add_layer_img_2)
+        textures_row.appendChild(expand_button_2)
+        textures_row.appendChild(expand_collapse_parent_2)
 
         layers_row.querySelector('.close_button').addEventListener("click", function () {
             this.layer.remove()
@@ -264,6 +290,24 @@ function add_collection() {
     add_layer_input.value = ""
 }
 //EXTRA TEST STUFF
+function expand_collapse_button(self) {
+    var element = document.getElementById("wrapper");
+    // var list = document.getElementById("list");
+    children = self.nextElementSibling
+    console.log(children)
 
+    if (children.classList.contains('open')) {
+
+        clientHeight = children.clientHeight;
+        console.log(clientHeight)
+        children.classList.remove("open");
+        children.style.height = '0px';
+
+    } else {
+        children.classList.add("open");
+        children.style.height = null;
+
+    }
+}
 
 window.addEventListener("load", main);
