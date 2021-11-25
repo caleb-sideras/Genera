@@ -199,6 +199,7 @@ function add_layer() {
         add_layer_img.addEventListener('click', function () { add_smart_input(this, 1)})
 
         expand_button = document.createElement('button');
+        expand_button.type = 'button'
         expand_button.appendChild(Object.assign(document.createElement('h5'), { textContent: "v", classList: 'no_margin' }))
 
         expand_button_2 = expand_button.cloneNode(true)
