@@ -21,11 +21,45 @@ function add_smart_input(self, category) {
     console.log((self.parentElement).parentElement)
 
     var build_upload_section = function(filename, upload_button) {
+        var full_file_name = ""
+        var remove_file = function(full_file_name){
+            var attachments = upload_button.files; // <-- reference your file input here
+            var fileBuffer = new DataTransfer();
+        
+            // append the file list to an array iteratively
+            for (let i = 0; i < attachments.length; i++) {
+                // Exclude specified filename
+                if (attachments[i].name != filename) {
+                    fileBuffer.items.add(attachments[i]);
+                    // console.log("ADDED FILE: " + attachments[i].name)
+                }
+                else {
+                    //remove the file name from the input fields file names
+                    if (upload_button.name.includes("$" + full_file_name)) {
+                        upload_button.name = upload_button.name.replace("$" + full_file_name, '')
+                    }
+                    else {
+                        upload_button.name = upload_button.name.replace(full_file_name, '')
+                    }
+                    if (upload_button.name[0] == "$") //cleanse first  $ meme
+                        upload_button.name = upload_button.name.substring(1)
+
+                    // console.log(full_file_name)
+                    // console.log("REMOVED FILE: " + attachments[i].name)
+                    // console.log(upload_button.name)
+                }
+            }
+            // Assign buffer to file input
+            upload_button.files = fileBuffer.files; // <-- according to your file input reference
+        }
+        
+        if (category == 1) 
+            full_file_name = "asset." + self.dataset.layer.toLowerCase() + "." + filename
+        else if (category == 2)
+            full_file_name = "texture." + self.dataset.layer.toLowerCase() + "." + filename
+
         if (upload_button.name == "") {
-            if (category == 1) 
-                upload_button.name = "asset." + self.dataset.layer.toLowerCase() + "." + filename
-            else if (category == 2)
-                upload_button.name = "texture." + self.dataset.layer.toLowerCase() + "." + filename
+            upload_button.name = full_file_name
         }
         else {
             if (category == 1) 
@@ -65,7 +99,7 @@ function add_smart_input(self, category) {
         slider_1.addEventListener('change', function() {
             this.slider_1.title = this.slider_1.value
             this.slider_value.innerHTML = this.slider_1.value
-            rarity_map[filename] = this.slider_1.value
+            rarity_map[full_file_name] = this.slider_1.value
             document.getElementById("rarity_map").value = JSON.stringify(rarity_map)
             update_sliders()
         }.bind({slider_1: slider_1, slider_value: slider_value}))
@@ -76,9 +110,13 @@ function add_smart_input(self, category) {
         var deletetext = Object.assign(document.createElement('h5'), { textContent: 'Remove', classList: 'no_margin'})
         deletetext.addEventListener('click', function () {
             this.upload.remove()
-        }.bind({upload: upload_section}))
+            remove_file(this.full_file_name) 
+            delete rarity_map[full_file_name] //delete rarity map link
+            document.getElementById("rarity_map").value = JSON.stringify(rarity_map)
+            update_sliders()
+        }.bind({upload: upload_section, full_file_name:full_file_name}))
 
-        upload_section.appendChild(Object.assign(document.createElement('h5'), { textContent: filename, classList: 'no_margin' }))
+        upload_section.appendChild(Object.assign(document.createElement('h4'), { textContent: filename, classList: 'no_margin' }))
         upload_section.appendChild(slider_section)
         upload_section.appendChild(deletetext)
 
@@ -103,7 +141,7 @@ function add_smart_input(self, category) {
         }
         for (var i = 0; i < fileList.length; i++) {
             var file = fileList[i]
-            var return_compoments = build_upload_section(file.name, uploadbtn)
+            var return_compoments = build_upload_section(file.name, uploadbtn, i)
             uploadbtn = return_compoments[1]
             component_wrapper.appendChild(return_compoments[0])
             update_sliders()
@@ -126,7 +164,6 @@ function update_sliders() {
     if (document.getElementById("collection_size") != "") {
         collection_size = document.getElementById("collection_size").value
     }
-    console.log(collection_size)
     for (var k = 0; k < document.getElementsByClassName("upload_layers_buttons").length; k++) {
         var button_section_layers = document.getElementsByClassName("upload_layers_buttons")[k]
         for (var i = 0; i < button_section_layers.children.length; i++) { //all layers within component 
@@ -147,7 +184,7 @@ function update_sliders() {
                 }
                 else {
                     slider.disabled = true
-                    slider_count.innerHTML =  "zero count memes"
+                    slider_count.innerHTML =  "empty collection"
                 }
             }
         }
