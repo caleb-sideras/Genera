@@ -214,6 +214,7 @@ body {
 }
 #wrapper > div {
   overflow: hidden;
+  flex-grow: 1;
 }
 /* GENERAL */
 
@@ -325,7 +326,7 @@ body {
   flex: 0 0 100%;
   display: flex;
   flex-wrap: wrap;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
   max-width: 100%;
   gap: 5px;
@@ -345,12 +346,17 @@ body {
 #wrapper > div {
  flex-wrap: wrap;
 }
+
 .upload_layers_buttons > div > div > div > h5 {
-  margin: 0;
-  margin-bottom: 5px;
   color: var(--orange-color);
   cursor: pointer;
-  margin-right: auto;
+  margin: 0 0 0 auto;
+}
+
+.upload_layers_buttons > div > div > div > h4 {
+  margin-bottom: 10px;
+  color: var(--orange-color);
+  flex-basis: 100%;
 }
 
 .upload_layers > img {
