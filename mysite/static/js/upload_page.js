@@ -7,12 +7,7 @@ function main() {
     rarity_map = {}
 
     document.getElementById("collection_size").addEventListener("change", function(e) {
-        if (e.target.value > 0) {
-            update_sliders(0)
-        }
-        else {
-            update_sliders(2)
-        }
+        update_sliders()
     })
     button_section_layers = document.getElementsByClassName("upload_layers_buttons")[0]
     button_section_textures = document.getElementsByClassName("upload_layers_buttons")[1]
@@ -21,90 +16,103 @@ function main() {
 
 function add_smart_input(self, category) {
     //1 == asset, 2 == texture
-    //create an upload button:
-    // console.log(self)
-    if (self.innerHTML == undefined) { return }
-    // console.log(category)
+    var component_wrapper = self.parentNode.children[self.parentNode.children.length - 1]
 
-    if (self.innerHTML == undefined) { return }
+    var build_upload_section = function(filename, upload_button) {
+        if (upload_button.name == "") {
+            if (category == 1) 
+                upload_button.name = "asset." + self.dataset.layer.toLowerCase() + "." + filename
+            else if (category == 2)
+                upload_button.name = "texture." + self.dataset.layer.toLowerCase() + "." + filename
+        }
+        else {
+            if (category == 1) 
+                upload_button.name += "$asset." + self.dataset.layer.toLowerCase() + "." + filename
+            else if (category == 2)
+                upload_button.name += "$texture." + self.dataset.layer.toLowerCase() + "." + filename
+        }
 
-    var upload_section = document.createElement('div')
-    upload_section.style.display = "flex";
+        var upload_section = document.createElement('div')
+        upload_section.style.display = "flex";
 
-    var uploadbtn = document.createElement('input');
-    uploadbtn.setAttribute('type', 'file');
-    if (category == 1) {
-        uploadbtn.name = "asset." + self.dataset.layer.toLowerCase()
+        slider_section = document.createElement('div')
+        slider_section.classList = "upload_slider_section"
+
+        slider_1 = document.createElement('input')
+        slider_1.value = 0
+        slider_1.type = 'range'
+        slider_1.min = 0
+        slider_1.title = slider_1.value
+        slider_1.step = 1
+
+        slider_value = document.createElement('p')
+        slider_value.classList = "no_margin"
+        if (document.getElementById("collection_size").value == "") {
+            slider_1.disabled = true
+            slider_value.innerHTML = "no collection size"
+        }
+        else {
+            slider_value.innerHTML = slider_1.value
+            slider_1.max = Number(document.getElementById("collection_size").value)
+        }
+
+        slider_1.addEventListener('input', function() {
+            this.slider_value.innerHTML = this.slider_1.value
+        }.bind({slider_1: slider_1, slider_value: slider_value}))
+
+        slider_1.addEventListener('change', function() {
+            this.slider_1.title = this.slider_1.value
+            this.slider_value.innerHTML = this.slider_1.value
+            rarity_map[filename] = this.slider_1.value
+            document.getElementById("rarity_map").value = JSON.stringify(rarity_map)
+            update_sliders()
+        }.bind({slider_1: slider_1, slider_value: slider_value}))
+
+        slider_section.appendChild(slider_value)
+        slider_section.appendChild(slider_1)
+
+        var deletetext = Object.assign(document.createElement('h5'), { textContent: 'Remove', classList: 'no_margin'})
+        deletetext.addEventListener('click', function () {
+            this.upload.remove()
+        }.bind({upload: upload_section}))
+
+        upload_section.appendChild(Object.assign(document.createElement('h5'), { textContent: filename, classList: 'no_margin' }))
+        upload_section.appendChild(slider_section)
+        upload_section.appendChild(deletetext)
+
+        return [upload_section, upload_button];
     }
-    else if (category == 2)
-        uploadbtn.name = "texture." + self.dataset.layer.toLowerCase()
 
+    if (self.innerHTML == undefined) { return }
+
+    var uploadbtn = document.createElement('input')
+    uploadbtn.setAttribute('type', 'file')
+    uploadbtn.setAttribute('multiple','')
+    uploadbtn.name = ""
     uploadbtn.style.marginBottom = "5px"
-
-    slider_section = document.createElement('div')
-    slider_section.classList = "upload_slider_section"
-
-    slider_1 = document.createElement('input')
-    slider_1.value = 0
-    slider_1.type = 'range'
-    slider_1.min = 0
-    slider_1.title = slider_1.value
-    slider_1.step = 1
-
-    slider_value = document.createElement('p')
-    slider_value.classList = "no_margin"
-    if (document.getElementById("collection_size").value == "") {
-        slider_1.disabled = true
-        slider_value.innerHTML = "no collection size"
-    }
-    else {
-        slider_value.innerHTML = slider_1.value
-        slider_1.max = Number(document.getElementById("collection_size").value)
-    }
-
-    slider_1.addEventListener('input', function() {
-        this.slider_value.innerHTML = this.slider_1.value
-    }.bind({slider_1: slider_1, slider_value: slider_value}))
-
-    slider_1.addEventListener('change', function() {
-        this.slider_1.title = this.slider_1.value
-        this.slider_value.innerHTML = this.slider_1.value
-        rarity_map[uploadbtn.name] = this.slider_1.value
-        document.getElementById("rarity_map").value = JSON.stringify(rarity_map)
-        update_sliders(1)
-    }.bind({slider_1: slider_1, slider_value: slider_value}))
-
-    slider_section.appendChild(slider_value)
-    slider_section.appendChild(slider_1)
-
-    console.log(uploadbtn.name)
-    //append it to your document:
-    upload_section.appendChild(uploadbtn)
-    //add an event listener that appends the file name to the input name field for submission (8000 iq)
-    uploadbtn.addEventListener('change', function() { 
-        uploadbtn.name = uploadbtn.name + "." + uploadbtn.files[0].name
-        this.upload_section.appendChild(this.slider_section)
-        update_sliders(1)
-    }.bind({upload_section: upload_section, slider_section: slider_section}))
-    //make delete element: 
-    let deletetext = document.createElement('h5')
-    deletetext.textContent = 'Remove'
+    uploadbtn.style.display = "none"
+    uploadbtn.click()
     
-    upload_section.appendChild(deletetext)
-    
-    var temp = self.parentNode.children[self.parentNode.children.length - 1]
-    temp.appendChild(upload_section);
-    //Add an event listener to remove the original button and the delete link on click:
-    deletetext.addEventListener('click', function () {
-        this.upload.remove()
-        this.delete.remove()
-        this.slider_section.remove()
-    }.bind({upload: uploadbtn, delete: deletetext, slider_section: slider_section}))
+    var fileList = []
+    uploadbtn.addEventListener('change', function() {
+        fileList = []
+        for (var i = 0; i < uploadbtn.files.length; i++) {
+            fileList.push(uploadbtn.files[i])
+        }
+        for (var i = 0; i < fileList.length; i++) {
+            var file = fileList[i]
+            var return_compoments = build_upload_section(file.name, uploadbtn)
+            uploadbtn = return_compoments[1]
+            component_wrapper.appendChild(return_compoments[0])
+            update_sliders()
+        }
+    })
+    component_wrapper.appendChild(uploadbtn)
 }
 
 
 
-function update_sliders(update_type) {
+function update_sliders() {
     var get_layer_total = function(sliders) {
         var total = 0
         for (var i = 0; i < sliders.length; i++) {
@@ -112,68 +120,36 @@ function update_sliders(update_type) {
         }
         return total
     }
-
-    if (update_type == 0) { //IF COLLECTION SIZE HAS BEEN CHANGED - NEEDS ENABLED ALL - UPDATE MAX ALSO - STATUS 0
-        var collection_size = document.getElementById("collection_size").value
-        for (var k = 0; k < document.getElementsByClassName("upload_layers_buttons").length; k++) {
-            var button_section_layers = document.getElementsByClassName("upload_layers_buttons")[k]
-            for (var i = 0; i < button_section_layers.children.length; i++) { //all layers within component 
-                //button_section_layers.children[i] is specific layer access
-                var local_sliders = button_section_layers.children[i].querySelectorAll(":scope .upload_slider_section")
-                //all sliders within the layer
-                for (var j = 0; j < local_sliders.length; j++) {
-                    var slider = local_sliders[j].children[1]
-                    var slider_count = local_sliders[j].children[0]
-                    slider.disabled = false
-                    slider.max = collection_size
-                    slider_count.innerHTML =  slider.value
-                }
-            }
-        }
-        return
+    var collection_size = 0
+    if (document.getElementById("collection_size") != "") {
+        collection_size = document.getElementById("collection_size").value
     }
+    console.log(collection_size)
+    for (var k = 0; k < document.getElementsByClassName("upload_layers_buttons").length; k++) {
+        var button_section_layers = document.getElementsByClassName("upload_layers_buttons")[k]
+        for (var i = 0; i < button_section_layers.children.length; i++) { //all layers within component 
+            //button_section_layers.children[i] is specific layer access
+            var local_sliders = button_section_layers.children[i].querySelectorAll(":scope .upload_slider_section")
+            var cum_sum = get_layer_total(local_sliders)
+            for (var j = 0; j < local_sliders.length; j++) {
+                var slider = local_sliders[j].children[1]
+                var slider_count = local_sliders[j].children[0]
 
-    if (update_type == 1) { //IF ANY SLIDER HAS BEEN CHANGED - STATUS 1
-        var collection_size = document.getElementById("collection_size").value
-        for (var k = 0; k < document.getElementsByClassName("upload_layers_buttons").length; k++) {
-            var button_section_layers = document.getElementsByClassName("upload_layers_buttons")[k]
-            for (var i = 0; i < button_section_layers.children.length; i++) { //all layers within component 
-                //button_section_layers.children[i] is specific layer access
-                var local_sliders = button_section_layers.children[i].querySelectorAll(":scope .upload_slider_section")
-                var cum_sum = get_layer_total(local_sliders)
-                for (var j = 0; j < local_sliders.length; j++) {
-                    var slider = local_sliders[j].children[1]
-                    var slider_count = local_sliders[j].children[0]
+                if (collection_size > 0) {
                     if (slider.value > 0) //if not empty
                         slider.max = Number(slider.value) + (collection_size - cum_sum)
                     else //if empty
                         slider.max = (collection_size - cum_sum)
                     slider_count.innerHTML =  slider.value
-                    if (collection_size > 0)
-                        slider.disabled = false
+                    slider.disabled = false
                 }
-            }
-        }
-        return
-    }
-
-    if (update_type == 2) { //IF COLLECTION SIZE HAS BEEN CHANGED - NEEDS DISABLED ALL - STATUS 2
-        for (var k = 0; k < document.getElementsByClassName("upload_layers_buttons").length; k++) {
-            var button_section_layers = document.getElementsByClassName("upload_layers_buttons")[k]
-            for (var i = 0; i < button_section_layers.children.length; i++) { //all layers within component 
-                //button_section_layers.children[i] is specific layer access
-                var local_sliders = button_section_layers.children[i].querySelectorAll(":scope .upload_slider_section")
-                for (var j = 0; j < local_sliders.length; j++) {
-                    var slider = local_sliders[j].children[1]
-                    var slider_count = local_sliders[j].children[0]
+                else {
                     slider.disabled = true
                     slider_count.innerHTML =  "zero count memes"
                 }
             }
         }
-        return
     }
-    
 }
 
 function add_layer() {

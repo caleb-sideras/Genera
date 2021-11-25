@@ -68,6 +68,7 @@ def upload_view(request):
     calebs_gay_dict = {}
 
     if request.method == "POST":
+
         if len(request.FILES) != 0:
             if request.POST["rarity_map"] == "":
                 messages.error(request, message="No rarities attached")
@@ -98,53 +99,56 @@ def upload_view(request):
             db_collection.collection_size = calebs_gay_dict["CollectionSize"]
             db_collection.path = f"/media/users/{request.user.username}/collections/{calebs_gay_dict['CollectionName'].replace(' ', '_')}"
             db_collection.save()
+            
+            for filename in request.FILES.keys():
+                for file in request.FILES.getlist(filename): ##for this set of file get layer name and layer type
+                    if "$" in filename: ##handle mutliple files.
+                        individual_files = filename.split("$")
+                        if individual_files:
+                            layer_name = individual_files[0].split(".")[1]
+                            layer_type = individual_files[0].split(".")[0]
+                    else: ##handle 1 file
+                        layer_name = filename.split(".")[1]
+                        layer_type = filename.split(".")[0]
+                    file_name_no_extension = file.name.split(".")[0]
+                    file_name_extension = file.name.split(".")[1]
 
-            for filename, file in request.FILES.items():
-                filename_components = filename.split(".")
-                layer_name = filename_components[1]
-                layer_type = filename_components[0]  # asset or layer ?
-                file_name = filename_components[-2]
+                    if file_name_extension.lower() != "png":
+                        continue
 
-                if filename_components[-1].lower() != "png":
-                    continue
+                    if layer_name not in layers:
+                        layers[layer_name] = {
+                            "Assets": [],
+                            "Textures": [],
+                        }
 
-                if layer_name not in layers:
-                    layers[layer_name] = {
-                        "Assets": [],
-                        "Textures": [],
-                    }
-
-                if layer_name in layers:
-                    if layer_type == "asset":
-                        if int(float(rarity_map[filename])) > 0:  # if rarity > 0
-                            layers[layer_name]["Assets"].append(
-                                {
-                                    "Name": file_name,
-                                    "PIL": file_to_pil(
-                                        file
-                                    ),  # REPLACE WITH file_to_pil(file) WHEN NEED ACTUAL FILE OBJECT IN NUMPY
-                                    "Rarity": int(float(rarity_map[filename])),
-                                }
-                            )
-                    if layer_type == "texture":
-                        if int(float(rarity_map[filename])) > 0:  # if rarity > 0
-                            layers[layer_name]["Textures"].append(
-                                {
-                                    "Name": file_name,
-                                    "PIL": file_to_pil(
-                                        file
-                                    ),  # REPLACE WITH file_to_pil(file) WHEN NEED ACTUAL FILE OBJECT IN NUMPY
-                                    "Rarity": int(float(rarity_map[filename])),
-                                }
-                            )
+                    if layer_name in layers:
+                        if layer_type == "asset":
+                            if int(float(rarity_map[file.name])) > 0:  # if rarity > 0
+                                layers[layer_name]["Assets"].append(
+                                    {
+                                        "Name": file_name_no_extension,
+                                        "PIL": file_to_pil(
+                                            file
+                                        ),  # REPLACE WITH file_to_pil(file) WHEN NEED ACTUAL FILE OBJECT IN NUMPY
+                                        "Rarity": int(float(rarity_map[file.name])),
+                                    }
+                                )
+                        if layer_type == "texture":
+                            if int(float(rarity_map[file.name])) > 0:  # if rarity > 0
+                                layers[layer_name]["Textures"].append(
+                                    {
+                                        "Name": file_name_no_extension,
+                                        "PIL": file_to_pil(
+                                            file
+                                        ),  # REPLACE WITH file_to_pil(file) WHEN NEED ACTUAL FILE OBJECT IN NUMPY
+                                        "Rarity": int(float(rarity_map[file.name])),
+                                    }
+                                )
 
             calebs_gay_dict["Layers"] = layers  # calebd gay dict complete
 
-            # print(json.dumps(calebs_gay_dict, indent=4, sort_keys=True))
-            ##BEFORE U SEND THIS SHIT OFF TO UR NUMPY DONT FORGET TO UNCOMMENT PIL ENTRIES IN THE DICT CREATOR ABOVE !!!
-
-            # print("SAVED TO DB")
-            # print(calebs_gay_dict)
+            print(calebs_gay_dict["Layers"])
 
             create_and_save_collection(calebs_gay_dict, db_collection, request.user)
 
