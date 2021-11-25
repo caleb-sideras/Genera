@@ -17,6 +17,8 @@ function main() {
 function add_smart_input(self, category) {
     //1 == asset, 2 == texture
     var component_wrapper = self.parentNode.children[self.parentNode.children.length - 1]
+    console.log(self.parentElement)
+    console.log((self.parentElement).parentElement)
 
     var build_upload_section = function(filename, upload_button) {
         if (upload_button.name == "") {
@@ -170,15 +172,22 @@ function add_layer() {
 
         add_layer_img = document.createElement('img')
         add_layer_img.src = "static/icons/plus.svg"
-        add_layer_img.classList = "color_image_orange grow"
+        add_layer_img.classList = "color_image_orange"
 
         add_layer_img.addEventListener('click', function () { add_smart_input(this, 1)})
 
-        expand_button = document.createElement('button');
-        expand_button.type = 'button'
-        expand_button.appendChild(Object.assign(document.createElement('h5'), { textContent: "v", classList: 'no_margin' }))
 
-        expand_button_2 = expand_button.cloneNode(true)
+        expand_button_container = document.createElement('div')
+        expand_button_container.classList = "expand_button_container"
+
+        expand_button = document.createElement('img');
+        expand_button.src = 'static/icons/expand.svg'
+        expand_button.classList = 'expand_collapse'
+
+        expand_button_container.appendChild(Object.assign(document.createElement('h5'), { textContent: "100", classList: 'no_margin' }))
+        expand_button_container.appendChild(expand_button)
+
+        expand_button_2 = expand_button_container.cloneNode(true)
 
         expand_button.addEventListener('click', function () { expand_collapse_button(this) })
 
@@ -198,7 +207,7 @@ function add_layer() {
         layers_row.appendChild(Object.assign(document.createElement('h5'), { textContent: add_layer_input.value, classList: 'no_margin' }))
 
         layers_row.appendChild(add_layer_img)
-        layers_row.appendChild(expand_button)
+        layers_row.appendChild(expand_button_container)
         layers_row.appendChild(expand_collapse_parent)
 
         textures_row.appendChild(Object.assign(document.createElement('h5'), { textContent: add_layer_input.value, classList: 'no_margin' }))
@@ -270,19 +279,22 @@ function add_collection() {
 function expand_collapse_button(self) {
     var element = document.getElementById("wrapper");
     // var list = document.getElementById("list");
-    children = self.nextElementSibling
-    console.log(children)
-
+    children = (self.parentNode).nextElementSibling
+    // console.log(self)
+    
+    
     if (children.classList.contains('open')) {
 
         clientHeight = children.clientHeight;
         console.log(clientHeight)
         children.classList.remove("open");
         children.style.height = '0px';
+        self.style.transform = 'rotate(180deg)';
 
     } else {
         children.classList.add("open");
         children.style.height = null;
+        self.style.transform = 'rotate(0deg)';
 
     }
 }
