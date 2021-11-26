@@ -370,7 +370,7 @@ body {
 .upload_slider_section {
   display: flex;
   gap: 5px;
-  /* margin-bottom: 15px; */
+  margin-bottom: 15px;
 }
 
 #wrapper > div {
