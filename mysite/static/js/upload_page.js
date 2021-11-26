@@ -16,6 +16,23 @@ function main() {
 
 function add_smart_input(self, category) {
     //1 == asset, 2 == texture
+    function expand_button(self) {
+        parent = self.parentElement.firstChild.innerHTML
+        if (parseInt(parent) != 0) {
+            children = (self.parentNode).nextElementSibling
+            if (children.classList.contains('open')) {
+                children.style.padding = '15px 20px';
+                children.style.marginRight = '-20px'
+                children.style.marginLeft = '-20px'
+
+            }else{
+                children.classList.add("open");
+                children.style.height = null;
+                children.style.padding = '15px 20px';
+                self.style.transform = 'rotate(0deg)';
+            }
+        }
+    }
     var component_wrapper = self.parentNode.children[self.parentNode.children.length - 1]
     console.log(self.parentElement)
     console.log((self.parentElement).parentElement)
@@ -107,7 +124,10 @@ function add_smart_input(self, category) {
         slider_section.appendChild(slider_value)
         slider_section.appendChild(slider_1)
 
-        var deletetext = Object.assign(document.createElement('h5'), { textContent: 'Remove', classList: 'no_margin'})
+        // var deletetext = Object.assign(document.createElement('h5'), { textContent: 'Remove', classList: 'no_margin'})
+        var deletetext = document.createElement('img')
+        deletetext.src = "static/icons/remove.svg"
+        deletetext.classList = "close_button_color"
         deletetext.addEventListener('click', function () {
             this.upload.remove()
             remove_file(this.full_file_name) 
@@ -153,9 +173,10 @@ function add_smart_input(self, category) {
             update_sliders()
         }
         create_notification("Upload success", "You have succesfully uploaded " + n_files + " file(s) into the selected component" , duration = 5000, "success")
-
+        expand_button(self.nextElementSibling.lastElementChild)
     })
     component_wrapper.appendChild(uploadbtn)
+    // expand_collapse_button(self.nextElementSibling.lastElementChild)
 }
 
 function update_sliders() {
@@ -278,17 +299,21 @@ function add_layer() {
     }
 }
 
-function switch_tabs(target_tab) {
+function switch_tabs(target_tab, self) {
     var upload_layers = document.getElementsByClassName("upload_layers")[0]
     var upload_textures = document.getElementsByClassName("upload_layers")[1]
 
     if (target_tab == "layers") {
         upload_layers.style.display = "block"
         upload_textures.style.display = "none"
+        self.style.background = "#2C2F36" // change color later to match css custom properties
+        self.nextElementSibling.style.background = null
     }
     if (target_tab == "textures") {
         upload_textures.style.display = "block"
         upload_layers.style.display = "none"
+        self.style.background = "#2C2F36"
+        self.previousElementSibling.style.background = null
     }
 }
 
@@ -326,29 +351,33 @@ function add_collection() {
 
     add_layer_input.value = ""
 }
+
 //EXTRA TEST STUFF
 function expand_collapse_button(self) {
-    var element = document.getElementById("wrapper");
-    // var list = document.getElementById("list");
-    children = (self.parentNode).nextElementSibling
-    console.log(self)
-    console.log(children)
-    
-    
-    if (children.classList.contains('open')) {
+    // console.log(self)
+    parent = self.parentElement.firstChild.innerHTML
+    if (parseInt(parent) != 0) {
+        children = (self.parentNode).nextElementSibling
 
-        clientHeight = children.clientHeight;
-        console.log(clientHeight)
-        children.classList.remove("open");
-        children.style.height = '0px';
-        self.style.transform = 'rotate(180deg)';
+        children.style.marginRight = '-20px'
+        children.style.marginLeft = '-20px'
+        if (children.classList.contains('open')) {
 
-    } else {
-        children.classList.add("open");
-        children.style.height = null;
-        self.style.transform = 'rotate(0deg)';
+            clientHeight = children.clientHeight;
+            children.classList.remove("open");
+            children.style.height = '0px';
+            children.style.padding = '0px 20px';
+            self.style.transform = 'rotate(180deg)';
 
+        } else {
+            children.classList.add("open");
+            children.style.height = null;
+            children.style.padding = '15px 20px';
+            self.style.transform = 'rotate(0deg)';
+
+        }
     }
+    
 }
 
 window.addEventListener("load", main);

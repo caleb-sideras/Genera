@@ -15,14 +15,14 @@
     <div class="upload_section_swap rounded_container shadow_strong">
       <img
         src="{% static 'icons/layer2.svg' %} "
-        onclick="switch_tabs('layers')"
+        onclick="switch_tabs('layers', this)"
         tabindex="0"
         
       />
       <!-- class="color_icon_background" -->
       <img
         src="{% static 'icons/texture2.svg' %}"
-        onclick="switch_tabs('textures')"
+        onclick="switch_tabs('textures', this)"
         tabindex="0"
         
       />
@@ -37,7 +37,7 @@
   <div class="upload_main">
     <div class="upload_layers rounded_container shadow_strong">
       <!-- shadow_strong -->
-      <h4 class="no_margin center">Layers</h4>
+      <h3 class="no_margin center">Layers</h3>
 <!-- <div id="wrapper" class="open">
   <div id="list">
     <div style="display: flex;"><input type="file" name="asset.background" style="margin-bottom: 5px;"><h5>Remove</h5></div>
@@ -68,7 +68,7 @@
       style="display: none"
     >
     <!-- shadow_strong -->
-      <h4 class="no_margin center">Textures</h4>
+      <h3 class="no_margin center">Textures</h3>
       <div class="upload_layers_buttons">
         <!-- <div class="general_button white_background"><h5 class="no_margin"">Textures</h5><img data-layer="textures" onclick="add_smart_input(this)" class="color_image_orange grow" src="{% static 'icons/plus.svg' %}" onclick="add_layer()">
           </div> -->
@@ -80,7 +80,7 @@
     </div>
     <div class="upload_properties">
       <div class="rounded_container shadow_strong">
-        <h4 class="no_margin center">Project properties</h4>
+        <h4 class="no_margin center">Collection Properties</h4>
         <div
           style="
             margin-top: 15px;
