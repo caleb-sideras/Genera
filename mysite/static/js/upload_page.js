@@ -113,6 +113,7 @@ function add_smart_input(self, category) {
             remove_file(this.full_file_name) 
             delete rarity_map[full_file_name] //delete rarity map link
             document.getElementById("rarity_map").value = JSON.stringify(rarity_map)
+            create_notification("File removed", "You have succesfully removed '" + this.full_file_name.split(".").slice(2,4).join(".") + "' from the component." , duration = 3500, "success") //20 years duration for sins
             update_sliders()
         }.bind({upload: upload_section, full_file_name:full_file_name}))
 
@@ -133,12 +134,17 @@ function add_smart_input(self, category) {
     uploadbtn.style.display = "none"
     uploadbtn.click()
     
-    var fileList = []
     uploadbtn.addEventListener('change', function() {
-        fileList = []
+        var n_files = uploadbtn.files.length
+        if (n_files > 35) {
+            create_notification("SINGLE UPLOAD LIMIT", "You are trying to upload more than 35 files at once. Please do not upload more in one go - YOU MAY however continue uploading more, by pressing the plus button again. Just do not exceed 35 at a time :)", duration = 10000, "error") //20 years duration for sins
+            return
+        }
+        var fileList = []
         for (var i = 0; i < uploadbtn.files.length; i++) {
             fileList.push(uploadbtn.files[i])
         }
+        
         for (var i = 0; i < fileList.length; i++) {
             var file = fileList[i]
             var return_compoments = build_upload_section(file.name, uploadbtn, i)
@@ -146,6 +152,8 @@ function add_smart_input(self, category) {
             component_wrapper.appendChild(return_compoments[0])
             update_sliders()
         }
+        create_notification("Upload success", "You have succesfully uploaded " + n_files + " file(s) into the selected component" , duration = 5000, "success")
+
     })
     component_wrapper.appendChild(uploadbtn)
 }
@@ -196,7 +204,7 @@ function add_layer() {
     add_layer_input = document.getElementById("add_layer_input")
 
     if (add_layer_input.value == "") {
-        create_notification("FAMILY IS CRYING", "FORGOT GIVE LAYER NAME !!!!! !! !!", duration = 20000, "error") //20 years duration for sins
+        create_notification("FAMILY IS CRYING", "FORGOT GIVE LAYER NAME !!!!! !! !!", duration = 10000, "error") //20 years duration for sins
     } else {
         layers_row = document.createElement('div')
         layers_row.classList = "general_button white_background"
