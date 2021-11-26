@@ -226,19 +226,24 @@ function add_layer() {
         expand_button_container = document.createElement('div')
         expand_button_container.classList = "expand_button_container"
 
+        expand_button_container_2 = document.createElement('div')
+        expand_button_container_2.classList = "expand_button_container"
+
         expand_button = document.createElement('img');
         expand_button.src = 'static/icons/expand.svg'
         expand_button.classList = 'expand_collapse'
 
         expand_button_container.appendChild(Object.assign(document.createElement('h5'), { textContent: "0", classList: 'no_margin' }))
-        expand_button_container.appendChild(expand_button)
+        expand_button_container_2.appendChild(Object.assign(document.createElement('h5'), { textContent: "0", classList: 'no_margin' }))
 
-        expand_button_2 = expand_button_container.cloneNode(true)
+        expand_button_2 = expand_button.cloneNode(true)
 
         expand_button.addEventListener('click', function () { expand_collapse_button(this) })
-
         expand_button_2.addEventListener('click', function () { expand_collapse_button(this) })
 
+        expand_button_container.appendChild(expand_button)
+        expand_button_container_2.appendChild(expand_button_2)
+   
         add_layer_img.dataset.layer = add_layer_input.value
 
         add_layer_img_2 = add_layer_img.cloneNode(true)
@@ -259,7 +264,7 @@ function add_layer() {
         textures_row.appendChild(Object.assign(document.createElement('h5'), { textContent: add_layer_input.value, classList: 'no_margin' }))
 
         textures_row.appendChild(add_layer_img_2)
-        textures_row.appendChild(expand_button_2)
+        textures_row.appendChild(expand_button_container_2)
         textures_row.appendChild(expand_collapse_parent_2)
 
         layers_row.querySelector('.close_button').addEventListener("click", function () {
@@ -326,7 +331,8 @@ function expand_collapse_button(self) {
     var element = document.getElementById("wrapper");
     // var list = document.getElementById("list");
     children = (self.parentNode).nextElementSibling
-    // console.log(self)
+    console.log(self)
+    console.log(children)
     
     
     if (children.classList.contains('open')) {
