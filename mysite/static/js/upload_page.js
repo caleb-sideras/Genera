@@ -150,8 +150,6 @@ function add_smart_input(self, category) {
     component_wrapper.appendChild(uploadbtn)
 }
 
-
-
 function update_sliders() {
     var get_layer_total = function(sliders) {
         var total = 0
@@ -168,7 +166,10 @@ function update_sliders() {
         var button_section_layers = document.getElementsByClassName("upload_layers_buttons")[k]
         for (var i = 0; i < button_section_layers.children.length; i++) { //all layers within component 
             //button_section_layers.children[i] is specific layer access
+
             var local_sliders = button_section_layers.children[i].querySelectorAll(":scope .upload_slider_section")
+            button_section_layers.children[i].querySelector(":scope .expand_button_container h5").innerHTML = local_sliders.length
+
             var cum_sum = get_layer_total(local_sliders)
             for (var j = 0; j < local_sliders.length; j++) {
                 var slider = local_sliders[j].children[1]
@@ -221,7 +222,7 @@ function add_layer() {
         expand_button.src = 'static/icons/expand.svg'
         expand_button.classList = 'expand_collapse'
 
-        expand_button_container.appendChild(Object.assign(document.createElement('h5'), { textContent: "100", classList: 'no_margin' }))
+        expand_button_container.appendChild(Object.assign(document.createElement('h5'), { textContent: "0", classList: 'no_margin' }))
         expand_button_container.appendChild(expand_button)
 
         expand_button_2 = expand_button_container.cloneNode(true)
@@ -307,7 +308,7 @@ function add_collection() {
 
         layers_row.appendChild(add_layer_img)
         layers_row.appendChild(layers_row2)
-        button_section_collection.appendChild(layers_row);
+        button_section_collection.appendChild(layers_row)
     }
 
     add_layer_input.value = ""
