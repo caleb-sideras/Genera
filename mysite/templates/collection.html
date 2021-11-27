@@ -9,21 +9,24 @@
 {% endblock %}
 
 {% block body_block %}
+<div class="view_collection_main">
     <div class="collection_structure">
         <h1>{{collection_data.collection_name}} Collection</h1>
         <div class="all_collections_layout">
         {% if collection_images %}
             {% for entry in collection_images %}
-                <div class="collection_card">
+                <div class="collection_card shadow_strong rounded_container_no_padding">
+                    
                     {% if entry.ipfs_bool%}
-                     <img src="{{entry.ipfs_image_path}}" alt="{{entry.name}} image should be here">
+                    <img src="/static/icons/remove.svg" class="close_button remove_image_button color_image_orange">
+                    <img src="{{entry.ipfs_image_path}}" alt="{{entry.name}} image should be here" class="nft_image">
                     {% else %}
                     <img src="{{entry.path}}" alt="{{entry.name}} image should be here">
                     {% endif %}
                     <div>
                         <p class="no_margin center">{{entry.name}}</p>
                         <a href="https://moralis.io/" target="_blank" rel="noopener noreferrer">
-                            <button class="general_button orange_background">view metadata</button>
+                            <button class="collection_card_button white_background">View Metadata</button>
                         </a>
                     </div>
                 </div>
@@ -31,17 +34,26 @@
         {% endif %}
         </div>
     </div>
-    <button class="ethereumButton general_button orange_background grow">Login with Metamask</button>
+    <!-- <button class="ethereumButton general_button orange_background grow">Login with Metamask</button>
     <button class="sendEthButton btn general_button orange_background grow">Deploy contract</button>
     <button class="addToken btn general_button orange_background grow">Add Token</button>
-    <button class="testButton btn general_button orange_background grow">Mainnet gas estimate</button>
-    <button
-    data-json="{{erc721_json}}"
-    id="ajax_test"
-    data-url="{{url}}"
-    class="general_button orange_background grow"
-    onclick="ajax_server_post(this.dataset.url)"
-    >
-    Ajax button
-    </button>
+    <button class="testButton btn general_button orange_background grow">Mainnet gas estimate</button> -->
+
+    <div class="mint_section">
+        <button type="button" class="general_button_no_border orange_background shadow_strong rounded_container_no_padding" style="cursor: default">
+            <h4 class="no_margin">Delete Duplicates</h4>
+        </button>
+        <button
+        data-json="{{erc721_json}}"
+        id="ajax_test"
+        data-url="{{url}}"
+        class="general_button_no_border light_purple_background shadow_strong rounded_container_no_padding"
+        onclick="ajax_server_post(this.dataset.url)"
+        type="button"
+        >
+        <h4 class="no_margin generate">Mint Collection</h4>
+        
+        </button>
+    </div>
+</div>
 {% endblock %}

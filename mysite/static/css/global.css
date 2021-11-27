@@ -165,7 +165,7 @@ body {
 
 .general_button_no_border {
   padding: 10px 20px;
-  border-radius: 15px;
+  /* border-radius: 15px; */
   cursor: pointer;
   border: none;
 }
@@ -216,7 +216,7 @@ body {
 }
 
 .rounded_container {
-  border-radius: 15px;
+  border-radius: 20px;
   padding: 10px 5px;
 }
 
@@ -229,7 +229,7 @@ body {
 }
 
 .rounded_container_no_padding {
-  border-radius: 30px;
+  border-radius: 20px;
 }
 #wrapper {
   overflow: hidden;
@@ -537,12 +537,30 @@ body {
 /* COLLECTION PAGE */
 
 /* all collections */
+
+.view_collection_main {
+  margin-top: 25px;
+  width: 100%;
+  height: 85vh;
+  display: flex;
+  gap: 20px;
+}
+
 .collection_structure {
   margin: 0 50px;
 }
 
 .collection_structure > h1 {
   color: var(--medium-grey-color);
+}
+
+.mint_section {
+  flex: 0 0 20vw;
+}
+
+.mint_section > button{
+  margin: 5px auto;
+  width: 100%;
 }
 
 .all_collections_layout {
@@ -553,11 +571,11 @@ body {
 }
 
 .collection_card {
-  border-radius: 15px;
+  /* border-radius: 15px; */
   min-height: 250px;
   max-height: 350px;
   width: 200px;
-  background-color: var(--medium-grey-color);
+  background-color: var(--light-grey-color);
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -565,8 +583,8 @@ body {
   padding-bottom: 15px;
 }
 
-.collection_card img {
-  max-height: 150px;
+.collection_card > .nft_image {
+  /* max-height: 150px; */
   aspect-ratio: 1;
   height: 70%;
   width: 100%;
@@ -587,15 +605,33 @@ body {
 
 .collection_card > div > p{
   margin: 0 5px;
+  font-size: 18px;
 }
 
 .collection_card > div button {
   margin-top: 10px;
 }
 
-/* .collection_card button {
-  width: 75%;
-} */
+.collection_card_button {
+  padding: 5px 10px;
+  border-radius: 30px;
+  cursor: pointer;
+  /* border: none; */
+  border-style: solid;
+  border-width: 1px;
+  border-color: var(--border-color);
+  color: var(--text-color);
+}
+
+.collection_card > .remove_image_button{
+     /* display: none; */
+    /* text-align: center; */
+    position: absolute;
+    height: 15px;
+    aspect-ratio: 1;
+    width: 370px;
+    padding: 5px 0 0 0;
+}
 
 /* all collections */
 

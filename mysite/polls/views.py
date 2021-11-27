@@ -70,25 +70,25 @@ def upload_view(request):
     if request.method == "POST":
         if len(request.FILES) != 0:
             #TEST FILE TRANSFER CODE
-            file_count = 0
-            for filename in request.FILES.keys():
-                for file in request.FILES.getlist(filename): ##for this set of file get layer name and layer type
-                    if "$" in filename: ##handle mutliple files.
-                        individual_files = filename.split("$")
-                        if individual_files:
-                            layer_name = individual_files[0].split(".")[1]
-                            layer_type = individual_files[0].split(".")[0]
-                    else: ##handle 1 file
-                        layer_name = filename.split(".")[1]
-                        layer_type = filename.split(".")[0]
-                    file_name_no_extension = file.name.split(".")[0]
-                    file_name_extension = file.name.split(".")[1]
-                    # print(f"{layer_name}.{layer_type}.{file_name_no_extension}.{file_name_extension}")
-                    print(file.name)
-                    file_count += 1
-            print(f"Number of files: {file_count}")
-            print(request.POST["rarity_map"])
-            return render(request, "upload.html", context)
+            # file_count = 0
+            # for filename in request.FILES.keys():
+            #     for file in request.FILES.getlist(filename): ##for this set of file get layer name and layer type
+            #         if "$" in filename: ##handle mutliple files.
+            #             individual_files = filename.split("$")
+            #             if individual_files:
+            #                 layer_name = individual_files[0].split(".")[1]
+            #                 layer_type = individual_files[0].split(".")[0]
+            #         else: ##handle 1 file
+            #             layer_name = filename.split(".")[1]
+            #             layer_type = filename.split(".")[0]
+            #         file_name_no_extension = file.name.split(".")[0]
+            #         file_name_extension = file.name.split(".")[1]
+            #         # print(f"{layer_name}.{layer_type}.{file_name_no_extension}.{file_name_extension}")
+            #         print(file.name)
+            #         file_count += 1
+            # print(f"Number of files: {file_count}")
+            # print(request.POST["rarity_map"])
+            # return render(request, "upload.html", context)
 
 
             if request.POST["rarity_map"] == "":
