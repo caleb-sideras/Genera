@@ -7,13 +7,14 @@
         <div class="all_collections_layout">
         {% if users_collections %}
             {% for collection in users_collections %}
-                <div class="collection_card">
+                <div class="collection_card shadow_strong rounded_container_no_padding">
+                    <img src="/static/icons/remove.svg" class="close_button remove_image_button color_image_orange">
                     <img src="https://via.placeholder.com/150">
                     <div>
                         <p class="no_margin center">{{collection.collection_name}}</p>
                         <p style="font-size: smaller;" class="no_margin center">description: {{collection.description}}</p>
                         <a href="{% url 'polls:collection' user.username collection.collection_name %}">
-                            <button class="general_button orange_background">open</button>
+                            <button class="collection_card_button orange_background">View</button>
                         </a>
                     </div>
                 </div>

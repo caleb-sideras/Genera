@@ -9,9 +9,9 @@
 {% endblock %}
 
 {% block body_block %}
+<h1 class="collection_title">{{collection_data.collection_name}} Collection</h1>
 <div class="view_collection_main">
     <div class="collection_structure">
-        <h1>{{collection_data.collection_name}} Collection</h1>
         <div class="all_collections_layout">
         {% if collection_images %}
             {% for entry in collection_images %}
@@ -34,26 +34,49 @@
         {% endif %}
         </div>
     </div>
-    <!-- <button class="ethereumButton general_button orange_background grow">Login with Metamask</button>
-    <button class="sendEthButton btn general_button orange_background grow">Deploy contract</button>
-    <button class="addToken btn general_button orange_background grow">Add Token</button>
-    <button class="testButton btn general_button orange_background grow">Mainnet gas estimate</button> -->
-
-    <div class="mint_section">
+        <div class="upload_properties">
+            <div class="rounded_container shadow_strong">
+                <h4 class="no_margin center">Collection Properties</h4>
+                {% if collection_data %}
+                    <div >
+                        <h5 class="no_margin">Name</h5>
+                        <h5 class="collection_properties white_background">
+                            {{collection_data.collection_name}}
+                        </h4>
+                    </div>
+                    <div>
+                        <h5 class="no_margin">Dimensions</h5>
+                        <h5 class="collection_properties white_background">
+                            {{collection_data.dimension_x}} {{collection_data.dimension_y}}
+                        </h5>
+                    </div>
+                    <div>
+                        <h5 class="no_margin">Size</h5>
+                        <h5 class="collection_properties white_background">
+                            {{collection_data.collection_size}}
+                        </h5>
+                    </div>
+                    <div>
+                        <h5 class="no_margin">Description</h5>
+                        <h5 class="collection_properties white_background">
+                            {{collection_data.description}}
+                        </h5>
+                    </div>
+            </div>
         <button type="button" class="general_button_no_border orange_background shadow_strong rounded_container_no_padding" style="cursor: default">
             <h4 class="no_margin">Delete Duplicates</h4>
         </button>
         <button
-        data-json="{{erc721_json}}"
-        id="ajax_test"
-        data-url="{{url}}"
-        class="general_button_no_border light_purple_background shadow_strong rounded_container_no_padding"
-        onclick="ajax_server_post(this.dataset.url)"
-        type="button"
+        data-json="{{erc721_json}}" id="ajax_test" data-url="{{url}}" class="general_button_no_border light_purple_background shadow_strong rounded_container_no_padding" onclick="ajax_server_post(this.dataset.url)" type="button"
         >
-        <h4 class="no_margin generate">Mint Collection</h4>
-        
+            <h4 class="no_margin generate">Mint Collection</h4>
         </button>
+        </div>
+        {% endif %}
     </div>
+    <!-- <button class="ethereumButton general_button orange_background grow">Login with Metamask</button>
+    <button class="sendEthButton btn general_button orange_background grow">Deploy contract</button>
+    <button class="addToken btn general_button orange_background grow">Add Token</button>
+    <button class="testButton btn general_button orange_background grow">Mainnet gas estimate</button> -->
 </div>
 {% endblock %}

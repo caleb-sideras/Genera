@@ -464,6 +464,11 @@ body {
   width: 100%;
 }
 
+.upload_properties > div > h4 {
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
+
 
 
 /* UPLOAD PAGE */
@@ -538,8 +543,12 @@ body {
 
 /* all collections */
 
+.collection_title{
+  margin: 0 25px;
+  color: var(--medium-grey-color);
+}
 .view_collection_main {
-  margin-top: 25px;
+  margin-top: 15px;
   width: 100%;
   height: 85vh;
   display: flex;
@@ -547,7 +556,7 @@ body {
 }
 
 .collection_structure {
-  margin: 0 50px;
+  margin: 0 25px;
 }
 
 .collection_structure > h1 {
@@ -631,6 +640,19 @@ body {
     aspect-ratio: 1;
     width: 370px;
     padding: 5px 0 0 0;
+}
+
+.collection_properties {
+  text-align: center;
+  padding: 5px 10px;
+  border-radius: 10px;
+  border-style: solid;
+  border-width: 1px;
+  border-color: var(--border-color);
+  color: var(--text-color);
+  margin: 5px;
+  overflow-wrap: break-word;
+  /* background-color: ; */
 }
 
 /* all collections */

@@ -248,6 +248,7 @@ def all_collections_view(request, username):
         print(users_collections)
         if users_collections:
             context["users_collections"] = users_collections
+            # collection_images = CollectionImage.objects.filter(linked_collection__id=user_collection.id)
         else:
             print("User has no collections.")
             messages.error(request, "You have no collections!")
@@ -281,6 +282,7 @@ def collection_view(request, username, collection_name):
             collection_images = CollectionImage.objects.filter(linked_collection__id=user_collection.id)
             context["collection_data"] = user_collection
             context["collection_images"] = collection_images
+            print(context["collection_images"])
         else:
             messages.error(request, "COLLECTION DOES NOT EXIST !! !! !!!! !! ! !  !!!!!")
             return render(request, "collection.html", context)
