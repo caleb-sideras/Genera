@@ -141,11 +141,11 @@ body {
 }
 
 .grow {
-  transition: all 0.2s ease-in-out;
+  transition: all 0.15s ease-in-out;
 
 }
 .grow:hover {
-  transform: scale(1.1);
+  transform: scale(1.04);
 }
 
 .custom_grid * {
@@ -259,8 +259,8 @@ body {
 .upload_section_swap {
   background-color: var(--light-grey-color);
   height: 90%;
-  width: min(30vw, 350px);
-  min-width: 280px;
+  width: min(30vw, 400px);
+  min-width: 400px;
   display: flex;
   justify-content: space-evenly;
   align-items: center;
@@ -283,7 +283,7 @@ body {
 .upload_main {
   margin-top: 25px;
   width: 100%;
-  height: 85vh;
+  height: 80vh;
   display: flex;
   gap: 20px;
 }
@@ -291,9 +291,9 @@ body {
 .upload_layers {
   text-overflow: ellipsis;
   background-color: var(--light-grey-color);
-  width: min(30vw, 350px);
-  min-width: 280px;
-  flex: 0 0 min(30vw, 350px);
+  width: min(30vw, 400px);
+  min-width: 400px;
+  flex: 0 0 min(30vw, 400px);
   position: relative;
 }
 
@@ -382,6 +382,7 @@ body {
 
 .upload_layers_buttons > div > div > div > div  input[type=range] {
   background-color: var(--orange-color);
+  width: min(20vw, 250px);
 }
 /* how to fix above? */
 
@@ -408,6 +409,7 @@ body {
   color: var(--image-text-color);
   flex-basis: 100%;
   font-size: 14px;
+  cursor: pointer;
 }
 
 .upload_layers > img {
@@ -436,24 +438,27 @@ body {
 }
 
 .upload_preview > img {
-  height: 300px;
+  height: 500px;
   aspect-ratio: 1;
   margin-bottom: 100px;
-  cursor: pointer;
 }
 
-.upload_preview > img:hover {
+/* .upload_preview > img:hover {
   filter: invert(74%) sepia(37%) saturate(553%) hue-rotate(332deg)
     brightness(95%) contrast(91%);
-}
+} */
 
 .upload_properties {
-  flex: 0 0 20vw;
+    text-overflow: ellipsis;
+    width: min(30vw, 400px);
+    min-width: 400px;
+    flex: 0 0 min(30vw, 400px);
+    position: relative;
 }
 
 .upload_properties > :first-child {
   box-sizing: border-box;
-  min-height: 300px;
+  min-height: 350px;
   width: 100%;
   background-color: var(--light-grey-color);
   margin-bottom: 5px;
@@ -467,6 +472,15 @@ body {
 .upload_properties > div > h4 {
   margin-top: 5px;
   margin-bottom: 5px;
+}
+
+/* .upload_properties > div > div > h5 {
+  text-align: left;
+} */
+
+.upload_properties >div >div > input {
+  align-items: center;
+  /* margin-left: 1.5vw; */
 }
 
 
@@ -557,6 +571,7 @@ body {
 
 .collection_structure {
   margin: 0 25px;
+  /* width: 70%; */
 }
 
 .collection_structure > h1 {
@@ -574,9 +589,11 @@ body {
 
 .all_collections_layout {
   display: flex;
+  flex: 1;
   flex-wrap: wrap;
-  width: 70vw;
+  /* width: 90vw; */
   gap: 15px;
+  
 }
 
 .collection_card {
@@ -632,6 +649,12 @@ body {
   color: var(--text-color);
 }
 
+.collection_card_button_text{
+  font-weight: bold;  
+  color: var(--text-generate-color);
+  border: none;
+}
+
 .collection_card > .remove_image_button{
      /* display: none; */
     /* text-align: center; */
@@ -676,4 +699,165 @@ body {
 }
 /* WEB3 */
 
+/* HOME */
+.main_wrapper {
+  padding: 10px 10px;
+  height: 95vh;
+  align-items: center;
+}
 
+.main_upper {
+  height: 50px;
+  width: 100%;
+}
+
+.main_section {
+  padding: 20px 0px 0px;
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  flex: 1 1 0%;
+  /* height: 50%; */
+}
+
+.sub_section{
+  /* height: 40%; */
+  max-width: 1000px;
+  display: grid;
+  grid-auto-rows: auto;
+  row-gap: 12px;
+}
+
+.row1 {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.row2 {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+  margin-top: 8px;
+}
+.main_card{
+  background: var(--light-grey-color);
+  padding: 2rem;
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  -webkit-box-pack: justify;
+  justify-content: space-evenly;
+  -webkit-box-align: center;
+  align-items: center;
+  overflow: hidden;
+  /* border: 1px solid transparent; */
+  height: 50%;
+}
+.big_card {
+  background: radial-gradient(92.78% 103.09% at 50.06% 7.22%, rgba(255, 58, 212, 0.07) 0%, rgba(255, 255, 255, 0.043) 100%), radial-gradient(100% 97.16% at 0% 12.22%, rgba(235, 0, 255, 0.2) 0%, rgba(243, 19, 19, 0.2) 100%);
+  padding: 2rem;
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  -webkit-box-pack: justify;
+  justify-content: space-evenly;
+  -webkit-box-align: center;
+  align-items: center;
+  overflow: hidden;
+  /* border: 1px solid transparent; */
+  height: 50%;
+}
+.small_card {
+  background: radial-gradient(92.78% 103.09% at 50.06% 7.22%, rgba(58, 127, 255, 0.07) 0%, rgba(255, 255, 255, 0.043) 100%), radial-gradient(100% 97.16% at 0% 12.22%, rgba(0, 81, 255, 0.2) 0%, rgba(19, 243, 131, 0.2) 100%);
+      position: relative;
+    overflow: hidden;
+    padding: 32px;
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    -webkit-box-pack: justify;
+    justify-content: space-evenly;
+    /* border: 1px solid transparent; */
+    height: 50%;
+}
+
+.card{
+  /* text-align: left; */
+  align-items: baseline;
+  cursor: pointer;
+
+}
+
+.card_title >h2 {
+  font-weight: bold;
+  /* font-size: 20px; */
+}
+.card_title >h3 {
+  font-weight:lighter;
+  /* font-size: 20px; */
+}
+/* HOME */
+
+/* NAV BAR */
+.nav_bar{
+  
+  /* padding: 10px 25px; */
+  margin: 0px 25px;
+
+}
+.nav_bar_wrapper{
+  width: 100%;
+  display: flex;
+  height: 50px;
+  align-items: end;
+  flex-direction: column;
+}
+.dropbtn {
+  background-color: var(--medium-grey-color);
+  color: var(--text-generate-color);
+  padding: 16px;
+  font-size: 16px;
+  border: none;
+  cursor: pointer;
+}
+
+/* Dropdown button on hover & focus */
+/* .dropbtn:hover, .dropbtn:focus {
+  background-color: #2980B9;
+} */
+
+/* The container <div> - needed to position the dropdown content */
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+/* Dropdown Content (Hidden by Default) */
+.dropdown-content {
+  display: none;
+  position: absolute;
+  min-width: 160px;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 1;
+  background-color: var(--light-grey-color);
+}
+
+/* Links inside the dropdown */
+.dropdown-content a {
+  color: var(--text-color);
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+}
+
+/* Change color of dropdown links on hover */
+.dropdown-content a:hover {background-color: var(--white-color);border-radius: 20px;}
+
+/* Show the dropdown menu (use JS to add this class to the .dropdown-content container when the user clicks on the dropdown button) */
+.show {display:block;}
+/* NAV BAR */

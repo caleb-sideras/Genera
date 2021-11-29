@@ -1,15 +1,36 @@
-{% extends 'base.html' %}
-{% load static %}
+{% extends 'base.html' %} {% load static %} {% block head_block %}
+<!-- <script type="text/javascript" src="{% static 'js/upload_page.js' %}"></script> -->
+<link rel="stylesheet" href="" />
+{% endblock %} {% block body_block %}
 
-{% block body_block %}
-  <h1>{{created}}</h1>
-  <p>LMAO</p>
+<div class="main_wrapper">
+  {% csrf_token %}
+  <div class="main_upper">
+    <h4>Features</h4>
+  </div>
+  <div class="main_section no_margin">
+    <div class="sub_section">
+      <div class="row2">
+        <div class="card grow main_card card_title rounded_container">
+          <a href="{% url 'polls:upload' %}"></a>
+            <h2 class="no_margin card">Generative NFT Maker/Minter</h2>
+            <h3 class="no_margin card">Create and mint generative NFT collections with custom rarities, texture mapping and metadata</h3>
+          </a>
+        </div>
+      </div>
+      <div class="row1">
+        <div class="card grow big_card card_title rounded_container">
+          <h2 class="no_margin card">NFT Minter</h2>
+          <h3 class="no_margin card">Upload and mint an NFT collection (metadata optional)</h3>
+        </div>
+        <div class="card grow small_card card_title rounded_container light_purple_background">
+          <h2 class="no_margin card">Texture Mapping</h2>
+          <h3 class="no_margin card">Map mutiple textures onto a single asset</h3>
+        </div>
+      </div>
+      
+    </div>
+  </div>
 
-  {% if created%}
-  <img
-    style="height: 200px; width: 200px"
-    src="/media/user_assets/1.png"
-  />
-  {% endif %}
-
-{% endblock %}
+  {% endblock %}
+</div>

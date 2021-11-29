@@ -21,7 +21,8 @@
                     <img src="/static/icons/remove.svg" class="close_button remove_image_button color_image_orange">
                     <img src="{{entry.ipfs_image_path}}" alt="{{entry.name}} image should be here" class="nft_image">
                     {% else %}
-                    <img src="{{entry.path}}" alt="{{entry.name}} image should be here">
+                    <img src="/static/icons/remove.svg" class="close_button remove_image_button color_image_orange">
+                    <img src="{{entry.path}}" alt="{{entry.name}} image should be here" class="nft_image">
                     {% endif %}
                     <div>
                         <p class="no_margin center">{{entry.name}}</p>
@@ -36,16 +37,16 @@
     </div>
         <div class="upload_properties">
             <div class="rounded_container shadow_strong">
-                <h4 class="no_margin center">Collection Properties</h4>
+                <h3 class="no_margin center">Collection Properties</h3>
                 {% if collection_data %}
                     <div >
                         <h5 class="no_margin">Name</h5>
                         <h5 class="collection_properties white_background">
                             {{collection_data.collection_name}}
-                        </h4>
+                        </h5>
                     </div>
                     <div>
-                        <h5 class="no_margin">Dimensions</h5>
+                        <h5 class="no_margin">Resolution</h5>
                         <h5 class="collection_properties white_background">
                             {{collection_data.dimension_x}} {{collection_data.dimension_y}}
                         </h5>

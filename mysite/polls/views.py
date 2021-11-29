@@ -32,12 +32,12 @@ def main_view(request):
 
     # if request.METHOD == "POST":
 
-    created = create_and_save_collection
+    # created = create_and_save_collection
 
     # x = generateRandomNumber(1, 3, 5)
-    context = {}
+    # context = {}
 
-    return render(request, "home.html", context={"created": created})
+    return render(request, "home.html") #, context={"created": created}
 
 
 def temp_view(request):
@@ -100,6 +100,7 @@ def upload_view(request):
             calebs_gay_dict["Description"] = request.POST["description"]
             calebs_gay_dict["Resolution"] = int(float(request.POST["resolution"]))
             calebs_gay_dict["CollectionSize"] = int(float(request.POST["size"]))
+            calebs_gay_dict["TextureColor"] = request.POST["color"]
             layers = {}
 
             db_collection = UserCollection.objects.get_or_create(

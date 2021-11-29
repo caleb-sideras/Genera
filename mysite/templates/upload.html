@@ -3,6 +3,7 @@
 
 {% block head_block %}
   <script type="text/javascript" src="{% static 'js/upload_page.js' %}"></script>
+  <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script> -->
   <!-- <script src="https://cdn.jsdelivr.net/npm/jquery@2.1.0/dist/jquery.min.js"></script> -->
   <!-- <script type="text/javascript" src="{% static 'js/temp.js' %}"></script> -->
 <link rel="stylesheet" href="">
@@ -76,21 +77,13 @@
     </div>
 
     <div class="upload_preview" style="color: aliceblue">
-        <img class="grow" src="{% static 'Assets/Examples/1.png' %}" />
+        <img src="{% static 'Assets/Examples/1.png' %}" alt="Image Preview"/>
     </div>
     <div class="upload_properties">
       <div class="rounded_container shadow_strong">
-        <h4 class="no_margin center">Collection Properties</h4>
-        <div
-          style="
-            margin-top: 15px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            align-items: center;
-            justify-content: space-around;
-          "
-        >
+        <h3 class="no_margin center">Collection Properties</h3>
+        <div style="margin-top: 15px; display: flex; flex-direction: column; gap: 10px; justify-content: space-around; align-items: center;">
+          <h5 class="no_margin">Name</h5>
           <input
             required
             class="general_input"
@@ -99,6 +92,7 @@
             value="XD"
             placeholder="Project name"
           />
+          <h5 class="no_margin">Resolution</h5>
           <input
             required
             class="general_input"
@@ -109,6 +103,7 @@
             value="4000"
             placeholder="Dimensions"
           />
+          <h5 class="no_margin">Size</h5>
           <input
             required
             id="collection_size"
@@ -120,6 +115,7 @@
             value= "8"
             placeholder="Collection size"
           />
+          <h5 class="no_margin">Description</h5>
           <input
             required
             class="general_input"
@@ -127,6 +123,15 @@
             type="text"
             value="asd"
             placeholder="Description"
+          />
+          <h5 class="no_margin">Texture Map Color</h5>
+          <input
+            required
+            class="general_input"
+            name="color"
+            type="color"
+            value="#FFFFFF"
+            placeholder="Texture color"
           />
         </div>
       </div>

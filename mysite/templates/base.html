@@ -13,23 +13,38 @@
   </head>
 
   <body>
-    {% if messages %}
-      <ul class="messages">
-          {% for message in messages %}
-          <li  {% if message.tags %} style="color: red; font-size: 2em;" class=" {{ message.tags }} " {% endif %}> {{ message }} </li>
-          {% endfor %}
-      </ul>
-    {% endif %}
+    <div class="nav_bar_wrapper">
+  
+    <div class="nav_bar"style="align-items: start">
+      <a href="{% url 'polls:upload' %}">
+      <button class="" style="margin: 15px;">Home</button>
+    </a>
+      {% if messages %}
+        <ul class="messages">
+            {% for message in messages %}
+            <li  {% if message.tags %} style="color: red; font-size: 2em;" class=" {{ message.tags }} " {% endif %}> {{ message }} </li>
+            {% endfor %}
+        </ul>
+      {% endif %}
 
-    {% if request.user.is_authenticated%}
-      <p style="color: aqua;">Logged in as: {{request.user.username}}</p>
-      <a href="{% url 'polls:all_collections' request.user.username %}"><p style="color: aqua;">View All of your collections!</p></a>
-    {% else %}
-      <a href="{% url 'polls:login' %}"><p style="color: aqua;">You are not logged in. Please log in!</p></a>
-    {% endif %}
+      {% if request.user.is_authenticated%}
+        <div class="dropdown">
+        <button onclick="myFunction()" class="dropbtn rounded_container_no_padding">Logged in as: {{request.user.username}}</button>
+          <div id="myDropdown" class="dropdown-content rounded_container_no_padding">
+            <a href="{% url 'polls:all_collections' request.user.username %}"><p>View Collections</p></a>
+            <button class="btn-toggle">Theme</button>
+            <a href="#">Link 3</a>
+        </div>
+      </div>   
+      {% else %}
+        <a href="{% url 'polls:login' %}"><p style="color: aqua;">You are not logged in. Please log in!</p></a>
+      {% endif %}
 
-    <button class="btn-toggle">Theme</button>
+      
 
+      
+  </div>
+  </div>
     
     
 

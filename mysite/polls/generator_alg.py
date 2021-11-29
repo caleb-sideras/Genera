@@ -1,4 +1,4 @@
-from PIL import Image
+from PIL import Image, ImageColor
 import numpy as np
 import random
 import os
@@ -58,7 +58,7 @@ import string
 def alphanum_random(size = 8):
     return ''.join(random.choices(string.ascii_letters + string.digits, k=size))
 
-def textureMapping(asset_data, texture_data):
+def textureMapping(asset_data, texture_data, texture_color):
 
     # converting to an RGBA format
     # asset_rgba = asset.convert("RGBA")
@@ -76,7 +76,7 @@ def textureMapping(asset_data, texture_data):
 
     # extracting the area that is white (255,255,255) from asset
     # it creates an array of boolean, True = white point, False = not a white point (leaving alpha values cuz they are just opacity)
-    asset_white_area = (red == 255) & (blue == 255) & (green == 255)
+    asset_white_area = (red == texture_color[0]) & (blue == texture_color[1]) & (green == texture_color[2])
 
     # using the white area boolean array, points that are True are taken out of the texture array
     # aka forming the exact shape needed, but with the texture
@@ -130,6 +130,7 @@ def create_and_save_collection(tempDict, db_collection, user = None):
     metadataArray = []
     metadataDict = {}
 
+    texture_map_color = ImageColor.getcolor(tempDict['TextureColor'], "RGB")
     for key, value in tempDict["Layers"].items():
         texturedAsset = 0
         print(f"Generating {key} layer")
@@ -147,7 +148,7 @@ def create_and_save_collection(tempDict, db_collection, user = None):
 
                 # mapping texture to asset
                 texturedAsset = textureMapping(
-                    rarityDictAsset[tempAsset], rarityDictTexture[tempTexture]
+                    rarityDictAsset[tempAsset], rarityDictTexture[tempTexture], texture_map_color
                 )
 
                 # adding final asset

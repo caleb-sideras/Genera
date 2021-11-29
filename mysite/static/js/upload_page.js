@@ -39,6 +39,22 @@ function add_smart_input(self, category) {
 
     var build_upload_section = function(filename, upload_button) {
         var full_file_name = ""
+        
+        var show_file = function () {
+            //full_file_name
+            // var fileBuffer = new DataTransfer();
+            var attachments = upload_button.files;
+            // append the file list to an array iteratively
+            for (let i = 0; i < attachments.length; i++) {
+                // Exclude specified filename
+                if (attachments[i].name == filename) {
+                    temp_image = attachments[i]
+                }
+                
+            }
+            var output = document.getElementsByClassName('upload_preview');
+            output[0].children[0].src = URL.createObjectURL(temp_image)
+        }
         var remove_file = function(full_file_name){
             var attachments = upload_button.files; // <-- reference your file input here
             var fileBuffer = new DataTransfer();
@@ -137,10 +153,16 @@ function add_smart_input(self, category) {
             update_sliders()
         }.bind({upload: upload_section, full_file_name:full_file_name}))
 
-        upload_section.appendChild(Object.assign(document.createElement('h4'), { textContent: filename, classList: 'no_margin' }))
+        image_name = document.createElement('h4')
+        image_name.textContent = filename
+        image_name.classList = 'no_margin'
+        image_name.addEventListener('click', function () {
+            show_file()
+        })
+
+        upload_section.appendChild(image_name)
         upload_section.appendChild(slider_section)
         upload_section.appendChild(deletetext)
-
         return [upload_section, upload_button];
     }
 
@@ -320,7 +342,7 @@ function switch_tabs(target_tab, self) {
 function delete_button() {
     button_section_layers.remove()
     button_section_textures.remove()
-    create_notification("Layer Operation", "LAYER REMOVED !!!!! !! !!", duration = 5000, "success") //20 years duration for sins
+    create_notification("Layer Operation", "LAYER REMOVED !!!!! !! !!", duration = 5000, "success") //20 years duration for sins9
 }
 
 
