@@ -627,6 +627,11 @@ body {
   align-items: center;
   justify-content: center;
   gap: 5px;
+  height: 30%;
+}
+.collection_card > div >div{
+  height: 40%;
+  overflow: hidden;
 }
 
 .collection_card > div > :last-child {
