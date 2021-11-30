@@ -5,6 +5,9 @@ rarity_map = {}
 
 function main() {
     rarity_map = {}
+    
+    init_layer_color = document.getElementsByClassName("upload_section_swap")
+    switch_tabs("layers", init_layer_color[0].children[0])
 
     document.getElementById("collection_size").addEventListener("change", function(e) {
         update_sliders()
@@ -17,6 +20,7 @@ function main() {
 function add_smart_input(self, category) {
     //1 == asset, 2 == texture
     function expand_button(self) {
+        console.log(self)
         parent = self.parentElement.firstChild.innerHTML
         if (parseInt(parent) != 0) {
             children = (self.parentNode).nextElementSibling
@@ -33,6 +37,22 @@ function add_smart_input(self, category) {
             }
         }
     }
+    function close_empty(self){
+        console.log(self)
+        parent = self.parentElement.firstChild.innerHTML
+        console.log(parseInt(parent))
+        if (parseInt(parent) == 0) {
+            children = (self.parentNode).nextElementSibling
+            if (children.classList.contains('open')) {
+                clientHeight = children.clientHeight;
+                children.classList.remove("open");
+                children.style.height = '0px';
+                children.style.padding = '0px 20px';
+                self.style.transform = 'rotate(180deg)';
+
+            } 
+        }
+    }
     var component_wrapper = self.parentNode.children[self.parentNode.children.length - 1]
     console.log(self.parentElement)
     console.log((self.parentElement).parentElement)
@@ -44,6 +64,8 @@ function add_smart_input(self, category) {
             //full_file_name
             // var fileBuffer = new DataTransfer();
             var attachments = upload_button.files;
+            console.log(upload_button)
+            console.log(attachments)
             // append the file list to an array iteratively
             for (let i = 0; i < attachments.length; i++) {
                 // Exclude specified filename
@@ -53,6 +75,7 @@ function add_smart_input(self, category) {
                 
             }
             var output = document.getElementsByClassName('upload_preview');
+            console.log(temp_image)
             output[0].children[0].src = URL.createObjectURL(temp_image)
         }
         var remove_file = function(full_file_name){
@@ -151,6 +174,7 @@ function add_smart_input(self, category) {
             document.getElementById("rarity_map").value = JSON.stringify(rarity_map)
             create_notification("File removed", "You have succesfully removed '" + this.full_file_name.split(".").slice(2,4).join(".") + "' from the component." , duration = 3500, "success") //20 years duration for sins
             update_sliders()
+            close_empty(self.nextElementSibling.lastElementChild)
         }.bind({upload: upload_section, full_file_name:full_file_name}))
 
         image_name = document.createElement('h4')
@@ -195,6 +219,7 @@ function add_smart_input(self, category) {
             update_sliders()
         }
         create_notification("Upload success", "You have succesfully uploaded " + n_files + " file(s) into the selected component" , duration = 5000, "success")
+        open_images(self)
         expand_button(self.nextElementSibling.lastElementChild)
     })
     component_wrapper.appendChild(uploadbtn)
@@ -250,7 +275,7 @@ function add_layer() {
         create_notification("FAMILY IS CRYING", "FORGOT GIVE LAYER NAME !!!!! !! !!", duration = 10000, "error") //20 years duration for sins
     } else {
         layers_row = document.createElement('div')
-        layers_row.classList = "general_button white_background"
+        layers_row.classList = "general_button white_background"  
         textures_row = layers_row.cloneNode(true)
 
         expand_collapse_parent = document.createElement('div')
@@ -295,22 +320,33 @@ function add_layer() {
         close_button_img = document.createElement('img')
         close_button_img.src = "static/icons/close.svg"
         close_button_img.classList = "close_button color_image_orange"
+        
+        useless_div = document.createElement('div') // don't remove the earth will shatter
 
         layers_row.appendChild(close_button_img)
+        textures_row.appendChild(useless_div)
 
-        layers_row.appendChild(Object.assign(document.createElement('h5'), { textContent: add_layer_input.value, classList: 'no_margin' }))
+        layer_name = document.createElement('h5')
+        layer_name.textContent = add_layer_input.value
+        layer_name.classList = 'no_margin'
+        layer_name.style = "cursor: pointer;"
+        texture_name = layer_name.cloneNode(true)
+        layer_name.addEventListener('click',function() { open_images(this)})
+        texture_name.addEventListener('click', function () { open_images(this) })
 
+        
+        layers_row.appendChild(layer_name)
         layers_row.appendChild(add_layer_img)
         layers_row.appendChild(expand_button_container)
         layers_row.appendChild(expand_collapse_parent)
 
-        textures_row.appendChild(Object.assign(document.createElement('h5'), { textContent: add_layer_input.value, classList: 'no_margin' }))
-
+        // textures_row.appendChild(Object.assign(document.createElement('h5'), { textContent: add_layer_input.value, classList: 'no_margin' }))
+        textures_row.appendChild(texture_name)
         textures_row.appendChild(add_layer_img_2)
         textures_row.appendChild(expand_button_container_2)
         textures_row.appendChild(expand_collapse_parent_2)
 
-        layers_row.querySelector('.close_button').addEventListener("click", function () {
+        layers_row.querySelector('.close_button').addEventListener('click', function () {
             this.layer.remove()
             this.texture.remove()
             create_notification("Layer removed!", this.name + " Removed!!!!!! !!!!! !! !!", duration = 5000, "success")
@@ -318,6 +354,48 @@ function add_layer() {
         button_section_layers.appendChild(layers_row);
         button_section_textures.appendChild(textures_row);
         add_layer_input.value = ""
+    }
+}
+
+function open_images(self){
+    function removeAllChildNodes(parent) {
+        while (parent.firstChild) {
+            parent.removeChild(parent.firstChild);
+        }
+    }
+    function replace_image(imge_url){
+        var output = document.getElementsByClassName('upload_preview');
+        output[0].children[0].src = imge_url
+    }
+    // console.log("open images")
+    console.log(self)
+    // console.log(self.parentElement.children[4])
+    var local_sliders = self.parentElement.children[4].querySelectorAll(":scope input[type=file]")
+    console.log(local_sliders)
+    
+    var isfirst = false;
+    image_carousel = document.getElementById("scroller")
+    removeAllChildNodes(image_carousel);
+    for (let index = 0; index < local_sliders.length; index++) {
+        var filelist = local_sliders[index].files;
+        console.log(filelist)
+        if (filelist.length > 0) {
+            if (!isfirst) {
+                replace_image(URL.createObjectURL(filelist[0]));
+                isfirst =true
+            }
+            
+            for (let i = 0; i < filelist.length; i++) {
+                var new_element = document.createElement('li')
+                var new_element_img = document.createElement('img')
+                new_element_img.src = URL.createObjectURL(filelist[i])
+                new_element.style = "cursor: pointer;"
+                new_element.addEventListener('click', function () { replace_image(URL.createObjectURL(filelist[i])) })
+                new_element.appendChild(new_element_img)
+                // console.log(new_element)
+                image_carousel.appendChild(new_element)
+            }
+        }
     }
 }
 
