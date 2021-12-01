@@ -10,41 +10,11 @@ import json
 # TODO
 #
 # ---ACTIVE---
-# 1) Create metadata per image generated - adjusted names for asset + texture
-#   https://github.com/ProjectOpenSea/metadata-api-python
-#   https://docs.opensea.io/docs/metadata-standards
-#   https://docs.opensea.io/docs/2-adding-metadata
 #
-# 2) Full website integration
-#   Update json format / iteration to fit artems json
-#
-# 3) These are some optimizing ideas
+# 1) These are some optimizing ideas
 #   -Using metadata, we can see if an asset/texture combo has already been created within the individual asset arrays. Then use that PIL object, and assign it.
 #
-# 4) Metadata:
-# {
-#   "name": "Void#1",
-#   "description": "Void NFT girl for void chans",
-#   "image": "https://ipfs.io/ipfs/QmZb77bDc39me3HMcK7zQC5z6yzqm88fdxDe82NRNz2qUZ?filename=Void1.png",
-#   "attributes": [
-#     {
-#       "trait_type": "Body",
-#       "value": "Girl"
-#     },
-#     {
-#       "trait_type": "Shirt",
-#       "value": "Crop Top (Dotted)"
-#     },
-#     {
-#       "trait_type": "Hair",
-#       "value": "Anime (Striped)"
-#     },
-#     {
-#       "trait_type": "Accessories",
-#       "value": "Choker"
-#     }
-#   ]
-# }
+
 # ---DONE---
 #
 #   - the texture mapping process can be put into a function so any asset can have a texture put on it (maybe you can do this: DD)
@@ -53,6 +23,8 @@ import json
 #   - tat added deterministic probability
 #   - optimized texture mapping so there is no duplicate procedures
 #   - optimized how rarity data is stored, this method is MUCH more scalable now
+#   - update json format / iteration to fit artems json
+#   - create metadata per image generated - adjusted names for asset + texture\
 
 
 def textureMapping(asset_data, texture_data):
@@ -92,11 +64,7 @@ def textureMapping(asset_data, texture_data):
 
     return shirt
 
-
-def metadatacreation():
-    print(temp)
-
-
+# for textures
 def rarityAppend(json_object, json_name, rarity_list, asset_dict):
     for asset in json_object[json_name]:
         rarity = asset["Rarity"]
@@ -109,14 +77,13 @@ def rarityAppend(json_object, json_name, rarity_list, asset_dict):
         for x in range(rarity):
             rarity_list.append(asset["Name"])
 
-
+# for no textures
 def rarityAppend2(json_object, json_name, rarity_list, asset_dict):
     for asset in json_object[json_name]:
         rarity = asset["Rarity"]
         asset_dict.update({asset["Name"]: asset["PIL"]})
         for x in range(rarity):
             rarity_list.append(asset["Name"])
-
 
 # Example assets
 body1 = Image.open("./Assets/" + "Body/" + "1" + ".png")
@@ -134,57 +101,82 @@ texture2 = Image.open("./Assets/" + "Texture/" + "2" + ".png")
 texture3 = Image.open("./Assets/" + "Texture/" + "3" + ".png")
 texture4 = Image.open("./Assets/" + "Texture/" + "4" + ".png")
 
-# Example dictionary
-tempDict = {
-    "CollectionName": "Void Chan",
-    "Description": "Void NFTs for void chans",
-    "Resolution": 4000,
-    "CollectionSize": 10,
-    "Layers": [
-        {
-            "LayerName": "Body",
-            "Assets": [
-                {"Name": "Pink Sky", "PIL": body1, "Rarity": 10},
-            ],
-            "Textures": [],
-        },
-        {
-            "LayerName": "Hair",
-            "Assets": [
-                {"Name": "Anime", "PIL": hair1, "Rarity": 5},
-                {"Name": "Long", "PIL": hair2, "Rarity": 5},
-            ],
-            "Textures": [
-                {"Name": "Texture 1", "PIL": texture1, "Rarity": 2},
-                {"Name": "Texture 2", "PIL": texture2, "Rarity": 2},
-                {"Name": "Texture 3", "PIL": texture3, "Rarity": 2},
-                {"Name": "Texture 4", "PIL": texture4, "Rarity": 4},
-            ],
-        },
-        {
-            "LayerName": "Shirt",
-            "Assets": [
-                {"Name": "T-Shirt", "PIL": shirt1, "Rarity": 5},
-                {"Name": "Crop Tee", "PIL": shirt2, "Rarity": 5},
-            ],
-            "Textures": [
-                {"Name": "Texture 1", "PIL": texture1, "Rarity": 2},
-                {"Name": "Texture 2", "PIL": texture2, "Rarity": 2},
-                {"Name": "Texture 3", "PIL": texture3, "Rarity": 2},
-                {"Name": "Texture 4", "PIL": texture4, "Rarity": 4},
-            ],
-        },
-        {
-            "LayerName": "Accessories",
-            "Assets": [
-                {"Name": "Choker", "PIL": accessories1, "Rarity": 10},
-            ],
-            "Textures": [],
-        },
-    ],
-}
+# Example dictionary (OLD)
+# tempDict = {
+#     "CollectionName": "Void Chan",
+#     "Description": "Void NFTs for void chans",
+#     "Resolution": 4000,
+#     "CollectionSize": 10,
+#     "Layers": [
+#         {
+#             "LayerName": "Body",
+#             "Assets": [
+#                 {"Name": "Pink Sky", "PIL": body1, "Rarity": 10},
+#             ],
+#             "Textures": [],
+#         },
+#         {
+#             "LayerName": "Hair",
+#             "Assets": [
+#                 {"Name": "Anime", "PIL": hair1, "Rarity": 5},
+#                 {"Name": "Long", "PIL": hair2, "Rarity": 5},
+#             ],
+#             "Textures": [
+#                 {"Name": "Texture 1", "PIL": texture1, "Rarity": 2},
+#                 {"Name": "Texture 2", "PIL": texture2, "Rarity": 2},
+#                 {"Name": "Texture 3", "PIL": texture3, "Rarity": 2},
+#                 {"Name": "Texture 4", "PIL": texture4, "Rarity": 4},
+#             ],
+#         },
+#         {
+#             "LayerName": "Shirt",
+#             "Assets": [
+#                 {"Name": "T-Shirt", "PIL": shirt1, "Rarity": 5},
+#                 {"Name": "Crop Tee", "PIL": shirt2, "Rarity": 5},
+#             ],
+#             "Textures": [
+#                 {"Name": "Texture 1", "PIL": texture1, "Rarity": 2},
+#                 {"Name": "Texture 2", "PIL": texture2, "Rarity": 2},
+#                 {"Name": "Texture 3", "PIL": texture3, "Rarity": 2},
+#                 {"Name": "Texture 4", "PIL": texture4, "Rarity": 4},
+#             ],
+#         },
+#         {
+#             "LayerName": "Accessories",
+#             "Assets": [
+#                 {"Name": "Choker", "PIL": accessories1, "Rarity": 10},
+#             ],
+#             "Textures": [],
+#         },
+#     ],
+# }
+# 
+# Example Metadata (current)
+# {
+#   "name": "Void#1",
+#   "description": "Void NFT girl for void chans",
+#   "image": "https://ipfs.io/ipfs/QmZb77bDc39me3HMcK7zQC5z6yzqm88fdxDe82NRNz2qUZ?filename=Void1.png",
+#   "attributes": [
+#     {
+#       "trait_type": "Body",
+#       "value": "Girl"
+#     },
+#     {
+#       "trait_type": "Shirt",
+#       "value": "Crop Top (Dotted)"
+#     },
+#     {
+#       "trait_type": "Hair",
+#       "value": "Anime (Striped)"
+#     },
+#     {
+#       "trait_type": "Accessories",
+#       "value": "Choker"
+#     }
+#   ]
+# }
 
-# Artem's implmentation of the dict. Might be better, we'll choose which format to use later
+# Artem's implmentation of the dict (current)
 tempDict2 = {
     "CollectionName": "Void Chain",
     "CollectionSize": 10,
@@ -230,18 +222,25 @@ tempDict2 = {
     },
 }
 
-print(tempDict["CollectionName"])
-print(tempDict["Description"])
+print(tempDict2["CollectionName"])
+print(tempDict2["Description"])
+
+# RR - Reset after every iteration
+# NR - Not reset after every iteration
+
+rarityArrayAsset = [] # Example [t-shirt, crop-top, t-shirt, crop-top, t-shirt] (RR)
+rarityDictAsset = {} # Example {t-shirt: npArray, crop-top : npArray] (RR)
+
+rarityArrayTexture = [] # Example [texture1, texture2, texture1, texture2, texture1] (RR)
+rarityDictTexture = {} # Example {texture1: npArray, texture2 : npArray] (RR)
+
+metadataArray = [] # Example [t-shirt (texture1), t-shirt (texture2), crop-top (texture2), t-shirt, crop-top (texture1)] (RR)
+metadataDict = {} # Example {Body: metadataArray, Hair: metadataArray, Clothes: metadataArray} (NR)
+
+texturedAssetArray = [] # Example [texturedAsset1, texturedAsset2, texturedAsset3, texturedAsset4, texturedAsset5] (RR)
+texturedAssetDict = {} # Example {Body: texturedAssetArray1, Hair: texturedAssetArray2, Clothes: texturedAssetArray3] (NR)
 
 
-rarityArrayAsset = []
-rarityArrayTexture = []
-texturedAssetArray = []
-texturedAssetDict = {}
-rarityDictAsset = {}
-rarityDictTexture = {}
-metadataArray = []
-metadataDict = {}
 
 for key, value in tempDict2["Layers"].items():
     chosenAsset = 0
@@ -296,6 +295,7 @@ for key, value in tempDict2["Layers"].items():
     name = key
     texturedAssetDict.update({name: texturedAssetArray})
     metadataDict.update({name: metadataArray})
+    # setting data structures to empty
     texturedAssetArray = []
     metadataArray = []
     rarityDictAsset = {}
@@ -311,21 +311,25 @@ for i in range(tempDict2["CollectionSize"]):
     im = Image.new(
         "RGBA", (tempDict2["Resolution"], tempDict2["Resolution"]), (0, 0, 0, 0)
     )
+    # creating json template
     temp_json = {
         "name": f"{tempDict2['CollectionName']}#{i}",
         "description": tempDict2["Description"],
         "image": "",
     }
     temp_list = []
+
     for value in texturedAssetDict:
 
         temp_asset = texturedAssetDict[value][i]
-
+        # creating attributes in metadata
         im.paste(temp_asset, (0, 0), temp_asset)
         temp_list.append(
             {"trait_type": value, "value": metadataDict[value][i]},
         )
     temp_json.update({"attributes": temp_list})
+
+    # saving images and jsons
     im.save(f"{image_path}/{tempDict2['CollectionName']}{i}.png", "PNG")
     with open(f"{image_path}/{tempDict2['CollectionName']}{i}.json", "w") as json_file:
         json.dump(temp_json, json_file)
