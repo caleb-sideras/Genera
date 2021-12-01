@@ -93,6 +93,11 @@ body {
   font-family: "Roboto Condensed", sans-serif;
   color: var(--text-color);
 }
+/* @font-face {
+  font-family: 'Manrope';
+  src: local('regular'),
+       url('/static/fonts/medium.woff2') format("truetype");
+} */
 
 .light_purple_background {
   background-color: var(--medium-grey-color);
