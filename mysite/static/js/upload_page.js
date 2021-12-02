@@ -371,12 +371,10 @@ function open_images(self){
     // console.log(local_sliders)
     
     var isfirst = false;
-    
-    upload_preview.querySelectorAll(":scope :not(:first-child)").forEach(e => e.remove()) //clear exisiting.
 
-    upload_preview.appendChild(Object.assign(document.createElement('p'), { textContent: self.dataset.layer + " layer"})) //append heading
-    upload_preview.appendChild(Object.assign(document.createElement('ul'), { id: "scroller" })) //append list
-    
+    upload_preview.children[1].innerHTML = self.dataset.layer
+    upload_preview.children[2].innerHTML = ""
+
     for (let index = 0; index < local_sliders.length; index++) {
         var filelist = local_sliders[index].files;
         // console.log(filelist)
