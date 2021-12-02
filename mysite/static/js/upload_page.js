@@ -169,7 +169,8 @@ function add_smart_input(self, category) {
         deletetext.classList = "close_button_color"
         deletetext.addEventListener('click', function () {
             this.upload.remove()
-            remove_file(this.full_file_name) 
+            remove_file(this.full_file_name)
+            open_images(self)
             delete rarity_map[full_file_name] //delete rarity map link
             document.getElementById("rarity_map").value = JSON.stringify(rarity_map)
             create_notification("File removed", "You have succesfully removed '" + this.full_file_name.split(".").slice(2,4).join(".") + "' from the component." , duration = 3500, "success") //20 years duration for sins
@@ -331,8 +332,8 @@ function add_layer() {
         layer_name.classList = 'no_margin'
         layer_name.style = "cursor: pointer;"
         texture_name = layer_name.cloneNode(true)
-        layer_name.addEventListener('click',function() { open_images(this)})
-        texture_name.addEventListener('click', function () { open_images(this) })
+        layer_name.addEventListener('click', function() { open_images(this)}.bind(add_layer_img))
+        texture_name.addEventListener('click', function () { open_images(this)}.bind(add_layer_img_2))
 
         
         layers_row.appendChild(layer_name)
@@ -358,27 +359,27 @@ function add_layer() {
 }
 
 function open_images(self){
-    function removeAllChildNodes(parent) {
-        while (parent.firstChild) {
-            parent.removeChild(parent.firstChild);
-        }
-    }
+    var upload_preview = document.getElementsByClassName('upload_preview')[0]
+
     function replace_image(imge_url){
-        var output = document.getElementsByClassName('upload_preview');
-        output[0].children[0].src = imge_url
+        upload_preview.children[0].src = imge_url
     }
     // console.log("open images")
-    console.log(self)
+    // console.log(self)
     // console.log(self.parentElement.children[4])
     var local_sliders = self.parentElement.children[4].querySelectorAll(":scope input[type=file]")
-    console.log(local_sliders)
+    // console.log(local_sliders)
     
     var isfirst = false;
-    image_carousel = document.getElementById("scroller")
-    removeAllChildNodes(image_carousel);
+    
+    upload_preview.querySelectorAll(":scope :not(:first-child)").forEach(e => e.remove()) //clear exisiting.
+
+    upload_preview.appendChild(Object.assign(document.createElement('p'), { textContent: self.dataset.layer + " layer"})) //append heading
+    upload_preview.appendChild(Object.assign(document.createElement('ul'), { id: "scroller" })) //append list
+    
     for (let index = 0; index < local_sliders.length; index++) {
         var filelist = local_sliders[index].files;
-        console.log(filelist)
+        // console.log(filelist)
         if (filelist.length > 0) {
             if (!isfirst) {
                 replace_image(URL.createObjectURL(filelist[0]));
@@ -393,7 +394,7 @@ function open_images(self){
                 new_element.addEventListener('click', function () { replace_image(URL.createObjectURL(filelist[i])) })
                 new_element.appendChild(new_element_img)
                 // console.log(new_element)
-                image_carousel.appendChild(new_element)
+                document.getElementById("scroller").appendChild(new_element)
             }
         }
     }
