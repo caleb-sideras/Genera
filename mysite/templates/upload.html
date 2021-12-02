@@ -51,18 +51,20 @@
         <!-- <div class="general_button white_background"><div class="close_button" onclick="delete_button()">X</div><h5 class="no_margin"">Textures</h5><img data-layer="textures" onclick="add_smart_input(this)" class="color_image_orange grow" src="{% static 'icons/plus.svg' %}" onclick="add_layer()">
           </div> -->
       </div>
-
-      <input
-        id="add_layer_input"
-        class="general_input"
-        type="text"
-        placeholder="Add Layer"
-      />
-      <img
-        class="color_image_orange"
-        src="{% static 'icons/plus.svg' %}"
-        onclick="add_layer()"
-      />
+      <div class="add_layer_section">
+        <input
+          id="add_layer_input"
+          class="general_input"
+          type="text"
+          placeholder="Add Layer"
+        />
+        <img
+          class="color_image_orange"
+          src="{% static 'icons/plus.svg' %}"
+          onclick="add_layer()"
+        />
+      </div>
+      
     </div>
     <div
       class="upload_layers rounded_container"
@@ -78,8 +80,8 @@
 
     <div class="upload_preview" style="color: aliceblue">
       <img src="{% static 'Assets/Examples/1.png' %}" alt="Image Preview"/>
-      <ul id="scroller">
-      </ul>
+      <p></p>
+      <ul id="scroller"></ul>
     </div>
     <div class="upload_properties">
       <div class="rounded_container shadow_strong">
