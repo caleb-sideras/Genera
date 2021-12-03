@@ -295,34 +295,39 @@ def collection_view(request, username, collection_name):
         ##AJAX HANDLING SECTION START
         try:
             received_json_data = json.loads(request.body)
+            # make this a async function for speed!!!!! Will need db changes
             if "notneeded" in received_json_data:  # handle
                 pinata_links =[]
+                entry_names =[]
                 if request.user.is_authenticated:     
                     for entry in collection_images:
-                        if not entry.ipfs_bool: 
-                            print(entry.name)
-                            
-                            # uploading image to ipfs & updating db
-                            pinata_link_image = upload_pinata_filepath(entry.path[1:], entry.name)
-                            entry.ipfs_image_path = f"https://ipfs.io/ipfs/{pinata_link_image['IpfsHash']}"
+                        if not entry.deployed_bool:
+                            if not entry.ipfs_bool: 
+                                print(entry.name)
+                                
+                                # uploading image to ipfs & updating db
+                                pinata_link_image = upload_pinata_filepath(entry.path[1:], entry.name)
+                                entry.ipfs_image_path = f"https://ipfs.io/ipfs/{pinata_link_image['IpfsHash']}"
 
-                            # getting entry metadata
-                            temp_metadata = entry.metadata
-                            temp_metadata["image"] = f"https://ipfs.io/ipfs/{pinata_link_image['IpfsHash']}"
+                                # getting entry metadata
+                                temp_metadata = entry.metadata
+                                temp_metadata["image"] = f"https://ipfs.io/ipfs/{pinata_link_image['IpfsHash']}"
 
-                            # uploading metadata w/image to ipfs & updating db
-                            pinata_link_data = upload_pinata_object(json.dumps(temp_metadata), entry.name)
-                            entry.ipfs_metadata_path = f"https://ipfs.io/ipfs/{pinata_link_data['IpfsHash']}"
-                            entry.ipfs_bool = True
-                            entry.save() 
-                        pinata_links.append(entry.ipfs_metadata_path)
-
-                    
+                                # uploading metadata w/image to ipfs & updating db
+                                pinata_link_data = upload_pinata_object(json.dumps(temp_metadata), entry.name)
+                                entry.ipfs_metadata_path = f"https://ipfs.io/ipfs/{pinata_link_data['IpfsHash']}"
+                                entry.ipfs_bool = True
+                                entry.save() 
+                            pinata_links.append(entry.ipfs_metadata_path)
+                            entry_names.append(entry.name)
+                    user_collection.collection_ifps_bool = True
+                    user_collection.save()
                     for entry in collection_images:
                         print(entry.ipfs_metadata_path)
                     return JsonResponse(
                         {
-                            "ipfs_links": pinata_links
+                            "ipfs_links": pinata_links,
+                            "entries" : entry_names
                         },
                         status=200,
                     )
@@ -361,7 +366,7 @@ def collection_view(request, username, collection_name):
                     user_collection.save()
     
                     return JsonResponse(
-                        {"server_message" :"success"},
+                        {"server_message" :"Contract address Set"},
                         status = 200
                     )
                 else:
@@ -369,7 +374,30 @@ def collection_view(request, username, collection_name):
                         {"server_message": "USER NOT LOGGED IN"},
                         status=200,
                     )
-
+            elif "token_deployed" in received_json_data:
+                if request.user.is_authenticated:
+                    print(type(collection_images))
+                    counter = 0
+                    for entry in collection_images:
+                        counter = counter + 1
+                        if entry.name.strip() == received_json_data['token_deployed'].strip():
+                            print(f"{entry.name} {received_json_data['token_deployed']}")
+                            entry.deployed_bool = True
+                            entry.save()
+                            if user_collection.collection_size == counter:
+                                user_collection.tokens_deployed = True
+                                user_collection.save()
+                            break
+                    
+                    return JsonResponse(
+                        {"server_message": "Entry contract_bool flipped"},
+                        status=200,
+                    )
+                else:
+                    return JsonResponse(
+                        {"server_message": "USER NOT LOGGED IN"},
+                        status=200,
+                    )
         except RawPostDataException:  # NO AJAX DATA PROVIDED - DIFFERENT POST REQUEST INSTEAD
             pass
         ##AJAX HANDLING SECTION END

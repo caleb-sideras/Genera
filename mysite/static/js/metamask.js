@@ -2,9 +2,10 @@ ajax_script = null
 let web3 = new Web3(Web3.givenProvider);//Web3.givenProvider || "ws://localhost:8545"
 contract_address = null
 ipfs_links = null
-
+entries = null
 function main() {
     ipfs_links = []
+    entries = []
     ajax_button = document.getElementById("ajax_test")
     ajax_script = ajax_button.dataset.json
     console.log(JSON.parse(ajax_script))
@@ -48,11 +49,11 @@ function main() {
 }
 
 async function metamask_check(){
-    console.log("Login clicked");
+    // console.log("Login clicked");
     const provider = await detectEthereumProvider();
 
     if (provider) {
-        console.log('Installed!');
+        // console.log('Installed!');
         var active_account = startApp(provider);
     } else {
         alert('Please install MetaMask!');
@@ -61,6 +62,7 @@ async function metamask_check(){
 }
 
 async function deploy_contract(){
+    console.log("deploying contract")
     var active_account = await metamask_check()
     constructor_paramter = constructor_string('Void', 'vde'); // User parameters
     deployed_contract = await ethereum
@@ -80,17 +82,18 @@ async function deploy_contract(){
             console.log('Transaction sent')
             console.dir(txHash)
             contract_address = await waitForTxToBeMined(txHash)
-            console.log(contract_address)
+            console.log("Contract mined, address:" + contract_address)
         })
             // .catch(console.error)
             // .then((txHash) => console.log(txHash)).catch((error) => console.error);
     return active_account;
 }
 
-async function add_tokens(active_account) {
+async function add_tokens(active_account, url=null) {
  // ipfs metadata (token uri)
-    console.log(contract_address)
+    console.log("Adding tokens to " + contract_address)
     console.log(ipfs_links)
+    console.log(entries)
     for (let index = 0; index < ipfs_links.length; index++) {
         deployed_token = await ethereum
             .request({
@@ -109,23 +112,26 @@ async function add_tokens(active_account) {
             .then(function (txHash) {
                 console.log('Transaction sent')
                 console.dir(txHash)
-                waitForTxToBeMined(txHash)
+                waitForTxToBeMined(txHash, true, index, url)
             })
             // .then((txHash) => console.log(txHash))
             // .catch((error) => console.error);
     } }
 
-async function waitForTxToBeMined(txHash) {
+async function waitForTxToBeMined(txHash, ajax = false, index = 0, url = null) {
     let txReceipt
     while (!txReceipt) {
         try {
             txReceipt = await web3.eth.getTransactionReceipt(txHash)
-        } catch (err) {
+        } catch (err) {entries
             return console.log("failure")
         }
     }
-    console.log("success")
-    console.log(txReceipt)
+    if (ajax) {
+        console.log("Entry name bool swap " + entries[index])
+        token_deployed(url, entries[index])
+    }
+    console.log("Transaction sent " + txReceipt)
     return txReceipt['contractAddress']
 }
 
@@ -146,6 +152,8 @@ function ajax_server_post(url) {
             if (http_request.status === 200) { //Status can also be different and defined within the JSONResponse
                 var response = JSON.parse(http_request.responseText)
                 ipfs_links = response["ipfs_links"]
+                entries = response["entries"]
+                console.log("Received ipfs & entries from db")
                 ajax_server_post2(url)
 
             } else { //if status is not 200 - assume fail, unless different status handled explicitly
@@ -171,7 +179,6 @@ function ajax_server_post(url) {
     )
 }
 
-
 async function ajax_server_post2(url) {
 
     //HTTPREQUEST INIT CODE
@@ -192,11 +199,13 @@ async function ajax_server_post2(url) {
 
                 // if the contract has already been deployed/in db
                 if (address_check){
+                    console.log("received contract from db")
                     contract_address = response["collection_address"]
-                    console.log(contract_address)
+                    console.log("already deployed contract" + contract_address)
                 }
                 else {
                     active_account = await deploy_contract();
+                    // ajax_server_post3(url) //should not double set if here, test later
                 }
 
                 // double checking user account
@@ -204,7 +213,7 @@ async function ajax_server_post2(url) {
 
                 ajax_server_post3(url) // if contract adress not saved could have issues later.
 
-                await add_tokens(active_account);
+                await add_tokens(active_account, url);
 
 
             } else { //if status is not 200 - assume fail, unless different status handled explicitly
@@ -246,8 +255,50 @@ function ajax_server_post3(url) {
 
             if (http_request.status === 200) { //Status can also be different and defined within the JSONResponse
                 var response = JSON.parse(http_request.responseText)
-                console.log(response["server_message"])
+                console.log("Contract adress stored in db " + response["server_message"])
                 
+
+            } else { //if status is not 200 - assume fail, unless different status handled explicitly
+                alert('There was a problem with the request.');
+            }
+        }
+    };
+
+    // Send the POST request to the url/DJANGO VIEW
+    //setup for request header - not important
+    http_request.open('POST', url, true);
+    http_request.setRequestHeader('X-CSRFToken', get_cookie('csrftoken'));
+    http_request.setRequestHeader('contentType', 'application/json');
+    //end of setup
+
+    // Send the request as a JSON MAKE SURE TO ALWAYS HAVE THE CSRFTOKEN COOKIE !!! !! ! ! ! !!
+    http_request.send(
+        JSON.stringify(
+            {
+                'csrfmiddlewaretoken': get_cookie('csrftoken'), //compulsory
+                'address_set': contract_address //can add as many other entries to dict as necessary
+            })
+    )
+}
+
+function token_deployed(url, entry) {
+
+    //HTTPREQUEST INIT CODE
+    if (window.XMLHttpRequest) { // Mozilla, Safari, IE7+ ...
+        http_request = new XMLHttpRequest();
+    } else if (window.ActiveXObject) { // IE 6 and older
+        http_request = new ActiveXObject("Microsoft.XMLHTTP");
+    }
+    //HTTPREQUEST INIT CODE
+
+    http_request.onreadystatechange = function () {
+        // Process the server response here (Sent from Django view inside JsonResponse)
+        if (http_request.readyState === XMLHttpRequest.DONE) {
+
+            if (http_request.status === 200) { //Status can also be different and defined within the JSONResponse
+                var response = JSON.parse(http_request.responseText)
+                console.log(response["server_message"])
+
 
             } else { //if status is not 200 - assume fail, unless different status handled explicitly
                 alert('There was a problem with the request.');
@@ -267,11 +318,10 @@ function ajax_server_post3(url) {
         JSON.stringify(
             {
                 'csrfmiddlewaretoken': get_cookie('csrftoken'), //compulsory
-                'address_set': contract_address //can add as many other entries to dict as necessary
+                'token_deployed': entry //can add as many other entries to dict as necessary
             })
     )
 }
-
 
 async function startApp(provider) {
     // If the provider returned by detectEthereumProvider is not the same as
@@ -301,7 +351,7 @@ function constructor_string(name, symbol) {
     console.log("Contructor");
     temp_constructor_params = web3.eth.abi.encodeParameters(['string', 'string'], [name, symbol]);
     constructor_params = temp_constructor_params.replace('0x', '');
-    console.log(constructor_params);
+    // console.log(constructor_params);
 
     return constructor_params;
 }

@@ -31,9 +31,13 @@ class UserCollection(Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     path = models.CharField(max_length=250)
 
+    # IFPS
+    collection_ifps_bool = models.BooleanField(default=False)
+
     # Smart Contract
     contract_address = models.CharField(max_length=50, unique=False, blank = True, null = True)
     contract_bool =  models.BooleanField(default=False)
+    tokens_deployed = models.BooleanField(default=False)
 
 class CollectionImage(Model):
     linked_collection = models.ForeignKey(UserCollection, on_delete=models.CASCADE)
@@ -48,7 +52,8 @@ class CollectionImage(Model):
     ipfs_bool = models.BooleanField(default=False)
 
     # Smart Contract
-    deployed =  models.BooleanField(default=False)
+    deployed_bool =  models.BooleanField(default=False)
+    deployed_txhash = models.CharField(max_length=150, unique=False)
     
 
 

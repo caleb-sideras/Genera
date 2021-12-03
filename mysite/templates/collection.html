@@ -19,6 +19,7 @@
                     
                     {% if entry.ipfs_bool%}
                     <img src="/static/icons/remove.svg" class="close_button remove_image_button color_image_orange">
+                    <img src="/static/icons/ipfs_deployed.svg" class="close_button ifps_check">
                     <img src="{{entry.ipfs_image_path}}" alt="{{entry.name}} image should be here" class="nft_image">
                     {% else %}
                     <img src="/static/icons/remove.svg" class="close_button remove_image_button color_image_orange">
@@ -63,15 +64,26 @@
                             {{collection_data.description}}
                         </h5>
                     </div>
+                    {% if collection_data.collection_ifps_bool %}
+                        <h5>Collection Uploaded to IFPS</h5>
+                    {% endif %} 
+                    {% if collection_data.contract_bool %}
+                        <h5>Contract Deployed</h5>
+                    {% endif %}
+                    {% if collection_data.tokens_deployed %}
+                        <h5>All NFTs minted</h5>
+                    {% endif %} 
             </div>
+        {% if not collection_data.collection_ifps_bool %}
         <button type="button" class="general_button_no_border orange_background shadow_strong rounded_container_no_padding" style="cursor: default">
             <h4 class="no_margin">Delete Duplicates</h4>
         </button>
-        <button
-        data-json="{{erc721_json}}" id="ajax_test" data-url="{{url}}" class="general_button_no_border light_purple_background shadow_strong rounded_container_no_padding" onclick="ajax_server_post(this.dataset.url)" type="button"
-        >
+        {% endif %} 
+        {% if not collection_data.tokens_deployed %}
+        <button data-json="{{erc721_json}}" id="ajax_test" data-url="{{url}}" class="general_button_no_border light_purple_background shadow_strong rounded_container_no_padding" onclick="ajax_server_post(this.dataset.url)" type="button">
             <h4 class="no_margin generate">Mint Collection</h4>
         </button>
+        {% endif %} 
         </div>
         {% endif %}
     </div>
