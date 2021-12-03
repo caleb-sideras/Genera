@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block body_block %}
+
+
+    <h1> LMAOOOOOOO </h1>
+    {% if owner %}
+        <!-- WHAT ACCOUNT OWNER SEES (PROFILE EDIT + OTHER SHIT OFC) -->
+        <h3>WELCOME OWNER KING {{user.username}}</h3>
+    {% else %}
+        <!-- WHAT OTHER PEOPLE SEE - NON OWNER -->
+        <h3>WELCOME NON-OWNER KING {{request.user.username}}, <br><br> 
+        YOU ARE VIEWEING {{user.username}}'s PROFILE!</h3>
+
+        
+
+    {% endif %}
+    <h1>IS THE PROFILE PRIVATE? {{user.userprofile.private}}</h1>
+{% endblock %}

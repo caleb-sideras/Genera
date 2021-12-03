@@ -1,5 +1,4 @@
 {% extends 'base.html' %}
-{% load crispy_forms_tags %}
 
 <h1 class="top-space-heading">Login to MilkStudents</h1>
 
@@ -12,7 +11,7 @@
             
             <form id="login_form" method="post" action="{% url 'polls:login' %}">
                 {% csrf_token %}
-                {{ login_form|crispy }}
+                {{ login_form }}
 
                 <button class = "btn btn-outline-dark btn-lg" type="submit" name="submit"> Log in </button>
             </form>

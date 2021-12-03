@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from mysite.settings import MEDIA_DIR
+from polls.forms import *
 from polls.generator_alg import *
 from django.templatetags.static import static
 from django.core.files.storage import FileSystemStorage
@@ -215,6 +216,57 @@ def login_view(request):
         print(login_form.errors)
 
     return render(request, "login.html", {"login_form": login_form})
+
+def logout_view(request):
+
+    logout(request)
+    messages.success(request, 'Logged out Succesfully!')
+    return redirect(reverse('polls:main_view'))
+
+def register_view(request):
+    registered = False
+    
+    if request.method == 'POST':
+        user_form = UserRegisterForm(request.POST)
+        # profile_form = UserRegisterProfileForm(request.POST)
+           
+        if user_form.is_valid() and user_form.cleaned_data['password'] == user_form.cleaned_data['password_confirm']:
+            
+            user = user_form.save()
+            user.set_password(user.password)
+            user.save()
+            UserProfile.objects.create(user=user)
+            # profile = profile_form.save(commit=False)
+            # profile.user = user
+            # profile.save()
+            registered = True
+            login(request,user)
+            messages.success(request, 'Registration Succesful!')
+            return redirect(reverse('polls:main_view'))
+
+        elif user_form.cleaned_data['password'] != user_form.cleaned_data['password_confirm']:
+             user_form.add_error('password_confirm', 'The passwords do not match - please enter 2 matching passwords')
+        else:
+            print(user_form.errors)
+    
+    else:
+        user_form = UserRegisterForm()
+        # profile_form = UserProfileForm()
+    
+    return render(request, 'register.html', context={'register_form': user_form, 'registered': registered})
+
+
+
+def profile_view(request, username):
+    user = User.objects.filter(username=username).first()
+    owner = (request.user.username == username)
+
+    if not user:
+        messages.error(request, "NO SUCH PROFILE EXISTS - redirected to main !!!!")
+        return redirect(reverse("polls:main_view"))
+
+    return render(request, 'user_profile.html', context={"owner":owner, "user":user})
+
 
 
 def mint_view(request):

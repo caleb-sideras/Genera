@@ -745,6 +745,10 @@ body {
   /* background-color: ; */
 }
 
+/* #register_form :nth-child(odd) {
+  width: 100%;
+} */
+
 /* #scroll-progress {
   background: green;
   height: 6px;
