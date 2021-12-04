@@ -13,6 +13,16 @@ class Model(models.Model):
     class Meta:
         abstract = True
 
+class UserProfile(models.Model):
+    # This line is required. Links UserProfile to a User model instance.
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    private = models.BooleanField(default=True)
+    # The additional attributes we wish to include.
+    picture = models.ImageField(upload_to=generate_filename_userpic, blank=True)
+    
+    def __str__(self):
+        return self.user.username
+
 class UserAsset(Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     name = models.CharField(max_length=50, unique=False)
