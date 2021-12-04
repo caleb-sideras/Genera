@@ -47,11 +47,11 @@
                         <div class="collection_card shadow_strong rounded_container_no_padding">
                             
                             {% if entry.ipfs_bool%}
-                            <img src="/static/icons/remove.svg" class="close_button remove_image_button color_image_orange">
+                            <!-- <img src="/static/icons/remove.svg" class="close_button remove_image_button color_image_orange"> -->
                             <!-- <img src="/static/icons/ipfs_deployed.svg" class="close_button ifps_check"> -->
                             <img src="{{entry.ipfs_image_path}}" alt="{{entry.name}} image should be here" class="nft_image">
                             {% else %}
-                            <img src="/static/icons/remove.svg" class="close_button remove_image_button color_image_orange">
+                            <!-- <img src="/static/icons/remove.svg" class="close_button remove_image_button color_image_orange"> -->
                             <img src="{{entry.path}}" alt="{{entry.name}} image should be here" class="nft_image">
                             {% endif %}
                             <div>

@@ -637,7 +637,7 @@ body {
   display: block;
 }
 
-.image_preview > div {
+.image_preview >  .rounded_container {
   display: block;
     /* display: flex; */
     margin-left: auto;
@@ -650,16 +650,17 @@ body {
     /* vertical-align: middle; */
       justify-content: space-around;
     background-color: var(--medium-grey-color);
+    padding: 0;
 }
 
-.image_preview > div > .top_row {
+.top_row {
   height: 20px;
-  /* float:right; */
+  float:right;
   padding-right: 15px;
   /* width: 100%; */
 }
 
-.image_preview > div > .top_row > img {
+.top_row > img {
   height: 20px;
   cursor: pointer;
 }
@@ -678,17 +679,39 @@ body {
   /* margin-left: auto;
   margin-right: auto; */
 }
-.image_preview > div > div > .button{
+.image_preview > div > div > div > .button{
        height: 25px;
     /* width: 5%; */
     aspect-ratio: 1;
     /* align-items: center; */
-    margin-top: auto;
+    margin-top: 300px;
     margin-bottom: auto;
     /* margin: 5px 0 0 0; */
-    cursor: pointer;
     /* width: 30%; */
     filter: var(--dark-grey-color-2);
+}
+.lbutton_wrapper {
+    background: var(--light-grey-color);
+    border-radius: 20px 0 0 20px;
+    align-items: center;
+    vertical-align: middle;
+    width: 40px;
+    cursor: pointer;
+}
+
+.rbutton_wrapper {
+    background: var(--light-grey-color);
+    border-radius: 0 20px 20px 0;
+    align-items: center;
+    vertical-align: middle;
+    width: 40px;
+    cursor: pointer;
+}
+.rbutton_wrapper:hover{
+  background: var(--white-color);
+}
+.lbutton_wrapper:hover{
+   background: var(--white-color);
 }
 .left{
   transform: rotate(90deg);
@@ -844,10 +867,6 @@ text-align: left;
   overflow-wrap: break-word;
   /* background-color: ; */
 }
-
-/* #register_form :nth-child(odd) {
-  width: 100%;
-} */
 
 /* #scroll-progress {
   background: green;
