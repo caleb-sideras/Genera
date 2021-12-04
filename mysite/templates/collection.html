@@ -6,36 +6,66 @@
 <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
 <script src="https://unpkg.com/@metamask/detect-provider/dist/detect-provider.min.js"></script>
 <script type="text/javascript" src="{% static 'js/metamask.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/collection.js' %}"></script>
 {% endblock %}
 
 {% block body_block %}
 <h1 class="collection_title">{{collection_data.collection_name}} Collection</h1>
 <div class="view_collection_main">
-    <div class="collection_structure">
-        <div class="all_collections_layout">
-        {% if collection_images %}
-            {% for entry in collection_images %}
-                <div class="collection_card shadow_strong rounded_container_no_padding">
-                    
-                    {% if entry.ipfs_bool%}
-                    <img src="/static/icons/remove.svg" class="close_button remove_image_button color_image_orange">
-                    <img src="/static/icons/ipfs_deployed.svg" class="close_button ifps_check">
-                    <img src="{{entry.ipfs_image_path}}" alt="{{entry.name}} image should be here" class="nft_image">
-                    {% else %}
-                    <img src="/static/icons/remove.svg" class="close_button remove_image_button color_image_orange">
-                    <img src="{{entry.path}}" alt="{{entry.name}} image should be here" class="nft_image">
-                    {% endif %}
-                    <div>
-                        <p class="no_margin center">{{entry.name}}</p>
-                        <a href="https://moralis.io/" target="_blank" rel="noopener noreferrer">
-                            <button class="collection_card_button white_background">View Metadata</button>
-                        </a>
-                    </div>
-                </div>
-            {% endfor %}
-        {% endif %}
+    <div class="image_preview"></div>
+    <!-- <div class="image_preview">
+        <div class="rounded_container">
+            <img src="https://ipfs.io/ipfs/QmSQMKejwvSW8nHHnanspsJebKief2qmzscxDzbrwJG334" alt="">
+            <div>
+   "name": "Void#1",
+   "description": "Void NFT girl for void chans",
+   "image": "https://ipfs.io/ipfs/QmZb77bDc39me3HMcK7zQC5z6yzqm88fdxDe82NRNz2qUZ?filename=Void1.png",
+   "attributes": [
+     {
+       "trait_type": "Body",
+       "value": "Girl"
+     },
+     {
+       "trait_type": "Shirt",
+       "value": "Crop Top (Dotted)"
+     },
+     {
+       "trait_type": "Hair",
+       "value": "Anime (Striped)"
+     },
+     {
+       "trait_type": "Accessories",
+       "value": "Choker"
+     }
+   ]</div>
         </div>
-    </div>
+    </div> -->
+        <div class="collection_structure">
+            <div class="all_collections_layout">
+                {% if collection_images %}
+                    {% for entry in collection_images %}
+                        <div class="collection_card shadow_strong rounded_container_no_padding">
+                            
+                            {% if entry.ipfs_bool%}
+                            <img src="/static/icons/remove.svg" class="close_button remove_image_button color_image_orange">
+                            <!-- <img src="/static/icons/ipfs_deployed.svg" class="close_button ifps_check"> -->
+                            <img src="{{entry.ipfs_image_path}}" alt="{{entry.name}} image should be here" class="nft_image">
+                            {% else %}
+                            <img src="/static/icons/remove.svg" class="close_button remove_image_button color_image_orange">
+                            <img src="{{entry.path}}" alt="{{entry.name}} image should be here" class="nft_image">
+                            {% endif %}
+                            <div>
+                                <p class="no_margin center">{{entry.name}}</p>
+                                <!-- <a href="https://moralis.io/" target="_blank" rel="noopener noreferrer"> -->
+                                    <button class="collection_card_button white_background" onclick="open_images(this)">View Metadata</button>
+                                <!-- </a> -->
+                                <div style="display: none;">{{entry.metadata}}</div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
         <div class="upload_properties">
             <div class="rounded_container shadow_strong">
                 <h3 class="no_margin center">Collection Properties</h3>
@@ -73,20 +103,22 @@
                     {% if collection_data.tokens_deployed %}
                         <h5>All NFTs minted</h5>
                     {% endif %} 
+                {% endif %}
             </div>
-        {% if not collection_data.collection_ifps_bool %}
-        <button type="button" class="general_button_no_border orange_background shadow_strong rounded_container_no_padding" style="cursor: default">
-            <h4 class="no_margin">Delete Duplicates</h4>
-        </button>
-        {% endif %} 
-        {% if not collection_data.tokens_deployed %}
-        <button data-json="{{erc721_json}}" id="ajax_test" data-url="{{url}}" class="general_button_no_border light_purple_background shadow_strong rounded_container_no_padding" onclick="ajax_server_post(this.dataset.url)" type="button">
-            <h4 class="no_margin generate">Mint Collection</h4>
-        </button>
-        {% endif %} 
+            
+            {% if not collection_data.collection_ifps_bool %}
+                <button type="button" class="general_button_no_border orange_background shadow_strong rounded_container_no_padding" style="cursor: default">
+                    <h4 class="no_margin">Delete Duplicates</h4>
+                </button>
+            {% endif %} 
+            {% if not collection_data.tokens_deployed %}
+                <button data-json="{{erc721_json}}" id="ajax_test" data-url="{{url}}" class="general_button_no_border light_purple_background shadow_strong rounded_container_no_padding" onclick="ajax_server_post(this.dataset.url)" type="button">
+                    <h4 class="no_margin generate">Mint Collection</h4>
+                </button>
+            {% endif %} 
+            
+            
         </div>
-        {% endif %}
-    </div>
     <!-- <button class="ethereumButton general_button orange_background grow">Login with Metamask</button>
     <button class="sendEthButton btn general_button orange_background grow">Deploy contract</button>
     <button class="addToken btn general_button orange_background grow">Add Token</button>
