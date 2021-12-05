@@ -10,6 +10,7 @@
 {% endblock %}
 
 {% block body_block %}
+<div class="filter">
 <h1 class="collection_title">{{collection_data.collection_name}} Collection</h1>
 <div class="view_collection_main">
     <div class="image_preview"></div>
@@ -49,17 +50,30 @@
                             {% if entry.ipfs_bool%}
                             <!-- <img src="/static/icons/remove.svg" class="close_button remove_image_button color_image_orange"> -->
                             <!-- <img src="/static/icons/ipfs_deployed.svg" class="close_button ifps_check"> -->
-                            <img src="{{entry.ipfs_image_path}}" alt="{{entry.name}} image should be here" class="nft_image">
+                            <img src="{{entry.ipfs_image_path}}" alt="{{entry.name}} image should be here" class="nft_image" onclick="open_images(this)">
                             {% else %}
                             <!-- <img src="/static/icons/remove.svg" class="close_button remove_image_button color_image_orange"> -->
-                            <img src="{{entry.path}}" alt="{{entry.name}} image should be here" class="nft_image">
+                            <img src="{{entry.path}}" alt="{{entry.name}} image should be here" class="nft_image" onclick="open_images(this)">
                             {% endif %}
                             <div>
                                 <p class="no_margin center">{{entry.name}}</p>
-                                <!-- <a href="https://moralis.io/" target="_blank" rel="noopener noreferrer"> -->
-                                    <button class="collection_card_button white_background" onclick="open_images(this)">View Metadata</button>
-                                <!-- </a> -->
                                 <div style="display: none;">{{entry.metadata}}</div>
+                                <!-- <a href="https://moralis.io/" target="_blank" rel="noopener noreferrer"> -->
+                                    <div class="collection_card_button_container">
+                                        {% if entry.ipfs_bool%}
+                                            <div class="collection_card_button white_background" style=" cursor: auto;" >
+                                                <img src="/static/icons/check.svg" alt="check">
+                                                <h5>IPFS</h5>
+                                            </div>
+                                        {% endif %}
+                                        {% if entry.deployed_bool%}
+                                        <div class="collection_card_button white_background" style=" cursor: auto;"> 
+                                            <img src="/static/icons/check.svg" alt="check">
+                                            <h5>Mint</h5>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                <!-- </a> -->
                             </div>
                         </div>
                     {% endfor %}
@@ -95,13 +109,22 @@
                         </h5>
                     </div>
                     {% if collection_data.collection_ifps_bool %}
+                    <div class="properties_container">
+                        <img src="/static/icons/check.svg" alt="check">
                         <h5>Collection Uploaded to IFPS</h5>
+                    </div>
                     {% endif %} 
                     {% if collection_data.contract_bool %}
+                    <div class="properties_container"></div>
+                        <img src="/static/icons/check.svg" alt="check">
                         <h5>Contract Deployed</h5>
+                    </div>
                     {% endif %}
                     {% if collection_data.tokens_deployed %}
-                        <h5>All NFTs minted</h5>
+                    <div class="properties_container"></div>
+                        <img src="/static/icons/check.svg" alt="check">
+                        <h5>Collection Minted</h5>
+                    </div>
                     {% endif %} 
                 {% endif %}
             </div>
@@ -123,5 +146,6 @@
     <button class="sendEthButton btn general_button orange_background grow">Deploy contract</button>
     <button class="addToken btn general_button orange_background grow">Add Token</button>
     <button class="testButton btn general_button orange_background grow">Mainnet gas estimate</button> -->
+</div>
 </div>
 {% endblock %}

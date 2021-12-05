@@ -18,12 +18,13 @@
         <img src="{% static 'Assets/Background/websitebackground.png' %}" alt="">
       </div>
     </div> -->
-    <div class="nav_bar_wrapper">
+    <div class="nav_bar_wrapper shadow_strong">
   
-    <div class="nav_bar"style="align-items: start">
+ 
       <a href="{% url 'polls:upload' %}">
-      <button class="" style="margin: 15px;">Home</button>
-    </a>
+      <img src="/static/icons/logoV1.svg" alt="">
+      </a>
+      <img src="{% static 'Assets/Background/genera4.png' %}" alt="">
       {% if messages %}
         <ul class="messages">
             {% for message in messages %}
@@ -31,7 +32,7 @@
             {% endfor %}
         </ul>
       {% endif %}
-
+      <img style="flex: 1 0;">
       {% if request.user.is_authenticated%}
         <div class="dropdown">
         <button onclick="myFunction()" class="dropbtn rounded_container_no_padding">Logged in as: {{request.user.username}}</button>
@@ -45,7 +46,7 @@
         <a href="{% url 'polls:login' %}"><p style="color: aqua;">You are not logged in. Please log in!</p></a>
       {% endif %}
 
-  </div>
+
   </div>
     
     
