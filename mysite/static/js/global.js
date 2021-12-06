@@ -21,15 +21,21 @@ function get_cookie(name) {
 
 function main() {
     // Select the button
-    const btn = document.querySelector(".btn-toggle");
+    const btn = document.querySelector(".btn_toggle");
 
     // Listen for a click on the button
     btn.addEventListener("click", function () {
-        // Then toggle (add/remove) the .dar k-theme class to the body
-        document.body.classList.toggle("dark-mode");
-        console.log("dark modee");
+        if (localStorage.lightMode == "dark") {
+            localStorage.lightMode = "light";
+            document.body.classList = "";
+        } else {
+            localStorage.lightMode = "dark";
+            document.body.classList = "dark-mode";
+        }
     });
 }
+
+
 /* When the user clicks on the button,
 toggle between hiding and showing the dropdown content */
 function myFunction() {

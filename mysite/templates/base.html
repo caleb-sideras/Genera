@@ -13,54 +13,78 @@
   </head>
 
   <body>
-    <!-- <div class="background_image_wrapper" >
+    <script>
+      if (localStorage.lightMode == "dark") {
+          document.body.classList ="dark-mode";
+      }
+  </script>
+    <!-- <div class="background_image_wrapper">
       <div class="cover-image">
-        <img src="{% static 'Assets/Background/websitebackground.png' %}" alt="">
+        <img src="{% static 'Assets/Background/websitebackground2.png' %}" alt="">
       </div>
     </div> -->
     <div class="nav_bar_wrapper shadow_strong">
-  
- 
-      <a href="{% url 'polls:upload' %}">
-      <img src="/static/icons/logoV1.svg" alt="">
-      </a>
-      <img src="{% static 'Assets/Background/genera4.png' %}" alt="">
-      {% if messages %}
+      
+      <div class="left_navbar">
+        <a href="{% url 'polls:upload' %}">
+        <img src="/static/icons/logoV1.svg" class="logo1" alt="">
+        <img src="{% static 'Assets/Background/genera4.png' %}" class="logo2" alt="">
+        </a>
+      </div>
+      <!-- {% if messages %}
         <ul class="messages">
             {% for message in messages %}
             <li  {% if message.tags %} style="color: red; font-size: 2em;" class=" {{ message.tags }} " {% endif %}> {{ message }} </li>
             {% endfor %}
         </ul>
-      {% endif %}
-      <img style="flex: 1 0;">
+      {% endif %} -->
+      
+      <div class="nav_bar_links">
+        <a href="{% url 'polls:upload' %}"><p>NFT Maker</p></a>
+        <a href="#"><p>NFT Minter</p></a>
+      <a href="#"><p>Texture Mapping</p></a>
+      </div>
+      
+      <!-- <img style="flex: 1 0;"> -->
+      <div class="right_navbar">
+        <button class="btn_toggle">Toggle Theme</button>
+      <!-- <button class="btn-toggle">Theme</button> -->
       {% if request.user.is_authenticated%}
         <div class="dropdown">
         <button onclick="myFunction()" class="dropbtn rounded_container_no_padding">Logged in as: {{request.user.username}}</button>
           <div id="myDropdown" class="dropdown-content rounded_container_no_padding">
+         
+            {% if request.user.is_authenticated %}
+              <a href="{% url 'polls:profile' request.user.username %}"><p>View your profile</p></a>
+            {% endif %}
+
             <a href="{% url 'polls:all_collections' request.user.username %}"><p>View Collections</p></a>
-            <button class="btn-toggle">Theme</button>
-            <a href="#">Link 3</a>
+
+            {% if request.user.is_authenticated %}
+              <a href="{% url 'polls:logout' %}"><p>Log out</p></a> 
+            {% endif %}
         </div>
       </div>   
       {% else %}
-        <a href="{% url 'polls:login' %}"><p style="color: aqua;">You are not logged in. Please log in!</p></a>
+      <div class="dropdown">
+        <a href="{% url 'polls:login' %}"style=" text-decoration: none;"><div class="dropbtn rounded_container_no_padding">Log in</div></a>
+      </div>
       {% endif %}
-
-
-  </div>
+    </div>
+    </div>
     
     
 
     {% block body_block %}{% endblock %}
 
-    <br><br><br><br>
+    <!-- <br><br><br><br>
     <a href="{% url 'polls:upload' %}">
       <button class="general_button light_grey_background grow" style="margin: 15px;">GO HOME (UPLOAD PAGE LOL)!</button>
     </a>
     {% if request.user.is_authenticated %}
       <a href="{% url 'polls:logout' %}">Log out</a> <br>
       <a href="{% url 'polls:profile' request.user.username %}">View your profile!</a>
-    {% endif %}
+    {% endif %} -->
 
   </body>
 

@@ -1,7 +1,8 @@
 :root {
   --text-color: #000000;
   --dark-grey-color: #535242;
-  background-image: linear-gradient(#6a74ff1f, #FFFFFF);
+  /* background-image: linear-gradient(#6a74ff1f, #FFFFFF); */
+   background-color: #7e87f71f;
   --light-grey-color: #FFFFFF;
   --medium-grey-color: #627EEA;
   --orange-color: #627dea85;
@@ -23,7 +24,8 @@
 body.dark-mode { 
   --text-color: #FFFFFF;
   --dark-grey-color: #FFFFFF;
-  background-image: linear-gradient(#2D222E, #212429);
+  /* background-image: linear-gradient(#2D222E, #212429); */
+  background-color: #27232B;
   --light-grey-color: #191B1F;
   --medium-grey-color: #755A7A;
   --orange-color: #16273C; 
@@ -85,6 +87,10 @@ h4,
 h5,
 h6 {
   font-weight: lighter;
+}
+
+a{
+  text-decoration: none;
 }
 
 body {
@@ -614,11 +620,12 @@ body {
   color: var(--medium-grey-color);
 }
 .view_collection_main {
-  margin-top: 15px;
-  width: 100%;
-  height: 85vh;
-  display: flex;
-  gap: 20px;
+      margin-top: 15px;
+    /* width: 100%; */
+    height: 85vh;
+    display: flex;
+    gap: 20px;
+    margin-right: 20px;
 }
 
 .display_reverse {
@@ -748,6 +755,7 @@ text-align: left;
 .collection_structure {
   margin: 0 25px;
   /* width: 70%; */
+  flex: 1 0;
 }
 
 .collection_structure > h1 {
@@ -947,6 +955,7 @@ text-align: left;
   /* align-items: center; */
   /* justify-content: space-around; */
   text-align: center;
+  position: relative;
   
 }
 .main_upper > h1 {
@@ -970,6 +979,7 @@ text-align: left;
   width: 100%;
   flex: 1 1 0%;
   /* height: 50%; */
+  position: relative;
 }
 
 .sub_section{
@@ -1009,7 +1019,7 @@ text-align: left;
   height: 50%;
 }
 .big_card {
-  background: radial-gradient(92.78% 103.09% at 50.06% 7.22%, rgba(255, 58, 212, 0.07) 0%, rgba(255, 255, 255, 0.043) 100%), radial-gradient(100% 97.16% at 0% 12.22%, rgba(235, 0, 255, 0.2) 0%, rgba(243, 19, 19, 0.2) 100%);
+  background:  linear-gradient(110deg, rgba(209,141,214,1) 20%, rgba(204,157,164,1) 100%);
   padding: 2rem;
   border-radius: 20px;
   display: flex;
@@ -1024,7 +1034,7 @@ text-align: left;
   height: 50%;
 }
 .small_card {
-  background: radial-gradient(92.78% 103.09% at 50.06% 7.22%, rgba(58, 127, 255, 0.07) 0%, rgba(255, 255, 255, 0.043) 100%), radial-gradient(100% 97.16% at 0% 12.22%, rgba(0, 81, 255, 0.2) 0%, rgba(19, 243, 131, 0.2) 100%);
+  background: linear-gradient(110deg, rgba(119,180,158,1) 20%, rgba(156,154,154,1) 100%);
       position: relative;
     overflow: hidden;
     padding: 32px;
@@ -1047,10 +1057,12 @@ text-align: left;
 .card_title >h2 {
   font-weight: bold;
   /* font-size: 20px; */
+  color: var(--text-color);
 }
 .card_title >h3 {
   font-weight:lighter;
   /* font-size: 20px; */
+  color: var(--text-color);
 }
 #content .content-block .cover-image, #content .content-block .cover-image-wrapper, #content .semplice-cover .cover-image, #content .semplice-cover .cover-image-wrapper, #content-holder .content-block .cover-image, #content-holder .content-block .cover-image-wrapper, #content-holder .semplice-cover .cover-image, #content-holder .semplice-cover .cover-image-wrapper{    width: 100%;
     height: 100%;
@@ -1113,10 +1125,7 @@ animation: zoominoutsinglefeatured 60s infinite ;
     right: 0;
 }
 .info_card {
-  border-radius: 15px;
-  min-height: 150px;
-  max-height: 250px;
-  width: 200px;
+  width: 238.75px;
   background-color: var(--light-grey-color);
   overflow: hidden;
   display: flex;
@@ -1127,7 +1136,7 @@ animation: zoominoutsinglefeatured 60s infinite ;
 
 .info_card > .nft_image {
   /* max-height: 150px; */
-  /* aspect-ratio: 1; */
+  aspect-ratio: 0;
   /* height: 70%;
   width: 100%;
   margin-bottom: 15px; */
@@ -1169,14 +1178,19 @@ animation: zoominoutsinglefeatured 60s infinite ;
 
 /* NAV BAR */
 
-.nav_bar_wrapper > a > img{
+.left_navbar > a{
+    text-decoration: none;
+
+}
+
+.left_navbar > a > .logo1{
   height: 40px;
   aspect-ratio: 1;
   margin-left: 25px;
   margin-top: 10px;
 
 }
-.nav_bar_wrapper > img{
+.left_navbar > a > .logo2{
   width:80px;
   margin-top: 25px;
   margin-left: 5px;
@@ -1190,6 +1204,18 @@ animation: zoominoutsinglefeatured 60s infinite ;
   background: var(--light-grey-color);
   /* margin-top: auto;
   margin-bottom: auto; */
+  position: relative;
+  justify-content: space-between;
+}
+.right_navbar {
+
+  width: 30%;
+  text-align: end;
+}
+.left_navbar {
+
+  width: 30%;
+  text-align: start;
 }
 .dropbtn {
   background-color: var(--medium-grey-color);
@@ -1201,7 +1227,8 @@ animation: zoominoutsinglefeatured 60s infinite ;
   margin-top: auto;
   margin-bottom: auto;
   margin-right: 25px;
-   margin-top: 5px;
+  margin-top: 5px;
+  text-decoration: none;
 }
 
 /* Dropdown button on hover & focus */
@@ -1231,6 +1258,7 @@ animation: zoominoutsinglefeatured 60s infinite ;
   padding: 12px 16px;
   text-decoration: none;
   display: block;
+  text-align: start;
 }
 
 /* Change color of dropdown links on hover */
@@ -1238,4 +1266,35 @@ animation: zoominoutsinglefeatured 60s infinite ;
 
 /* Show the dropdown menu (use JS to add this class to the .dropdown-content container when the user clicks on the dropdown button) */
 .show {display:block;}
+
+.nav_bar_links{
+      /* position: relative; */
+    /* display: inline-block; */
+    display: flex;
+    height: 100%;
+    align-items: center;
+}
+.nav_bar_links a{
+  color: var(--text-color);
+  padding: 0px 16px;
+  text-decoration: none;
+  /* display: block; */
+  font-size: 18px;
+  /* font-weight: bold; */
+
+}
+.nav_bar_links a:hover{
+  color: var(--medium-grey-color);
+}
+
+.btn_toggle {
+  color: var(--medium-grey-color);
+  background-color: transparent ;
+  font-size: 14px;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  font-weight: bold;
+}
+
 /* NAV BAR */

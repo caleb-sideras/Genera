@@ -3,13 +3,11 @@ card_element = null
 
 function main() {
     preview_wrapper = document.getElementsByClassName("image_preview")[0]
-    backdrop = document.getElementsByClassName("filter")[0]
-    console.log(backdrop)
+    // backdrop = document.getElementsByClassName("filter")[0]
 }
 
 
 function open_images(self){
-    // console.log(self)
     // console.log((self.parentNode).parentNode)
     card_element = (self.parentNode)
     // console.log(((self.parentNode).parentNode).nextElementSibling)

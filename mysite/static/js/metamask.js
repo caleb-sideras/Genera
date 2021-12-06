@@ -11,39 +11,24 @@ function main() {
     console.log(JSON.parse(ajax_script))
     parsed_json = JSON.parse(ajax_script)
 
-    mint_collection = document.querySelector('.sendEthButton');
-    add_token = document.querySelector('.addToken');
-    login_metamask = document.querySelector('.ethereumButton');
-    gas_estimate = document.querySelector('.testButton');
+    // gas_estimate = document.querySelector('.testButton');
 
-    mint_collection.addEventListener('click', async () => {
-        deploy_contract();
-    });
+    // gas_estimate.addEventListener('click', async () =>{
+    //     // mainnet
+    //     // gas estimate when deploying contract
+    //     constructor_paramter = constructor_string('Void', 'vde');
+    //     var result = await web3.eth.estimateGas({
+    //         data: parsed_json['bytecode'] + constructor_paramter
+    //     }).then(console.log);
 
-    add_token.addEventListener('click', async () => {   
-        add_tokens();
-    });
-
-    login_metamask.addEventListener('click', async () => {
-        metamask_check();
-    });
-
-    gas_estimate.addEventListener('click', async () =>{
-        // mainnet
-        // gas estimate when deploying contract
-        constructor_paramter = constructor_string('Void', 'vde');
-        var result = await web3.eth.estimateGas({
-            data: parsed_json['bytecode'] + constructor_paramter
-        }).then(console.log);
-
-        // gas estimate when deploying token (doesnt work on Rinkeby testnet)
-        // token_uri = abi_token_uri('https://ipfs.io/ipfs/QmNco8G5hrJfLdJpYwsxrygWXS1zcmW9AuY9Q8PstJFX9c');
-        // var result = await web3.eth.estimateGas({
-        //     to: "0x240D3014Cdc300A9939AeDCcb508DD34cDcd815e", // ERC721: mint to the zero address error
-        //     data: token_uri
-        // }).then(console.log);
+    //     // gas estimate when deploying token (doesnt work on Rinkeby testnet)
+    //     // token_uri = abi_token_uri('https://ipfs.io/ipfs/QmNco8G5hrJfLdJpYwsxrygWXS1zcmW9AuY9Q8PstJFX9c');
+    //     // var result = await web3.eth.estimateGas({
+    //     //     to: "0x240D3014Cdc300A9939AeDCcb508DD34cDcd815e", // ERC721: mint to the zero address error
+    //     //     data: token_uri
+    //     // }).then(console.log);
             
-    });
+    // });
     // ethereum.on('chainChanged', (_chainId) => window.location.reload());
     // ethereum.on('disconnect', (ProviderRpcError) => window.location.reload());
 }
