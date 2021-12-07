@@ -96,7 +96,8 @@ async function add_tokens(active_account, url=null) {
             })
             .then(function (txHash) {
                 console.log('Transaction sent')
-                console.dir(txHash)
+                // console.dir(txHash)
+                store_txhash(txHash, url, entries[index])
                 waitForTxToBeMined(txHash, true, index, url)
             })
             // .then((txHash) => console.log(txHash))
@@ -108,13 +109,17 @@ async function waitForTxToBeMined(txHash, ajax = false, index = 0, url = null) {
     while (!txReceipt) {
         try {
             txReceipt = await web3.eth.getTransactionReceipt(txHash)
-        } catch (err) {entries
+        } catch (err) {
             return console.log("failure")
         }
     }
     if (ajax) {
+        console.log(txReceipt)
         console.log("Entry name bool swap " + entries[index])
-        token_deployed(url, entries[index])
+        if (txReceipt['status']==true) {
+            token_deployed(url, entries[index])
+        }
+        
     }
     console.log("Transaction sent " + txReceipt)
     return txReceipt['contractAddress']
@@ -241,7 +246,10 @@ function ajax_server_post3(url) {
             if (http_request.status === 200) { //Status can also be different and defined within the JSONResponse
                 var response = JSON.parse(http_request.responseText)
                 console.log("Contract adress stored in db " + response["server_message"])
-                
+                ipfs_links = response["ipfs_links"]
+                entries = response["entries"]
+                console.log(ipfs_links)
+                console.log(entries)
 
             } else { //if status is not 200 - assume fail, unless different status handled explicitly
                 alert('There was a problem with the request.');
@@ -262,6 +270,49 @@ function ajax_server_post3(url) {
             {
                 'csrfmiddlewaretoken': get_cookie('csrftoken'), //compulsory
                 'address_set': contract_address //can add as many other entries to dict as necessary
+            })
+    )
+}
+
+function store_txhash(txHash, url, entry) {
+
+    //HTTPREQUEST INIT CODE
+    if (window.XMLHttpRequest) { // Mozilla, Safari, IE7+ ...
+        http_request = new XMLHttpRequest();
+    } else if (window.ActiveXObject) { // IE 6 and older
+        http_request = new ActiveXObject("Microsoft.XMLHTTP");
+    }
+    //HTTPREQUEST INIT CODE
+
+    http_request.onreadystatechange = function () {
+        // Process the server response here (Sent from Django view inside JsonResponse)
+        if (http_request.readyState === XMLHttpRequest.DONE) {
+
+            if (http_request.status === 200) { //Status can also be different and defined within the JSONResponse
+                var response = JSON.parse(http_request.responseText)
+                console.log(response["server_message"])
+
+
+            } else { //if status is not 200 - assume fail, unless different status handled explicitly
+                alert('There was a problem with the request.');
+            }
+        }
+    };
+
+    // Send the POST request to the url/DJANGO VIEW
+    //setup for request header - not important
+    http_request.open('POST', url, true);
+    http_request.setRequestHeader('X-CSRFToken', get_cookie('csrftoken'));
+    http_request.setRequestHeader('contentType', 'application/json');
+    //end of setup
+
+    // Send the request as a JSON MAKE SURE TO ALWAYS HAVE THE CSRFTOKEN COOKIE !!! !! ! ! ! !! 
+    http_request.send(
+        JSON.stringify(
+            {
+                'csrfmiddlewaretoken': get_cookie('csrftoken'), //compulsory
+                'store_txhash': txHash,
+                'entry': entry
             })
     )
 }

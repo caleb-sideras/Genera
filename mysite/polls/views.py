@@ -2,6 +2,7 @@ from django.shortcuts import render
 from mysite.settings import MEDIA_DIR
 from polls.forms import *
 from polls.generator_alg import *
+from polls.contract_interaction import *
 from django.templatetags.static import static
 from django.core.files.storage import FileSystemStorage
 from django.shortcuts import redirect
@@ -377,7 +378,7 @@ def collection_view(request, username, collection_name):
                     for entry in collection_images:
                         print(entry.ipfs_metadata_path)
                     return JsonResponse(
-                        {
+                        { # dont need links here, should be sent after deployment and secondary contract test
                             "ipfs_links": pinata_links,
                             "entries" : entry_names
                         },
@@ -412,13 +413,33 @@ def collection_view(request, username, collection_name):
                     )
             elif "address_set" in received_json_data:
                 if request.user.is_authenticated:
-
+                    print("adress_set called, got you you little bitch")
                     user_collection.contract_address = received_json_data["address_set"]
                     user_collection.contract_bool = True
                     user_collection.save()
-    
+
+                # should be a refresh button and only on a secondary mint press, loading screen = 'Reading the smart contract'
+                    # IDEA, immediately set transaction hash, so only checks entries with txHashes. Careful, still have to check TokenURI/metadata_path, as the txHashes could have failed
+                    tokenURIs = read_contract(user_collection.contract_address)
+                    IPFS_links = []
+                    entry_names = []
+                    
+                    for entry in collection_images: # also could iterate over not deployed_bool
+                        if entry.deployed_txhash: #would save iterations if did only txhash[true] & make almost 100% fool proof, can iterate over ifps_deployed
+                            if tokenURIs:
+                                for value in tokenURIs:
+                                    if entry.ipfs_metadata_path == value:
+                                        entry.ipfs_bool = True
+                                        entry.save()
+                        if not entry.deployed_bool:
+                            IPFS_links.append(entry.ipfs_metadata_path)
+                            entry_names.append(entry.name)
+                        # ABOVE, check if token not deployed, then compare it's tokenURI to the ipfs_metadata_path. If not the same, then deploy token. If the same, the set it as deployed. 
                     return JsonResponse(
-                        {"server_message" :"Contract address Set"},
+                        {"server_message" :"Contract address Set",
+                        "ipfs_links": IPFS_links,
+                        "entries" : entry_names
+                        },
                         status = 200
                     )
                 else:
@@ -427,8 +448,8 @@ def collection_view(request, username, collection_name):
                         status=200,
                     )
             elif "token_deployed" in received_json_data:
+                print("token deployed nibbas")
                 if request.user.is_authenticated:
-                    print(type(collection_images))
                     counter = 0
                     for entry in collection_images:
                         counter = counter + 1
@@ -443,6 +464,22 @@ def collection_view(request, username, collection_name):
                     
                     return JsonResponse(
                         {"server_message": "Entry contract_bool flipped"},
+                        status=200,
+                    )
+                else:
+                    return JsonResponse(
+                        {"server_message": "USER NOT LOGGED IN"},
+                        status=200,
+                    )
+            elif "store_txhash" in received_json_data:
+                if request.user.is_authenticated:
+                    for entry in collection_images:
+                        if entry.name.strip() == received_json_data['entry'].strip():
+                            entry.deployed_txhash = received_json_data['store_txhash']
+                            entry.save()
+                    
+                    return JsonResponse(
+                        {"server_message": "txhash saved"},
                         status=200,
                     )
                 else:
