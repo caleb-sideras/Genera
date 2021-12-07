@@ -336,7 +336,7 @@ def collection_view(request, username, collection_name):
             collection_images = CollectionImage.objects.filter(linked_collection__id=user_collection.id)
             context["collection_data"] = user_collection
             context["collection_images"] = collection_images
-            print(context["collection_images"])
+            # print(context["collection_images"])
         else:
             messages.error(request, "COLLECTION DOES NOT EXIST !! !! !!!! !! ! !  !!!!!")
             return render(request, "collection.html", context)
@@ -375,8 +375,8 @@ def collection_view(request, username, collection_name):
                             entry_names.append(entry.name)
                     user_collection.collection_ifps_bool = True
                     user_collection.save()
-                    for entry in collection_images:
-                        print(entry.ipfs_metadata_path)
+                    # for entry in collection_images:
+                    #     print(entry.ipfs_metadata_path)
                     return JsonResponse(
                         { # dont need links here, should be sent after deployment and secondary contract test
                             "ipfs_links": pinata_links,
@@ -413,7 +413,6 @@ def collection_view(request, username, collection_name):
                     )
             elif "address_set" in received_json_data:
                 if request.user.is_authenticated:
-                    print("adress_set called, got you you little bitch")
                     user_collection.contract_address = received_json_data["address_set"]
                     user_collection.contract_bool = True
                     user_collection.save()
@@ -425,11 +424,12 @@ def collection_view(request, username, collection_name):
                     entry_names = []
                     
                     for entry in collection_images: # also could iterate over not deployed_bool
-                        if entry.deployed_txhash: #would save iterations if did only txhash[true] & make almost 100% fool proof, can iterate over ifps_deployed
+                        if entry.deployed_txhash and not entry.deployed_bool: #would save iterations if did only txhash[true] & make almost 100% fool proof, can iterate over ifps_deployed
                             if tokenURIs:
                                 for value in tokenURIs:
+                                    # print(f"{entry.ipfs_metadata_path} {value}")
                                     if entry.ipfs_metadata_path == value:
-                                        entry.ipfs_bool = True
+                                        entry.deployed_bool = True
                                         entry.save()
                         if not entry.deployed_bool:
                             IPFS_links.append(entry.ipfs_metadata_path)
@@ -448,13 +448,12 @@ def collection_view(request, username, collection_name):
                         status=200,
                     )
             elif "token_deployed" in received_json_data:
-                print("token deployed nibbas")
                 if request.user.is_authenticated:
                     counter = 0
                     for entry in collection_images:
                         counter = counter + 1
                         if entry.name.strip() == received_json_data['token_deployed'].strip():
-                            print(f"{entry.name} {received_json_data['token_deployed']}")
+                            # print(f"{entry.name} {received_json_data['token_deployed']}")
                             entry.deployed_bool = True
                             entry.save()
                             if user_collection.collection_size == counter:
