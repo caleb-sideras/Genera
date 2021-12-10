@@ -302,7 +302,6 @@ def all_collections_view(request, username):
         print(users_collections)
         if users_collections:
             context["users_collections"] = users_collections
-            # collection_images = CollectionImage.objects.filter(linked_collection__id=user_collection.id)
         else:
             print("User has no collections.")
             messages.error(request, "You have no collections!")
@@ -333,6 +332,7 @@ def collection_view(request, username, collection_name):
                         "collection_name": user_collection.collection_name,
                     },)
             collection_images = CollectionImage.objects.filter(linked_collection__id=user_collection.id)
+            print(collection_images.first())
             context["collection_data"] = user_collection
             context["collection_images"] = collection_images
             # for entry in collection_images:

@@ -6,6 +6,7 @@ import json
 from polls.models import *
 import hashlib
 import string
+import time
 # Notes
 # - the current textures Samoshin sent me are buggy, they only use A (Alpha) values in the RGBA format
 
@@ -196,6 +197,7 @@ def create_and_save_collection(tempDict, db_collection, user = None):
 
     # iterating over textured assets dictionary, and combining them
     for i in range(tempDict["CollectionSize"]):
+        timeit_start = time.time()
         img_name = f"{tempDict['CollectionName']} {i+1}"
         image_to_collection_db = CollectionImage.objects.create(linked_collection=db_collection)
         image_to_collection_db.name = img_name
@@ -223,8 +225,16 @@ def create_and_save_collection(tempDict, db_collection, user = None):
 
         current_image_path = f"{db_collection.path}/{alphanum_random(6)}.png"
         im.save(current_image_path[1:], "PNG")
+        im.thumbnail((200,200)) #comress to thumbnail size
+        compressed_image_path = current_image_path.replace(".png", "_tbl.png")
+        im.save(f"{compressed_image_path[1:]}", "PNG") #save thumbnail
+
         image_to_collection_db.path = current_image_path
+        image_to_collection_db.path_compressed = compressed_image_path #save thumbnail path
         image_to_collection_db.save()
+        timeit_end = time.time()
+        print(f"Image {img_name} has been saved onto server (normal+compressed). Time taken: {timeit_end-timeit_start:.2f}s")
+
 
         # with open(
         #     f"{collection_path}/{tempDict['CollectionName']}#{i}.json", "w"

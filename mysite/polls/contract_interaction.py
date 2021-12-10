@@ -1,4 +1,4 @@
-from solcx import compile_standard, install_solc
+# from solcx import compile_standard, install_solc
 import json
 from web3.main import Web3
 

@@ -54,6 +54,7 @@ class CollectionImage(Model):
     name = models.CharField(max_length=50, unique=False)
 
     path = models.FilePathField()
+    path_compressed = models.FilePathField()
     # metadata = models.JSONField(null = True, blank = True)
     metadata = models.TextField(null = True, blank = True)
 
