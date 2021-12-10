@@ -8,8 +8,14 @@ function main() {
     entries = []
     ajax_button = document.getElementById("ajax_test")
     ajax_script = ajax_button.dataset.json
-    console.log(JSON.parse(ajax_script))
+    
+    // ajax_script2 = ajax_button.dataset.metadata
+    // console.log(ajax_script2)
+    // console.log(typeof(ajax_script2))
+    // console.log(JSON.parse(ajax_script2))
+    // console.log(JSON.parse(ajax_script))
     parsed_json = JSON.parse(ajax_script)
+    console.log(parsed_json)
 
     // gas_estimate = document.querySelector('.testButton');
 
@@ -143,6 +149,11 @@ function ajax_server_post(url) {
                 var response = JSON.parse(http_request.responseText)
                 ipfs_links = response["ipfs_links"]
                 entries = response["entries"]
+                response['entry_objects'].forEach(element => {
+                    console.log(element)
+                });
+                console.log(ipfs_links)
+                console.log(entries)
                 console.log("Received ipfs & entries from db")
                 ajax_server_post2(url)
 

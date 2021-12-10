@@ -54,7 +54,8 @@ class CollectionImage(Model):
     name = models.CharField(max_length=50, unique=False)
 
     path = models.FilePathField()
-    metadata = models.JSONField(null = True, blank = True)
+    # metadata = models.JSONField(null = True, blank = True)
+    metadata = models.TextField(null = True, blank = True)
 
     # IPFS
     ipfs_image_path = models.URLField(null = True, blank = True, max_length=50) #CharField

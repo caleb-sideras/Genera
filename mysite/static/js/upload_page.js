@@ -276,7 +276,7 @@ function add_layer() {
         create_notification("FAMILY IS CRYING", "FORGOT GIVE LAYER NAME !!!!! !! !!", duration = 10000, "error") //20 years duration for sins
     } else {
         layers_row = document.createElement('div')
-        layers_row.classList = "general_button white_background"  
+        layers_row.classList = "general_button white_background dropdown_button"  
         textures_row = layers_row.cloneNode(true)
 
         expand_collapse_parent = document.createElement('div')

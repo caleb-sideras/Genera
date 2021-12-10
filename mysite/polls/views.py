@@ -319,7 +319,6 @@ def collection_view(request, username, collection_name):
     json_string = json.loads(data)
     context["erc721_json"] = json.dumps(json_string)
     # print(context)
-    
     user = User.objects.filter(username=username).first()
     context["user"] = user
     
@@ -336,6 +335,16 @@ def collection_view(request, username, collection_name):
             collection_images = CollectionImage.objects.filter(linked_collection__id=user_collection.id)
             context["collection_data"] = user_collection
             context["collection_images"] = collection_images
+            # for entry in collection_images:
+            #     # context['hello_king'] = json.dumps(entry.metadata)
+            #     # print(type(entry.metadata))
+            #     # print(type(context['hello_king']))
+            #     # print(context['hello_king'])
+            #     # print(json.loads(context['hello_king']))
+            #     # print(type(json.loads(context['hello_king'])))
+            #     print(entry.metadata)
+            #     # print(json.load(entry.metadata))
+            #     break
             # print(context["collection_images"])
         else:
             messages.error(request, "COLLECTION DOES NOT EXIST !! !! !!!! !! ! !  !!!!!")
@@ -364,13 +373,21 @@ def collection_view(request, username, collection_name):
 
                                 # getting entry metadata
                                 temp_metadata = entry.metadata
-                                temp_metadata["image"] = f"https://ipfs.io/ipfs/{pinata_link_image['IpfsHash']}"
-
+                                print(type(temp_metadata))
+                                print(json.loads(temp_metadata))
+                                temphello =json.loads(temp_metadata)
+                                # print(temphello)
+                                # print(temphello["name"])
+                                
+                                temphello["image"] = f"https://ipfs.io/ipfs/{pinata_link_image['IpfsHash']}"
+                                entry.metadata = json.dumps(temphello)
+                                # print(temphello["image"])
+                                # entry.metadata = json.dumps(temp_metadata)
                                 # uploading metadata w/image to ipfs & updating db
-                                pinata_link_data = upload_pinata_object(json.dumps(temp_metadata), entry.name)
+                                pinata_link_data = upload_pinata_object(json.dumps(temphello), entry.name)
                                 entry.ipfs_metadata_path = f"https://ipfs.io/ipfs/{pinata_link_data['IpfsHash']}"
                                 entry.ipfs_bool = True
-                                entry.save() 
+                                entry.save()
                             pinata_links.append(entry.ipfs_metadata_path)
                             entry_names.append(entry.name)
                     user_collection.collection_ifps_bool = True

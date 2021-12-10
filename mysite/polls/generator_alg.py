@@ -58,15 +58,15 @@ import string
 def alphanum_random(size = 8):
     return ''.join(random.choices(string.ascii_letters + string.digits, k=size))
 
-def textureMapping(asset_data, texture_data, texture_color):
+def textureMapping(asset, texture, texture_color):
 
     # converting to an RGBA format
-    # asset_rgba = asset.convert("RGBA")
-    # texture_rgba = texture.convert("RGBA")
+    asset_rgba = asset.convert("RGBA")
+    texture_rgba = texture.convert("RGBA")
 
     # # converting into an array of RGBA, height x width x 4 numpy array (4000x4000x4)
-    # asset_data = np.array(asset_rgba)
-    # texture_data = np.array(texture_rgba)
+    asset_data = np.array(asset_rgba)
+    texture_data = np.array(texture_rgba)
 
     # print(type(asset_data))
     # print(type(texture_data))
@@ -76,8 +76,10 @@ def textureMapping(asset_data, texture_data, texture_color):
 
     # extracting the area that is white (255,255,255) from asset
     # it creates an array of boolean, True = white point, False = not a white point (leaving alpha values cuz they are just opacity)
-    asset_white_area = (red == texture_color[0]) & (blue == texture_color[1]) & (green == texture_color[2])
-
+    asset_white_area = (red == texture_color[0]) & (green == texture_color[1]) & (blue == texture_color[2])
+    # print(texture_color[0])
+    # print(texture_color[1])
+    # print(texture_color[2])
     # using the white area boolean array, points that are True are taken out of the texture array
     # aka forming the exact shape needed, but with the texture
     texture_white_area = texture_data[...][asset_white_area.T].shape
@@ -100,11 +102,11 @@ def rarityAppend(json_object, json_name, rarity_list, asset_dict):
     for asset in json_object[json_name]:
         rarity = asset["Rarity"]
         # converting to an RGBA format
-        asset_rgba = asset["PIL"].convert("RGBA")
+        # asset_rgba = asset["PIL"].convert("RGBA")
         # converting into an array of RGBA, height x width x 4 numpy array (4000x4000x4)
-        asset_data = np.array(asset_rgba)
+        # asset_data = np.array(asset_rgba)
 
-        asset_dict.update({asset["Name"]: asset_data})
+        asset_dict.update({asset["Name"]: asset["PIL"]})
         for x in range(rarity):
             rarity_list.append(asset["Name"])
 
@@ -131,6 +133,8 @@ def create_and_save_collection(tempDict, db_collection, user = None):
     metadataDict = {}
 
     texture_map_color = ImageColor.getcolor(tempDict['TextureColor'], "RGB")
+    print(tempDict['TextureColor'])
+    print(texture_map_color)
     for key, value in tempDict["Layers"].items():
         texturedAsset = 0
         print(f"Generating {key} layer")
@@ -215,7 +219,7 @@ def create_and_save_collection(tempDict, db_collection, user = None):
                 {"trait_type": value, "value": metadataDict[value][i]},
             )
         temp_json.update({"attributes": temp_list})
-        image_to_collection_db.metadata = temp_json
+        image_to_collection_db.metadata = json.dumps(temp_json)
 
         current_image_path = f"{db_collection.path}/{alphanum_random(6)}.png"
         im.save(current_image_path[1:], "PNG")

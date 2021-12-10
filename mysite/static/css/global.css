@@ -315,7 +315,17 @@ body {
   max-height: 85%;
 }
 
-.upload_layers_buttons > div {
+/* .upload_layers_buttons > div {
+  position: relative;
+  margin: 10px 5px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  cursor: default;
+} */
+
+.dropdown_button {
   position: relative;
   margin: 10px 5px;
   display: flex;
@@ -325,7 +335,7 @@ body {
   cursor: default;
 }
 
-.upload_layers_buttons > div .close_button {
+.dropdown_button > .close_button {
   display: none;
   text-align: center;
   position: absolute;
@@ -339,18 +349,18 @@ body {
   cursor: pointer;
 }
 
-.upload_layers_buttons > div:hover .close_button {
+.dropdown_button:hover .close_button {
   display: block;
 }
 
-.upload_layers_buttons > div > img {
+.dropdown_button > img {
   height: 40px;
   aspect-ratio: 1;
   flex: 0 0 40px;
   margin: 5px 5px 0 0;
   cursor: pointer;
 }
-.upload_layers_buttons > div > div> .expand_collapse{
+.dropdown_button > div> .expand_collapse{
   height: 10px;
   aspect-ratio: 1;
   margin: 5px 0 0 0;
@@ -359,7 +369,7 @@ body {
   filter: var(--dark-grey-color-2);
 }
 
-.upload_layers_buttons > div > .expand_button_container {
+.dropdown_button > .expand_button_container {
   background-color: var(--medium-grey-color);
   width: 40px;
   height: 20px;
@@ -369,14 +379,14 @@ body {
   text-align: center;
 }
 
-.upload_layers_buttons > div > .expand_button_container > h5 {
+.dropdown_button > .expand_button_container > h5 {
   color: var(--dark-grey-color);
   width: 50%;
   margin: 2px 0 0 0;
   text-align: center;
 }
 
-.upload_layers_buttons > div > h5 {
+.dropdown_button > h5 {
   flex: 1 0 50%;
   display: flex;
   font-size: 15px;
@@ -392,7 +402,7 @@ body {
   gap: 5px;
 } */
 
-.upload_layers_buttons > div > div > div > div  input[type=range] {
+.dropdown_button > div > div > div  input[type=range] {
   background-color: var(--orange-color);
   width: min(20vw, 250px);
 }
@@ -408,7 +418,7 @@ body {
  flex-wrap: wrap;
 }
 
-.upload_layers_buttons > div > div > div > img {
+.dropdown_button > div > div > img {
     cursor: pointer;
     margin: 0 0 0 auto;
     margin-bottom: 15px;
@@ -416,7 +426,7 @@ body {
     align-items: start;
 }
 
-.upload_layers_buttons > div > div > div > h4 {
+.dropdown_button > div > div > h4 {
   margin-bottom: 10px;
   color: var(--image-text-color);
   flex-basis: 100%;
@@ -641,10 +651,6 @@ body {
   backdrop-filter: blur(10px);
 }
 
-.image_preview > .rounded_container {
-  display: block;
-}
-
 .image_preview >  .rounded_container {
   display: block;
     /* display: flex; */
@@ -657,7 +663,7 @@ body {
     /* height: 400px; */
     /* vertical-align: middle; */
       justify-content: space-around;
-    background-color: var(--medium-grey-color);
+    background-color: var(--light-grey-color);
     padding: 0;
 }
 
@@ -700,7 +706,7 @@ body {
     filter: var(--dark-grey-color-2);
 }
 .lbutton_wrapper {
-    background: var(--light-grey-color);
+    background: var(--border-color);
     border-radius: 20px 0 0 20px;
     align-items: center;
     vertical-align: middle;
@@ -709,7 +715,7 @@ body {
 }
 
 .rbutton_wrapper {
-    background: var(--light-grey-color);
+    background: var(--border-color);
     border-radius: 0 20px 20px 0;
     align-items: center;
     vertical-align: middle;
@@ -717,10 +723,10 @@ body {
     cursor: pointer;
 }
 .rbutton_wrapper:hover{
-  background: var(--white-color);
+  background: var(--medium-grey-color);
 }
 .lbutton_wrapper:hover{
-   background: var(--white-color);
+   background: var(--medium-grey-color);
 }
 .left{
   transform: rotate(90deg);
@@ -742,7 +748,8 @@ body {
     text-align: center;
 }
 .image_preview > div > div > div > h2{
-  color: var(--text-generate-color);
+  color: var(--medium-grey-color);
+      font-size: 2em;
 }
 /* pre */
 .image_preview > div > div > div > p{
@@ -919,6 +926,22 @@ text-align: left;
 
 .filter{
   margin-top: 15px;
+}
+
+
+.info_wrapper{
+
+  overflow-y: auto;
+  min-height: 65%;
+}
+
+.mutipurpose_button_section{
+  display: flex;
+  justify-content: space-evenly;
+}
+
+.mutipurpose_button{
+  width: 30%;
 }
 /* all collections */
 

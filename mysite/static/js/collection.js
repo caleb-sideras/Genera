@@ -4,18 +4,97 @@ card_element = null
 function main() {
     preview_wrapper = document.getElementsByClassName("image_preview")[0]
     // backdrop = document.getElementsByClassName("filter")[0]
+
+    // ajax_button = document.getElementById("hello_king")
+    // ajax_script = ajax_button.dataset.metadata
+    // console.log(JSON.parse(ajax_script))
+    // parsed_json = JSON.parse(ajax_script)
 }
 
 
 function open_images(self){
-    // console.log((self.parentNode).parentNode)
+
+    function create_image_element(title, elements, elements_count){
+        element_container = document.createElement('div')
+        element_container.classList = 'general_button dropdown_button white_background'
+        element_container.style = 'margin: 0px 10px 10px 10px;'
+        element_container.appendChild(Object.assign(document.createElement('h5'), { textContent: title, style: 'font-weight: bold; margin:5px; font-size: 17px'}))
+
+        sub_element_wrapper = document.createElement('div')
+        sub_element_wrapper.classList = 'open'
+        sub_element_wrapper.id = 'wrapper'
+        sub_element_wrapper.style = 'padding: 15px 20px; margin-right: -20px; margin-left: -20px; width: 100%; text-align: start;'
+
+        if (elements_count = 0) {
+            sub_element_wrapper.appendChild(Object.assign(document.createElement('p'), { textContent: elements }))
+            button = add_button()
+            button[1] = document.createElement('div')
+            button[1].classList = 'expand_button_container'
+            button[1].style = 'justify-content: center; width: 25px;'
+
+            button[0].style = 'width: auto;'
+            button[1].appendChild(button[0])
+            element_container.appendChild(button[1])
+        }
+        else if (elements_count = 1){
+            // counter = add_properties(elements, sub_element_wrapper)
+            // button = add_button()
+            // button[1].appendChild(Object.assign(document.createElement('h5'), { textContent: counter }))
+            // // find a way to minimize
+            
+            // button[1].appendChild(button[0])
+            // element_container.appendChild(button[1])
+        }
+        else {
+            sub_element_wrapper.appendChild(Object.assign(document.createElement('p'), { textContent: elements }))
+            button = add_button()
+            button[1] = document.createElement('div')
+            button[1].classList = 'expand_button_container'
+            button[1].style = 'justify-content: center; width: 25px;'
+
+            button[0].style = 'width: auto;'
+            button[1].appendChild(button[0])
+            element_container.appendChild(button[1])
+        }
+
+        element_container.appendChild(sub_element_wrapper)
+        return element_container
+        
+    }
+
+    function add_properties(_elements, _sub_element_wrapper){
+        counter = 0
+        _elements.forEach(element => {
+            counter++ 
+            row = document.createElement('p') //pre
+            row.innerHTML = element['trait_type'].toUpperCase() + ": " + element['value']
+            _sub_element_wrapper.appendChild(row)
+        });
+        return counter
+    }
+
+    function add_button(){
+        expand_collapse_button = document.createElement('div')
+        expand_collapse_button.classList = 'expand_button_container'
+
+        button = document.createElement('img')
+        button.src = "/static/icons/expand.svg"
+        button.style = 'transform: rotate(0deg)'
+        button.classList = 'expand_collapse'
+        button.addEventListener('click', function () { expand_collapse(this)})
+        return [button, expand_collapse_button]
+    }
+
     card_element = (self.parentNode)
-    // console.log(((self.parentNode).parentNode).nextElementSibling)
-    // console.log(((self.parentNode).parentNode).previousElementSibling)
     temp = (self.parentNode).children[0].src
-    temp2 = ((self.parentNode).children[1]).children[1].innerHTML
-    temp3 = ((self.parentNode).children[1]).children[0].innerHTML
-    
+    temp2 = ((self.parentNode).children[1]).children[1].innerHTML // metadata
+    temp3 = ((self.parentNode).children[1]).children[0].innerHTML // title
+    temp4 = ((self.parentNode).children[1]).children[2].innerHTML // ifps_bool
+    temp5 = ((self.parentNode).children[1]).children[3].innerHTML //deployed_bool
+
+    console.log(temp4)
+    console.log(temp5)
+
     preview_container = document.createElement('div')
     preview_container.classList = "rounded_container"
 
@@ -27,8 +106,6 @@ function open_images(self){
     close_button.addEventListener('click', function () { close_pop_up(this) })
     top_row.appendChild(close_button)
     preview_wrapper.appendChild(top_row)
-
-    // preview_container.appendChild(top_row)
 
     wrapper = document.createElement('div')
     wrapper.classList = 'content_wrapper'
@@ -47,36 +124,45 @@ function open_images(self){
     image.classList = 'image'
     wrapper.appendChild(image)
 
-    // bob = {'name': 'XD 3', 'description': 'asd', 'image': 'https://ipfs.io/ipfs/QmSQMKejwvSW8nHHnanspsJebKief2qmzscxDzbrwJG334', 'attributes': [{'trait_type': 'background', 'value': 'Faces-With-Shadows-4'}]}
-
-    // console.log(JSON.stringify(bob, null, 4))
-    // console.log(temp2)
-    // console.log(typeof (temp2))
-    // const obj = JSON.parse(temp2)
-
-    // var temp = JSON.stringify(temp2, null, 2)
-    // console.log(temp)
-    // console.log(JSON.parse(temp))
-    // console.log(temp2)
-    // console.log(JSON.stringify(bob, null, 2))
-    // console.log(JSON.stringify(eval(temp2)));
-
-    // bob = { 'name': 'Testing1 9', 'description': 'Testing Collection, 12/3/2021', 'image': 'https://ipfs.io/ipfs/QmdqgPykyU89AKCymQnjzzL9FTeXEpysA2cD7VugsrXW4X', 'attributes': [{ 'trait_type': 'background', 'value': 'Baseline' }, { 'trait_type': 'face', 'value': 'Faces-With-Shadows-8' }] }
-    // console.log(temp2)
-    // temperman= JSON.stringify(temp2)
-    // temperman2 = JSON.parse(temperman)
-    // console.log(temperman2)
-    // console.log(temperman2[0])
-
     info = document.createElement('div')
     info.classList = 'info'
     title = document.createElement('h2')
     title.innerHTML = temp3
-    metadata = document.createElement('p') //pre
-    metadata.innerHTML = temp2
+    metadata = document.createElement('div')
+    metadata.classList = 'info_wrapper'
+
+    parsed = JSON.parse(temp2)
+    sub_section_element1 = create_image_element('Description', parsed['description'], 0)
+    sub_section_element2 = create_image_element('Properties', parsed['attributes'], 1)
+    sub_section_element2 = create_image_element('Properties', [temp4, temp5], 2)
+    metadata.appendChild(sub_section_element1)
+    metadata.appendChild(sub_section_element2)
+
+    mutipurpose_button_section = document.createElement('div')
+    mutipurpose_button_section.classList = 'mutipurpose_button_section'
+    mutipurpose_button = document.createElement('div')
+    mutipurpose_button.classList = 'general_button_no_border mutipurpose_button'
+
+    // your ifs
+    if (temp4 == 'True') {
+        temp_button = mutipurpose_button.cloneNode(true)
+        temp_button.appendChild(Object.assign(document.createElement('h4'), { textContent: 'Delete', style: 'color: red'}))
+        mutipurpose_button_section.appendChild(temp_button)
+    }
+
+    if (temp5 == 'False') {
+        temp_button = mutipurpose_button.cloneNode(true)
+        temp_button.appendChild(Object.assign(document.createElement('h4'), { textContent: 'OpenSea', style: 'color: dodgerblue' }))
+        mutipurpose_button_section.appendChild(temp_button)
+    }
+    
+
+    
+    
 
     info.appendChild(title)
     info.appendChild(metadata)
+    info.appendChild(mutipurpose_button_section)
     wrapper.appendChild(info)
 
     rbuttonwrapper = document.createElement('div')
@@ -91,8 +177,6 @@ function open_images(self){
     preview_container.appendChild(wrapper)
     preview_wrapper.style.display = 'block'
     preview_wrapper.appendChild(preview_container)
-
-    // backdrop.style.backdropFilter  = 'blur(10px)'
 
 }
 
@@ -123,6 +207,60 @@ function close_pop_up(self){
     preview_wrapper.children[1].remove()
     preview_wrapper.children[0].remove()
     // backdrop.style.backdropFilter  = 'blur(0px)'
+}
+
+function expand_collapse(self) {
+    // console.log(self)
+    parent = self.parentElement.firstChild.innerHTML
+    if (parseInt(parent) != 0) {
+        children = (self.parentNode).nextElementSibling
+
+        children.style.marginRight = '-20px'
+        children.style.marginLeft = '-20px'
+        if (children.classList.contains('open')) {
+
+            clientHeight = children.clientHeight;
+            children.classList.remove("open");
+            children.style.height = '0px';
+            children.style.padding = '0px 20px';
+            self.style.transform = 'rotate(180deg)';
+
+        } else {
+            children.classList.add("open");
+            children.style.height = null;
+            children.style.padding = '15px 20px';
+            self.style.transform = 'rotate(0deg)';
+
+        }
+    }
+
+}
+
+function expand_collapse_button(self) {
+    // console.log(self)
+    parent = self.parentElement.firstChild.innerHTML
+    if (parseInt(parent) != 0) {
+        children = (self.parentNode).nextElementSibling
+
+        children.style.marginRight = '-20px'
+        children.style.marginLeft = '-20px'
+        if (children.classList.contains('open')) {
+
+            clientHeight = children.clientHeight;
+            children.classList.remove("open");
+            children.style.height = '0px';
+            children.style.padding = '0px 20px';
+            self.style.transform = 'rotate(180deg)';
+
+        } else {
+            children.classList.add("open");
+            children.style.height = null;
+            children.style.padding = '15px 20px';
+            self.style.transform = 'rotate(0deg)';
+
+        }
+    }
+
 }
 
 window.addEventListener("load", main);
