@@ -3,32 +3,45 @@
 <!DOCTYPE html>
 
 <html lang="en">
-
   <head>
-    <link rel="stylesheet" type="text/css" href="{% static 'css/global.css' %}" />
-    <link rel="stylesheet" type="text/css" href="{% static 'css/libraries/notifications.css' %}" />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="{% static 'css/global.css' %}"
+    />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="{% static 'css/libraries/notifications.css' %}"
+    />
     <script type="text/javascript" src="{% static 'js/global.js' %}"></script>
-    <script type="text/javascript" src="{% static 'js/libraries/notifications.js' %}"></script>
+    <script
+      type="text/javascript"
+      src="{% static 'js/libraries/notifications.js' %}"
+    ></script>
     {% block head_block %}{% endblock %}
   </head>
 
   <body>
     <script>
       if (localStorage.lightMode == "dark") {
-          document.body.classList ="dark-mode";
+        document.body.classList = "dark-mode";
       }
-  </script>
+    </script>
     <!-- <div class="background_image_wrapper">
       <div class="cover-image">
         <img src="{% static 'Assets/Background/websitebackground2.png' %}" alt="">
       </div>
     </div> -->
     <div class="nav_bar_wrapper shadow_strong">
-      
       <div class="left_navbar">
-        <a href="{% url 'polls:upload' %}">
-        <img src="/static/icons/logoV1.svg" class="logo1" alt="">
-        <img src="{% static 'Assets/Background/genera4.png' %}" class="logo2" alt="">
+        <a href="{% url 'polls:main_view' %}">
+          <img src="/static/icons/logoV1.svg" class="logo1" alt="" />
+          <img
+            src="{% static 'Assets/Background/genera4.png' %}"
+            class="logo2"
+            alt=""
+          />
         </a>
       </div>
       <!-- {% if messages %}
@@ -38,42 +51,53 @@
             {% endfor %}
         </ul>
       {% endif %} -->
-      
+
       <div class="nav_bar_links">
         <a href="{% url 'polls:upload' %}"><p>NFT Maker</p></a>
         <a href="#"><p>NFT Minter</p></a>
-      <a href="#"><p>Texture Mapping</p></a>
+        <a href="#"><p>Texture Mapping</p></a>
       </div>
-      
+
       <!-- <img style="flex: 1 0;"> -->
       <div class="right_navbar">
         <button class="btn_toggle">Toggle Theme</button>
-      <!-- <button class="btn-toggle">Theme</button> -->
-      {% if request.user.is_authenticated%}
+        <!-- <button class="btn-toggle">Theme</button> -->
+        {% if request.user.is_authenticated%}
         <div class="dropdown">
-        <button onclick="myFunction()" class="dropbtn rounded_container_no_padding">Logged in as: {{request.user.username}}</button>
-          <div id="myDropdown" class="dropdown-content rounded_container_no_padding">
-         
+          <button
+            onclick="myFunction()"
+            class="dropbtn rounded_container_no_padding"
+          >
+            Logged in as: {{request.user.username}}
+          </button>
+          <div
+            id="myDropdown"
+            class="dropdown-content rounded_container_no_padding"
+          >
             {% if request.user.is_authenticated %}
-              <a href="{% url 'polls:profile' request.user.username %}"><p>View your profile</p></a>
+            <a href="{% url 'polls:profile' request.user.username %}"
+              ><p>View your profile</p></a
+            >
             {% endif %}
 
-            <a href="{% url 'polls:all_collections' request.user.username %}"><p>View Collections</p></a>
+            <a href="{% url 'polls:all_collections' request.user.username %}"
+              ><p>View Collections</p></a
+            >
 
             {% if request.user.is_authenticated %}
-              <a href="{% url 'polls:logout' %}"><p>Log out</p></a> 
+            <a href="{% url 'polls:logout' %}"><p>Log out</p></a>
             {% endif %}
+          </div>
         </div>
-      </div>   
-      {% else %}
-      <div class="dropdown">
-        <a href="{% url 'polls:login' %}"style=" text-decoration: none;"><div class="dropbtn rounded_container_no_padding">Log in</div></a>
+        {% else %}
+        <div class="dropdown">
+          <a href="{% url 'polls:login' %}" style="text-decoration: none"
+            ><div class="dropbtn rounded_container_no_padding">Log in</div></a
+          >
+        </div>
+        {% endif %}
       </div>
-      {% endif %}
     </div>
-    </div>
-    
-    
 
     {% block body_block %}{% endblock %}
 
@@ -85,8 +109,5 @@
       <a href="{% url 'polls:logout' %}">Log out</a> <br>
       <a href="{% url 'polls:profile' request.user.username %}">View your profile!</a>
     {% endif %} -->
-
   </body>
-
 </html>
-

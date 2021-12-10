@@ -14,7 +14,7 @@ function main() {
 
 function open_images(self){
 
-    function create_image_element(title, elements, elements_count){
+    function create_image_element(title, elements, elements_count = false){
         element_container = document.createElement('div')
         element_container.classList = 'general_button dropdown_button white_background'
         element_container.style = 'margin: 0px 10px 10px 10px;'
@@ -25,7 +25,7 @@ function open_images(self){
         sub_element_wrapper.id = 'wrapper'
         sub_element_wrapper.style = 'padding: 15px 20px; margin-right: -20px; margin-left: -20px; width: 100%; text-align: start;'
 
-        if (elements_count = 0) {
+        if (!elements_count) {
             sub_element_wrapper.appendChild(Object.assign(document.createElement('p'), { textContent: elements }))
             button = add_button()
             button[1] = document.createElement('div')
@@ -36,23 +36,12 @@ function open_images(self){
             button[1].appendChild(button[0])
             element_container.appendChild(button[1])
         }
-        else if (elements_count = 1){
-            // counter = add_properties(elements, sub_element_wrapper)
-            // button = add_button()
-            // button[1].appendChild(Object.assign(document.createElement('h5'), { textContent: counter }))
-            // // find a way to minimize
-            
-            // button[1].appendChild(button[0])
-            // element_container.appendChild(button[1])
-        }
-        else {
-            sub_element_wrapper.appendChild(Object.assign(document.createElement('p'), { textContent: elements }))
+        else{
+            counter = add_properties(elements, sub_element_wrapper)
             button = add_button()
-            button[1] = document.createElement('div')
-            button[1].classList = 'expand_button_container'
-            button[1].style = 'justify-content: center; width: 25px;'
-
-            button[0].style = 'width: auto;'
+            button[1].appendChild(Object.assign(document.createElement('h5'), { textContent: counter }))
+            // find a way to minimize
+            
             button[1].appendChild(button[0])
             element_container.appendChild(button[1])
         }
@@ -132,9 +121,8 @@ function open_images(self){
     metadata.classList = 'info_wrapper'
 
     parsed = JSON.parse(temp2)
-    sub_section_element1 = create_image_element('Description', parsed['description'], 0)
-    sub_section_element2 = create_image_element('Properties', parsed['attributes'], 1)
-    sub_section_element2 = create_image_element('Properties', [temp4, temp5], 2)
+    sub_section_element1 = create_image_element('Description', parsed['description'])
+    sub_section_element2 = create_image_element('Properties', parsed['attributes'], true)
     metadata.appendChild(sub_section_element1)
     metadata.appendChild(sub_section_element2)
 

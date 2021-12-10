@@ -7,9 +7,10 @@
         <div class="all_collections_layout">
         {% if users_collections %}
             {% for collection in users_collections %}
+                
                 <div class="collection_card shadow_strong rounded_container_no_padding">
                     <img src="/static/icons/remove.svg" class="close_button remove_image_button color_image_orange">
-                    <img src="https://via.placeholder.com/150" class="nft_image">
+                    <img src="{{collection.collectionimage_set.first.path}}" class="nft_image">
                     <div>
                         <p class="no_margin center">{{collection.collection_name}}</p>
                         <div><p style="font-size: smaller;" class="no_margin center">{{collection.description}}</p></div>

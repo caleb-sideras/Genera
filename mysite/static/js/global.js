@@ -33,7 +33,11 @@ function main() {
             document.body.classList = "dark-mode";
         }
     });
+
+
 }
+
+
 
 
 /* When the user clicks on the button,
