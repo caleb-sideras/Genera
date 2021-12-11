@@ -326,7 +326,7 @@ def collection_view(request, username, collection_name):
         user_collection = UserCollection.objects.filter(user=user, collection_name=collection_name).first()
         
         if user_collection:
-            context["url"] = reverse("polls:collection", 
+            context["ajax_url"] = reverse("polls:collection", 
                     kwargs={
                         "username": request.user.username,
                         "collection_name": user_collection.collection_name,
