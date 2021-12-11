@@ -932,7 +932,7 @@ text-align: left;
 .info_wrapper{
 
   overflow-y: auto;
-  min-height: 65%;
+  height: 65%;
 }
 
 .mutipurpose_button_section{

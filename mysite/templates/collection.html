@@ -52,7 +52,7 @@
                             </script> -->
                                 {% else %}
                             <!-- <img src="/static/icons/remove.svg" class="close_button remove_image_button color_image_orange"> -->
-                            <img src="{{entry.path_compressed}}" alt="{{entry.name}} image should be here" class="nft_image" onclick="open_images(this)">
+                            <img src="{{entry.path_compressed}}" data-fullrez ="{{entry.path}}" alt="{{entry.name}} image should be here" class="nft_image" onclick="open_images(this)">
                             {% endif %}
                             <div>
                                 <p class="no_margin center">{{entry.name}}</p>

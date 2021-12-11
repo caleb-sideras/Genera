@@ -14,7 +14,7 @@ function main() {
 
 function open_images(self){
 
-    function create_image_element(title, elements, elements_count = false){
+    function create_image_element(title, elements, elements_count){
         element_container = document.createElement('div')
         element_container.classList = 'general_button dropdown_button white_background'
         element_container.style = 'margin: 0px 10px 10px 10px;'
@@ -25,7 +25,7 @@ function open_images(self){
         sub_element_wrapper.id = 'wrapper'
         sub_element_wrapper.style = 'padding: 15px 20px; margin-right: -20px; margin-left: -20px; width: 100%; text-align: start;'
 
-        if (!elements_count) {
+        if (elements_count == 1) {
             sub_element_wrapper.appendChild(Object.assign(document.createElement('p'), { textContent: elements }))
             button = add_button()
             button[1] = document.createElement('div')
@@ -36,7 +36,7 @@ function open_images(self){
             button[1].appendChild(button[0])
             element_container.appendChild(button[1])
         }
-        else{
+        else if (elements_count == 2){
             counter = add_properties(elements, sub_element_wrapper)
             button = add_button()
             button[1].appendChild(Object.assign(document.createElement('h5'), { textContent: counter }))
@@ -45,22 +45,15 @@ function open_images(self){
             button[1].appendChild(button[0])
             element_container.appendChild(button[1])
         }
+        else{
+            console.log("Hello")
+        }
 
         element_container.appendChild(sub_element_wrapper)
         return element_container
         
     }
-
-    function add_properties(_elements, _sub_element_wrapper){
-        counter = 0
-        _elements.forEach(element => {
-            counter++ 
-            row = document.createElement('p') //pre
-            row.innerHTML = element['trait_type'].toUpperCase() + ": " + element['value']
-            _sub_element_wrapper.appendChild(row)
-        });
-        return counter
-    }
+    
 
     function add_button(){
         expand_collapse_button = document.createElement('div')
@@ -75,7 +68,7 @@ function open_images(self){
     }
 
     card_element = (self.parentNode)
-    temp = (self.parentNode).children[0].src
+    temp = (self.parentNode).children[0].dataset.fullrez
     temp2 = ((self.parentNode).children[1]).children[1].innerHTML // metadata
     temp3 = ((self.parentNode).children[1]).children[0].innerHTML // title
     temp4 = ((self.parentNode).children[1]).children[2].innerHTML // ifps_bool
@@ -121,8 +114,8 @@ function open_images(self){
     metadata.classList = 'info_wrapper'
 
     parsed = JSON.parse(temp2)
-    sub_section_element1 = create_image_element('Description', parsed['description'])
-    sub_section_element2 = create_image_element('Properties', parsed['attributes'], true)
+    sub_section_element1 = create_image_element('Description', parsed['description'], 1)
+    sub_section_element2 = create_image_element('Properties', parsed['attributes'], 2)
     metadata.appendChild(sub_section_element1)
     metadata.appendChild(sub_section_element2)
 
@@ -131,23 +124,24 @@ function open_images(self){
     mutipurpose_button = document.createElement('div')
     mutipurpose_button.classList = 'general_button_no_border mutipurpose_button'
 
-    // your ifs
-    if (temp4 == 'True') {
+    // ipfs, make ifps deletable
+    if (temp4 == 'False') {
         temp_button = mutipurpose_button.cloneNode(true)
         temp_button.appendChild(Object.assign(document.createElement('h4'), { textContent: 'Delete', style: 'color: red'}))
         mutipurpose_button_section.appendChild(temp_button)
     }
-
-    if (temp5 == 'False') {
+    if (temp4 == 'True') {
+        temp_button = mutipurpose_button.cloneNode(true)
+        temp_button.appendChild(Object.assign(document.createElement('h4'), { textContent: 'TokenURI', style: 'color: red' }))
+        mutipurpose_button_section.appendChild(temp_button)
+    }
+    if (temp5 == 'True') {
         temp_button = mutipurpose_button.cloneNode(true)
         temp_button.appendChild(Object.assign(document.createElement('h4'), { textContent: 'OpenSea', style: 'color: dodgerblue' }))
         mutipurpose_button_section.appendChild(temp_button)
     }
+    //MINTING OPTION ALSO
     
-
-    
-    
-
     info.appendChild(title)
     info.appendChild(metadata)
     info.appendChild(mutipurpose_button_section)
@@ -168,6 +162,16 @@ function open_images(self){
 
 }
 
+function add_properties(_elements, _sub_element_wrapper) {
+    counter = 0
+    _elements.forEach(element => {
+        counter++
+        row = document.createElement('p') //pre
+        row.innerHTML = element['trait_type'].toUpperCase() + ": " + element['value']
+        _sub_element_wrapper.appendChild(row)
+    });
+    return counter
+}
 function next_element(self, bool){
     if (bool) {
         temp = card_element.nextElementSibling
@@ -178,15 +182,23 @@ function next_element(self, bool){
 
     if (temp!=null) { // maybe have it looped, first -> last VV
         card_element = temp
-        image = card_element.children[0].src
+        image = card_element.children[0].dataset.fullrez
         metadata = (card_element.children[1]).children[1].innerHTML
         title = (card_element.children[1]).children[0].innerHTML
+        ifps_bool = (card_element.children[1]).children[2].innerHTML
+        deploy_bool = (card_element.children[1]).children[3].innerHTML
+
+        parsed = JSON.parse(metadata)
 
         parent = self.parentNode
         parent.children[1].src = image
         parent2 = parent.children[2]
         parent2.children[0].innerHTML = title
-        parent2.children[1].innerHTML = metadata
+        parent2.children[1].children[0].children[2].children[0].innerHTML = parsed['description']
+        properties = parent2.children[1].children[1].children[2]
+        button_number = parent2.children[1].children[1].children[1].children[0]
+        properties.innerHTML = ''
+        button_number.innerHTML = add_properties(parsed['attributes'], properties)
     }
 }
 
@@ -249,6 +261,53 @@ function expand_collapse_button(self) {
         }
     }
 
+}
+
+function delete_image(url) {
+
+    //HTTPREQUEST INIT CODE
+    if (window.XMLHttpRequest) { // Mozilla, Safari, IE7+ ...
+        http_request = new XMLHttpRequest();
+    } else if (window.ActiveXObject) { // IE 6 and older
+        http_request = new ActiveXObject("Microsoft.XMLHTTP");
+    }
+    //HTTPREQUEST INIT CODE
+
+    http_request.onreadystatechange = function () {
+        // Process the server response here (Sent from Django view inside JsonResponse)
+        if (http_request.readyState === XMLHttpRequest.DONE) {
+
+            if (http_request.status === 200) { //Status can also be different and defined within the JSONResponse
+                var response = JSON.parse(http_request.responseText)
+                response['entry_objects'].forEach(element => {
+                    console.log(element)
+                });
+                console.log(ipfs_links)
+                console.log(entries)
+                console.log("Received ipfs & entries from db")
+                ajax_server_post2(url)
+
+            } else { //if status is not 200 - assume fail, unless different status handled explicitly
+                alert('There was a problem with the request.');
+            }
+        }
+    };
+
+    // Send the POST request to the url/DJANGO VIEW
+    //setup for request header - not important
+    http_request.open('POST', url, true);
+    http_request.setRequestHeader('X-CSRFToken', get_cookie('csrftoken'));
+    http_request.setRequestHeader('contentType', 'application/json');
+    //end of setup
+
+    // Send the request as a JSON MAKE SURE TO ALWAYS HAVE THE CSRFTOKEN COOKIE !!! !! ! ! ! !! 
+    http_request.send(
+        JSON.stringify(
+            {
+                'csrfmiddlewaretoken': get_cookie('csrftoken'), //compulsory
+                'delete_image': "balls :)" //can add as many other entries to dict as necessary
+            })
+    )
 }
 
 window.addEventListener("load", main);
