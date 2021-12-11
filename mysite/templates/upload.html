@@ -10,6 +10,8 @@
 {% endblock %}
 
 {% block body_block %}
+<input type="hidden" id="js_vars" data-ajax_url='{{ajax_url}}'>
+
 <form method="post" enctype="multipart/form-data" class="upload_wrapper">
   {% csrf_token %}
   <div class="upload_upper">
@@ -62,6 +64,7 @@
           class="color_image_orange"
           src="{% static 'icons/plus.svg' %}"
           onclick="add_layer()"
+          id="add_layer_button"
         />
       </div>
       
@@ -91,10 +94,11 @@
           <input
             required
             class="general_input"
-            name="name"
+            name="collection_name"
             type="text"
             value="XD"
             placeholder="Project name"
+            onchange = ajax_validate_field(this)
           />
           <h5 class="no_margin">Resolution</h5>
           <input
@@ -139,6 +143,7 @@
           />
         </div>
       </div>
+      <button disabled type="submit" style="display: none;"></button>
       <button
         type="button"
         class="general_button_no_border orange_background shadow_strong rounded_container_no_padding"
@@ -148,6 +153,7 @@
       </button>
 
       <input type="hidden" name="rarity_map" id="rarity_map" value="">
+
       <button
         type="submit"
         class="general_button_no_border light_purple_background shadow_strong rounded_container_no_padding"
