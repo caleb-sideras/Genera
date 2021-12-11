@@ -10,6 +10,8 @@
 {% endblock %}
 
 {% block body_block %}
+    <input type="hidden" id="js_vars" data-ajax_url='{{ajax_url}}' data-json="{{erc721_json}}">
+
 <div class="filter">
     <h1 class="collection_title">{{collection_data.collection_name}} Collection</h1>
     <div class="view_collection_main">
@@ -45,11 +47,12 @@
                             {% if entry.ipfs_bool%}
                             <!-- <img src="/static/icons/remove.svg" class="close_button remove_image_button color_image_orange"> -->
                             <!-- <img src="/static/icons/ipfs_deployed.svg" class="close_button ifps_check"> -->
-                            <img src="{{entry.ipfs_image_path}}" alt="{{entry.name}} image should be here" class="nft_image" onclick="open_images(this)">
+                            <!-- <img src="{{entry.ipfs_image_path}}" alt="{{entry.name}} image should be here" class="nft_image" onclick="open_images(this)"> -->
                             <!-- <script>var status = "{{entry.ipfs_bool}}"
                                     // console.log(typeof(status))
                                     console.log(typeof(status))
                             </script> -->
+                            <img src="{{entry.path_compressed}}" data-fullrez ="{{entry.path}}" alt="{{entry.name}} image should be here" class="nft_image" onclick="open_images(this)">
                                 {% else %}
                             <!-- <img src="/static/icons/remove.svg" class="close_button remove_image_button color_image_orange"> -->
                             <img src="{{entry.path_compressed}}" data-fullrez ="{{entry.path}}" alt="{{entry.name}} image should be here" class="nft_image" onclick="open_images(this)">
@@ -135,9 +138,9 @@
                     <button type="button" class="general_button_no_border orange_background shadow_strong rounded_container_no_padding" style="cursor: default">
                         <h4 class="no_margin">Delete Duplicates</h4>
                     </button>
-                {% endif %} 
+                {% endif %}
                 {% if not collection_data.tokens_deployed %}
-                    <button data-metadata="{{hello_king}}" data-json="{{erc721_json}}" id="ajax_test" data-url="{{url}}" class="general_button_no_border light_purple_background shadow_strong rounded_container_no_padding" onclick="ajax_server_post(this.dataset.url)" type="button">
+                        <button class="general_button_no_border light_purple_background shadow_strong rounded_container_no_padding" onclick="mint_collection_request()" type="button">
                         <h4 class="no_margin generate">Mint Collection</h4>
                     </button>
                 {% endif %} 

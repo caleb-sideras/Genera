@@ -65,7 +65,7 @@ class CollectionImage(Model):
 
     # Smart Contract
     deployed_bool =  models.BooleanField(default=False)
-    deployed_txhash = models.CharField(max_length=150, unique=False)
+    deployed_txhash = models.CharField(max_length=150, null = True, blank = True)
     
 
 

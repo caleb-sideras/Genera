@@ -326,13 +326,13 @@ def collection_view(request, username, collection_name):
         user_collection = UserCollection.objects.filter(user=user, collection_name=collection_name).first()
         
         if user_collection:
-            context["url"] = reverse("polls:collection", 
+            context["ajax_url"] = reverse("polls:collection", 
                     kwargs={
                         "username": request.user.username,
                         "collection_name": user_collection.collection_name,
                     },)
             collection_images = CollectionImage.objects.filter(linked_collection__id=user_collection.id)
-            print(collection_images.first())
+            
             context["collection_data"] = user_collection
             context["collection_images"] = collection_images
             # for entry in collection_images:
@@ -466,17 +466,16 @@ def collection_view(request, username, collection_name):
                     )
             elif "token_deployed" in received_json_data:
                 if request.user.is_authenticated:
-                    counter = 0
-                    for entry in collection_images:
-                        counter = counter + 1
-                        if entry.name.strip() == received_json_data['token_deployed'].strip():
+                    collection_query = collection_images.filter(deployed_bool = False, deployed_txhash__isnull= False)
+                    for entry in collection_query:
+                        print(entry.name)
+                        if entry.name.strip() == received_json_data['entry'].strip():
                             # print(f"{entry.name} {received_json_data['token_deployed']}")
                             entry.deployed_bool = True
                             entry.save()
-                            if user_collection.collection_size == counter:
-                                user_collection.tokens_deployed = True
-                                user_collection.save()
+                            print('true')
                             break
+          
                     
                     return JsonResponse(
                         {"server_message": "Entry contract_bool flipped"},
@@ -493,6 +492,8 @@ def collection_view(request, username, collection_name):
                         if entry.name.strip() == received_json_data['entry'].strip():
                             entry.deployed_txhash = received_json_data['store_txhash']
                             entry.save()
+                            print(f"{entry.name} in store txhash")
+                            print(received_json_data['store_txhash'])
                     
                     return JsonResponse(
                         {"server_message": "txhash saved"},
@@ -506,7 +507,6 @@ def collection_view(request, username, collection_name):
         except RawPostDataException:  # NO AJAX DATA PROVIDED - DIFFERENT POST REQUEST INSTEAD
             pass
         ##AJAX HANDLING SECTION END
-
     return render(request, "collection.html", context)
 
 
