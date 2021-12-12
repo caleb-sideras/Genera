@@ -2,13 +2,12 @@
 {% load static %}
 
 {% block body_block %}
-
-
+    
     <h1> LMAOOOOOOO </h1>
     
     {% if owner %}
         <!-- WHAT ACCOUNT OWNER SEES (PROFILE EDIT + OTHER SHIT OFC) -->
-        <h3 id="welcome">WELCOME OWNER KING {{user.username}}</h3>
+        <h3 id="welcome" onclick="yes_no_popup('Welcome', 'accept', 'reject').then((res) => {console.log(res); close_yes_no_popup()})">WELCOME OWNER KING {{user.username}}</h3>
     {% else %}
         <!-- WHAT OTHER PEOPLE SEE - NON OWNER -->
         <h3 id="welcome">WELCOME NON-OWNER KING {{request.user.username}}, <br><br> 

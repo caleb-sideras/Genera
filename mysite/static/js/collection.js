@@ -134,8 +134,8 @@ function open_images(self){
                 if (reponse) {
                     ajax_post({ 'delete_entry': temp3 })
                     .then(function (response) { //Action that occurs after a response from the server was obtained - here (STATUS 200)
-                    console.log(response["server_message"])
-                    card_element.remove()
+                        console.log(response["server_message"])
+                        card_element.remove()
                     })
                     close_pop_up()
                 }

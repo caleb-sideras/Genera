@@ -110,6 +110,7 @@ function ajax_post(payload) {
             // Process the server response here (Sent from Django view inside JsonResponse)
             if (http_request.readyState === XMLHttpRequest.DONE) {
                 if (http_request.status === 200) { //ifstatus is 200 - assume PROPER RESPONSE
+                    close_loading_popup()
                     resolve(JSON.parse(http_request.responseText))
                 }
                 else { //unhandled error
@@ -127,8 +128,34 @@ function myFunction() {
     document.getElementById("myDropdown").classList.toggle("show");
 }
 
+function create_and_render_loading_popup(heading = "Loading") { //Not recommended to use more than 3 words - ull need to hard code edge cases for the offsets more.
+    //CREATES THE LOOP ANIMATION IN THE CENTER OF THE SCREEN
+    let popup_course_code = '<div id="loading_animation_wrapper"> <svg> <filter id="glowfloxs"> <feGaussianBlur in="SourceGraphic" stdDeviation="10"/> <feColorMatrix values=" 1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 20 -10"></feColorMatrix> </filter> </svg> <div class="loader"> <span style="--i:1;"></span><span style="--i:2;"></span><span style="--i:3;"></span><span style="--i:4;"></span><span style="--i:5;"></span><span style="--i:6;"></span><span style="--i:7;"></span><span style="--i:8;"></span><span style="--i:9;"></span><span style="--i:10;"></span><span class="rotate" style="--watet:0;"></span><span class="rotate" style="--watet:2;"></span><span class="rotate" style="--watet:3;"></span><span class="rotate" style="--watet:4;"></span><span class="rotate" style="--watet:5;"></span><span class="rotate" style="--watet:6;"></span><span class="rotate" style="--watet:7;"></span> </div></div>';
+    document.body.appendChild(document.createRange().createContextualFragment(popup_course_code))
+
+    //CREATES THE ANIMATED TEXT ABOVE
+    wrapper = document.createElement("div")
+    wrapper.id = "animated_loading_text_area"
+
+    var current_top_offset = 5
+    word_split = heading.split(" ")
+    
+    word_split.forEach(word => {
+        wrapper.appendChild(document.createRange().createContextualFragment(`<div class="animated_words_wrapper" style="top: ${current_top_offset}em"> <div class="animated_words"> <h2>${word}</h2> <h2>${word}</h2> </div></div>`))
+        current_top_offset += 10
+    });
+
+    document.body.appendChild(wrapper)
+}
+
+function close_loading_popup() {
+    if (document.contains(document.getElementById("loading_animation_wrapper"))) {
+        document.getElementById("loading_animation_wrapper").remove()
+        document.getElementById("animated_loading_text_area").remove()     
+    }
+}
+
 async function yes_no_popup(query, yes, no){
-    let reponse
     document_body = document.body
 
     popup_container = document.createElement('div')
@@ -167,6 +194,11 @@ async function yes_no_popup(query, yes, no){
         no_button.onclick = () => res(false);
     });
 }
+
+function close_yes_no_popup() {
+    document.getElementsByClassName("popup_wrapper")[0].remove()
+}
+
 
 // Close the dropdown menu if the user clicks outside of it
 window.onclick = function (event) {
