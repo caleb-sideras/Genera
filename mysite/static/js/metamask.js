@@ -123,7 +123,7 @@ async function waitForTxToBeMined(txHash, ajax = false, index = 0) {
         console.log(txReceipt)
         console.log("Entry name bool swap " + entries[index])
         if (txReceipt['status']==true) {
-            token_deployed(entries[index], txHash)
+            token_deployed(entries[index])
         }
         
     }
@@ -380,7 +380,7 @@ function store_txhash(txHash, entry) {
     // )
 }
 
-function token_deployed(entry, txHash) {
+function token_deployed(entry) {
     console.log("token deployed")
     ajax_post({'token_deployed': txHash, 'entry': entry})
     .then(function(response) { //Action that occurs after a response from the server was obtained - here (STATUS 200)

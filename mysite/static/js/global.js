@@ -106,6 +106,47 @@ function myFunction() {
     document.getElementById("myDropdown").classList.toggle("show");
 }
 
+async function yes_no_popup(query, yes, no){
+    let reponse
+    document_body = document.body
+
+    popup_container = document.createElement('div')
+    popup_container.classList = "popup_wrapper"
+
+    yes_no_container = document.createElement('div')
+    yes_no_container.classList = 'yes_no_container rounded_container'
+
+    query_container = document.createElement('div')
+    query_container.classList = 'query rounded_container'
+    query_container.innerHTML = query
+
+    buttons_containers = document.createElement('div')
+    buttons_containers.classList = 'yes_no rounded_container'
+
+    yes_button = document.createElement('div')
+    yes_button.classList = "rounded_container"
+    yes_button.style = "background: red;"
+    yes_button.innerHTML = yes
+    
+    no_button = document.createElement('div')
+    no_button.classList = "rounded_container"
+    no_button.style = "background: var(--border-color);"
+    no_button.innerHTML = no
+
+    buttons_containers.appendChild(yes_button)
+    buttons_containers.appendChild(no_button)
+
+    yes_no_container.appendChild(query_container)
+    yes_no_container.appendChild(buttons_containers)
+    popup_container.appendChild(yes_no_container)
+    document_body.prepend(popup_container)
+    
+    return new Promise((res) => {
+        yes_button.onclick = () => res(true);
+        no_button.onclick = () => res(false);
+    });
+}
+
 // Close the dropdown menu if the user clicks outside of it
 window.onclick = function (event) {
     if (!event.target.matches('.dropbtn')) {
@@ -119,6 +160,7 @@ window.onclick = function (event) {
         }
     }
 }
+
 
 
 window.addEventListener("load", main);

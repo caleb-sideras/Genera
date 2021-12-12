@@ -504,6 +504,24 @@ def collection_view(request, username, collection_name):
                         {"server_message": "USER NOT LOGGED IN"},
                         status=200,
                     )
+            elif "delete_entry" in received_json_data:
+                if request.user.is_authenticated:
+                    collection_query = collection_images.filter( deployed_bool = False, name = received_json_data['delete_entry']).delete()
+                    print(f"deleted {received_json_data['delete_entry']}")
+
+                    user_collection.collection_size = user_collection.collection_size - 1
+                    user_collection.save()
+
+
+                    return JsonResponse(
+                        {"server_message": "Deleted Object"},
+                        status=200,
+                    )
+                else:
+                    return JsonResponse(
+                        {"server_message": "USER NOT LOGGED IN"},
+                        status=200,
+                    )
         except RawPostDataException:  # NO AJAX DATA PROVIDED - DIFFERENT POST REQUEST INSTEAD
             pass
         ##AJAX HANDLING SECTION END

@@ -74,8 +74,8 @@ function open_images(self){
     temp4 = ((self.parentNode).children[1]).children[2].innerHTML // ifps_bool
     temp5 = ((self.parentNode).children[1]).children[3].innerHTML //deployed_bool
 
-    console.log(temp4)
-    console.log(temp5)
+    // console.log(temp4)
+    // console.log(temp5)
 
     preview_container = document.createElement('div')
     preview_container.classList = "rounded_container"
@@ -85,7 +85,7 @@ function open_images(self){
 
     close_button = document.createElement('img')
     close_button.src = '/static/icons/remove.svg'
-    close_button.addEventListener('click', function () { close_pop_up(this) })
+    close_button.addEventListener('click', function () { close_pop_up() })
     top_row.appendChild(close_button)
     preview_wrapper.appendChild(top_row)
 
@@ -128,6 +128,21 @@ function open_images(self){
     if (temp4 == 'False') {
         temp_button = mutipurpose_button.cloneNode(true)
         temp_button.appendChild(Object.assign(document.createElement('h4'), { textContent: 'Delete', style: 'color: red'}))
+        temp_button.addEventListener("click", async function () {
+            await yes_no_popup("Permanently delete image?", "Delete", "Cancel")
+            .then(function (reponse) {
+                if (reponse) {
+                    ajax_post({ 'delete_entry': temp3 })
+                    .then(function (response) { //Action that occurs after a response from the server was obtained - here (STATUS 200)
+                    console.log(response["server_message"])
+                    card_element.remove()
+                    })
+                    close_pop_up()
+                }
+                (document.body).children[0].remove()
+
+            })
+        })
         mutipurpose_button_section.appendChild(temp_button)
     }
     if (temp4 == 'True') {
@@ -184,7 +199,7 @@ function next_element(self, bool){
         card_element = temp
         image = card_element.children[0].dataset.fullrez
         metadata = (card_element.children[1]).children[1].innerHTML
-        title = (card_element.children[1]).children[0].innerHTML
+        temp3 = (card_element.children[1]).children[0].innerHTML
         ifps_bool = (card_element.children[1]).children[2].innerHTML
         deploy_bool = (card_element.children[1]).children[3].innerHTML
 
@@ -193,7 +208,7 @@ function next_element(self, bool){
         parent = self.parentNode
         parent.children[1].src = image
         parent2 = parent.children[2]
-        parent2.children[0].innerHTML = title
+        parent2.children[0].innerHTML = temp3
         parent2.children[1].children[0].children[2].children[0].innerHTML = parsed['description']
         properties = parent2.children[1].children[1].children[2]
         button_number = parent2.children[1].children[1].children[1].children[0]
@@ -202,7 +217,7 @@ function next_element(self, bool){
     }
 }
 
-function close_pop_up(self){
+function close_pop_up(){
     preview_wrapper.style.display = 'none'
     preview_wrapper.children[1].remove()
     preview_wrapper.children[0].remove()
