@@ -110,7 +110,7 @@ def upload_view(request):
                 return render(request, "upload.html", context)
 
             rarity_map = json.loads(request.POST["rarity_map"])
-            calebs_gay_dict["CollectionName"] = request.POST["name"]
+            calebs_gay_dict["CollectionName"] = request.POST["collection_name"]
             calebs_gay_dict["Description"] = request.POST["description"]
             calebs_gay_dict["Resolution"] = int(float(request.POST["resolution"]))
             calebs_gay_dict["CollectionSize"] = int(float(request.POST["size"]))
