@@ -128,7 +128,6 @@ function myFunction() {
 }
 
 async function yes_no_popup(query, yes, no){
-    let reponse
     document_body = document.body
 
     popup_container = document.createElement('div')
