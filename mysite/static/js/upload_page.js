@@ -5,6 +5,12 @@ rarity_map = {}
 
 function main() {
     rarity_map = {}
+    all_layer_names = []
+
+    document.getElementById("add_layer_input").addEventListener("keyup", ({key}) =>  {
+        if (key === "Enter") 
+            add_layer()
+    })
     
     init_layer_color = document.getElementsByClassName("upload_section_swap")
     switch_tabs("layers", init_layer_color[0].children[0])
@@ -273,8 +279,12 @@ function add_layer() {
     add_layer_input = document.getElementById("add_layer_input")
 
     if (add_layer_input.value == "") {
-        create_notification("FAMILY IS CRYING", "FORGOT GIVE LAYER NAME !!!!! !! !!", duration = 10000, "error") //20 years duration for sins
-    } else {
+        create_notification("Layer", "No layer name provided!", duration = 8000, "error") //20 years duration for sins
+    }
+    else if (all_layer_names.includes(add_layer_input.value)) {
+        create_notification("Layer", "A Layer named '" + add_layer_input.value + "' already exists!", duration = 5000, "error") //20 years duration for sins
+    }
+    else {
         layers_row = document.createElement('div')
         layers_row.classList = "general_button white_background dropdown_button"  
         textures_row = layers_row.cloneNode(true)
@@ -350,11 +360,14 @@ function add_layer() {
         layers_row.querySelector('.close_button').addEventListener('click', function () {
             this.layer.remove()
             this.texture.remove()
+            all_layer_names.splice(all_layer_names.indexOf(this.name), 1)
             create_notification("Layer removed!", this.name + " Removed!!!!!! !!!!! !! !!", duration = 5000, "success")
         }.bind({ name: add_layer_input.value, layer: layers_row, texture: textures_row }))
-        button_section_layers.appendChild(layers_row);
-        button_section_textures.appendChild(textures_row);
+        button_section_layers.appendChild(layers_row)
+        button_section_textures.appendChild(textures_row)
+        all_layer_names.push(add_layer_input.value)
         add_layer_input.value = ""
+        
     }
 }
 

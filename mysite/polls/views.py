@@ -61,15 +61,27 @@ def get_or_create_subdirectory(sd):
 def upload_view(request):
     # users_imgs = UserAsset.objects.filter(user=request.user)
     context = {}
-
+    context["ajax_url"] = reverse("polls:upload")
     def file_to_pil(
         file,
     ):  # take POSt.request file that user sent over the form, and convert it into a PIL object.
         return Image.open(io.BytesIO(file.read()))
 
     calebs_gay_dict = {}
-
+    
     if request.method == "POST":
+        try:
+            received_json_data = json.loads(request.body)
+            if "field_name" in received_json_data:
+                if received_json_data["field_name"] == "collection_name":
+                    if UserCollection.objects.filter(user__id=request.user.id, collection_name=received_json_data["field_content"]).exists():
+                        return JsonResponse({"passed": 0, "message": "A collection with that name already exists!"}, status=200)
+                    else:
+                        return JsonResponse({"passed": 1}, status=200)
+
+        except RawPostDataException:
+            pass
+
         if len(request.FILES) != 0:
             #TEST FILE TRANSFER CODE
             # file_count = 0

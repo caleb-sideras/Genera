@@ -19,6 +19,7 @@
   --dark-grey-color-2: invert(28%) sepia(11%) saturate(872%) hue-rotate(19deg) brightness(92%) contrast(79%);
   --tab-img-color: invert(100%) sepia(4%) saturate(16%) hue-rotate(186deg) brightness(107%) contrast(106%);
   --remove-button-color: invert(80%) sepia(6%) saturate(35%) hue-rotate(169deg) brightness(97%) contrast(93%);
+  --red-img-color: invert(55%) sepia(79%) saturate(3057%) hue-rotate(332deg) brightness(100%) contrast(101%);
 }
 
 body.dark-mode { 
@@ -196,8 +197,13 @@ body {
 .general_input {
   width: 80%;
 }
+
 .close_button_color {
   filter: var(--remove-button-color);
+}
+
+.error_img_color {
+  filter: var(--red-img-color);
 }
 
 .color_image_orange {
@@ -1356,6 +1362,13 @@ animation: zoominoutsinglefeatured 60s infinite ;
   cursor: pointer;
   text-decoration: none;
   font-weight: bold;
+}
+
+.feedback_icon {
+  position: absolute;
+  height: 20px;
+  width: 20px;
+
 }
 
 /* NAV BAR */
