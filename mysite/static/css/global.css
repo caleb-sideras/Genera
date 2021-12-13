@@ -270,7 +270,7 @@ body {
   height: 100%;
   display: flex;
   backdrop-filter: blur(10px);
-  z-index: 1;
+  z-index: 2;
 }
 
 .popup_wrapper > .yes_no_container {
@@ -688,11 +688,12 @@ body {
 
 .image_preview {
   /* align-items: center; */
-  position: fixed; 
-  width:100%; 
+   position: fixed;
+  width: 100%;
   height: 100%;
-  display: none;
+  display: flex;
   backdrop-filter: blur(10px);
+  z-index: 1;
 }
 
 .image_preview >  .rounded_container {
@@ -712,15 +713,19 @@ body {
 }
 
 .top_row {
-  height: 20px;
-  float:right;
-  padding-right: 15px;
-  /* width: 100%; */
+      /* height: 20px; */
+    /* float: right; */
+    /* padding-right: 15px; */
+    width: 100%;
+    position: absolute;
 }
 
 .top_row > img {
-  height: 20px;
-  cursor: pointer;
+      height: 30px;
+    cursor: pointer;
+    float: right;
+    margin: 20px;
+    filter: var(--dark-grey-color-2);
 }
 
 .image_preview > div > .content_wrapper {

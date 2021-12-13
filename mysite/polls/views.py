@@ -481,7 +481,7 @@ def collection_view(request, username, collection_name):
                     collection_query = collection_images.filter(deployed_bool = False, deployed_txhash__isnull= False)
                     for entry in collection_query:
                         print(entry.name)
-                        if entry.name.strip() == received_json_data['entry'].strip():
+                        if entry.name.strip() == received_json_data['token_deployed'].strip():
                             # print(f"{entry.name} {received_json_data['token_deployed']}")
                             entry.deployed_bool = True
                             entry.save()

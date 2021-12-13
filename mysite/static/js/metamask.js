@@ -3,6 +3,7 @@ let web3 = new Web3(Web3.givenProvider);//Web3.givenProvider || "ws://localhost:
 contract_address = null
 ipfs_links = null
 entries = null
+token_counter = 0
 function main() {
 
     ipfs_links = []
@@ -69,6 +70,10 @@ async function deploy_contract(){
                 },
             ],
         })
+        // .catch(function(error){
+        //     console.log(error)
+        //     return
+        // })
         .then(async function (txHash) {
             console.log('Transaction sent')
             console.dir(txHash)
@@ -82,10 +87,13 @@ async function deploy_contract(){
 
 async function add_tokens(active_account, url=null) {
  // ipfs metadata (token uri)
+    // create_and_render_loading_popup("Minting NFTs")
     console.log("Adding tokens to " + contract_address)
     console.log(ipfs_links)
     console.log(entries)
     for (let index = 0; index < ipfs_links.length; index++) {
+        token_counter++
+        console.log(token_counter)
         deployed_token = await ethereum
             .request({
                 method: 'eth_sendTransaction',
@@ -107,7 +115,12 @@ async function add_tokens(active_account, url=null) {
                 waitForTxToBeMined(txHash, true, index)
             })
             // .then((txHash) => console.log(txHash))
-            // .catch((error) => console.error);
+            .catch((error) =>{
+                token_counter--
+                token_count_check()
+                throw (error)
+                
+            });
     } }
 
 async function waitForTxToBeMined(txHash, ajax = false, index = 0) {
@@ -121,10 +134,13 @@ async function waitForTxToBeMined(txHash, ajax = false, index = 0) {
     }
     if (ajax) {
         console.log(txReceipt)
+        token_counter--
+        console.log(token_counter)
         console.log("Entry name bool swap " + entries[index])
         if (txReceipt['status']==true) {
             token_deployed(entries[index])
         }
+        token_count_check()
         
     }
     console.log("Transaction sent " + txReceipt)
@@ -132,6 +148,7 @@ async function waitForTxToBeMined(txHash, ajax = false, index = 0) {
 }
 
 function mint_collection_request() {
+    create_and_render_loading_popup("Deploying to IPFS")
     ajax_post({'notneeded': "balls :)"})
     .then(function(response) { //Action that occurs after a response from the server was obtained - here (STATUS 200)
         ipfs_links = response["ipfs_links"]
@@ -207,16 +224,29 @@ function ajax_server_post2() {
             console.log("already deployed contract" + contract_address)
         }
         else {
-            active_account = await deploy_contract();
+            close_loading_popup()
+            create_and_render_loading_popup("Deploying Smart Contract")
+            active_account = await deploy_contract()
+                .catch((error) => {
+                    console.log(error)
+                    close_loading_popup()
+                    throw(error)
+                    
+                })
+            close_loading_popup()
             // ajax_server_post3(url) //should not double set if here, test later
         }
 
         // double checking user account
         active_account = await metamask_check()
 
-        ajax_server_post3() // if contract adress not saved could have issues later.
-
+        ajax_server_post3()
+        close_loading_popup() // if contract adress not saved could have issues later.
+        create_and_render_loading_popup("Minting NFTs")
+        console.log("adding render screen")
         await add_tokens(active_account, ajax_url);
+        // close_loading_popup()
+        // console.log("rejected")
     })
 
     // //HTTPREQUEST INIT CODE
@@ -382,7 +412,7 @@ function store_txhash(txHash, entry) {
 
 function token_deployed(entry) {
     console.log("token deployed")
-    ajax_post({'token_deployed': txHash, 'entry': entry})
+    ajax_post({ 'token_deployed': entry})
     .then(function(response) { //Action that occurs after a response from the server was obtained - here (STATUS 200)
         console.log(response["server_message"])
     })
@@ -479,6 +509,13 @@ function abi_token_uri(ipfs_link) {
     console.log(token_uri);
 
     return token_uri;
+}
+
+function token_count_check(){
+    if (token_counter == 0) {
+        console.log('closing token_counter')
+        close_loading_popup()
+    }
 }
 
 window.addEventListener("load", main);

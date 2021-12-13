@@ -3,6 +3,7 @@ card_element = null
 
 function main() {
     preview_wrapper = document.getElementsByClassName("image_preview")[0]
+    document_body = document.body
     // backdrop = document.getElementsByClassName("filter")[0]
 
     // ajax_button = document.getElementById("hello_king")
@@ -87,7 +88,6 @@ function open_images(self){
     close_button.src = '/static/icons/remove.svg'
     close_button.addEventListener('click', function () { close_pop_up() })
     top_row.appendChild(close_button)
-    preview_wrapper.appendChild(top_row)
 
     wrapper = document.createElement('div')
     wrapper.classList = 'content_wrapper'
@@ -172,8 +172,11 @@ function open_images(self){
     wrapper.appendChild(rbuttonwrapper)
 
     preview_container.appendChild(wrapper)
-    preview_wrapper.style.display = 'block'
-    preview_wrapper.appendChild(preview_container)
+    popup_container = document.createElement('div')
+    popup_container.classList = "image_preview"
+    popup_container.appendChild(top_row)
+    popup_container.appendChild(preview_container)
+    document_body.prepend(popup_container)
 
 }
 
@@ -187,6 +190,7 @@ function add_properties(_elements, _sub_element_wrapper) {
     });
     return counter
 }
+
 function next_element(self, bool){
     if (bool) {
         temp = card_element.nextElementSibling
@@ -218,10 +222,7 @@ function next_element(self, bool){
 }
 
 function close_pop_up(){
-    preview_wrapper.style.display = 'none'
-    preview_wrapper.children[1].remove()
-    preview_wrapper.children[0].remove()
-    // backdrop.style.backdropFilter  = 'blur(0px)'
+    (document.body).children[0].remove()
 }
 
 function expand_collapse(self) {

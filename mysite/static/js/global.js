@@ -110,7 +110,7 @@ function ajax_post(payload) {
             // Process the server response here (Sent from Django view inside JsonResponse)
             if (http_request.readyState === XMLHttpRequest.DONE) {
                 if (http_request.status === 200) { //ifstatus is 200 - assume PROPER RESPONSE
-                    close_loading_popup()
+                    // close_loading_popup()
                     resolve(JSON.parse(http_request.responseText))
                 }
                 else { //unhandled error
