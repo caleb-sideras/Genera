@@ -64,8 +64,14 @@ def upload_view(request):
     context["ajax_url"] = reverse("polls:upload")
     def file_to_pil(
         file,
+        calebs_gay_dict
     ):  # take POSt.request file that user sent over the form, and convert it into a PIL object.
-        return Image.open(io.BytesIO(file.read()))
+        PIL_image = Image.open(io.BytesIO(file.read()))
+        horo, vert = PIL_image.size
+        if horo != calebs_gay_dict["Resolution"] or vert != calebs_gay_dict["Resolution"]:
+            PIL_image = PIL_image.resize((calebs_gay_dict["Resolution"],calebs_gay_dict["Resolution"]))
+        return PIL_image
+
 
     calebs_gay_dict = {}
     
@@ -132,7 +138,7 @@ def upload_view(request):
             db_collection.description = calebs_gay_dict["Description"]
             db_collection.dimension_x = calebs_gay_dict["Resolution"]
             db_collection.dimension_y = calebs_gay_dict["Resolution"]
-            db_collection.collection_size = calebs_gay_dict["CollectionSize"]
+            # db_collection.collection_size = calebs_gay_dict["CollectionSize"]
             db_collection.path = f"/media/users/{request.user.username}/collections/{calebs_gay_dict['CollectionName'].replace(' ', '_')}"
             db_collection.save()
             
@@ -166,7 +172,8 @@ def upload_view(request):
                                     {
                                         "Name": file_name_no_extension,
                                         "PIL": file_to_pil(
-                                            file
+                                            file,
+                                            calebs_gay_dict
                                         ),  # REPLACE WITH file_to_pil(file) WHEN NEED ACTUAL FILE OBJECT IN NUMPY
                                         "Rarity": int(float(rarity_map[full_file_name])),
                                     }
@@ -177,7 +184,8 @@ def upload_view(request):
                                     {
                                         "Name": file_name_no_extension,
                                         "PIL": file_to_pil(
-                                            file
+                                            file,
+                                            calebs_gay_dict
                                         ),  # REPLACE WITH file_to_pil(file) WHEN NEED ACTUAL FILE OBJECT IN NUMPY
                                         "Rarity": int(float(rarity_map[full_file_name])),
                                     }

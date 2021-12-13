@@ -146,43 +146,54 @@ def create_and_save_collection(tempDict, db_collection, user = None):
             rarityAppend(value, "Assets", rarityArrayAsset, rarityDictAsset)
             rarityAppend(value, "Textures", rarityArrayTexture, rarityDictTexture)
 
-            for i in range(tempDict["CollectionSize"]):
+            while rarityArrayAsset:
                 # randomly choosing assets/textures
                 tempAsset = random.choice(rarityArrayAsset)
-                tempTexture = random.choice(rarityArrayTexture)
+                texturedAsset = rarityDictAsset[tempAsset]
+                tempMetadata = tempAsset
+                if rarityArrayTexture:
+                    
+                    tempTexture = random.choice(rarityArrayTexture)
+                        
+                    # mapping texture to asset
+                    texturedAsset = textureMapping(
+                        rarityDictAsset[tempAsset], rarityDictTexture[tempTexture], texture_map_color
+                    )
 
-                # mapping texture to asset
-                texturedAsset = textureMapping(
-                    rarityDictAsset[tempAsset], rarityDictTexture[tempTexture], texture_map_color
-                )
+                    # metadata variable
+                    tempMetadata = f"{tempAsset} ({tempTexture})"
+                    
+                    # removing used texture
+                    rarityArrayTexture.remove(tempTexture)
 
                 # adding final asset
                 texturedAssetArray.append(texturedAsset)
-                # adding metadata
-                metadataArray.append(f"{tempAsset} ({tempTexture})")
 
-                # removing used assets/textures
+                # adding metadata
+                metadataArray.append(tempMetadata)
+
+                # removing used asset
                 rarityArrayAsset.remove(tempAsset)
-                rarityArrayTexture.remove(tempTexture)
 
         else:
 
             if value["Assets"]:
 
                 rarityAppend2(value, "Assets", rarityArrayAsset, rarityDictAsset)
-
+                arrayRange = len(rarityArrayAsset)
                 # adding just assets to an individual array
-                for i in range(tempDict["CollectionSize"]):
+                for _ in range(arrayRange):
 
                     # randomly choosing assets
                     tempAsset = random.choice(rarityArrayAsset)
-
+                    
                     # adding final asset
                     texturedAssetArray.append(rarityDictAsset[tempAsset])
                     # adding metadata
                     metadataArray.append(f"{tempAsset}")
                     # removing used asset
                     rarityArrayAsset.remove(tempAsset)
+
 
         name = key
         texturedAssetDict.update({name: texturedAssetArray})
@@ -194,32 +205,42 @@ def create_and_save_collection(tempDict, db_collection, user = None):
     print("Creating/saving .png & .json")
     
     os.makedirs(db_collection.path[1:])
-
+    print(texturedAssetDict)
+    # getting longest layer
+    longest_layer = 0
+    for value in texturedAssetDict:
+        if len(texturedAssetDict[value]) > longest_layer:
+            longest_layer = len(texturedAssetDict[value])
+    db_collection.collection_size = longest_layer
+    db_collection.save()
     # iterating over textured assets dictionary, and combining them
-    for i in range(tempDict["CollectionSize"]):
+    for i in range(longest_layer):
+
         timeit_start = time.time()
         img_name = f"{tempDict['CollectionName']} {i+1}"
         image_to_collection_db = CollectionImage.objects.create(linked_collection=db_collection)
         image_to_collection_db.name = img_name
 
-        # creating a base image to paste on. Type, Size, Color paramters
         im = Image.new(
             "RGBA", (tempDict["Resolution"], tempDict["Resolution"]), (0, 0, 0, 0)
         )
+        # creating json template
         temp_json = {
-            "name": img_name,
+            "name": f"{tempDict['CollectionName']}#{i}",
             "description": tempDict["Description"],
             "image": "",
         }
         temp_list = []
+        
         for value in texturedAssetDict:
-
-            temp_asset = texturedAssetDict[value][i]
-
-            im.paste(temp_asset, (0, 0), temp_asset)
-            temp_list.append(
-                {"trait_type": value, "value": metadataDict[value][i]},
-            )
+            print(texturedAssetDict[value])
+            if len(texturedAssetDict[value]) > i: # we already iterate over texturedAssetDict, save len values in array and use them # also, lots of double checks happening, find a way using len values for this not to happen
+                temp_asset = texturedAssetDict[value][i]
+                # creating attributes in metadata
+                im.paste(temp_asset, (0, 0), temp_asset)
+                temp_list.append(
+                    {"trait_type": value, "value": metadataDict[value][i]}
+                )
         temp_json.update({"attributes": temp_list})
         image_to_collection_db.metadata = json.dumps(temp_json)
 
