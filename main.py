@@ -63,16 +63,20 @@ def textureMapping(asset_data, texture_data):
     shirt = Image.fromarray(asset_data)
 
     return shirt
-
+# temp_asset = temp_asset.resize((2000,2000))
 # for textures
 def rarityAppend(json_object, json_name, rarity_list, asset_dict):
     for asset in json_object[json_name]:
         rarity = asset["Rarity"]
+        # horo, verti = asset["PIL"].size
+        # print(horo, verti)
         # converting to an RGBA format
         asset_rgba = asset["PIL"].convert("RGBA")
+        
         # converting into an array of RGBA, height x width x 4 numpy array (4000x4000x4)
         asset_data = np.array(asset_rgba)
-
+        # print(asset_data.shape)
+        # print(asset_data.size)
         asset_dict.update({asset["Name"]: asset_data})
         for x in range(rarity):
             rarity_list.append(asset["Name"])
@@ -185,7 +189,7 @@ tempDict2 = {
     "Layers": {
         "Body": {
             "Assets": [
-                {"Name": "Pink Sky", "PIL": body1, "Rarity": 10},
+                {"Name": "Pink Sky", "PIL": body1, "Rarity": 9},
             ],
             "Textures": [],
         },
@@ -253,38 +257,47 @@ for key, value in tempDict2["Layers"].items():
         # adding assets/textures to individual arrays
         rarityAppend(value, "Assets", rarityArrayAsset, rarityDictAsset)
         rarityAppend(value, "Textures", rarityArrayTexture, rarityDictTexture)
-
-        for i in range(tempDict2["CollectionSize"]):
+        while rarityArrayAsset:
             # randomly choosing assets/textures
             tempAsset = random.choice(rarityArrayAsset)
-            tempTexture = random.choice(rarityArrayTexture)
+            texturedAsset = tempAsset
+            tempMetadata = tempAsset
+            if rarityArrayTexture:
+                
+                tempTexture = random.choice(rarityArrayTexture)
+                      
+                # mapping texture to asset
+                texturedAsset = textureMapping(
+                    rarityDictAsset[tempAsset], rarityDictTexture[tempTexture]
+                )
 
-            # mapping texture to asset
-            texturedAsset = textureMapping(
-                rarityDictAsset[tempAsset], rarityDictTexture[tempTexture]
-            )
+                # metadata variable
+                tempMetadata = f"{tempAsset} ({tempTexture})"
+                
+                # removing used texture
+                rarityArrayTexture.remove(tempTexture)
 
             # adding final asset
             texturedAssetArray.append(texturedAsset)
-            # adding metadata
-            metadataArray.append(f"{tempAsset} ({tempTexture})")
 
-            # removing used assets/textures
+            # adding metadata
+            metadataArray.append(tempMetadata)
+
+            # removing used asset
             rarityArrayAsset.remove(tempAsset)
-            rarityArrayTexture.remove(tempTexture)
 
     else:
 
         if value["Assets"]:
 
             rarityAppend2(value, "Assets", rarityArrayAsset, rarityDictAsset)
-
+            arrayRange = len(rarityArrayAsset)
             # adding just assets to an individual array
-            for i in range(tempDict2["CollectionSize"]):
+            for _ in range(arrayRange):
 
                 # randomly choosing assets
                 tempAsset = random.choice(rarityArrayAsset)
-
+                
                 # adding final asset
                 texturedAssetArray.append(rarityDictAsset[tempAsset])
                 # adding metadata
@@ -305,9 +318,14 @@ for key, value in tempDict2["Layers"].items():
 image_path = f"collections/{tempDict2['CollectionName']}"
 os.makedirs(image_path)
 
+# getting longest layer
+longest_layer = 0
+for value in texturedAssetDict:
+    if len(texturedAssetDict[value]) > longest_layer:
+        longest_layer = len(texturedAssetDict[value])
+
 # iterating over textured assets dictionary, and combining them
-for i in range(tempDict2["CollectionSize"]):
-    # creating a base image to paste on. Type, Size, Color paramters
+for i in range(longest_layer):
     im = Image.new(
         "RGBA", (tempDict2["Resolution"], tempDict2["Resolution"]), (0, 0, 0, 0)
     )
@@ -320,13 +338,13 @@ for i in range(tempDict2["CollectionSize"]):
     temp_list = []
 
     for value in texturedAssetDict:
-
-        temp_asset = texturedAssetDict[value][i]
-        # creating attributes in metadata
-        im.paste(temp_asset, (0, 0), temp_asset)
-        temp_list.append(
-            {"trait_type": value, "value": metadataDict[value][i]},
-        )
+        if len(texturedAssetDict[value]) > i: # we already iterate over texturedAssetDict, save len values in array and use them # also, lots of double checks happening, find a way using len values for this not to happen
+            temp_asset = texturedAssetDict[value][i]
+            # creating attributes in metadata
+            im.paste(temp_asset, (0, 0), temp_asset)
+            temp_list.append(
+                {"trait_type": value, "value": metadataDict[value][i]}
+            )
     temp_json.update({"attributes": temp_list})
 
     # saving images and jsons
