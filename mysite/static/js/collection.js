@@ -74,6 +74,9 @@ function open_images(self){
     temp3 = ((self.parentNode).children[1]).children[0].innerHTML // title
     temp4 = ((self.parentNode).children[1]).children[2].innerHTML // ifps_bool
     temp5 = ((self.parentNode).children[1]).children[3].innerHTML //deployed_bool
+    if (card_element.children[0].dataset.ipfs) {
+        token_uri = card_element.children[0].dataset.ipfs
+    }
 
     // console.log(temp4)
     // console.log(temp5)
@@ -148,7 +151,11 @@ function open_images(self){
     if (temp4 == 'True') {
         temp_button = mutipurpose_button.cloneNode(true)
         temp_button.appendChild(Object.assign(document.createElement('h4'), { textContent: 'TokenURI', style: 'color: red' }))
-        mutipurpose_button_section.appendChild(temp_button)
+        button_link = document.createElement('a')
+        button_link.href = token_uri
+        button_link.target = "_blank"
+        button_link.appendChild(temp_button)
+        mutipurpose_button_section.appendChild(button_link)
     }
     if (temp5 == 'True') {
         temp_button = mutipurpose_button.cloneNode(true)
@@ -201,6 +208,7 @@ function next_element(self, bool){
 
     if (temp!=null) { // maybe have it looped, first -> last VV
         card_element = temp
+        
         image = card_element.children[0].dataset.fullrez
         metadata = (card_element.children[1]).children[1].innerHTML
         temp3 = (card_element.children[1]).children[0].innerHTML
@@ -214,6 +222,10 @@ function next_element(self, bool){
         parent2 = parent.children[2]
         parent2.children[0].innerHTML = temp3
         parent2.children[1].children[0].children[2].children[0].innerHTML = parsed['description']
+        if (card_element.children[0].dataset.ipfs) {
+            token_uri = card_element.children[0].dataset.ipfs
+            parent2.children[2].children[0].href = token_uri
+        }
         properties = parent2.children[1].children[1].children[2]
         button_number = parent2.children[1].children[1].children[1].children[0]
         properties.innerHTML = ''

@@ -147,7 +147,21 @@ async function waitForTxToBeMined(txHash, ajax = false, index = 0) {
     return txReceipt['contractAddress']
 }
 
-function mint_collection_request() {
+async function mint_collection_request() {
+    await yes_no_popup("Deploy Collection?", "Yes", "No")
+        .then(function (reponse) {
+            if (reponse) {
+                close_pop_up()
+            }
+            else{
+                (document.body).children[0].remove()
+                throw("no deployment")
+            }
+            (document.body).children[0].remove()
+
+        })//try catching promise error
+
+
     create_and_render_loading_popup("Deploying to IPFS")
     ajax_post({'notneeded': "balls :)"})
     .then(function(response) { //Action that occurs after a response from the server was obtained - here (STATUS 200)

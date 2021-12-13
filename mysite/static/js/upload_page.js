@@ -492,4 +492,21 @@ function expand_collapse_button(self) {
     
 }
 
+// needs to work with submit
+async function conformation_button(){
+    await yes_no_popup("Generate Collection?", "Yes", "No")
+        .then(function (reponse) {
+            if (reponse) {
+                close_pop_up()
+                (document.body).children[0].remove()
+                create_and_render_loading_popup('Generating Collection')
+            }
+            else {
+                (document.body).children[0].remove()
+                throw ("no deployment")
+            }
+        })
+    
+}
+
 window.addEventListener("load", main);
