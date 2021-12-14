@@ -542,6 +542,36 @@ def collection_view(request, username, collection_name):
                         {"server_message": "USER NOT LOGGED IN"},
                         status=200,
                     )
+            elif "delete_duplicates" in received_json_data:
+                if request.user.is_authenticated:
+                    collection_query = collection_images.filter(deployed_bool = False)
+                    # for i, value in enumerate(collection_query):
+                    i = 0
+                    while i < len(collection_query):
+                        print(f"{len(collection_query)} LENGTH OF QUERY")
+                        entry_metadata = json.loads(collection_query[i].metadata)
+                        print(f"{entry_metadata} COMPARISON METADATA {i}")
+                        for j in range(len(collection_query) - 1 - i):           
+                            value_metadata = json.loads(collection_query[j + 1 + i].metadata)
+                            print(f"{value_metadata} CURRENT METADATA {j + 1 + i}")
+                            if entry_metadata['attributes'] == value_metadata['attributes']:
+                                collection_query[j + 1 + i].delete()
+                                print(f"{collection_query[j + 1 + i]} deleted {j + 1 + i}")
+                        i = i + 1
+                        collection_query = collection_images.filter(deployed_bool = False)
+                    # user_collection.collection_size = user_collection.collection_size - 1
+                    # user_collection.save()
+
+
+                    return JsonResponse(
+                        {"server_message": "Deleted Object"},
+                        status=200,
+                    )
+                else:
+                    return JsonResponse(
+                        {"server_message": "USER NOT LOGGED IN"},
+                        status=200,
+                    )
         except RawPostDataException:  # NO AJAX DATA PROVIDED - DIFFERENT POST REQUEST INSTEAD
             pass
         ##AJAX HANDLING SECTION END

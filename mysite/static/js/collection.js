@@ -4,12 +4,6 @@ card_element = null
 function main() {
     preview_wrapper = document.getElementsByClassName("image_preview")[0]
     document_body = document.body
-    // backdrop = document.getElementsByClassName("filter")[0]
-
-    // ajax_button = document.getElementById("hello_king")
-    // ajax_script = ajax_button.dataset.metadata
-    // console.log(JSON.parse(ajax_script))
-    // parsed_json = JSON.parse(ajax_script)
 }
 
 
@@ -336,6 +330,24 @@ function delete_image(url) {
                 'delete_image': "balls :)" //can add as many other entries to dict as necessary
             })
     )
+}//what does this do?
+
+async function delete_duplicates(self){
+    await yes_no_popup("Delete ALL Duplicates?", "Delete", "Cancel")
+        .then(function (reponse) {
+            if (reponse) {
+                ajax_post({ 'delete_duplicates': 'hello' })
+                    .then(function (response) { //Action that occurs after a response from the server was obtained - here (STATUS 200)
+                        create_and_render_loading_popup("Deleting Duplicates")
+                        console.log(response["server_message"])
+                        location.reload();
+                    })
+                close_pop_up()
+            }
+            // (document.body).children[0].remove()
+
+        })
 }
+
 
 window.addEventListener("load", main);

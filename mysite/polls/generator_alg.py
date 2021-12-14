@@ -233,7 +233,7 @@ def create_and_save_collection(tempDict, db_collection, user = None):
         temp_list = []
         
         for value in texturedAssetDict:
-            print(texturedAssetDict[value])
+            # print(texturedAssetDict[value])
             if len(texturedAssetDict[value]) > i: # we already iterate over texturedAssetDict, save len values in array and use them # also, lots of double checks happening, find a way using len values for this not to happen
                 temp_asset = texturedAssetDict[value][i]
                 # creating attributes in metadata

@@ -135,7 +135,7 @@
                 </div>
                 
                 {% if not collection_data.collection_ifps_bool %}
-                    <button type="button" class="general_button_no_border orange_background shadow_strong rounded_container_no_padding" style="cursor: default">
+                    <button type="button" class="general_button_no_border orange_background shadow_strong rounded_container_no_padding" style="cursor: default" onclick="delete_duplicates(this)">
                         <h4 class="no_margin">Delete Duplicates</h4>
                     </button>
                 {% endif %}
