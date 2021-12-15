@@ -4,6 +4,7 @@ button_section_collection = null
 rarity_map = {}
 
 function main() {
+    layer_update_mode = false
     rarity_map = {}
     all_layer_names = []
 
@@ -26,7 +27,7 @@ function main() {
 function add_smart_input(self, category) {
     //1 == asset, 2 == texture
     function expand_button(self) {
-        console.log(self)
+        // console.log(self)
         parent = self.parentElement.firstChild.innerHTML
         if (parseInt(parent) != 0) {
             children = (self.parentNode).nextElementSibling
@@ -60,8 +61,8 @@ function add_smart_input(self, category) {
         }
     }
     var component_wrapper = self.parentNode.children[self.parentNode.children.length - 1]
-    console.log(self.parentElement)
-    console.log((self.parentElement).parentElement)
+    // console.log(self.parentElement)
+    // console.log((self.parentElement).parentElement)
 
     var build_upload_section = function(filename, upload_button) {
         var full_file_name = ""
@@ -70,8 +71,8 @@ function add_smart_input(self, category) {
             //full_file_name
             // var fileBuffer = new DataTransfer();
             var attachments = upload_button.files;
-            console.log(upload_button)
-            console.log(attachments)
+            // console.log(upload_button)
+            // console.log(attachments)
             // append the file list to an array iteratively
             for (let i = 0; i < attachments.length; i++) {
                 // Exclude specified filename
@@ -81,7 +82,7 @@ function add_smart_input(self, category) {
                 
             }
             var output = document.getElementsByClassName('upload_preview');
-            console.log(temp_image)
+            // console.log(temp_image)
             output[0].children[0].src = URL.createObjectURL(temp_image)
         }
         var remove_file = function(full_file_name){
@@ -114,20 +115,24 @@ function add_smart_input(self, category) {
             // Assign buffer to file input
             upload_button.files = fileBuffer.files; // <-- according to your file input reference
         }
+
+        var generate_full_filename = function(category) {
+            if (category == 1) 
+                return "asset." + this.previousElementSibling.innerHTML.toLowerCase() + "." + filename
+            else if (category == 2)
+                return "texture." + this.previousElementSibling.innerHTML.toLowerCase() + "." + filename
+        }.bind(self)
         
-        if (category == 1) 
-            full_file_name = "asset." + self.dataset.layer.toLowerCase() + "." + filename
-        else if (category == 2)
-            full_file_name = "texture." + self.dataset.layer.toLowerCase() + "." + filename
+        full_file_name = generate_full_filename(category)
 
         if (upload_button.name == "") {
             upload_button.name = full_file_name
         }
         else {
             if (category == 1) 
-                upload_button.name += "$asset." + self.dataset.layer.toLowerCase() + "." + filename
+                upload_button.name += "$asset." + self.previousElementSibling.innerHTML.toLowerCase() + "." + filename
             else if (category == 2)
-                upload_button.name += "$texture." + self.dataset.layer.toLowerCase() + "." + filename
+                upload_button.name += "$texture." + self.previousElementSibling.innerHTML.toLowerCase() + "." + filename
         }
 
         var upload_section = document.createElement('div')
@@ -161,10 +166,13 @@ function add_smart_input(self, category) {
         slider_1.addEventListener('change', function() {
             this.slider_1.title = this.slider_1.value
             this.slider_value.innerHTML = this.slider_1.value
-            rarity_map[full_file_name] = this.slider_1.value
+
+            rarity_map[generate_full_filename(this.category)] = this.slider_1.value
+            // console.log(rarity_map)
+
             document.getElementById("rarity_map").value = JSON.stringify(rarity_map)
             update_sliders()
-        }.bind({slider_1: slider_1, slider_value: slider_value}))
+        }.bind({slider_1: slider_1, slider_value: slider_value, category: category}))
 
         slider_section.appendChild(slider_value)
         slider_section.appendChild(slider_1)
@@ -174,15 +182,17 @@ function add_smart_input(self, category) {
         deletetext.src = "static/icons/remove.svg"
         deletetext.classList = "close_button_color"
         deletetext.addEventListener('click', function () {
+            let scoped_filename = generate_full_filename(this.category)
             this.upload.remove()
-            remove_file(this.full_file_name)
+
+            remove_file(scoped_filename)
             open_images(self)
-            delete rarity_map[full_file_name] //delete rarity map link
+            delete rarity_map[scoped_filename] //delete rarity map link
             document.getElementById("rarity_map").value = JSON.stringify(rarity_map)
-            create_notification("File removed", "You have succesfully removed '" + this.full_file_name.split(".").slice(2,4).join(".") + "' from the component." , duration = 3500, "success") //20 years duration for sins
+            create_notification("File removed", "You have succesfully removed '" + scoped_filename.split(".").slice(2,4).join(".") + "' from the component." , duration = 3500, "success") //20 years duration for sins
             update_sliders()
             close_empty(self.nextElementSibling.lastElementChild)
-        }.bind({upload: upload_section, full_file_name:full_file_name}))
+        }.bind({upload: upload_section, category: category}) )
 
         image_name = document.createElement('h4')
         image_name.textContent = filename
@@ -220,11 +230,13 @@ function add_smart_input(self, category) {
         
         for (var i = 0; i < fileList.length; i++) {
             var file = fileList[i]
-            var return_compoments = build_upload_section(file.name, uploadbtn, i)
+            var return_compoments = build_upload_section(file.name, uploadbtn)
             uploadbtn = return_compoments[1]
+            // console.log(return_compoments[0])
             component_wrapper.appendChild(return_compoments[0])
             update_sliders()
         }
+        // console.log(uploadbtn)
         create_notification("Upload success", "You have succesfully uploaded " + n_files + " file(s) into the selected component" , duration = 5000, "success")
         open_images(self)
         expand_button(self.nextElementSibling.lastElementChild)
@@ -276,6 +288,7 @@ function update_sliders() {
 }
 
 function add_layer() {
+    layer_name_update_field = document.getElementById("layer_name_update_field")
     add_layer_input = document.getElementById("add_layer_input")
 
     if (add_layer_input.value == "") {
@@ -323,7 +336,7 @@ function add_layer() {
         expand_button_container.appendChild(expand_button)
         expand_button_container_2.appendChild(expand_button_2)
    
-        add_layer_img.dataset.layer = add_layer_input.value
+        // add_layer_img.dataset.layer = add_layer_input.value
 
         add_layer_img_2 = add_layer_img.cloneNode(true)
         add_layer_img_2.addEventListener('click', function () { add_smart_input(this, 2)})
@@ -342,7 +355,60 @@ function add_layer() {
         layer_name.classList = 'no_margin'
         layer_name.style = "cursor: pointer;"
         texture_name = layer_name.cloneNode(true)
-        layer_name.addEventListener('click', function() { open_images(this)}.bind(add_layer_img))
+
+        let handle_layer_properties_update = function() {
+            // console.log(document.getElementById("rarity_map").value)
+            document.getElementsByClassName("update_layer_parameters_menu")[0].style.display = "block"
+            clicked_layer_name = this.layers_row.querySelector(":scope > h5")
+            linked_texture_name = this.textures_row.querySelector(":scope > h5")
+            layer_name_update_field.value = clicked_layer_name.innerHTML
+            
+            console.log(this.layers_row)
+            let layers_input_fields = this.layers_row.querySelectorAll(":scope input[type='file']")
+            let textures_input_fields = this.textures_row.querySelectorAll(":scope input[type='file']")
+
+
+            document.getElementById("confirm_layer_properties_update").onclick = function() {
+                // console.log(this)
+                // update_sliders()
+                let replace_from = "." + clicked_layer_name.innerHTML.toLowerCase() + "."
+                let replace_to = "." + layer_name_update_field.value.toLowerCase() + "."
+                if (clicked_layer_name.innerHTML != layer_name_update_field.value) {
+                    console.log("replacing")
+                    console.log(layers_input_fields.length)
+                    for (let i = 0; i < layers_input_fields.length; i++) {
+                        // console.log(layers_input_fields[i].name)
+                        all_layer_names.splice(all_layer_names.indexOf(clicked_layer_name.innerHTML), 1) //replace layer names in global list
+                        all_layer_names.push(layer_name_update_field.value)
+
+                        document.getElementById("rarity_map").value = document.getElementById("rarity_map").value.replaceAll(replace_from, replace_to) //update rarity map directly
+                        rarity_map = JSON.parse(document.getElementById("rarity_map").value)
+                        // console.log(rarity_map)
+                        layers_input_fields[i].name = layers_input_fields[i].name.replaceAll(replace_from, replace_to) //update input field name
+                        // console.log(layers_input_fields[i].name)
+                        // console.log(all_layer_names)
+                        // console.log(document.getElementById("rarity_map").value)
+                        create_notification("Layer Update", "Layer name changed succesfully!", duration = 5000, "success") //20 years duration for sins
+                    }
+
+                    for (let i = 0; i < textures_input_fields.length; i++) {
+                        textures_input_fields[i].name = textures_input_fields[i].name.replaceAll(replace_from, replace_to)
+                    }
+
+                    linked_texture_name.innerHTML = layer_name_update_field.value
+                    clicked_layer_name.innerHTML = layer_name_update_field.value
+                }
+                else
+                    create_notification("Layer Update", "You've attempted to rename into the same thing!", duration = 5000, "warning") //20 years duration for sins
+
+                // console.log(layers_input_fields)
+            }
+            //layers_row   
+        }.bind({layers_row: layers_row, textures_row: textures_row})
+
+        
+
+        layer_name.addEventListener('click', function() { open_images(this); handle_layer_properties_update()}.bind(add_layer_img))
         texture_name.addEventListener('click', function () { open_images(this)}.bind(add_layer_img_2))
 
         
@@ -358,16 +424,26 @@ function add_layer() {
         textures_row.appendChild(expand_collapse_parent_2)
 
         layers_row.querySelector('.close_button').addEventListener('click', function () {
+            let layer_name = this.layer.querySelector(":scope > h5")
             this.layer.remove()
             this.texture.remove()
-            all_layer_names.splice(all_layer_names.indexOf(this.name), 1)
-            create_notification("Layer removed!", this.name + " Removed!!!!!! !!!!! !! !!", duration = 5000, "success")
-        }.bind({ name: add_layer_input.value, layer: layers_row, texture: textures_row }))
+
+            for (const key in rarity_map) {
+                console.log(key)
+                if (key.includes("." + layer_name.innerHTML.toLowerCase() + ".")) {
+                    console.log("deleting")
+                    delete rarity_map[key]
+                }
+            }
+           document.getElementById("rarity_map").value = JSON.stringify(rarity_map)
+
+            all_layer_names.splice(all_layer_names.indexOf(layer_name.innerHTML), 1)
+            create_notification("Layer update", layer_name.innerHTML + " has been deleted!", duration = 5000, "success")
+        }.bind({ layer: layers_row, texture: textures_row }))
         button_section_layers.appendChild(layers_row)
         button_section_textures.appendChild(textures_row)
         all_layer_names.push(add_layer_input.value)
         add_layer_input.value = ""
-        
     }
 }
 
@@ -385,7 +461,7 @@ function open_images(self){
     
     var isfirst = false;
 
-    upload_preview.children[1].innerHTML = self.dataset.layer
+    upload_preview.children[1].innerHTML = self.previousElementSibling.innerHTML
     upload_preview.children[2].innerHTML = ""
 
     for (let index = 0; index < local_sliders.length; index++) {
@@ -432,7 +508,7 @@ function switch_tabs(target_tab, self) {
 function delete_button() {
     button_section_layers.remove()
     button_section_textures.remove()
-    create_notification("Layer Operation", "LAYER REMOVED !!!!! !! !!", duration = 5000, "success") //20 years duration for sins9
+    create_notification("Layer Update", "Layer removed succesfully", duration = 5000, "success") //20 years duration for sins9
 }
 
 
