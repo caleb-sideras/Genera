@@ -40,7 +40,7 @@
   <div class="upload_main">
     <div class="upload_layers rounded_container shadow_strong">
       <!-- shadow_strong -->
-      <h3 class="no_margin center">Layers</h3>
+      <h3 class="no_margin center">Layers </h3>
 <!-- <div id="wrapper" class="open">
   <div id="list">
     <div style="display: flex;"><input type="file" name="asset.background" style="margin-bottom: 5px;"><h5>Remove</h5></div>
@@ -89,7 +89,7 @@
     <div class="upload_properties">
       <div class="rounded_container shadow_strong">
         <h3 class="no_margin center">Collection Properties</h3>
-        <div style="margin-top: 15px; display: flex; flex-direction: column; gap: 10px; justify-content: space-around; align-items: center;">
+        <div style="margin: 10px 0; display: flex; flex-direction: column; gap: 10px; justify-content: space-around; align-items: center;">
           <h5 class="no_margin">Name</h5>
           <input
             required
@@ -176,6 +176,19 @@
       >
       <h4 class="no_margin generate">Generate</h4> 
       </button>
+
+      <div style="display: none;" class="update_layer_parameters_menu rounded_container shadow_strong">
+        <h3 class="no_margin center">Layer Properties</h3>
+        <div style="height:auto; margin: 10px 0; display: flex; flex-direction: column; gap: 25px; align-items: center; justify-content: space-between;">
+          <div style="text-align: center; width: 100%;">
+            <h5 style="margin: 5px 0;">Layer Name</h5>
+            <input class="general_input" id="layer_name_update_field" type="text">
+          </div> 
+          <button id="confirm_layer_properties_update" type="button" class="light_purple_background general_input general_button_no_border"> <h3 class="no_margin generate">Update properties!</h3> </button>
+        </div>
+
+
+      </div>
     </div>
   </div>
   <!--See Image Uploaded-->
