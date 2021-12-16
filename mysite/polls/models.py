@@ -48,6 +48,7 @@ class UserCollection(Model):
     contract_address = models.CharField(max_length=50, unique=False, blank = True, null = True)
     contract_bool =  models.BooleanField(default=False)
     tokens_deployed = models.BooleanField(default=False)
+    tokens_deployed_counter = models.IntegerField(default=1)
 
 class CollectionImage(Model):
     linked_collection = models.ForeignKey(UserCollection, on_delete=models.CASCADE)

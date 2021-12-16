@@ -71,6 +71,7 @@ function open_images(self){
     if (card_element.children[0].dataset.ipfs) {
         token_uri = card_element.children[0].dataset.ipfs
     }
+    parsed = JSON.parse(temp2)
 
     // console.log(temp4)
     // console.log(temp5)
@@ -83,7 +84,7 @@ function open_images(self){
 
     close_button = document.createElement('img')
     close_button.src = '/static/icons/remove.svg'
-    close_button.addEventListener('click', function () { close_pop_up() })
+    close_button.addEventListener('click', function () {close_image_carousell()})
     top_row.appendChild(close_button)
 
     wrapper = document.createElement('div')
@@ -105,12 +106,30 @@ function open_images(self){
 
     info = document.createElement('div')
     info.classList = 'info'
+    upper_info_wrapper = document.createElement('div')
+    upper_info_wrapper.classList = 'upper_info_wrapper'
     title = document.createElement('h2')
     title.innerHTML = temp3
+    upper_info_wrapper.appendChild(title)
+
+    if (temp4!='True') {
+        edit_wrapper = document.createElement('div')
+        edit_wrapper.classList = "general_button_no_border light_purple_background"
+        edit_button = document.createElement('img')
+        edit_button.src = '/static/icons/edit.svg'
+        edit_text = document.createElement('h4')
+        edit_text.innerHTML = "Edit"
+        edit_wrapper.appendChild(edit_button)
+        edit_wrapper.appendChild(edit_text)
+        edit_wrapper.addEventListener('click', () => {
+            edit_image(temp3, parsed['description'])
+        })
+        upper_info_wrapper.appendChild(edit_wrapper)
+    }
+    
     metadata = document.createElement('div')
     metadata.classList = 'info_wrapper'
 
-    parsed = JSON.parse(temp2)
     sub_section_element1 = create_image_element('Description', parsed['description'], 1)
     sub_section_element2 = create_image_element('Properties', parsed['attributes'], 2)
     metadata.appendChild(sub_section_element1)
@@ -134,7 +153,7 @@ function open_images(self){
                         console.log(response["server_message"])
                         card_element.remove()
                     })
-                    close_pop_up()
+                    close_yes_no_popup()
                 }
                 (document.body).children[0].remove()
 
@@ -158,7 +177,7 @@ function open_images(self){
     }
     //MINTING OPTION ALSO
     
-    info.appendChild(title)
+    info.appendChild(upper_info_wrapper)
     info.appendChild(metadata)
     info.appendChild(mutipurpose_button_section)
     wrapper.appendChild(info)
@@ -214,7 +233,7 @@ function next_element(self, bool){
         parent = self.parentNode
         parent.children[1].src = image
         parent2 = parent.children[2]
-        parent2.children[0].innerHTML = temp3
+        parent2.children[0].children[0].innerHTML = temp3
         parent2.children[1].children[0].children[2].children[0].innerHTML = parsed['description']
         if (card_element.children[0].dataset.ipfs) {
             token_uri = card_element.children[0].dataset.ipfs
@@ -227,8 +246,13 @@ function next_element(self, bool){
     }
 }
 
-function close_pop_up(){
-    (document.body).children[0].remove()
+function close_edit(){
+    edit_wrapper = document.getElementsByClassName("image_edit_wrapper")[0]
+    edit_wrapper.style = "display: none;"
+}
+
+function close_image_carousell(){
+    document.getElementsByClassName("image_preview")[0].remove() 
 }
 
 function expand_collapse(self) {
@@ -285,53 +309,6 @@ function expand_collapse_button(self) {
 
 }
 
-function delete_image(url) {
-
-    //HTTPREQUEST INIT CODE
-    if (window.XMLHttpRequest) { // Mozilla, Safari, IE7+ ...
-        http_request = new XMLHttpRequest();
-    } else if (window.ActiveXObject) { // IE 6 and older
-        http_request = new ActiveXObject("Microsoft.XMLHTTP");
-    }
-    //HTTPREQUEST INIT CODE
-
-    http_request.onreadystatechange = function () {
-        // Process the server response here (Sent from Django view inside JsonResponse)
-        if (http_request.readyState === XMLHttpRequest.DONE) {
-
-            if (http_request.status === 200) { //Status can also be different and defined within the JSONResponse
-                var response = JSON.parse(http_request.responseText)
-                response['entry_objects'].forEach(element => {
-                    console.log(element)
-                });
-                console.log(ipfs_links)
-                console.log(entries)
-                console.log("Received ipfs & entries from db")
-                ajax_server_post2(url)
-
-            } else { //if status is not 200 - assume fail, unless different status handled explicitly
-                alert('There was a problem with the request.');
-            }
-        }
-    };
-
-    // Send the POST request to the url/DJANGO VIEW
-    //setup for request header - not important
-    http_request.open('POST', url, true);
-    http_request.setRequestHeader('X-CSRFToken', get_cookie('csrftoken'));
-    http_request.setRequestHeader('contentType', 'application/json');
-    //end of setup
-
-    // Send the request as a JSON MAKE SURE TO ALWAYS HAVE THE CSRFTOKEN COOKIE !!! !! ! ! ! !! 
-    http_request.send(
-        JSON.stringify(
-            {
-                'csrfmiddlewaretoken': get_cookie('csrftoken'), //compulsory
-                'delete_image': "balls :)" //can add as many other entries to dict as necessary
-            })
-    )
-}//what does this do?
-
 async function delete_duplicates(self){
     await yes_no_popup("Delete ALL Duplicates?", "Delete", "Cancel")
         .then(function (reponse) {
@@ -342,12 +319,22 @@ async function delete_duplicates(self){
                         console.log(response["server_message"])
                         location.reload();
                     })
-                close_pop_up()
             }
+            close_yes_no_popup()
             // (document.body).children[0].remove()
 
         })
 }
 
+function edit_image(title, description){
+    edit_wrapper = document.getElementsByClassName("image_edit_wrapper")[0]
+    edit_wrapper.style = "display: flex;"
+    console.log(edit_wrapper)
+    // console.log(edit_wrapper.children[0])
+    edit_wrapper.children[1].children[1].value = title
+    edit_wrapper.children[1].children[3].value = description
+    edit_wrapper.children[2].value = title
+    console.log("edit clicked")
+}
 
 window.addEventListener("load", main);

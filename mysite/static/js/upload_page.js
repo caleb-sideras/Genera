@@ -493,7 +493,7 @@ function expand_collapse_button(self) {
 }
 
 // needs to work with submit
-async function conformation_button(){
+async function confirmation_button(){
     await yes_no_popup("Generate Collection?", "Yes", "No")
         .then(function (reponse) {
             if (reponse) {

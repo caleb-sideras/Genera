@@ -151,13 +151,12 @@ async function mint_collection_request() {
     await yes_no_popup("Deploy Collection?", "Yes", "No")
         .then(function (reponse) {
             if (reponse) {
-                close_pop_up()
+                close_yes_no_popup()
             }
             else{
-                (document.body).children[0].remove()
+                close_yes_no_popup()
                 throw("no deployment")
             }
-            (document.body).children[0].remove()
 
         })//try catching promise error
 
@@ -166,11 +165,11 @@ async function mint_collection_request() {
     ajax_post({'notneeded': "balls :)"})
     .then(function(response) { //Action that occurs after a response from the server was obtained - here (STATUS 200)
         ipfs_links = response["ipfs_links"]
-        console.log(ipfs_links)
-        entries = response["entries"]
-        entries.forEach(element => {
-            console.log(element)
-        });
+        // console.log(ipfs_links)
+        // entries = response["entries"]
+        // entries.forEach(element => {
+        //     console.log(element)
+        // });
         console.log(ipfs_links)
         console.log(entries)
         console.log("Received ipfs & entries from db")

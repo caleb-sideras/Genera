@@ -325,7 +325,7 @@ def all_collections_view(request, username):
         else:
             print("User has no collections.")
             messages.error(request, "You have no collections!")
-            return render(request, "collection.html", context)
+            return render(request, "all_collections.html", context)
 
     return render(request, "all_collections.html", context)
 
@@ -355,17 +355,6 @@ def collection_view(request, username, collection_name):
             
             context["collection_data"] = user_collection
             context["collection_images"] = collection_images
-            # for entry in collection_images:
-            #     # context['hello_king'] = json.dumps(entry.metadata)
-            #     # print(type(entry.metadata))
-            #     # print(type(context['hello_king']))
-            #     # print(context['hello_king'])
-            #     # print(json.loads(context['hello_king']))
-            #     # print(type(json.loads(context['hello_king'])))
-            #     print(entry.metadata)
-            #     # print(json.load(entry.metadata))
-            #     break
-            # print(context["collection_images"])
         else:
             messages.error(request, "COLLECTION DOES NOT EXIST !! !! !!!! !! ! !  !!!!!")
             return render(request, "collection.html", context)
@@ -373,7 +362,23 @@ def collection_view(request, username, collection_name):
         messages.error(request, "NOT LOGGED IN !!!!!")
         return render(request, "collection.html", context)
 
+
     if request.method == "POST":
+
+        # dunno if right implementation artem!! not assed to find out
+        # refresh bug after change helperman pls mr grech  
+        # also bugged on mint collection
+        # if request.POST["image_name"]:
+        #     print(request.POST["image_name"])
+        #     collection_query = collection_images.filter(deployed_bool = False, name=request.POST["entry_name"])
+        #     collection_image = collection_query.first()
+        #     collection_image.name = request.POST["image_name"]
+        #     collection_image_description = json.loads(collection_image.metadata)
+        #     collection_image_description["description"] = request.POST["image_description"]
+        #     collection_image.metadata = json.dumps(collection_image_description)
+        #     collection_image.save()
+
+        
         ##AJAX HANDLING SECTION START
         try:
             received_json_data = json.loads(request.body)
@@ -429,7 +434,7 @@ def collection_view(request, username, collection_name):
             elif "address_check" in received_json_data:
                 if request.user.is_authenticated:
                     if user_collection.contract_bool:
-                        print("In db")
+                        print("Contract already saved in db")
                         temp ={
                         'address_bool': True,
                         'collection_address': user_collection.contract_address
@@ -450,30 +455,39 @@ def collection_view(request, username, collection_name):
                     )
             elif "address_set" in received_json_data:
                 if request.user.is_authenticated:
-                    user_collection.contract_address = received_json_data["address_set"]
-                    user_collection.contract_bool = True
-                    user_collection.save()
-
-                # should be a refresh button and only on a secondary mint press, loading screen = 'Reading the smart contract'
-                    # IDEA, immediately set transaction hash, so only checks entries with txHashes. Careful, still have to check TokenURI/metadata_path, as the txHashes could have failed
-                    tokenURIs = read_contract(user_collection.contract_address)
                     IPFS_links = []
                     entry_names = []
-                    
-                    for entry in collection_images: # also could iterate over not deployed_bool
-                        if entry.deployed_txhash and not entry.deployed_bool: #would save iterations if did only txhash[true] & make almost 100% fool proof, can iterate over ifps_deployed
-                            if tokenURIs:
-                                for value in tokenURIs:
-                                    # print(f"{entry.ipfs_metadata_path} {value}")
-                                    if entry.ipfs_metadata_path == value:
-                                        entry.deployed_bool = True
-                                        entry.save()
-                        if not entry.deployed_bool:
+
+                    if not user_collection.contract_bool:
+                        user_collection.contract_address = received_json_data["address_set"]
+                        user_collection.contract_bool = True
+                        user_collection.save()
+
+                        for entry in collection_images:
                             IPFS_links.append(entry.ipfs_metadata_path)
                             entry_names.append(entry.name)
-                        # ABOVE, check if token not deployed, then compare it's tokenURI to the ipfs_metadata_path. If not the same, then deploy token. If the same, the set it as deployed. 
+                    else:
+                        tokenURIs = read_contract(user_collection.contract_address)
+                        if len(tokenURIs) == user_collection.collection_size:
+                            user_collection.tokens_deployed = True
+                            user_collection.save()
+                            print("All NFTs minted")
+                        else:
+                            user_collection.tokens_deployed_counter = len(tokenURIs)
+                            user_collection.save()
+                            for entry in collection_images:
+                                if entry.deployed_txhash and not entry.deployed_bool: #would save iterations if did only txhash[true] & make almost 100% fool proof, can iterate over ifps_deployed
+                                    if tokenURIs:
+                                        for value in tokenURIs:
+                                            if entry.ipfs_metadata_path == value:
+                                                entry.deployed_bool = True
+                                                entry.save()
+                                if not entry.deployed_bool:
+                                    IPFS_links.append(entry.ipfs_metadata_path)
+                                    entry_names.append(entry.name)
+
                     return JsonResponse(
-                        {"server_message" :"Contract address Set",
+                        {"server_message" :"Contract address set",
                         "ipfs_links": IPFS_links,
                         "entries" : entry_names
                         },
@@ -486,19 +500,22 @@ def collection_view(request, username, collection_name):
                     )
             elif "token_deployed" in received_json_data:
                 if request.user.is_authenticated:
-                    collection_query = collection_images.filter(deployed_bool = False, deployed_txhash__isnull= False)
-                    for entry in collection_query:
-                        print(entry.name)
-                        if entry.name.strip() == received_json_data['token_deployed'].strip():
-                            # print(f"{entry.name} {received_json_data['token_deployed']}")
-                            entry.deployed_bool = True
-                            entry.save()
-                            print('true')
-                            break
+                    collection_query = collection_images.filter(deployed_bool = False, deployed_txhash__isnull= False, name=received_json_data['token_deployed'])
+                    collection_image = collection_query.first()
+                    collection_image.deployed_bool = True
+                    collection_image.save()
+                    print(user_collection.tokens_deployed_counter)
+                    print(user_collection.collection_size)
+                    if user_collection.tokens_deployed_counter >= user_collection.collection_size:
+                        user_collection.tokens_deployed = True
+                        print("All NFTs minted")
+                    else:
+                        user_collection.tokens_deployed_counter = user_collection.tokens_deployed_counter + 1
+                    user_collection.save()
+                    print(collection_image.name)
           
-                    
                     return JsonResponse(
-                        {"server_message": "Entry contract_bool flipped"},
+                        {"server_message": "Image deployed, saved in db"},
                         status=200,
                     )
                 else:
@@ -508,15 +525,14 @@ def collection_view(request, username, collection_name):
                     )
             elif "store_txhash" in received_json_data:
                 if request.user.is_authenticated:
-                    for entry in collection_images:
-                        if entry.name.strip() == received_json_data['entry'].strip():
-                            entry.deployed_txhash = received_json_data['store_txhash']
-                            entry.save()
-                            print(f"{entry.name} in store txhash")
-                            print(received_json_data['store_txhash'])
+                    collection_query = collection_images.filter(deployed_bool = False, name=received_json_data['entry'])
+                    collection_image = collection_query.first()
+                    collection_image.deployed_txhash = received_json_data['store_txhash']
+                    collection_image.save()
+                    print(f"{collection_image.name} stored txhash {received_json_data['store_txhash']}")
                     
                     return JsonResponse(
-                        {"server_message": "txhash saved"},
+                        {"server_message": "txhash saved in db"},
                         status=200,
                     )
                 else:
@@ -528,13 +544,12 @@ def collection_view(request, username, collection_name):
                 if request.user.is_authenticated:
                     collection_query = collection_images.filter( deployed_bool = False, name = received_json_data['delete_entry']).delete()
                     print(f"deleted {received_json_data['delete_entry']}")
-
                     user_collection.collection_size = user_collection.collection_size - 1
                     user_collection.save()
 
 
                     return JsonResponse(
-                        {"server_message": "Deleted Object"},
+                        {"server_message": "Deleted collection_image object"},
                         status=200,
                     )
                 else:
@@ -545,7 +560,6 @@ def collection_view(request, username, collection_name):
             elif "delete_duplicates" in received_json_data:
                 if request.user.is_authenticated:
                     collection_query = collection_images.filter(deployed_bool = False)
-                    # for i, value in enumerate(collection_query):
                     i = 0
                     while i < len(collection_query):
                         print(f"{len(collection_query)} LENGTH OF QUERY")
@@ -556,15 +570,15 @@ def collection_view(request, username, collection_name):
                             print(f"{value_metadata} CURRENT METADATA {j + 1 + i}")
                             if entry_metadata['attributes'] == value_metadata['attributes']:
                                 collection_query[j + 1 + i].delete()
+                                user_collection.collection_size = user_collection.collection_size - 1
                                 print(f"{collection_query[j + 1 + i]} deleted {j + 1 + i}")
                         i = i + 1
                         collection_query = collection_images.filter(deployed_bool = False)
-                    # user_collection.collection_size = user_collection.collection_size - 1
-                    # user_collection.save()
+                    user_collection.save()
 
 
                     return JsonResponse(
-                        {"server_message": "Deleted Object"},
+                        {"server_message": "Deleted duplicates"},
                         status=200,
                     )
                 else:

@@ -13,31 +13,28 @@
     <input type="hidden" id="js_vars" data-ajax_url='{{ajax_url}}' data-json="{{erc721_json}}">
 
 <div class="filter">
+    <form type="hidden" method="post" style="display: none;" enctype="multipart/form-data" class="image_edit_wrapper" >
+        {% csrf_token %}
+        <div class="image_edit rounded_container">
+            <h3 class="no_margin">Name</h3>
+            <input required class="image_edit_input" name="image_name" type="text" value="" placeholder="Image Name"/>
+
+            <h3 class="no_margin">Description</h3>
+            <textarea required class="image_edit_input" name="image_description" rows="5" value = ''></textarea>
+
+            <div class="image_edit_button_wrapper">
+                <button class="general_button_no_border rounded_container_no_padding light_purple_background">
+                    <h4 class="no_margin generate">Save</h4>
+                </button>
+                <div class="general_button_no_border rounded_container_no_padding light_purple_background" onclick="close_edit()">
+                    <h4 class="no_margin generate">Cancel</h4>
+                </div>
+            </div>
+        </div>
+        <input required type="hidden" class="image_edit_input" name="entry_name" type="text" value="" placeholder="entry name"/>
+    </form>
     <h1 class="collection_title">{{collection_data.collection_name}} Collection</h1>
-    <div class="view_collection_main">
-        <!-- <div class="image_preview"></div> -->
-        
-    <!-- "name": "Void#1",
-    "description": "Void NFT girl for void chans",
-    "image": "https://ipfs.io/ipfs/QmZb77bDc39me3HMcK7zQC5z6yzqm88fdxDe82NRNz2qUZ?filename=Void1.png",
-    "attributes": [
-        {
-        "trait_type": "Body",
-        "value": "Girl"
-        },
-        {
-        "trait_type": "Shirt",
-        "value": "Crop Top (Dotted)"
-        },
-        {
-        "trait_type": "Hair",
-        "value": "Anime (Striped)"
-        },
-        {
-        "trait_type": "Accessories",
-        "value": "Choker"
-        }
-    ] -->
+    <div class="view_collection_main">  
         <div class="collection_structure">
             <div class="all_collections_layout">
                 {% if collection_images %}
@@ -45,16 +42,8 @@
                         <div class="collection_card shadow_strong rounded_container_no_padding">
                                 
                             {% if entry.ipfs_bool%}
-                            <!-- <img src="/static/icons/remove.svg" class="close_button remove_image_button color_image_orange"> -->
-                            <!-- <img src="/static/icons/ipfs_deployed.svg" class="close_button ifps_check"> -->
-                            <!-- <img src="{{entry.ipfs_image_path}}" alt="{{entry.name}} image should be here" class="nft_image" onclick="open_images(this)"> -->
-                            <!-- <script>var status = "{{entry.ipfs_bool}}"
-                                    // console.log(typeof(status))
-                                    console.log(typeof(status))
-                            </script> -->
                             <img src="{{entry.path_compressed}}" data-fullrez ="{{entry.path}}" data-ipfs ="{{entry.ipfs_metadata_path}}" alt="{{entry.name}} image should be here" class="nft_image" onclick="open_images(this)">
-                                {% else %}
-                            <!-- <img src="/static/icons/remove.svg" class="close_button remove_image_button color_image_orange"> -->
+                            {% else %}
                             <img src="{{entry.path_compressed}}" data-fullrez ="{{entry.path}}" alt="{{entry.name}} image should be here" class="nft_image" onclick="open_images(this)">
                             {% endif %}
                             <div>
