@@ -365,23 +365,23 @@ def collection_view(request, username, collection_name):
 
     if request.method == "POST":
         print("we posted")
+        # print(request.POST.get("entry_name"))
+        # print(request.POST.get("image_description"))
+        # print(request.POST.get("image_name"))
 
-        # dunno if right implementation artem!! not assed to find out
-        # refresh bug after change helperman pls mr grech  
-        # also bugged on mint collection
         if "image_name" in request.POST:
-            print(request.POST["image_name"])
-            print(request.POST["image_description"])
-            print(request.POST["entry_name"])
-            return   render(request, "collection.html", context)
-            collection_image = collection_images.filter(deployed_bool = False, name=request.POST["entry_name"]).first()
+            collection_image = collection_images.filter(deployed_bool = False, name=request.POST.get("entry_name")).first()
             if collection_image:
-                collection_image.name = request.POST["image_name"]
+                collection_image.name = request.POST.get("image_name")
                 collection_image_description = json.loads(collection_image.metadata)
-                collection_image_description["description"] = request.POST["image_description"]
+                collection_image_description["description"] = request.POST.get("image_description")
                 collection_image.metadata = json.dumps(collection_image_description)
                 collection_image.save()
 
+                return redirect(reverse("polls:collection", kwargs= {
+                    "username": username,
+                    "collection_name": collection_name,
+                }))
         
         ##AJAX HANDLING SECTION START
         try:
