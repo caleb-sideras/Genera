@@ -334,6 +334,8 @@ function edit_image(title, description){
     edit_wrapper.children[1].children[1].value = title
     edit_wrapper.children[1].children[3].value = description
     edit_wrapper.children[2].value = title
+    submit_button = document.getElementById("update_collection_submit_button")
+    submit_button.removeAttribute("disabled")
     console.log("edit clicked")
 }
 
