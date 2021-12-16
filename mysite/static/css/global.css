@@ -745,10 +745,10 @@ body {
 .image_preview > div > div > div > .button{
        height: 25px;
     /* width: 5%; */
-    aspect-ratio: 1;
+    /* aspect-ratio: 1; */
     /* align-items: center; */
-    margin-top: 250px;
-    margin-bottom: auto;
+    /* margin-top: 250px; */
+    /* margin-bottom: auto; */
     /* margin: 5px 0 0 0; */
     margin-left: 5px;
     /* width: 30%; */
@@ -761,6 +761,7 @@ body {
     vertical-align: middle;
     width: 4%;
     cursor: pointer;
+    display: flex;
 }
 
 .rbutton_wrapper {
@@ -770,6 +771,7 @@ body {
     vertical-align: middle;
     width: 4%;
     cursor: pointer;
+    display: flex;
 }
 .rbutton_wrapper:hover{
   background: var(--medium-grey-color);
