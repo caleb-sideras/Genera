@@ -13,6 +13,7 @@ urlpatterns = [
     path("login", login_view, name="login"),
     path("logout", logout_view, name="logout"),
     path("register", register_view, name="register"),
+    path("register/<uuid:token_url>", account_activation_view, name="account_activation"),
     path("mint", mint_view, name="mint"),
     path("user/<str:username>/profile", profile_view, name="profile"),
     # path("metamask", metamask_view, name="metamask"),

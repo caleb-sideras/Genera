@@ -19,7 +19,7 @@ STATIC_DIR = os.path.join(BASE_DIR, 'static')
 MEDIA_DIR = os.path.join(BASE_DIR, 'media')
 TEMPLATE_DIR = os.path.join(BASE_DIR, 'templates')
 
-
+BASE_URL = 'http://localhost:8000'
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
@@ -119,6 +119,9 @@ USE_L10N = True
 
 USE_TZ = True
 
+AUTHENTICATION_BACKENDS = (
+    'polls.models.CustomBackend', #<-This is yourFavNameAuthenticate.py class object
+)
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
