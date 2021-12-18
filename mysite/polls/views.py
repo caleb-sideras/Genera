@@ -1,4 +1,6 @@
+from time import timezone
 from django.shortcuts import render
+from polls.view_tools import generate_token
 from mysite.settings import MEDIA_DIR
 from polls.forms import *
 from polls.generator_alg import *
@@ -25,7 +27,9 @@ from django.db.models.signals import pre_delete
 import shutil
 import requests
 import json
+from django.db.models import Q
 import os
+from datetime import timezone
 
 # Create your views here.
 
@@ -225,13 +229,13 @@ def login_view(request):
         username = login_form["username"].value()
         password = login_form["password"].value()
 
-        user = authenticate(username=username, password=password)
+        candidate_user = authenticate(username=username, password=password)
 
-        if user:
-            login(request, user)
-            messages.success(request, "Login succesful!")
-            return redirect(reverse("polls:upload"))
+        if candidate_user:
+            login(request, candidate_user)
+            return redirect(reverse("polls:main_view"))
         else:
+            messages.error(request, message="Invalid username or password")
             login_form.add_error(None, "Incorrect details provided - Please try again")
 
         print(login_form.errors)
@@ -249,24 +253,28 @@ def register_view(request):
     
     if request.method == 'POST':
         user_form = UserRegisterForm(request.POST)
-        # profile_form = UserRegisterProfileForm(request.POST)
            
         if user_form.is_valid() and user_form.cleaned_data['password'] == user_form.cleaned_data['password_confirm']:
-            
             user = user_form.save()
             user.set_password(user.password)
+            user.is_active = False
             user.save()
-            UserProfile.objects.create(user=user)
-            # profile = profile_form.save(commit=False)
-            # profile.user = user
-            # profile.save()
+
+            account_activation_instance = generate_token(request, type="A", user=user)
+            # account_activation_instance["token_instance"]
+            # account_activation_instance["token_url"]
+
+            mail_context = f"Please click on the following link to activate your account: {account_activation_instance['token_url']}"
+            #send email here. 
+
+            UserProfile.objects.create(user=user).save()
             registered = True
             login(request,user)
             messages.success(request, 'Registration Succesful!')
             return redirect(reverse('polls:main_view'))
 
         elif user_form.cleaned_data['password'] != user_form.cleaned_data['password_confirm']:
-             user_form.add_error('password_confirm', 'The passwords do not match - please enter 2 matching passwords')
+            user_form.add_error('password_confirm', 'The passwords do not match - please enter 2 matching passwords')
         else:
             print(user_form.errors)
     
@@ -276,6 +284,29 @@ def register_view(request):
     
     return render(request, 'register.html', context={'register_form': user_form, 'registered': registered})
 
+def account_activation_view(request, token_url):
+    token_instance = Token.objects.filter(hash=token_url).first()
+
+    if token_instance:
+        #calculate time difference between now and the time that the token was created. note that time is using django DateTimeField.
+        time_difference = timezone.now() - token_instance.created
+        #if the time difference is more than one week, then delete this token.
+        if time_difference.days > 7:
+            token_instance.delete()
+            messages.error(request, 'It has been more than one week, so the activation link has expired - please register again')
+            return redirect(reverse('polls:register'))
+
+        #if the time difference is less than one week, then activate the user.
+        token_instance.user.is_active = True
+        token_instance.user.save()
+        token_instance.delete()
+        messages.success(request, 'Account activated! Please log in.')
+        print(f"{token_instance.user.username} has been activated")
+        return redirect(reverse('polls:login'))
+    else:
+        messages.error(request, 'Invalid URL accessed!')
+        print(f"Invalid URL accessed")
+        return redirect(reverse('polls:main_view'))
 
 
 def profile_view(request, username):

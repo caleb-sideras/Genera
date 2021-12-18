@@ -6,12 +6,11 @@ from polls.models import UserProfile
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import authenticate
 
-class LoginForm(forms.ModelForm):
+class LoginForm(forms.Form):
     username = forms.CharField(widget = forms.TextInput(attrs = {'placeholder' : 'Enter your Username'}))
     password = forms.CharField(widget = forms.PasswordInput(attrs = {'placeholder' : 'Password'}))
     
     class Meta:
-        model = User
         fields = ('username', 'password')
 
 class UserRegisterForm(forms.ModelForm):
