@@ -166,7 +166,7 @@ async function mint_collection_request() {
     .then(function(response) { //Action that occurs after a response from the server was obtained - here (STATUS 200)
         ipfs_links = response["ipfs_links"]
         // console.log(ipfs_links)
-        // entries = response["entries"]
+        entries = response["entries"]
         // entries.forEach(element => {
         //     console.log(element)
         // });

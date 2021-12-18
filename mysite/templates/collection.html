@@ -13,17 +13,18 @@
     <input type="hidden" id="js_vars" data-ajax_url='{{ajax_url}}' data-json="{{erc721_json}}">
 
 <div class="filter">
-    <form method="post" style="display: none;" enctype="multipart/form-data" class="image_edit_wrapper" >
+    <form type="hidden" method="post" style="display: none;" enctype="multipart/form-data" class="image_edit_wrapper" >
         {% csrf_token %}
         <div class="image_edit rounded_container">
             <h3 class="no_margin">Name</h3>
-            <input required class="image_edit_input" name="image_name" type="text" placeholder="Image Name"/>
+            <input required class="image_edit_input" name="image_name" type="text" value="" placeholder="Image Name"/>
 
             <h3 class="no_margin">Description</h3>
-            <textarea required class="image_edit_input" name="image_description" rows="5"></textarea>
+            <textarea required class="image_edit_input" name="image_description" rows="5" value = ''></textarea>
 
             <div class="image_edit_button_wrapper">
-                <button disabled type="submit" class="general_button_no_border rounded_container_no_padding light_purple_background" id="update_collection_submit_button">
+                <button class="general_button_no_border rounded_container_no_padding light_purple_background" id="update_collection_submit_button"
+                disabled>
                     <h4 class="no_margin generate">Save</h4>
                 </button>
                 <div class="general_button_no_border rounded_container_no_padding light_purple_background" onclick="close_edit()">
@@ -31,7 +32,7 @@
                 </div>
             </div>
         </div>
-        <input required type="hidden" class="image_edit_input" name="entry_name" type="text"/>
+        <input required type="hidden" class="image_edit_input" name="entry_name" type="text" value="" placeholder="entry name"/>
     </form>
     <h1 class="collection_title">{{collection_data.collection_name}} Collection</h1>
     <div class="view_collection_main">  

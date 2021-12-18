@@ -124,8 +124,9 @@ function ajax_post(payload) {
 
 /* When the user clicks on the button,
 toggle between hiding and showing the dropdown content */
-function myFunction() {
-    document.getElementById("myDropdown").classList.toggle("show");
+function myFunction(classname) {
+    console.log(document.getElementById(classname))
+    document.getElementById(classname).classList.toggle("show");
 }
 
 function create_and_render_loading_popup(heading = "Loading") { //Not recommended to use more than 3 words - ull need to hard code edge cases for the offsets more.
@@ -203,18 +204,18 @@ function close_yes_no_popup() {
 
 
 // Close the dropdown menu if the user clicks outside of it
-window.onclick = function (event) {
-    if (!event.target.matches('.dropbtn')) {
-        var dropdowns = document.getElementsByClassName("dropdown-content");
-        var i;
-        for (i = 0; i < dropdowns.length; i++) {
-            var openDropdown = dropdowns[i];
-            if (openDropdown.classList.contains('show')) {
-                openDropdown.classList.remove('show');
-            }
-        }
-    }
-}
+// window.onclick = function (event) {
+//     if (!event.target.matches('.dropbtn')) {
+//         var dropdowns = document.getElementsByClassName("dropdown-content");
+//         var i;
+//         for (i = 0; i < dropdowns.length; i++) {
+//             var openDropdown = dropdowns[i];
+//             if (openDropdown.classList.contains('show')) {
+//                 openDropdown.classList.remove('show');
+//             }
+//         }
+//     }
+// }
 
 
 

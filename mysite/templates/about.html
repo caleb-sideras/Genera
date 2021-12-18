@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block body_block %}
+    <div class="about_top_wrapper">
+        <img src="{% static 'Assets/Background/about_background.png' %}" alt="">
+        <div class="about_top_text rounded_container light_purple_background shadow_strong">
+            <h3>ABOUT US</h3>
+            <h1>Connecting Artists to Ethereum</h1>
+            <h4>We are constantly innovating and supplying tools that will allow creators to easily publish their work on the decentralized web</h4>
+        </div>
+    </div>
+    <div class="about_main">
+        <div style="display: flex; align-items: baseline; justify-content: center;">
+            <p style="font-size:80px" class="no_margin">&#9996;</p>
+            <h2 style="font-size:32px; color: var(--medium-grey-color);"  class="no_margin">Meet the team</h2>
+        </div>
+        
+        <div class="about_row">
+            <div class="team_card rounded_container shadow_strong">
+                <div class="team_card_info pic_section">
+                    <img src="{% static 'Assets/About/caleb_sideras_pic.png' %}" alt="Caleb Picture" class="profile-picture" height="160">
+                    <h3 class="no_margin">Caleb Sideras</h3>
+                    <h4>Co-Founder</h4>
+                </div>
+                <div class="team_card_info">
+                    <div class="team_card_section">
+                        <h3 class="info_title">About</h3>
+                        <h4 class="info_text">Someone just pls hire me... i want to live alone for next 20 years</h4>
+                    </div>
+                    <div class="team_card_section">
+                        <h3 class="info_title">Roles</h3>
+                        <h4 class="info_text">- Solidity/Web3 Developer <br> 
+                            - Full Stack Developer <br> 
+                            - Graphic Designer <br> 
+                        </h4>
+                    </div>
+                </div>
+            </div>
+            <div class="team_card rounded_container shadow_strong">
+                <div class="team_card_info pic_section">
+                    <img src="{% static 'Assets/About/artem_pic.png' %}" alt="Artem Picture" class="profile-picture" height="160">
+                    <h3 class="no_margin">Artem Grechushkin</h3>
+                    <h4>Co-Founder</h4>
+                </div>
+                <div class="team_card_info">
+                    <div class="team_card_section">
+                        <h3 class="info_title">About</h3>
+                        <h4 class="info_text">Artem has been single for 22 years and is looking for an above average looking partner (perferably a women) who is 18 or older</h4>
+                    </div>
+                    <div class="team_card_section">
+                        <h3 class="info_title">Roles</h3>
+                        <h4 class="info_text">- Full Stack Developer <br> 
+                            - Database Architect <br> 
+                        </h4>
+                    </div>
+                </div>
+            </div>
+            <div class="team_card rounded_container shadow_strong">
+                    <div class="team_card_info pic_section">
+                        <img src="{% static 'Assets/About/tat_pic.png' %}" alt="Tat Picture" class="profile-picture" height="160">
+                        <h3 class="no_margin">Tatiana Evsegneeva</h3>
+                        <h4>Intern</h4>
+                    </div>
+                    <div class="team_card_info">
+                        <div class="team_card_section">
+                            <h3 class="info_title">About</h3>
+                            <h4 class="info_text">Tatiana is not here for diversity!!! She wrote like a couple hundred lines of code!!!</h4>
+                        </div>
+                            <div class="team_card_section">
+                            <h3 class="info_title">Roles</h3>
+                            <h4 class="info_text">- Backend Developer<br> 
+                            </h4>
+                        </div>
+
+                    </div>
+                </div>
+        </div>
+    </div>
+    <div class="about_roadmap">
+         <div style="display: flex; align-items: baseline; justify-content: center; padding-top: 10px; padding-bottom: 25px;">
+            <p style="font-size:70px" class="no_margin">&#128640;</p>
+            <h2 style="font-size:32px; color: var(--medium-grey-color);"  class="no_margin">Q1 2022 Road Map</h2>
+        </div>
+        <div class="roadmap_section">
+            <div class="shadow_strong">
+                <h2>Creator Fund</h2>
+                <p>A portion of capital allocation will go towards the creator fund. This fund will support artists from a multitude of backgrounds in their pursuit of creating NFTs. This fund will help with minting, generation and marketing costs. Artists chosen for this fund will be determined based on community voting and internal feedback.</p>
+            </div>
+            
+            <div class="shadow_strong">
+                <h2>NFT minter/Texture mapping</h2>
+                <p>Both these features are available in our 'NFT Maker' section. But through community feedback, we have learned that artists also want them as stand alone features.</p>
+            </div>
+            <div class="shadow_strong">
+                <h2>Solana and Polygon Minting</h2>
+                <p>We intend to add functionality that will enable users to mint their NFT collections to more blockchains. Solana & Polygon support was chosen first.</p>
+            </div>
+            
+            <div class="shadow_strong">
+                <h2>Public Minting</h2>
+                <p>As we develop our community features (public user profiles, profile/collection searches, public collection showcases etc) we will allow Genera users to set up public minted collections. Where any user could preview a collection and mint an NFT from that collection. </p>
+            </div>
+            <div class="shadow_strong">
+                <h2>Misc</h2>
+                <p>More complex rarity control, gif/video support, collection sorting, UI improvements and more!</p>
+            </div>
+
+        </div>
+    </div>
+{% endblock %}

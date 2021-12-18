@@ -60,12 +60,31 @@
 
       <!-- <img style="flex: 1 0;"> -->
       <div class="right_navbar">
+        <!-- <div class="dropdown">
+          <button
+            onclick="myFunction('more')"
+            class="dropbtn2 rounded_container_no_padding"
+          >
+            more
+          </button>
+          <div
+            id="more"
+            class="dropdown-content rounded_container_no_padding"
+          >
+            <a href="{% url 'polls:profile' request.user.username %}"
+              ><p>About us</p></a
+            >
+            <a href="{% url 'polls:about'%}"
+              ><p>Documentation</p></a
+            >
+          </div>
+        </div> -->
         <button class="btn_toggle">Toggle Theme</button>
         <!-- <button class="btn-toggle">Theme</button> -->
         {% if request.user.is_authenticated%}
         <div class="dropdown">
           <button
-            onclick="myFunction()"
+            onclick="myFunction('myDropdown')"
             class="dropbtn rounded_container_no_padding"
           >
             Logged in as: {{request.user.username}}

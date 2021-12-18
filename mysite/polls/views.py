@@ -372,9 +372,11 @@ def collection_view(request, username, collection_name):
         if "image_name" in request.POST:
             collection_image = collection_images.filter(deployed_bool = False, name=request.POST.get("entry_name")).first()
             if collection_image:
+                print(collection_image.id)
                 collection_image.name = request.POST.get("image_name")
                 collection_image_description = json.loads(collection_image.metadata)
                 collection_image_description["description"] = request.POST.get("image_description")
+                collection_image_description["name"] = request.POST.get("image_name")
                 collection_image.metadata = json.dumps(collection_image_description)
                 collection_image.save()
 
@@ -389,7 +391,7 @@ def collection_view(request, username, collection_name):
             # make this a async function for speed!!!!! Will need db changes
             if "notneeded" in received_json_data:  # handle
                 pinata_links =[]
-                entry_names =[]
+                entry_ids =[]
                 if request.user.is_authenticated:     
                     for entry in collection_images:
                         if not entry.deployed_bool:
@@ -418,7 +420,7 @@ def collection_view(request, username, collection_name):
                                 entry.ipfs_bool = True
                                 entry.save()
                             pinata_links.append(entry.ipfs_metadata_path)
-                            entry_names.append(entry.name)
+                            entry_ids.append(entry.id)
                     user_collection.collection_ifps_bool = True
                     user_collection.save()
                     # for entry in collection_images:
@@ -426,7 +428,7 @@ def collection_view(request, username, collection_name):
                     return JsonResponse(
                         { # dont need links here, should be sent after deployment and secondary contract test
                             "ipfs_links": pinata_links,
-                            "entries" : entry_names
+                            "entries" : entry_ids
                         },
                         status=200,
                     )
@@ -460,7 +462,7 @@ def collection_view(request, username, collection_name):
             elif "address_set" in received_json_data:
                 if request.user.is_authenticated:
                     IPFS_links = []
-                    entry_names = []
+                    entry_ids = []
 
                     if not user_collection.contract_bool:
                         user_collection.contract_address = received_json_data["address_set"]
@@ -469,7 +471,7 @@ def collection_view(request, username, collection_name):
 
                         for entry in collection_images:
                             IPFS_links.append(entry.ipfs_metadata_path)
-                            entry_names.append(entry.name)
+                            entry_ids.append(entry.id)
                     else:
                         tokenURIs = read_contract(user_collection.contract_address)
                         if len(tokenURIs) == user_collection.collection_size:
@@ -488,12 +490,12 @@ def collection_view(request, username, collection_name):
                                                 entry.save()
                                 if not entry.deployed_bool:
                                     IPFS_links.append(entry.ipfs_metadata_path)
-                                    entry_names.append(entry.name)
+                                    entry_ids.append(entry.id)
 
                     return JsonResponse(
                         {"server_message" :"Contract address set",
                         "ipfs_links": IPFS_links,
-                        "entries" : entry_names
+                        "entries" : entry_ids
                         },
                         status = 200
                     )
@@ -504,7 +506,7 @@ def collection_view(request, username, collection_name):
                     )
             elif "token_deployed" in received_json_data:
                 if request.user.is_authenticated:
-                    collection_query = collection_images.filter(deployed_bool = False, deployed_txhash__isnull= False, name=received_json_data['token_deployed'])
+                    collection_query = collection_images.filter(deployed_bool = False, deployed_txhash__isnull= False, id=received_json_data['token_deployed'])
                     collection_image = collection_query.first()
                     collection_image.deployed_bool = True
                     collection_image.save()
@@ -529,7 +531,7 @@ def collection_view(request, username, collection_name):
                     )
             elif "store_txhash" in received_json_data:
                 if request.user.is_authenticated:
-                    collection_query = collection_images.filter(deployed_bool = False, name=received_json_data['entry'])
+                    collection_query = collection_images.filter(deployed_bool = False, id=received_json_data['entry'])
                     collection_image = collection_query.first()
                     collection_image.deployed_txhash = received_json_data['store_txhash']
                     collection_image.save()
@@ -595,6 +597,18 @@ def collection_view(request, username, collection_name):
         ##AJAX HANDLING SECTION END
     return render(request, "collection.html", context)
 
+
+def about_view(request):
+    context = {}
+
+
+    return render(request, "about.html", context)
+
+def documentation_view(request):
+    context = {}
+
+
+    return render(request, "documentation.html", context)
 
 def upload_pinata_filepath(filepath, filename):
     with Path(filepath).open("rb") as fp:

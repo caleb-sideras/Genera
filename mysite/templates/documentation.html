@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block head_block %}
+<script type="text/javascript" src="{% static 'js/docs.js' %}"></script>
+{% endblock %}
+{% block body_block %}
+
+<div class="docs_row">
+    <h3 class="no_margin">Docs</h3>
+    <h3 class="no_margin" style="color: grey; font-weight: normal;">Tutorials</h3>
+</div>
+
+<div class="docs_wrapper">
+    <div class="docs_column">
+        <div id="overview">
+            <h3>Overview</h3>
+            <img src="static/icons/expand.svg" alt="">
+        </div>
+        <div id="smart_contract">
+            <h3 onclick="docs_new_content(this.parentElement)">Smart Contract</h3>
+            <img src="static/icons/expand.svg" alt="">
+        </div>
+        <div id="minting">
+            <h3 onclick="docs_new_content(this.parentElement)">Minting</h3>
+            <img src="static/icons/expand.svg" alt="">
+        </div>
+        <div id="generation">
+            <h3 onclick="docs_new_content(this.parentElement)">Generation Algorithm</h3>
+            <img src="static/icons/expand.svg" alt="">
+        </div>
+        <div id="metadata">
+            <h3 onclick="docs_new_content(this.parentElement)">Metadata Storage</h3>
+            <img src="static/icons/expand.svg" alt="">
+        </div>
+    </div>
+
+    <div class="docs_content">
+        <div id="smart_contract" style="display: none;">
+            <h1>Smart Contract</h1>
+            <h3>Open Zeppelin</h3>
+            <p>Genera's NFT smart contract inherits from the Open-Zeppelin-ERC721-3.4.0 contract. Open Zeppelin is an audited, trusted producer of verifiably safe smart contracts. Specifically, their ERC721 contracts have been used to mint 100s of thousands of NFTs. This contract will allow your NFTs to be sold on any Ethereum NFT marketplace.</p>
+            <h3>Contract Ownership</h3>
+            <p>Only the owner (address that deployed the smart  contract) can mint NFTs on the contract. This ensures only you, the owner, can make state changes on the blockchain involving the contract. Furthermore, you will be able to add NFTs to your contract using external websites, and/or by writing your own code.</p>
+            <h3>Etherscan</h3>
+            <p>Genera has implemented the Etherscan api into the contracts, thus allowing your deployed contracts to be viewed and interacted with on Etherscan.</p>
+            <p class="roadmap">Roadmap: We intend to add functionality that will enable users to mint their NFT collections to more blockchains. Q1 2022 - Solana & Polygon blockchain support will be added.</p>
+            <pre>// SPDX-License-Identifier: MIT
+
+pragma solidity 0.6.6;
+
+import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+
+contract NFTGenerator is ERC721 {
+    uint256 public tokenCounter;
+
+    constructor(string memory _name, string memory _symbol)
+        public
+        ERC721(_name, _symbol)
+    {
+        tokenCounter = 0;
+    }
+
+    function createNewCollectible(string memory _tokenURI) public {
+        uint256 newTokenId = tokenCounter;
+        _safeMint(msg.sender, newTokenId); // openzeppelin safe mint
+        _setTokenURI(newTokenId, _tokenURI); // openzeppelin set token uri
+        tokenCounter = tokenCounter + 1;
+    }
+}
+</pre>
+        </div>
+        <div id="minting" style="display: none;">
+            <h1>Minting</h1>
+            <h3>Double-Mint Protection</h3>
+            <p>Our highest priority when developing the minting process, was that under no circumstances could an NFT be double minted. Specifically, the same NFT being unintentionally minted twice on the same smart contract. We have 4 major safety checks that will prevent this from happening.</p>
+            <h4>Database integration with Metamask</h4>
+            <p>Genera will save all public transaction information when you make state changes on Ethereum using your Metamask wallet; this will only be done when you explicitly deploy/mint a collection using our website. This information includes deployment addresses, contract addresses, transaction hashes, block hashes and tokenURIs. This ensures while Genera is connected to Metamask, all transactions can be verified and an NFT cannot be minted twice.</p>
+            <h4>Smart Contract Interaction</h4>
+            <p>In the event that your browser and/or Metamask wallet is intentionally or unintentionally closed during the minting process, Genera will use an Infura node to interact with the smart contract and verify which NFTs that have been minted. This data is then compared with our database and updates any irregularities.</p>
+            <h4>Loading screen integration with Metamask</h4>
+            <p>While a transaction is pending/processing, any interaction with Genera is prevented by using a loading screen. This prevents users from unintentionally trying to mint the same nft while it's being verified on the blockchain.</p>
+            <h4>Failed Transactions</h4>
+            <p>The only time that would constitute an NFT having more than one mint being sent to the network, would be if the initial transaction could not be verified (i.e. not enough gas, network disruption etc).</p>
+            <h3>Low Gas Fees</h3>
+            <p>Since all computation involving the generation of the collection (i.e. image pasting, texture mapping, rarity generation, metadata creation, IFPS deployment etc) is done on Genera servers, the only state changes that are required on the Blockchain is the initial contract deployment and the individual mints of the NFTs. This results in comparably very low gas fees when deploying your collection.</p>
+        </div>
+        <div id="generation" style="display: none;">
+            <h1>Generation Algorithm</h1>
+            <p>Genera uses a proprietary generative NFT generation algorithm. It makes use of various libraries including but not limited to Pillow, Numpy and Math.</p>
+            <h3>Rarity Control</h3>
+            <p>Users can choose exactly how many times they would like an asset/texture to appear in their collection. In addition, the user can control how NFTs they would like to be generated inside their collection. Genera’s rarity control extends to asset and texture combinations, allowing for random combinations of different assets and textures. Furthermore, if the user's rarity preferences result in a collection size that is less than the user specified amount, the algorithm will dynamically allocate the collection size based on the generated output.</p>
+            <h3>Texture Mapping</h3>
+            <p>Genera allows for user uploaded textures to be mapped onto plain and/or textured assets. This works by the user selecting a universal color that is present on all the assets that would be texture mapped. Then the user would upload the textures to the corresponding layers, choose the individual rarities for the textures and assets, then generate. The algorithm would then apply these textures to the assets and present them in the final collection ready for minting.</p>
+            <h3>Metadata Creation</h3>
+            <p>Genera generates ERC721 compliant metadata for each NFT it produces. The metadata shows the name, description and all the unique properties of the NFT (layer names, asset names, asset/texture combinations etc). The user will be able to edit the name and description of each NFT, but not the properties. This is done for collection integration.</p>
+            <p class="roadmap">Roadmap: Q1 2022 - More complex, layer/asset/texture specific rarity controls. Multiple texture mapping colors/layers. Gif/Video support.</p>
+        </div>
+        <div id="metadata" style="display: none;">
+            <h1>Metadata Storage (IPFS)</h1>
+            <p>Genera uses Pinata to safely and securely deploy your metadata to IPFS. Pinata is an industry wide recognised IFPS deployment platform. They provide secure storage of your metadata using decentralized nodes on IFPS. </p>
+            <h3>API Keys</h3>
+            <p>Our Pinata API key permissions only pertain to deployment of metadata, therefore making it impossible for your data to be deleted via an API key leak.</p>
+            <h3>Recommendations</h3>
+            <p>Post Pinata deployment, we still recommend that you run a local IFPS node with all your metadata, for the sake of decentralization. All your deployed metadata information (IFPS hashes) can be found on your collection pages.</p>
+            <p class="roadmap">Roadmap: Future implementations of IPFS deployment involve Filecoin incentives, Genera node IFPS deployments, solely user node IFPS deployments, and multiple Pinata Node deployments.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

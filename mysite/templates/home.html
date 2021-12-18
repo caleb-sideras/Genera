@@ -5,27 +5,29 @@
 
 <div class="main_wrapper">
   <div class="background_image_wrapper">
-      <div class="cover-image">
-        <img src="{% static 'Assets/Background/websitebackground2.png' %}" alt="">
-      </div>
+    <div class="cover-image">
+      <img src="{% static 'Assets/Background/websitebackground2.png' %}" alt="Genera_banner" width="100%">
     </div>
-  {% csrf_token %}
-  <div class="main_upper">
-   <h1>Connecting Artists to Ethereum</h1>
-   <h4>Create and mint NFTs directly to Ethereum using your Metamask wallet! Using IFPS, your NFT metadata will be safely stored on the decentralized web!</h4>
   </div>
+  {% csrf_token %}
+  
   <div class="main_section no_margin">
+    <div class="main_upper">
+      <h1>Connecting Artists to Ethereum</h1>
+      <h4>Create and mint NFTs directly to Ethereum using your Metamask wallet! Using IFPS, your NFT metadata will be safely stored on the decentralized web!</h4>
+    </div>
     <!-- data-src="https://gravitoken.co.uk/wp-content/uploads/2021/07/GRV-Header-BG2.png" data-width="2200" data-height="1454" data-size="cover" -->
     
     <div class="sub_section">
       <div class="row2">
         <a href="{% url 'polls:upload' %}">
-        <div class="card grow main_card card_title rounded_container">
+          <div class="card grow main_card card_title rounded_container">
             <h2 class="no_margin card">Generative NFT Maker/Minter</h2>
             <h3 class="no_margin card">Create and mint generative NFT collections with custom rarities, texture mapping and metadata</h3>
-        </div>
+          </div>
+        </a>
       </div>
-      </a>
+      
       <div class="row1">
         <div class="card grow big_card card_title rounded_container">
           <h2 class="no_margin card">NFT Minter</h2>
@@ -35,63 +37,62 @@
           <h2 class="no_margin card">Texture Mapping</h2>
           <h3 class="no_margin card">Map mutiple textures onto a single asset</h3>
         </div>
-      </div>
-      
-    </div>
-    <h2 style="margin-top: 50px; position: relative;">Features</h2>
-    <div class="features_card">
-    <div class="info_card rounded_container_no_padding">
-      <img src="/static/Assets/Images/html_icon.png" class="nft_image">
-      <div>
-        <p class="no_margin center">No Coding Required</p>
-        <div><p style="font-size: smaller;" class="no_margin center">Add assets/textures to your layers, choose your collection size and generate!</p></div>                      
-      </div>
-    </div>
-    <div class="info_card rounded_container_no_padding">
-      <img src="/static/Assets/Images/slider_icon.png" class="nft_image">
-      <div>
-        <p class="no_margin center">Asset/Texture Rarity</p>
-        <div><p style="font-size: smaller;" class="no_margin center">Add assets/textures to your layers, choose your collection size and generate!</p></div>                      
-      </div>
-    </div>
-    <div class="info_card rounded_container_no_padding">
-      <img src="/static/Assets/Images/texturemapping_icon.png" class="nft_image">
-      <div>
-        <p class="no_margin center">Texture Mapping</p>
-        <div><p style="font-size: smaller;" class="no_margin center">Add assets/textures to your layers, choose your collection size and generate!</p></div>                      
-      </div>
-    </div>
-    <div class="info_card rounded_container_no_padding">
-      <img src="/static/Assets/Images/minting_icon.png" class="nft_image">
-      <div>
-        <p class="no_margin center">Minting</p>
-        <div><p style="font-size: smaller;" class="no_margin center">Add assets/textures to your layers, choose your collection size and generate!</p></div>                      
-      </div>
-    </div>
-    <div class="info_card rounded_container_no_padding">
-      <img src="/static/Assets/Images/metadata_icon.png" class="nft_image">
-      <div>
-        <p class="no_margin center">Metadata</p>
-        <div><p style="font-size: smaller;" class="no_margin center">Add assets/textures to your layers, choose your collection size and generate!</p></div>                      
-      </div>
-    </div>
-    <div class="info_card rounded_container_no_padding">
-      <img src="/static/Assets/Images/size_icon.png" class="nft_image">
-      <div>
-        <p class="no_margin center">Collection Size</p>
-        <div><p style="font-size: smaller;" class="no_margin center">Add assets/textures to your layers, choose your collection size and generate!</p></div>                      
-      </div>
-    </div>
-    <div class="info_card rounded_container_no_padding">
-      <img src="/static/Assets/Images/ifps_icon2.png" class="nft_image">
-      <div>
-        <p class="no_margin center">IFPS Storage</p>
-        <div><p style="font-size: smaller;" class="no_margin center">Add assets/textures to your layers, choose your collection size and generate!</p></div>                      
-      </div>
+      </div> 
     </div>
   </div>
-  </div>
-  
+  <div class="features_wrapper">
+    <h2 style="text-align: center; position: relative; font-size: 1.5rem; padding-top: 25px; margin-top: 0;">Features</h2>
+      <div class="features_card">
+        <div class="info_card rounded_container_no_padding shadow_strong ">
+          <img src="/static/Assets/Images/html_icon.png" class="nft_image">
+          <div>
+            <p class="no_margin center">No Coding Required</p>
+            <div><p class="no_margin center">Add assets/textures to your layers and generate!</p></div>                      
+          </div>
+        </div>
+        <div class="info_card rounded_container_no_padding shadow_strong ">
+          <img src="/static/Assets/Images/slider_icon.png" class="nft_image">
+          <div>
+            <p class="no_margin center">Asset/Texture Rarity</p>
+            <div><p class="no_margin center">Choose exactly the amount of times you want an asset/texture to appear in your collection</p></div>                      
+          </div>
+        </div>
+        <div class="info_card rounded_container_no_padding shadow_strong ">
+          <img src="/static/Assets/Images/texturemapping_icon.png" class="nft_image">
+          <div>
+            <p class="no_margin center">Texture Mapping</p>
+            <div><p class="no_margin center">Upload plain assets and map multiple textures onto them, with full rarity control</p></div>                      
+          </div>
+        </div>
+        <div class="info_card rounded_container_no_padding shadow_strong ">
+          <img src="/static/Assets/Images/minting_icon.png" class="nft_image">
+          <div>
+            <p class="no_margin center">Minting</p>
+            <div><p class="no_margin center">Using your Metamask wallet, mint your NFTs directly to Ethereum</p></div>                      
+          </div>
+        </div>
+        <div class="info_card rounded_container_no_padding shadow_strong ">
+          <img src="/static/Assets/Images/metadata_icon.png" class="nft_image">
+          <div>
+            <p class="no_margin center">Metadata</p>
+            <div><p class="no_margin center">Generates ERC721 compliant metadata, that uniquely identifies each NFT</p></div>                      
+          </div>
+        </div>
+        <div class="info_card rounded_container_no_padding shadow_strong ">
+          <img src="/static/Assets/Images/size_icon.png" class="nft_image">
+          <div>
+            <p class="no_margin center">Collection Size</p>
+            <div><p class="no_margin center">Generate up to 10,000 NFTs in your collection!</p></div>                      
+          </div>
+        </div>
+        <div class="info_card rounded_container_no_padding shadow_strong ">
+          <img src="/static/Assets/Images/ifps_icon2.png" class="nft_image">
+          <div>
+            <p class="no_margin center">IFPS Storage</p>
+            <div><p class="no_margin center">All your NFT metadata will be safely stored on the decentralized web!</p></div>                      
+          </div>
+        </div>
+      </div>
   </div>
   {% endblock %}
 </div>
