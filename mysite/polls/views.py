@@ -1,6 +1,6 @@
 from time import timezone
 from django.shortcuts import render
-from mysite.polls.view_tools import generate_token
+from polls.view_tools import generate_token
 from mysite.settings import MEDIA_DIR
 from polls.forms import *
 from polls.generator_alg import *
@@ -286,7 +286,7 @@ def register_view(request):
 
 def account_activation_view(request, token_url):
     token_instance = Token.objects.filter(hash=token_url).first()
-    
+
     if token_instance:
         #calculate time difference between now and the time that the token was created. note that time is using django DateTimeField.
         time_difference = timezone.now() - token_instance.created

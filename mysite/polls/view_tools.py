@@ -1,7 +1,7 @@
 from polls.models import Token
 from django.contrib.auth.models import User
 from mysite.settings import BASE_URL
-from uuid import uuid
+import uuid
 
 def get_absolute_path():
     return BASE_URL
