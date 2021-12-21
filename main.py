@@ -27,26 +27,26 @@ import json
 #   - create metadata per image generated - adjusted names for asset + texture\
 
 
-def textureMapping(asset_data, texture_data):
+def textureMapping(asset, texture):
 
     # converting to an RGBA format
-    # asset_rgba = asset.convert("RGBA")
-    # texture_rgba = texture.convert("RGBA")
+    asset_rgba = asset.convert("RGBA")
+    texture_rgba = texture.convert("RGBA")
 
     # # converting into an array of RGBA, height x width x 4 numpy array (4000x4000x4)
-    # asset_data = np.array(asset_rgba)
-    # texture_data = np.array(texture_rgba)
+    asset_data = np.array(asset_rgba)
+    texture_data = np.array(texture_rgba)
 
     # print(type(asset_data))
     # print(type(texture_data))
 
-    # # unpack the color bands of the asset for readability
+    # unpack the color bands of the asset for readability
     red, green, blue, alpha = asset_data.T
 
     # extracting the area that is white (255,255,255) from asset
     # it creates an array of boolean, True = white point, False = not a white point (leaving alpha values cuz they are just opacity)
     asset_white_area = (red == 255) & (blue == 255) & (green == 255)
-
+    
     # using the white area boolean array, points that are True are taken out of the texture array
     # aka forming the exact shape needed, but with the texture
     texture_white_area = texture_data[...][asset_white_area.T].shape
