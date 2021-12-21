@@ -121,8 +121,11 @@ def upload_view(request):
 
             rarity_map = json.loads(request.POST["rarity_map"])
             calebs_gay_dict["CollectionName"] = request.POST["collection_name"]
+            calebs_gay_dict["TokenName"] = request.POST["token_name"]
+            # calebs_gay_dict["ImageName"]= request.POST["collection_name"]
             calebs_gay_dict["Description"] = request.POST["description"]
-            calebs_gay_dict["Resolution"] = int(float(request.POST["resolution"]))
+            calebs_gay_dict["Resolution_x"] = int(float(request.POST["resolution_x"]))
+            calebs_gay_dict["Resolution_y"] = int(float(request.POST["resolution_y"]))
             calebs_gay_dict["CollectionSize"] = int(float(request.POST["size"]))
             calebs_gay_dict["TextureColor"] = request.POST["color"]
             layers = {}

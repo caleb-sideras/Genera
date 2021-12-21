@@ -222,7 +222,7 @@ def create_and_save_collection(tempDict, db_collection, user = None):
         image_to_collection_db.name = img_name
 
         im = Image.new(
-            "RGBA", (tempDict["Resolution"], tempDict["Resolution"]), (0, 0, 0, 0)
+            "RGBA", (tempDict["Resolution_x"], tempDict["Resolution_y"]), (0, 0, 0, 0)
         )
         # creating json template
         temp_json = {

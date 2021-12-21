@@ -90,26 +90,33 @@
       <div class="rounded_container shadow_strong">
         <h3 class="no_margin center">Collection Properties</h3>
         <div style="margin: 10px 0; display: flex; flex-direction: column; gap: 10px; justify-content: space-around; align-items: center;">
-          <h5 class="no_margin">Name</h5>
+          <h5 class="no_margin">Collection Name</h5>
           <input
             required
             class="general_input"
             name="collection_name"
             type="text"
             value="XD"
-            placeholder="Project name"
+            placeholder="E.g. Void"
             onchange = ajax_validate_field(this)
           />
-          <h5 class="no_margin">Resolution</h5>
+          <h5 class="no_margin">Token Name</h5>
           <input
             required
             class="general_input"
-            name="resolution"
-            type="number"
-            min="100"
-            max="4000"
-            value="4000"
-            placeholder="Dimensions"
+            name="token_name"
+            type="text"
+            value="VDE"
+            placeholder="E.g. VDE"
+          />
+          <h5 class="no_margin">Description</h5>
+          <input
+            required
+            class="general_input"
+            name="description"
+            type="text"
+            value="asd"
+            placeholder="E.g. A collection that shows the emptiness of the soul."
           />
           <h5 class="no_margin">Size</h5>
           <input
@@ -121,16 +128,28 @@
             name="size"
             type="number"
             value= "8"
-            placeholder="Collection size"
+            placeholder="E.g. 150"
           />
-          <h5 class="no_margin">Description</h5>
+          <h5 class="no_margin">Resolution</h5>
           <input
             required
             class="general_input"
-            name="description"
-            type="text"
-            value="asd"
-            placeholder="Description"
+            name="resolution_x"
+            type="number"
+            min="100"
+            max="4000"
+            value="4000"
+            placeholder="E.g. 500"
+          />
+            <input
+            required
+            class="general_input"
+            name="resolution_y"
+            type="number"
+            min="100"
+            max="4000"
+            value="4000"
+            placeholder="E.g. 500"
           />
           <h5 class="no_margin">Texture Map Color</h5>
           <input
