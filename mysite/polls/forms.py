@@ -1,8 +1,7 @@
 from django import forms
 from django.forms.fields import ImageField
 from django.forms.widgets import Textarea
-from django.contrib.auth.models import User
-from polls.models import UserProfile
+from polls.models import UserProfile, User
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import authenticate
 

@@ -1,7 +1,8 @@
 from time import timezone
 from django.shortcuts import render
 from polls.view_tools import generate_token
-from mysite.settings import MEDIA_DIR
+from mysite.settings import MEDIA_DIR, DEFAULT_FROM_EMAIL, BASE_DIR
+from polls.models import User
 from polls.forms import *
 from polls.generator_alg import *
 from polls.contract_interaction import *
@@ -20,6 +21,7 @@ import base64
 from PIL import Image
 import numpy as np
 import io
+from django.core.mail import send_mail
 from .forms import *
 from .models import *
 from django.dispatch import receiver
@@ -30,6 +32,7 @@ import json
 from django.db.models import Q
 import os
 from datetime import timezone
+from django.template.loader import render_to_string
 
 # Create your views here.
 
@@ -261,15 +264,21 @@ def register_view(request):
             user.save()
 
             account_activation_instance = generate_token(request, type="A", user=user)
-            # account_activation_instance["token_instance"]
-            # account_activation_instance["token_url"]
 
-            mail_context = f"Please click on the following link to activate your account: {account_activation_instance['token_url']}"
+            msg_plain = render_to_string('email/verify_email.txt', {'url': account_activation_instance["token_url"], 'date': user.date_joined, 'username': user.username})
+            msg_html = render_to_string('email/verify_email.html', {'url': account_activation_instance["token_url"], 'date': user.date_joined, 'username': user.username})
+
+            send_mail(
+                subject='Welcome to genera!',
+                message=msg_plain,
+                from_email=DEFAULT_FROM_EMAIL,
+                recipient_list=[user.email],
+                html_message=msg_html,
+            )
             #send email here. 
 
             UserProfile.objects.create(user=user).save()
             registered = True
-            login(request,user)
             messages.success(request, 'Registration Succesful!')
             return redirect(reverse('polls:main_view'))
 
@@ -289,7 +298,7 @@ def account_activation_view(request, token_url):
 
     if token_instance:
         #calculate time difference between now and the time that the token was created. note that time is using django DateTimeField.
-        time_difference = timezone.now() - token_instance.created
+        time_difference = make_aware(datetime.datetime.now()) - token_instance.created
         #if the time difference is more than one week, then delete this token.
         if time_difference.days > 7:
             token_instance.delete()
