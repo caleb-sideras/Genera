@@ -463,27 +463,32 @@ function open_images(self){
 
     upload_preview.children[1].innerHTML = self.previousElementSibling.innerHTML
     upload_preview.children[2].innerHTML = ""
-
+    var filelist = []
     for (let index = 0; index < local_sliders.length; index++) {
-        var filelist = local_sliders[index].files;
-        // console.log(filelist)
-        if (filelist.length > 0) {
-            if (!isfirst) {
-                replace_image(URL.createObjectURL(filelist[0]));
-                isfirst =true
-            }
-            
-            for (let i = 0; i < filelist.length; i++) {
-                var new_element = document.createElement('li')
-                var new_element_img = document.createElement('img')
-                new_element_img.src = URL.createObjectURL(filelist[i])
-                new_element.style = "cursor: pointer;"
-                new_element.addEventListener('click', function () { replace_image(URL.createObjectURL(filelist[i])) })
-                new_element.appendChild(new_element_img)
-                // console.log(new_element)
-                document.getElementById("scroller").appendChild(new_element)
-            }
+        var tempfilelist = local_sliders[index].files;
+        for (var i = 0, l = tempfilelist.length; i < l; i++) {
+            filelist.push(tempfilelist[i]);
         }
+        
+        console.log(typeof(filelist))
+    }
+    if (filelist.length > 0) {
+        if (!isfirst) {
+            replace_image(URL.createObjectURL(filelist[0]));
+            isfirst = true
+        }
+
+        for (let i = 0; i < filelist.length; i++) {
+            var new_element = document.createElement('li')
+            var new_element_img = document.createElement('img')
+            new_element_img.src = URL.createObjectURL(filelist[i])
+            new_element.style = "cursor: pointer;"
+            new_element.addEventListener('click', function () { replace_image(URL.createObjectURL(filelist[i])) })
+            new_element.appendChild(new_element_img)
+            // console.log(new_element)
+            document.getElementById("scroller").appendChild(new_element)
+        }
+        console.log(filelist)
     }
 }
 

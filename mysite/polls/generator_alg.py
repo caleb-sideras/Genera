@@ -263,3 +263,5 @@ def create_and_save_collection(tempDict, db_collection, user = None):
     print("Finished generation")
 
     
+def preview_collection(tempDict, db_collection, user = None):
+    return
