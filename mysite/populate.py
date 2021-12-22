@@ -5,7 +5,7 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'mysite.settings')
 import django
 django.setup()
 
-from django.contrib.auth.models import User
+from polls.models import User
 from polls.models import UserProfile
 
 def populate():

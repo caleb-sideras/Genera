@@ -3,14 +3,15 @@
 
 {% block head_block %}
 <!-- <title>Metamask Demo</title> -->
-<script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
-<script src="https://unpkg.com/@metamask/detect-provider/dist/detect-provider.min.js"></script>
-<script type="text/javascript" src="{% static 'js/metamask.js' %}"></script>
-<script type="text/javascript" src="{% static 'js/collection.js' %}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
+    <script src="https://unpkg.com/@metamask/detect-provider/dist/detect-provider.min.js"></script>
+    <script type="text/javascript" src="{% static 'js/metamask.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/collection.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/libraries/jszip.min.js' %}"></script>
 {% endblock %}
 
 {% block body_block %}
-    <input type="hidden" id="js_vars" data-ajax_url='{{ajax_url}}' data-json="{{erc721_json}}">
+    <input type="hidden" id="js_vars" data-collection_name='{{collection_data.collection_name}}' data-ajax_url='{{ajax_url}}' data-json="{{erc721_json}}">
 
 <div class="filter">
     <form type="hidden" method="post" style="display: none;" enctype="multipart/form-data" class="image_edit_wrapper" >
@@ -43,9 +44,9 @@
                         <div class="collection_card shadow_strong rounded_container_no_padding">
                                 
                             {% if entry.ipfs_bool%}
-                            <img src="{{entry.path_compressed}}" data-fullrez ="{{entry.path}}" data-ipfs ="{{entry.ipfs_metadata_path}}" alt="{{entry.name}} image should be here" class="nft_image" onclick="open_images(this)">
+                            <img src="{{entry.path_compressed}}" data-fullrez ="{{entry.path}}" data-name="{{entry.name}}" data-ipfs ="{{entry.ipfs_metadata_path}}" alt="{{entry.name}} image should be here" class="nft_image" onclick="open_images(this)">
                             {% else %}
-                            <img src="{{entry.path_compressed}}" data-fullrez ="{{entry.path}}" alt="{{entry.name}} image should be here" class="nft_image" onclick="open_images(this)">
+                            <img src="{{entry.path_compressed}}" data-fullrez ="{{entry.path}}" data-name="{{entry.name}}" alt="{{entry.name}} image should be here" class="nft_image" onclick="open_images(this)">
                             {% endif %}
                             <div>
                                 <p class="no_margin center">{{entry.name}}</p>
@@ -130,11 +131,15 @@
                     </button>
                 {% endif %}
                 {% if not collection_data.tokens_deployed %}
-                        <button class="general_button_no_border light_purple_background shadow_strong rounded_container_no_padding" onclick="mint_collection_request()" type="button">
+                    <button class="general_button_no_border light_purple_background shadow_strong rounded_container_no_padding" onclick="mint_collection_request()" type="button">
                         <h4 class="no_margin generate">Mint Collection</h4>
                     </button>
-                {% endif %} 
+                {% endif %}
                 
+                <button name="download_collection" onclick="download_zip()" class="general_button_no_border orange_background shadow_strong rounded_container_no_padding" type="button">
+                    <h4 class="no_margin generate">Download collection</h4>
+                </button>
+
                 
         </div>
     </div>

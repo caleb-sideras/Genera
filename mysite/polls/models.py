@@ -1,43 +1,87 @@
 from django.db import models
 import uuid
 import os
-from django.contrib.auth.models import User
 from functools import partial
 from polls.model_tools import *
 from django.contrib.auth import get_user_model  # gets the user_model django  default or your own custom
-from django.contrib.auth.backends import ModelBackend
 from django.db.models import Q
+from django.utils import timezone
 from django.utils.timezone import make_aware
 from django.template.defaultfilters import default, slugify
+# from mysite.settings import AUTH_USER_MODEL
 import datetime
-
+from django.contrib.auth.base_user import AbstractBaseUser
+from django.contrib.auth.models import PermissionsMixin
+from django.contrib.auth.base_user import BaseUserManager
+from polls.managers import *
 # Create your models here.
-class CustomBackend(ModelBackend):
-    def authenticate(self, request, username=None, password=None, **kwargs):
-        UserModel = get_user_model()
-
-        if username is None:
-            username = kwargs.get(UserModel.USERNAME_FIELD)
-        if username is None or password is None:
-            return
-        try:
-            user = UserModel.objects.filter(
-                Q(username__iexact=username) |
-                Q(email__iexact=username)
-            ).first()
-        except UserModel.DoesNotExist:
-            # Run the default password hasher once to reduce the timing
-            # difference between an existing and a nonexistent user (#20760).
-            UserModel().set_password(password)
-        else:
-            if user.check_password(password) and self.user_can_authenticate(user):
-                return user
 
 #use this class as the basis for any further classes in the project - every model should have an UUID!
 class Model(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable = False)
     class Meta:
         abstract = True
+
+##User modifications stuff
+class UserManager(BaseUserManager):
+    use_in_migrations = True
+
+    def _create_user(self, username, email, password, **extra_fields):
+        """
+        Creates and saves a User with the given email and password.
+        """
+        if not username:
+            raise ValueError('The given username must be set')
+        if not email:
+            raise ValueError('The given email must be set')
+        email = self.normalize_email(email)
+        
+        user = self.model(username=username, email=email, **extra_fields)
+
+        user.is_active = True
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
+
+    def create_user(self, username, email="",password=1234, **extra_fields):
+        if email == "":
+            email = username + "@gmail.com"
+            
+        return self._create_user(username, email, password, **extra_fields)
+
+    def create_superuser(self, username, password, email="", **extra_fields):
+        extra_fields.setdefault('is_superuser', True)
+        extra_fields.setdefault('is_staff', True)
+
+        if extra_fields.get('is_superuser') is not True:
+            raise ValueError('Superuser must have type="S"')
+
+        if email == "":
+            email = username + "@gmail.com"
+
+        return self._create_user(username, email, password, **extra_fields)
+
+class User(AbstractBaseUser, PermissionsMixin, Model):
+    username = models.CharField(max_length=150, unique=True)
+    email = models.EmailField(unique=True)
+
+    is_active = models.BooleanField(default=True)
+    date_joined = models.DateTimeField(default=timezone.now)
+
+    is_staff = models.BooleanField(default=False)
+
+    USERNAME_FIELD = 'username'
+    EMAIL_FIELD = 'email'
+
+    class Admin:
+        in_admin = True
+        id_fields = ['username', 'email', 'date_joined', 'last_login']
+
+    objects = UserManager()
+
+    def __str__(self):
+        return str(self.email)
+##End of User modifications stuff
 
 class UserProfile(models.Model):
     # This line is required. Links UserProfile to a User model instance.
@@ -59,6 +103,7 @@ class UserAsset(Model):
         return str(self.name)
 
 class UserCollection(Model):
+
     collection_name = models.CharField(max_length=50, unique=False)
     # image_name = models.CharField(max_length=9, unique=False) # new
     # contract_symbol = models.CharField(max_length=50, unique=False) # new
@@ -99,6 +144,7 @@ class CollectionImage(Model):
     deployed_txhash = models.CharField(max_length=150, null = True, blank = True)
 
 class Token(Model):
+
     hash = models.UUIDField(default=uuid.uuid4, editable=True) #editable since we will generate new hashes every time this is requested
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True) #can be empty - if no user is tracked by the token (AnonymousUser)
 
@@ -111,7 +157,7 @@ class Token(Model):
     type = models.CharField(max_length=1, choices=Types.choices, verbose_name="typ")
 
     def save(self, *args, **kwargs):
-        self.created = make_aware(datetime.now())
+        self.created = make_aware(datetime.datetime.now())
         super(Token, self).save(*args, **kwargs)
     
     def __str__(self):

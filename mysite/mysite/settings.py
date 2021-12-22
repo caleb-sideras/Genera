@@ -13,18 +13,39 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 from pathlib import Path
 import os
 
+from django.db.models.query import InstanceCheckMeta
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 STATIC_DIR = os.path.join(BASE_DIR, 'static')
 MEDIA_DIR = os.path.join(BASE_DIR, 'media')
 TEMPLATE_DIR = os.path.join(BASE_DIR, 'templates')
 
-BASE_URL = 'http://localhost:8000'
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-!h$vhss##+00p6$09#!6ejcmx1+!q#x%-+#uj^@(vghcn%)-!o'
+
+BASE_URL = 'http://localhost:8000'
+
+#Email Setup
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+EMAIL_PORT = 587
+EMAIL_ACTIVE_FIELD = 'is_active'
+EMAIL_SERVER = 'smtp.gmail.com'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PASSWORD = 'yycgppubwhmfqgcx'
+EMAIL_HOST_USER = "artemlimo@gmail.com"
+EMAIL_HOST_PASSWORD = 'yycgppubwhmfqgcx'
+EMAIL_ADDRESS = 'artemlimo@gmail.com'
+EMAIL_FROM_ADDRESS = 'artemlimo@gmail.com'
+DEFAULT_FROM_EMAIL = 'artemlimo@gmail.com'
+EMAIL_USE_TLS = True
+
+
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -32,18 +53,18 @@ DEBUG = True
 ALLOWED_HOSTS = []
 
 
+
 # Application definition
+APPS = ['polls']
 
 INSTALLED_APPS = [
-    'crispy_forms',
-    'polls',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-]
+] + APPS
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -120,8 +141,10 @@ USE_L10N = True
 USE_TZ = True
 
 AUTHENTICATION_BACKENDS = (
-    'polls.models.CustomBackend', #<-This is yourFavNameAuthenticate.py class object
+    'init_backend.CustomBackend',
+    'django.contrib.auth.backends.ModelBackend'
 )
+AUTH_USER_MODEL = 'polls.User'
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/

@@ -256,7 +256,6 @@ def create_and_save_collection(tempDict, db_collection, user = None):
         timeit_end = time.time()
         print(f"Image {img_name} has been saved onto server (normal+compressed). Time taken: {timeit_end-timeit_start:.2f}s")
 
-
         # with open(
         #     f"{collection_path}/{tempDict['CollectionName']}#{i}.json", "w"
         # ) as json_file:
