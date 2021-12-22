@@ -68,6 +68,8 @@ class UserCollection(Model):
     collection_size = models.IntegerField(default=10)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     path = models.CharField(max_length=250)
+    token_name = models.CharField(max_length=9)
+    image_name = models.CharField(max_length=10)
 
     # IFPS
     collection_ifps_bool = models.BooleanField(default=False)

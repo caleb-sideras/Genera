@@ -72,8 +72,8 @@ def upload_view(request):
     ):  # take POSt.request file that user sent over the form, and convert it into a PIL object.
         PIL_image = Image.open(io.BytesIO(file.read()))
         horo, vert = PIL_image.size
-        if horo != calebs_gay_dict["Resolution"] or vert != calebs_gay_dict["Resolution"]:
-            PIL_image = PIL_image.resize((calebs_gay_dict["Resolution"],calebs_gay_dict["Resolution"]))
+        if horo != calebs_gay_dict["Resolution_x"] or vert != calebs_gay_dict["Resolution_y"]:
+            PIL_image = PIL_image.resize((calebs_gay_dict["Resolution_x"],calebs_gay_dict["Resolution_y"]))
         return PIL_image
 
 
@@ -122,7 +122,7 @@ def upload_view(request):
             rarity_map = json.loads(request.POST["rarity_map"])
             calebs_gay_dict["CollectionName"] = request.POST["collection_name"]
             calebs_gay_dict["TokenName"] = request.POST["token_name"]
-            # calebs_gay_dict["ImageName"]= request.POST["collection_name"]
+            calebs_gay_dict["ImageName"]= request.POST["image_name"]
             calebs_gay_dict["Description"] = request.POST["description"]
             calebs_gay_dict["Resolution_x"] = int(float(request.POST["resolution_x"]))
             calebs_gay_dict["Resolution_y"] = int(float(request.POST["resolution_y"]))
@@ -143,8 +143,10 @@ def upload_view(request):
                 return render(request, "upload.html", context)
 
             db_collection.description = calebs_gay_dict["Description"]
-            db_collection.dimension_x = calebs_gay_dict["Resolution"]
-            db_collection.dimension_y = calebs_gay_dict["Resolution"]
+            db_collection.dimension_x = calebs_gay_dict["Resolution_x"]
+            db_collection.dimension_y = calebs_gay_dict["Resolution_y"]
+            db_collection.token_name = calebs_gay_dict["TokenName"]
+            db_collection.image_name = calebs_gay_dict["ImageName"]
             # db_collection.collection_size = calebs_gay_dict["CollectionSize"]
             db_collection.path = f"/media/users/{request.user.username}/collections/{calebs_gay_dict['CollectionName'].replace(' ', '_')}"
             db_collection.save()
@@ -459,10 +461,15 @@ def collection_view(request, username, collection_name):
                     user_collection.save()
                     # for entry in collection_images:
                     #     print(entry.ipfs_metadata_path)
+                    token_name = user_collection.token_name
+                    print(token_name)
+                    collection_name = user_collection.collection_name
                     return JsonResponse(
-                        { # dont need links here, should be sent after deployment and secondary contract test
+                        { # Links here are sent during inital contract deployment. should have bool checks so this ajax isnt done somehow.
                             "ipfs_links": pinata_links,
-                            "entries" : entry_ids
+                            "entries" : entry_ids,
+                            "token_name" : token_name,
+                            "collection_name" : collection_name
                         },
                         status=200,
                     )
