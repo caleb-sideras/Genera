@@ -1378,22 +1378,26 @@ animation: zoominoutsinglefeatured 60s infinite ;
 
 /* NAV BAR */
 
+.left_navbar {
+  text-align: start;
+  align-items: center;
+  display: flex;
+  height: 100%;
+}
+
 .left_navbar > a{
     text-decoration: none;
-
 }
 
 .left_navbar > a > .logo1{
   height: 40px;
   aspect-ratio: 1;
   margin-left: 25px;
-  margin-top: 10px;
 
 }
 .left_navbar > a > .logo2{
   width:80px;
-  margin-top: 25px;
-  margin-left: 5px;
+  margin-bottom: 2px;
 }
 .nav_bar_wrapper{
   width: 100%;
@@ -1408,15 +1412,10 @@ animation: zoominoutsinglefeatured 60s infinite ;
   justify-content: space-between;
 }
 .right_navbar {
-
-  width: 30%;
+  height: 100%;
   text-align: end;
 }
-.left_navbar {
 
-  width: 30%;
-  text-align: start;
-}
 .dropbtn {
   background-color: var(--medium-grey-color);
   color: var(--text-generate-color);
@@ -1512,11 +1511,6 @@ animation: zoominoutsinglefeatured 60s infinite ;
 /* Show the dropdown menu (use JS to add this class to the .dropdown-content container when the user clicks on the dropdown button) */
 .show {display:block;}
 
-.nav_bar_links{
-  display: flex;
-  height: 100%;
-  align-items: center;
-}
 
 .btn_toggle {
   color: var(--medium-grey-color);
