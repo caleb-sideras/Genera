@@ -53,9 +53,40 @@
       {% endif %} -->
 
       <div class="nav_bar_links">
-        <a href="{% url 'polls:upload' %}"><p>NFT Maker</p></a>
-        <a href="#"><p>NFT Minter</p></a>
-        <a href="#"><p>Texture Mapping</p></a>
+        
+        <div class="dropdown">
+          <div><p>Tools</p></div>
+          <div
+            id="myDropdown"
+            class="dropdown-content rounded_container_no_padding shadow_strong"
+          >
+            <a href="{% url 'polls:upload' %}"
+              ><p>NFT Maker</p></a
+            >
+            <a href="#"
+              ><p>NFT Minter</p></a
+            >
+            <a href="#"
+              ><p>Texture Mapping</p></a
+            >
+          </div>  
+        </div>
+
+
+        <div class="dropdown">
+          <div><p>Info</p></div>
+            <div
+              id="myDropdown"
+              class="dropdown-content rounded_container_no_padding shadow_strong"
+            >
+              <a href="{% url 'polls:documentation' %}"
+                ><p>Docs</p></a
+              >
+              <a href="{% url 'polls:about' %}"
+                ><p>About</p></a
+              >
+            </div> 
+        </div>
       </div>
 
       <!-- <img style="flex: 1 0;"> -->
@@ -81,14 +112,13 @@
         {% if request.user.is_authenticated%}
         <div class="dropdown">
           <button
-            onclick="myFunction('myDropdown')"
             class="dropbtn rounded_container_no_padding"
           >
             Logged in as: {{request.user.username}}
           </button>
           <div
             id="myDropdown"
-            class="dropdown-content rounded_container_no_padding"
+            class="dropdown-content rounded_container_no_padding shadow_strong"
           >
             {% if request.user.is_authenticated %}
             <a href="{% url 'polls:profile' request.user.username %}"
