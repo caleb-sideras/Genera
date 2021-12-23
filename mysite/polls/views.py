@@ -95,6 +95,33 @@ def upload_view(request):
         except RawPostDataException:
             pass
 
+        ##AJAX HANDLING SECTION START
+        try:
+            received_json_data = json.loads(request.body)
+            # make this a async function for speed!!!!! Will need db changes
+            if "preview" in received_json_data:
+                print(received_json_data["preview"])
+                for value in received_json_data["preview"]:
+                    print(type(value))
+                    print(len(value))
+                    for value2 in value:
+                        print(value2)
+
+                return JsonResponse(
+                    {
+                        "server_message": "hello king",
+                    },
+                    status=200,
+                )
+            else:
+                return JsonResponse(
+                    {"server_message": "USER NOT LOGGED IN"},
+                    status=200,
+                )
+        except RawPostDataException:  # NO AJAX DATA PROVIDED - DIFFERENT POST REQUEST INSTEAD
+            pass
+        ##AJAX HANDLING SECTION END
+        
         if len(request.FILES) != 0:
             #TEST FILE TRANSFER CODE
             # file_count = 0
@@ -156,6 +183,10 @@ def upload_view(request):
             
             for filename in request.FILES.keys():
                 for file in request.FILES.getlist(filename): ##for this set of file get layer name and layer type
+                    print(file)
+                    print(filename)
+                    print(request.FILES.keys())
+                    print(request.FILES.getlist(filename))
                     if "$" in filename: ##handle mutliple files.
                         individual_files = filename.split("$")
                         if individual_files:

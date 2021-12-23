@@ -589,4 +589,81 @@ async function confirmation_button(){
     
 }
 
+function preview_button(){
+    var upload_layers = document.getElementsByClassName('upload_layers')[0]
+    var texture_layers = document.getElementsByClassName('upload_layers')[1]
+    var collection_properties_container = document.getElementsByClassName('upload_properties')[0]
+    collection_properties = collection_properties_container.children[0].children[1].querySelectorAll(':scope input')
+    properties_list = [] // collection properites (metadata)
+    properties_list.push(collection_properties[0].value)
+    properties_list.push(collection_properties[1].value)
+    properties_list.push(collection_properties[3].value)
+    properties_list.push(collection_properties[5].value)
+    properties_list.push(collection_properties[6].value)
+    // console.log(properties_list)
+
+    layername_list = [] // layer names (metadata)
+    layer_buttons = upload_layers.children[1].querySelectorAll(".general_button")
+    layer_buttons.forEach(element => {
+        layername_list.push(element.querySelectorAll("h5")[0].innerHTML)
+    });
+    // console.log(layername_list)
+
+    var layer_list = preview_layer_rarity(preview_layer_search(upload_layers)) // assets chosen per layer
+    var texture_list = preview_layer_rarity(preview_layer_search(texture_layers)) // textures chosen per layer
+    // console.log(layer_list)
+    // console.log(texture_list)
+
+    ajax_post({'preview': layer_list })
+        .then(function (response) {
+            console.log(response["server_message"])
+        })
+    
+}
+
+function preview_layer_search(layer){
+    // see queryselector documentaion to see if there is an easier way of doing this with retarded syntax
+    var files_list = []
+    var files_list_parsed = []
+    var files_final = []
+    var input_list = []
+
+    layer_buttons = layer.children[1].querySelectorAll(".general_button")
+
+    layer_buttons.forEach(element => {
+        files_list.push(element.querySelectorAll("#wrapper"))
+    });
+
+    files_list.forEach(files => {
+        input_list.push(files[0].querySelectorAll(":scope input[type=file]"))
+    });
+    input_list.forEach(layer => {
+        var temp_list = []
+        layer.forEach(element => {
+            temp_list.push(element.files)
+        });
+        files_list_parsed.push(temp_list)
+    });
+
+    files_list_parsed.forEach(element => {
+        var temp_list = []
+        element.forEach(subelement => {
+            for (let index = 0; index < subelement.length; index++) {
+                temp_list.push(subelement[index])
+            }
+        });
+        files_final.push(temp_list)
+    });
+    return files_final
+}
+
+function preview_layer_rarity(layer_list){
+    var final_list = []
+    layer_list.forEach(element => {
+        const random = Math.floor(Math.random() * element.length);
+        final_list.push(element[random])
+    });
+    return final_list
+}
+
 window.addEventListener("load", main);
