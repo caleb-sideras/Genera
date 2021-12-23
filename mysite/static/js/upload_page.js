@@ -488,7 +488,6 @@ function open_images(self){
             // console.log(new_element)
             document.getElementById("scroller").appendChild(new_element)
         }
-        console.log(filelist)
     }
 }
 
