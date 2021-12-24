@@ -1,4 +1,5 @@
 from time import timezone
+from django.http.response import HttpResponse
 from django.shortcuts import render
 from polls.view_tools import generate_token
 from mysite.settings import MEDIA_DIR, DEFAULT_FROM_EMAIL, BASE_DIR
@@ -69,14 +70,12 @@ def upload_view(request):
     # users_imgs = UserAsset.objects.filter(user=request.user)
     context = {}
     context["ajax_url"] = reverse("polls:upload")
-    def file_to_pil(
-        file,
-        calebs_gay_dict
-    ):  # take POSt.request file that user sent over the form, and convert it into a PIL object.
+    def file_to_pil(file,calebs_gay_dict = {}):  # take POSt.request file that user sent over the form, and convert it into a PIL object.
         PIL_image = Image.open(io.BytesIO(file.read()))
-        horo, vert = PIL_image.size
-        if horo != calebs_gay_dict["Resolution_x"] or vert != calebs_gay_dict["Resolution_y"]:
-            PIL_image = PIL_image.resize((calebs_gay_dict["Resolution_x"],calebs_gay_dict["Resolution_y"]))
+        if calebs_gay_dict:
+            horo, vert = PIL_image.size
+            if horo != calebs_gay_dict["Resolution_x"] or vert != calebs_gay_dict["Resolution_y"]:
+                PIL_image = PIL_image.resize((calebs_gay_dict["Resolution_x"],calebs_gay_dict["Resolution_y"]))
         return PIL_image
 
 
@@ -121,8 +120,32 @@ def upload_view(request):
         except RawPostDataException:  # NO AJAX DATA PROVIDED - DIFFERENT POST REQUEST INSTEAD
             pass
         ##AJAX HANDLING SECTION END
+
         
+        from io import BytesIO
         if len(request.FILES) != 0:
+            print("XD")
+
+            def serve_pil_image(pil_img):
+                imageBytes = io.BytesIO()
+                pil_img.save(imageBytes, format='PNG')
+                bytes = imageBytes.getvalue()
+                return base64.b64encode(bytes).decode('utf-8')
+
+            if 'properties' in request.POST:
+                print(request.POST.keys())
+                properties = request.POST.get('properties')
+                layernames = request.POST.get('layernames')
+
+                for filename in request.FILES.keys():
+                    for file in request.FILES.getlist(filename): ##for this set of file get layer name and layer type
+                        pil_file = file_to_pil(file)
+                        content = serve_pil_image(pil_file)
+                        print(file.name)
+                        
+                return HttpResponse(content, content_type="application/octet-stream")
+
+            
             #TEST FILE TRANSFER CODE
             # file_count = 0
             # for filename in request.FILES.keys():
@@ -145,7 +168,7 @@ def upload_view(request):
             # return render(request, "upload.html", context)
 
 
-            if request.POST["rarity_map"] == "":
+            if request.POST.get("rarity_map") == "":
                 messages.error(request, message="No rarities attached")
                 return render(request, "upload.html", context)
 
