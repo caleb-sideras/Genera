@@ -614,10 +614,44 @@ function preview_button(){
     // console.log(layer_list)
     // console.log(texture_list)
 
-    ajax_post({'preview': layer_list })
-        .then(function (response) {
-            console.log(response["server_message"])
-        })
+    var data = new FormData();
+    request = new XMLHttpRequest();
+    
+    data.append('properties', properties_list);
+    data.append('layernames', layername_list);
+
+    if (layer_list.length > 0 ) {
+        for (var i = 0; i < layer_list.length; i++) {
+            data.append(layer_list[i].name, layer_list[i]);
+        }
+    }
+    //iterate over every file in texture list and append to formdata
+    console.log(texture_list)
+    if (texture_list.length > 5) {
+        for (var i = 0; i < texture_list.length; i++) {
+            data.append(texture_list[i].name, texture_list[i]);
+        }
+    }   
+    request.open('POST', ajax_url);
+    request.setRequestHeader('X-CSRFToken', get_cookie('csrftoken'));
+    
+    request.send(data);
+
+    request.onreadystatechange = function () {
+        // Process the server response here (Sent from Django view inside JsonResponse)
+        if (request.readyState === XMLHttpRequest.DONE) {
+            if (request.status === 200) { //ifstatus is 200 - assume PROPER RESPONSE
+                //print httpresponse
+                var img_object = request.response
+                var img_src = `data:image/png;base64,${img_object}`
+                document.getElementsByClassName('upload_preview')[0].children[0].src = img_src
+            }
+            else { //unhandled error
+                alert("Unkown server error")
+                return
+            }   
+        }
+    };
     
 }
 
@@ -655,6 +689,32 @@ function preview_layer_search(layer){
         files_final.push(temp_list)
     });
     return files_final
+}
+
+function send_form_ajax() {
+    var data = new FormData();
+    request = new XMLHttpRequest();
+    
+    data.append('XD', 'XD');
+    request.open('POST', ajax_url);
+    request.setRequestHeader('X-CSRFToken', get_cookie('csrftoken'));
+
+    request.send(data);
+
+    request.onreadystatechange = function () {
+        // Process the server response here (Sent from Django view inside JsonResponse)
+        if (request.readyState === XMLHttpRequest.DONE) {
+            if (request.status === 200) { //ifstatus is 200 - assume PROPER RESPONSE
+                // close_loading_popup()
+                console.log("ass")
+            }
+            else { //unhandled error
+                alert("Unkown server error")
+                return
+            }   
+        }
+    };
+
 }
 
 function preview_layer_rarity(layer_list){
