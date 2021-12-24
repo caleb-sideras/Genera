@@ -328,20 +328,23 @@ async function delete_duplicates(self){
 function download_zip() {
     console.log('Generating zipfile');
     let images = document.querySelectorAll(".collection_card > img");
+    let metadata = document.querySelectorAll(".collection_card > div > pre");
 
     let zip = new JSZip();
     let folder_name = js_vars.dataset.collection_name + ".zip";
 
     for (let i = 0; i < images.length; i++) {
         let filename = images[i].dataset.name + ".png";
-        
         let url = images[i].src
-
+        let metadata_name = images[i].dataset.name + ".json";
+        let json = metadata[i].innerHTML
         JSZipUtils.getBinaryContent(url, function (err, data) {
             if (err) {
                 throw err // or handle the error
             }
+
             zip.file(filename, data, { binary: true })
+            zip.file(metadata_name, json)
 
             if (i+1 == images.length) {
                 zip.generateAsync({ type: 'blob' }).then(function (content) {

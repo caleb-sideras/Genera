@@ -3,6 +3,8 @@ let web3 = new Web3(Web3.givenProvider);//Web3.givenProvider || "ws://localhost:
 contract_address = null
 ipfs_links = null
 entries = null
+token_name = null
+collection_name = null
 token_counter = 0
 function main() {
 
@@ -56,7 +58,7 @@ async function metamask_check(){
 async function deploy_contract(){
     console.log("deploying contract")
     var active_account = await metamask_check()
-    constructor_paramter = constructor_string('Void', 'vde'); // User parameters
+    constructor_paramter = constructor_string(collection_name, token_name); // User parameters
     deployed_contract = await ethereum
         .request({
             method: 'eth_sendTransaction',
@@ -165,11 +167,9 @@ async function mint_collection_request() {
     ajax_post({'notneeded': "balls :)"})
     .then(function(response) { //Action that occurs after a response from the server was obtained - here (STATUS 200)
         ipfs_links = response["ipfs_links"]
-        // console.log(ipfs_links)
         entries = response["entries"]
-        // entries.forEach(element => {
-        //     console.log(element)
-        // });
+        token_name = response["token_name"]
+        collection_name = response["collection_name"]
         console.log(ipfs_links)
         console.log(entries)
         console.log("Received ipfs & entries from db")

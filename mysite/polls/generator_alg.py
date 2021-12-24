@@ -217,16 +217,16 @@ def create_and_save_collection(tempDict, db_collection, user = None):
     for i in range(longest_layer):
 
         timeit_start = time.time()
-        img_name = f"{tempDict['CollectionName']} {i+1}"
+        img_name = f"{tempDict['ImageName']} {i+1}"
         image_to_collection_db = CollectionImage.objects.create(linked_collection=db_collection)
         image_to_collection_db.name = img_name
 
         im = Image.new(
-            "RGBA", (tempDict["Resolution"], tempDict["Resolution"]), (0, 0, 0, 0)
+            "RGBA", (tempDict["Resolution_x"], tempDict["Resolution_y"]), (0, 0, 0, 0)
         )
         # creating json template
         temp_json = {
-            "name": f"{tempDict['CollectionName']}#{i}",
+            "name": f"{tempDict['ImageName']}#{i}",
             "description": tempDict["Description"],
             "image": "",
         }
@@ -263,3 +263,5 @@ def create_and_save_collection(tempDict, db_collection, user = None):
     print("Finished generation")
 
     
+def preview_collection(tempDict, db_collection, user = None):
+    return

@@ -105,12 +105,16 @@ class UserAsset(Model):
 class UserCollection(Model):
 
     collection_name = models.CharField(max_length=50, unique=False)
+    # image_name = models.CharField(max_length=9, unique=False) # new
+    # contract_symbol = models.CharField(max_length=50, unique=False) # new
     description = models.CharField(max_length=150, unique=False)
     dimension_x = models.IntegerField(default=4000)
     dimension_y = models.IntegerField(default=4000)
     collection_size = models.IntegerField(default=10)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     path = models.CharField(max_length=250)
+    token_name = models.CharField(max_length=9)
+    image_name = models.CharField(max_length=10)
 
     # IFPS
     collection_ifps_bool = models.BooleanField(default=False)
