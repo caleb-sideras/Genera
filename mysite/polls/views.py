@@ -328,8 +328,6 @@ def profile_view(request, username):
 
     return render(request, 'user_profile.html', context={"owner":owner, "user":user})
 
-
-
 def mint_view(request):
 
     # if request.METHOD == "POST":
