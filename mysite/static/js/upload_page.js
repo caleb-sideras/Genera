@@ -591,6 +591,7 @@ async function confirmation_button(){
 }
 
 function preview_button(){
+    create_and_render_loading_popup("Generating Preview")
     var upload_layers = document.getElementsByClassName('upload_layers')[0]
     var texture_layers = document.getElementsByClassName('upload_layers')[1]
     var collection_properties_container = document.getElementsByClassName('upload_properties')[0]
@@ -599,8 +600,36 @@ function preview_button(){
     properties_list.push(collection_properties[0].value)
     properties_list.push(collection_properties[1].value)
     properties_list.push(collection_properties[3].value)
+    // make modular kings!!!
+    if (!collection_properties[0].value) {
+        alert("Please enter Collection Name")
+        close_loading_popup()
+        return
+    }
+    if (!collection_properties[1].value) {
+        alert("Please enter Image Name")
+        close_loading_popup()
+        return
+    }
+    if (!collection_properties[3].value) {
+        alert("Please enter Description")
+        close_loading_popup()
+        return
+    }
+    if (!collection_properties[5].value || !collection_properties[6].value) {
+        alert("Please enter your resolution")
+        close_loading_popup() 
+        return
+    } else if (collection_properties[5].value > 4000 || collection_properties[6].value > 4000) {
+        alert("Please make sure your resolution is lower than 4000")
+        close_loading_popup() 
+        return
+    }
+    
     properties_list.push(collection_properties[5].value)
     properties_list.push(collection_properties[6].value)
+    properties_list.push(collection_properties[7].value)
+    
     // console.log(properties_list)
 
     layername_list = [] // layer names (metadata)
@@ -611,27 +640,38 @@ function preview_button(){
     // console.log(layername_list)
     
     //undefined shit, fixe
+    console.log(preview_layer_search(upload_layers))
     var layer_list = preview_layer_rarity(preview_layer_search(upload_layers)) // assets chosen per layer
     var texture_list = preview_layer_rarity(preview_layer_search(texture_layers)) // textures chosen per layer
     // console.log(layer_list)
     // console.log(texture_list)
 
+    if (layer_list.length == 0) {
+        alert("Upload images to use preview")
+        close_loading_popup() 
+        return
+    }
+
     var data = new FormData();
     request = new XMLHttpRequest();
     
-    data.append('properties', properties_list);
-    data.append('layernames', layername_list);
-
+    data.append('properties', JSON.stringify(properties_list));
+    data.append('layernames', JSON.stringify(layername_list));
+    
     if (layer_list.length > 0 ) {
         for (var i = 0; i < layer_list.length; i++) {
-            data.append(layer_list[i].name, layer_list[i]);
+            if (typeof layer_list[i] != 'undefined') {
+                data.append("asset." + [i] + "." + layer_list[i].name, layer_list[i]);
+            }
         }
     }
     //iterate over every file in texture list and append to formdata
     console.log(texture_list)
-    if (texture_list.length > 5) {
+    if (texture_list.length > 0) {
         for (var i = 0; i < texture_list.length; i++) {
-            data.append(texture_list[i].name, texture_list[i]);
+            if (typeof texture_list[i] != 'undefined') {
+                data.append("texture." + [i] + "." + texture_list[i].name, texture_list[i]);
+            }
         }
     }   
     request.open('POST', ajax_url);
@@ -647,12 +687,14 @@ function preview_button(){
                 var img_object = request.response
                 var img_src = `data:image/png;base64,${img_object}`
                 document.getElementsByClassName('upload_preview')[0].children[0].src = img_src
+                document.getElementsByClassName('upload_preview')[0].children[1].innerHTML = 'Preview'
             }
             else { //unhandled error
                 alert("Unkown server error")
                 return
-            }   
+            }
         }
+        close_loading_popup()   
     };
     
 }

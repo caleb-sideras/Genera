@@ -77,7 +77,7 @@ def textureMapping(asset, texture, texture_color):
 
     # extracting the area that is white (255,255,255) from asset
     # it creates an array of boolean, True = white point, False = not a white point (leaving alpha values cuz they are just opacity)
-    asset_white_area = (red == texture_color[0]) & (green == texture_color[1]) & (blue == texture_color[2])
+    asset_white_area = (red == texture_color[0]) & (green == texture_color[1]) & (blue == texture_color[2]) & (alpha != 0)
     # print(texture_color[0])
     # print(texture_color[1])
     # print(texture_color[2])

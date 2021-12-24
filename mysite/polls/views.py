@@ -19,7 +19,7 @@ import json
 from django.http import JsonResponse, RawPostDataException
 from django.core.exceptions import PermissionDenied
 import base64
-from PIL import Image
+from PIL import Image, ImageColor
 import numpy as np
 import io
 from django.core.mail import send_mail
@@ -70,12 +70,11 @@ def upload_view(request):
     # users_imgs = UserAsset.objects.filter(user=request.user)
     context = {}
     context["ajax_url"] = reverse("polls:upload")
-    def file_to_pil(file,calebs_gay_dict = {}):  # take POSt.request file that user sent over the form, and convert it into a PIL object.
+    def file_to_pil(file, res_x, res_y):  # take POSt.request file that user sent over the form, and convert it into a PIL object.
         PIL_image = Image.open(io.BytesIO(file.read()))
-        if calebs_gay_dict:
-            horo, vert = PIL_image.size
-            if horo != calebs_gay_dict["Resolution_x"] or vert != calebs_gay_dict["Resolution_y"]:
-                PIL_image = PIL_image.resize((calebs_gay_dict["Resolution_x"],calebs_gay_dict["Resolution_y"]))
+        horo, vert = PIL_image.size
+        if horo != res_x or vert != res_y:
+            PIL_image = PIL_image.resize((res_x, res_y))
         return PIL_image
 
 
@@ -93,34 +92,6 @@ def upload_view(request):
 
         except RawPostDataException:
             pass
-
-        ##AJAX HANDLING SECTION START
-        try:
-            received_json_data = json.loads(request.body)
-            # make this a async function for speed!!!!! Will need db changes
-            if "preview" in received_json_data:
-                print(received_json_data["preview"])
-                for value in received_json_data["preview"]:
-                    print(type(value))
-                    print(len(value))
-                    for value2 in value:
-                        print(value2)
-
-                return JsonResponse(
-                    {
-                        "server_message": "hello king",
-                    },
-                    status=200,
-                )
-            else:
-                return JsonResponse(
-                    {"server_message": "USER NOT LOGGED IN"},
-                    status=200,
-                )
-        except RawPostDataException:  # NO AJAX DATA PROVIDED - DIFFERENT POST REQUEST INSTEAD
-            pass
-        ##AJAX HANDLING SECTION END
-
         
         from io import BytesIO
         if len(request.FILES) != 0:
@@ -134,15 +105,38 @@ def upload_view(request):
 
             if 'properties' in request.POST:
                 print(request.POST.keys())
-                properties = request.POST.get('properties')
-                layernames = request.POST.get('layernames')
-
+                properties = json.loads(request.POST.get('properties'))
+                layernames = json.loads(request.POST.get('layernames'))
+                print(properties)
+                print(layernames)
+                res_x = int(properties[3])
+                res_y = int(properties[4])
+                texture_color = ImageColor.getcolor(properties[5], "RGB")
+                layers_list = [None] * len(layernames)
+                textures_list = [None] * len(layernames)
                 for filename in request.FILES.keys():
-                    for file in request.FILES.getlist(filename): ##for this set of file get layer name and layer type
-                        pil_file = file_to_pil(file)
-                        content = serve_pil_image(pil_file)
-                        print(file.name)
-                        
+                    for file in request.FILES.getlist(filename):
+                        layer_name = filename.split(".")[0]
+                        count = int(filename.split(".")[1])
+                        if layer_name =="asset":
+                            print(file)
+                            layers_list[count] = file_to_pil(file, res_x, res_y)
+                        else:
+                            textures_list[count] = file_to_pil(file, res_x, res_y)
+                im = Image.new(
+                "RGBA", (res_x, res_y), (0, 0, 0, 0)
+                )
+                print(layers_list)
+                print(textures_list)
+                print(texture_color)
+                for i in range(len(layernames)):
+                    if layers_list[i] and textures_list[i]:
+                        texturedAsset = textureMapping(layers_list[i], textures_list[i], texture_color)
+                        im.paste(texturedAsset, (0, 0), texturedAsset)   
+                    elif layers_list[i]:
+                        im.paste(layers_list[i], (0, 0), layers_list[i])
+
+                content = serve_pil_image(im)    
                 return HttpResponse(content, content_type="application/octet-stream")
 
             
@@ -205,6 +199,7 @@ def upload_view(request):
             db_collection.save()
             
             for filename in request.FILES.keys():
+                print(request.FILES.keys())
                 for file in request.FILES.getlist(filename): ##for this set of file get layer name and layer type
                     print(file)
                     print(filename)
@@ -239,7 +234,8 @@ def upload_view(request):
                                         "Name": file_name_no_extension,
                                         "PIL": file_to_pil(
                                             file,
-                                            calebs_gay_dict
+                                            calebs_gay_dict["Resolution_x"],
+                                            calebs_gay_dict["Resolution_y"]
                                         ),  # REPLACE WITH file_to_pil(file) WHEN NEED ACTUAL FILE OBJECT IN NUMPY
                                         "Rarity": int(float(rarity_map[full_file_name])),
                                     }
@@ -251,7 +247,8 @@ def upload_view(request):
                                         "Name": file_name_no_extension,
                                         "PIL": file_to_pil(
                                             file,
-                                            calebs_gay_dict
+                                            calebs_gay_dict["Resolution_x"],
+                                            calebs_gay_dict["Resolution_y"]
                                         ),  # REPLACE WITH file_to_pil(file) WHEN NEED ACTUAL FILE OBJECT IN NUMPY
                                         "Rarity": int(float(rarity_map[full_file_name])),
                                     }
