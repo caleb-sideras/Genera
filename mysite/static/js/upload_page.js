@@ -382,7 +382,8 @@ function add_layer() {
                         all_layer_names.push(layer_name_update_field.value)
 
                         document.getElementById("rarity_map").value = document.getElementById("rarity_map").value.replaceAll(replace_from, replace_to) //update rarity map directly
-                        rarity_map = JSON.parse(document.getElementById("rarity_map").value)
+                        if (document.getElementById("rarity_map").value.length > 1)
+                            rarity_map = JSON.parse(document.getElementById("rarity_map").value)
                         // console.log(rarity_map)
                         layers_input_fields[i].name = layers_input_fields[i].name.replaceAll(replace_from, replace_to) //update input field name
                         // console.log(layers_input_fields[i].name)
@@ -608,7 +609,8 @@ function preview_button(){
         layername_list.push(element.querySelectorAll("h5")[0].innerHTML)
     });
     // console.log(layername_list)
-
+    
+    //undefined shit, fixe
     var layer_list = preview_layer_rarity(preview_layer_search(upload_layers)) // assets chosen per layer
     var texture_list = preview_layer_rarity(preview_layer_search(texture_layers)) // textures chosen per layer
     // console.log(layer_list)
