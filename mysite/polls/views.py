@@ -90,7 +90,8 @@ def upload_view(request):
                         return JsonResponse({"passed": 0, "message": "A collection with that name already exists!"}, status=200)
                     else:
                         return JsonResponse({"passed": 1}, status=200)
-
+        except RawPostDataException:
+            pass
    
         if len(request.FILES) != 0:
 
@@ -286,9 +287,9 @@ def login_view(request):
         if login_form.is_valid():
             try:
                 candidate_user = login_form.authenticate()
-            login(request, candidate_user)
+                login(request, candidate_user)
                 messages.success(request, message="Logged in succesfully!")
-            return redirect(reverse("polls:main_view"))
+                return redirect(reverse("polls:main_view"))
             except ValidationError as msg:
                 messages.error(request, msg)
                 login_form.add_error(None, msg)
