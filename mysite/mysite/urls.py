@@ -25,3 +25,9 @@ urlpatterns = [
     path('', include('polls.urls')),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+
+
+handler404 = 'mysite.error_handlers.error_404'
+handler500 = 'mysite.error_handlers.error_500'
+handler403 = 'mysite.error_handlers.error_403'
+handler400 = 'mysite.error_handlers.error_400'

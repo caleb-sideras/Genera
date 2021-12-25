@@ -3,9 +3,11 @@
 {% block body_block %}
     
     <form method="POST" class="base_form">
-        <h2>{{title}}</h2>
         {%csrf_token%}
-        {{form.as_p}}
+        <h2>{{title}}</h2>
+        <div>
+            {{form.as_p}}
+        </div>
         <button class="light_grey_background general_button_no_border" name="{{identifier}}" type="submit">
             {{button_text}}
         </button>
