@@ -136,7 +136,6 @@ USE_TZ = True
 
 AUTHENTICATION_BACKENDS = (
     'init_backend.CustomBackend',
-    'django.contrib.auth.backends.ModelBackend'
 )
 AUTH_USER_MODEL = 'polls.User'
 

@@ -20,7 +20,7 @@ class PasswordConfirmationMixin(forms.Form):
         password2 = cleaned_data.get('password_confirm')
         if password1 != password2:
             self.add_error(None, 'Passwords do not match. Please try again.')
-        validate_password(password1)
+        # validate_password(password1)
         return self.cleaned_data
     
     def update_user_password(self, user):

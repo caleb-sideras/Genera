@@ -73,7 +73,6 @@ def upload_view(request):
             PIL_image = PIL_image.resize((res_x, res_y))
         return PIL_image
 
-
     calebs_gay_dict = {}
     
     if request.method == "POST":
@@ -360,8 +359,9 @@ def account_activation_view(request, token_url):
         token_instance.user.save()
         token_instance.delete()
         messages.success(request, 'Account activated! Please log in.')
+        login(request, token_instance.user)
         print(f"{token_instance.user.username} has been activated")
-        return redirect(reverse('polls:login'))
+        return redirect(reverse('polls:main_view'))
     else:
         error_params = {"title": "Account activation", "description": "Invalid URL accessed. Please try again or reregister", "code": "323XD"}
         print("Invalid URL accessed")

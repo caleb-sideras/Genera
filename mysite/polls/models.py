@@ -83,7 +83,7 @@ class User(AbstractBaseUser, PermissionsMixin, Model):
         return str(self.email)
 ##End of User modifications stuff
 
-class UserProfile(models.Model):
+class UserProfile(Model):
     # This line is required. Links UserProfile to a User model instance.
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     private = models.BooleanField(default=True)
@@ -162,7 +162,6 @@ class Token(Model):
     
     def __str__(self):
         return str(self.slug)
-    
 
 
 
