@@ -11,13 +11,13 @@ from django.templatetags.static import static
 from django.core.files.storage import FileSystemStorage
 from django.shortcuts import redirect
 from django.urls import reverse
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from pathlib import Path
 import json
 from django.http import JsonResponse, RawPostDataException
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import PermissionDenied, ValidationError
 import base64
 from PIL import Image
 import numpy as np
@@ -34,6 +34,7 @@ from django.db.models import Q
 import os
 from datetime import timezone
 from django.template.loader import render_to_string
+from io import BytesIO
 
 # Create your views here.
 
@@ -90,14 +91,7 @@ def upload_view(request):
                         return JsonResponse({"passed": 0, "message": "A collection with that name already exists!"}, status=200)
                     else:
                         return JsonResponse({"passed": 1}, status=200)
-
-        except RawPostDataException:
-            pass
-
-        ##AJAX HANDLING SECTION START
-        try:
-            received_json_data = json.loads(request.body)
-            # make this a async function for speed!!!!! Will need db changes
+                        
             if "preview" in received_json_data:
                 print(received_json_data["preview"])
                 for value in received_json_data["preview"]:
@@ -117,14 +111,12 @@ def upload_view(request):
                     {"server_message": "USER NOT LOGGED IN"},
                     status=200,
                 )
-        except RawPostDataException:  # NO AJAX DATA PROVIDED - DIFFERENT POST REQUEST INSTEAD
+
+        except RawPostDataException:
             pass
         ##AJAX HANDLING SECTION END
-
         
-        from io import BytesIO
         if len(request.FILES) != 0:
-            print("XD")
 
             def serve_pil_image(pil_img):
                 imageBytes = io.BytesIO()
@@ -284,25 +276,24 @@ def upload_view(request):
 
 
 def login_view(request):
-    login_form = LoginForm()
+    login_form = LoginForm(label_suffix="")
+    form_id = "login_form"
 
-    if request.method == "POST":
-        login_form = LoginForm(request.POST)
-        username = login_form["username"].value()
-        password = login_form["password"].value()
+    if request.method == "POST" and form_id in request.POST:
+        login_form = LoginForm(request.POST, label_suffix="")
+        if login_form.is_valid():
+            try:
+                candidate_user = login_form.authenticate()
+                login(request, candidate_user)
+                messages.success(request, message="Logged in succesfully!")
+                return redirect(reverse("polls:main_view"))
+            except ValidationError as msg:
+                messages.error(request, msg)
+                login_form.add_error(None, msg)
 
-        candidate_user = authenticate(username=username, password=password)
+    form_context = {"form": login_form, "button_text": "Log in", "identifier": form_id, "title": "Log in"}
 
-        if candidate_user:
-            login(request, candidate_user)
-            return redirect(reverse("polls:main_view"))
-        else:
-            messages.error(request, message="Invalid username or password")
-            login_form.add_error(None, "Incorrect details provided - Please try again")
-
-        print(login_form.errors)
-
-    return render(request, "login.html", {"login_form": login_form})
+    return render(request, 'base_form.html', form_context)
 
 def logout_view(request):
 
@@ -311,16 +302,16 @@ def logout_view(request):
     return redirect(reverse('polls:main_view'))
 
 def register_view(request):
-    registered = False
-    
-    if request.method == 'POST':
-        user_form = UserRegisterForm(request.POST)
+    registration_form = UserRegisterForm(label_suffix="")
+    form_id = "register_form"
+
+    if request.method == 'POST' and form_id in request.POST:
+        registration_form = UserRegisterForm(request.POST, label_suffix="")
            
-        if user_form.is_valid() and user_form.cleaned_data['password'] == user_form.cleaned_data['password_confirm']:
-            user = user_form.save()
-            user.set_password(user.password)
+        if registration_form.is_valid():
+            user = registration_form.save()
             user.is_active = False
-            user.save()
+            registration_form.update_user_password(user) #This will also save the user.
 
             account_activation_instance = generate_token(request, type="A", user=user)
 
@@ -334,23 +325,14 @@ def register_view(request):
                 recipient_list=[user.email],
                 html_message=msg_html,
             )
-            #send email here. 
 
             UserProfile.objects.create(user=user).save()
-            registered = True
             messages.success(request, 'Registration Succesful!')
             return redirect(reverse('polls:main_view'))
+    
+    form_context = {"form": registration_form, "button_text": "Register", "identifier": form_id, "title": "Register for Genera"}
 
-        elif user_form.cleaned_data['password'] != user_form.cleaned_data['password_confirm']:
-            user_form.add_error('password_confirm', 'The passwords do not match - please enter 2 matching passwords')
-        else:
-            print(user_form.errors)
-    
-    else:
-        user_form = UserRegisterForm()
-        # profile_form = UserProfileForm()
-    
-    return render(request, 'register.html', context={'register_form': user_form, 'registered': registered})
+    return render(request, 'base_form.html', form_context)
 
 def account_activation_view(request, token_url):
     token_instance = Token.objects.filter(hash=token_url).first()
@@ -376,6 +358,69 @@ def account_activation_view(request, token_url):
         print(f"Invalid URL accessed")
         return redirect(reverse('polls:main_view'))
 
+def password_reset_view(request):
+    password_reset_request_form = Password_Reset_Request_Form(label_suffix="")
+    form_id = "password_reset_req"
+
+    if request.method == 'POST' and form_id in request.POST:
+        password_reset_request_form = Password_Reset_Request_Form(request.POST, label_suffix="")
+        if password_reset_request_form.is_valid():
+            user = password_reset_request_form.extract_user()
+            password_reset_token = generate_token(request, type="P", user=user)
+            msg_html = render_to_string('email/mail_body_reset.html', {'reset_link': password_reset_token["token_url"], 'date': user.date_joined, 'user': user})
+            send_mail(
+                subject='Genera Password Reset',
+                message='Genera Password Reset',
+                from_email=DEFAULT_FROM_EMAIL,
+                recipient_list=[user.email],
+                html_message=msg_html,
+            )
+            messages.success(request, 'Password reset email sent!')
+            return redirect(reverse('polls:main_view'))
+        else:
+            messages.error(request, 'Invalid email provided!')
+
+    form_context = {"form": password_reset_request_form, "button_text": "Request a password reset", "identifier": form_id, "title": "Password Reset Request"}
+
+    return render(request, 'base_form.html', form_context)
+
+def password_reset_handler_view(request, token_url):
+    #exception raise error if link does not exist
+    password_reset_form = Password_Reset_Form(label_suffix="")
+
+    token = Token.objects.filter(hash=token_url).first()
+    if token:
+        #calculate time difference between now and the time that the token was created. note that time is using django DateTimeField.
+        time_difference = make_aware(datetime.datetime.now()) - token.created
+        #if the time difference is more than one week, then delete this token.
+        if time_difference.days > 7:
+            token.delete()
+            messages.error(request, 'It has been more than one week, so the activation link has expired - please request a new password reset referral')
+            return redirect(reverse('polls:password_reset'))
+            
+        identified_user = token.user
+
+        form_id = "password_reset_req"
+
+        if request.method == "POST" and form_id in request.POST:
+            password_reset_form = Password_Reset_Form(request.POST, label_suffix="")
+
+            if password_reset_form.is_valid():
+                password_reset_form.update_user_password(identified_user)
+                messages.success(request, 'Password Reset Succesful. You may now log in with your new password.')
+                token.delete()
+                return redirect(reverse('polls:login'))
+            else:
+                print(password_reset_form.errors)
+
+        form_context = {"form": password_reset_form, "button_text": "Confirm password reset!", "identifier": form_id, "title": "Password Reset confirmation"}
+
+        return render(request, 'base_form.html', form_context)
+
+    else:
+        messages.error(request, 'Invalid password reset link attempted')
+        raise PermissionDenied()
+
 
 def profile_view(request, username):
     user = User.objects.filter(username=username).first()
@@ -386,18 +431,6 @@ def profile_view(request, username):
         return redirect(reverse("polls:main_view"))
 
     return render(request, 'user_profile.html', context={"owner":owner, "user":user})
-
-def mint_view(request):
-
-    # if request.METHOD == "POST":
-
-    # created = create_and_save_collection
-
-    # x = generateRandomNumber(1, 3, 5)
-    # context = {}
-
-    return render(request, "mint.html")
-
 
 @receiver(pre_delete, sender=UserCollection)
 def model_delete(sender, instance, **kwargs):

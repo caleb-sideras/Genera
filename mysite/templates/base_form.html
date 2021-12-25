@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block body_block %}
+    
+    <form method="POST" class="base_form">
+        <h2>{{title}}</h2>
+        {%csrf_token%}
+        {{form.as_p}}
+        <button class="light_grey_background general_button_no_border" name="{{identifier}}" type="submit">
+            {{button_text}}
+        </button>
+    </form>
+{% endblock %}
