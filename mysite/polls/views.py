@@ -17,7 +17,7 @@ from django.contrib import messages
 from pathlib import Path
 import json
 from django.http import JsonResponse, RawPostDataException
-from django.core.exceptions import PermissionDenied, ValidationError
+from django.core.exceptions import PermissionDenied, ValidationError, BadRequest
 import base64
 from PIL import Image, ImageColor
 import numpy as np
@@ -62,11 +62,6 @@ def temp_view(request):
 
     return render(request, "testerman.html")
 
-
-def get_or_create_subdirectory(sd):
-    Path(f"{MEDIA_DIR}/{sd}").mkdir(parents=True, exist_ok=True)
-
-
 def upload_view(request):
     # users_imgs = UserAsset.objects.filter(user=request.user)
     context = {}
@@ -77,7 +72,6 @@ def upload_view(request):
         if horo != res_x or vert != res_y:
             PIL_image = PIL_image.resize((res_x, res_y))
         return PIL_image
-
 
     calebs_gay_dict = {}
     
@@ -295,6 +289,10 @@ def upload_view(request):
 
 
 def login_view(request):
+    if request.user.is_authenticated:
+        error_params = {"title": "Login", "description": "Attempt to Log in when already logged in.", "code": "321XD"}
+        raise PermissionDenied(json.dumps(error_params))
+
     login_form = LoginForm(label_suffix="")
     form_id = "login_form"
 
@@ -310,17 +308,24 @@ def login_view(request):
                 messages.error(request, msg)
                 login_form.add_error(None, msg)
 
-    form_context = {"form": login_form, "button_text": "Log in", "identifier": form_id, "title": "Log in"}
+    form_context = {"form": login_form, "button_text": "Log in", "identifier": form_id, "title": "Log in to Genera"}
 
     return render(request, 'base_form.html', form_context)
 
 def logout_view(request):
+    if not request.user.is_authenticated:
+        error_params = {"title": "Logout", "description": "Attempt to logout when not logged in.", "code": "320XD"}
+        raise PermissionDenied(json.dumps(error_params))
 
     logout(request)
     messages.success(request, 'Logged out Succesfully!')
     return redirect(reverse('polls:main_view'))
 
 def register_view(request):
+    if request.user.is_authenticated:
+        error_params = {"title": "Registration", "description": "Attempt to register when already logged in.", "code": "322XD"}
+        raise PermissionDenied(json.dumps(error_params))
+
     registration_form = UserRegisterForm(label_suffix="")
     form_id = "register_form"
     
@@ -370,12 +375,13 @@ def account_activation_view(request, token_url):
         token_instance.user.save()
         token_instance.delete()
         messages.success(request, 'Account activated! Please log in.')
+        login(request, token_instance.user)
         print(f"{token_instance.user.username} has been activated")
-        return redirect(reverse('polls:login'))
-    else:
-        messages.error(request, 'Invalid URL accessed!')
-        print(f"Invalid URL accessed")
         return redirect(reverse('polls:main_view'))
+    else:
+        error_params = {"title": "Account activation", "description": "Invalid URL accessed. Please try again or reregister", "code": "323XD"}
+        print("Invalid URL accessed")
+        raise PermissionDenied(json.dumps(error_params))
 
 def password_reset_view(request):
     password_reset_request_form = Password_Reset_Request_Form(label_suffix="")
@@ -396,10 +402,8 @@ def password_reset_view(request):
             )
             messages.success(request, 'Password reset email sent!')
             return redirect(reverse('polls:main_view'))
-        else:
-            messages.error(request, 'Invalid email provided!')
 
-    form_context = {"form": password_reset_request_form, "button_text": "Request a password reset", "identifier": form_id, "title": "Password Reset Request"}
+    form_context = {"form": password_reset_request_form, "button_text": "Request a password reset link!", "identifier": form_id, "title": "Password Reset Request"}
 
     return render(request, 'base_form.html', form_context)
 
@@ -437,9 +441,8 @@ def password_reset_handler_view(request, token_url):
         return render(request, 'base_form.html', form_context)
 
     else:
-        messages.error(request, 'Invalid password reset link attempted')
-        raise PermissionDenied()
-
+        error_params = {"title": "Credentials change", "description": "Invalid URL accessed. Consider requesting a new link if issue persists", "code": "323XD"}
+        raise PermissionDenied(json.dumps(error_params))
 
 def profile_view(request, username):
     user = User.objects.filter(username=username).first()
