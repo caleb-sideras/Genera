@@ -102,40 +102,56 @@ def upload_view(request):
                 return base64.b64encode(bytes).decode('utf-8')
 
             if 'properties' in request.POST:
-                print(request.POST.keys())
                 properties = json.loads(request.POST.get('properties'))
                 layernames = json.loads(request.POST.get('layernames'))
-                print(properties)
-                print(layernames)
                 res_x = int(properties[3])
                 res_y = int(properties[4])
                 texture_color = ImageColor.getcolor(properties[5], "RGB")
                 layers_list = [None] * len(layernames)
                 textures_list = [None] * len(layernames)
+                layers_list_names = [None] * len(layernames)
+                textures_list_names = [None] * len(layernames)
                 for filename in request.FILES.keys():
                     for file in request.FILES.getlist(filename):
                         layer_name = filename.split(".")[0]
                         count = int(filename.split(".")[1])
                         if layer_name =="asset":
-                            print(file)
                             layers_list[count] = file_to_pil(file, res_x, res_y)
+                            layers_list_names[count] = file.name
                         else:
                             textures_list[count] = file_to_pil(file, res_x, res_y)
+                            textures_list_names[count] = file.name
                 im = Image.new(
                 "RGBA", (res_x, res_y), (0, 0, 0, 0)
                 )
-                print(layers_list)
-                print(textures_list)
-                print(texture_color)
+                attributes = []
                 for i in range(len(layernames)):
                     if layers_list[i] and textures_list[i]:
                         texturedAsset = textureMapping(layers_list[i], textures_list[i], texture_color)
+                        value = f"{layers_list_names[i]} ({textures_list_names[i]})"
+                        attributes.append({"trait_type": layernames[i], "value": value})
                         im.paste(texturedAsset, (0, 0), texturedAsset)   
                     elif layers_list[i]:
                         im.paste(layers_list[i], (0, 0), layers_list[i])
+                        value = f"{layers_list_names[i]}"
+                        attributes.append({"trait_type": layernames[i], "value": value})
 
+                metadata = {
+                "name": properties[1],
+                "description": properties[2],
+                "image": "",
+                "attributes": attributes
+                }
+                print(metadata)
                 content = serve_pil_image(im)    
-                return HttpResponse(content, content_type="application/octet-stream")
+                # return HttpResponse(content, content_type="application/octet-stream")
+                return JsonResponse(
+                    {
+                        "preview" : content,
+                        "metadata" : metadata
+                    },
+                    status=200,
+                )
 
             
             #TEST FILE TRANSFER CODE
