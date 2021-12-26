@@ -446,7 +446,8 @@ def password_reset_handler_view(request, token_url):
 
 def profile_view(request, username):
     user = User.objects.filter(username=username).first()
-    owner = (request.user.username == username)
+    owner = (request.user.username == user.username)
+    print(user,owner)
 
     if not user:
         messages.error(request, "NO SUCH PROFILE EXISTS - redirected to main !!!!")
