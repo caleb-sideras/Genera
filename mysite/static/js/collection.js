@@ -312,9 +312,9 @@ async function delete_duplicates(self){
     await yes_no_popup("Delete ALL Duplicates?", "Delete", "Cancel")
         .then(function (reponse) {
             if (reponse) {
+                create_and_render_loading_popup("Deleting Duplicates")
                 ajax_post({ 'delete_duplicates': 'hello' })
                     .then(function (response) { //Action that occurs after a response from the server was obtained - here (STATUS 200)
-                        create_and_render_loading_popup("Deleting Duplicates")
                         console.log(response["server_message"])
                         location.reload();
                     })
@@ -326,6 +326,7 @@ async function delete_duplicates(self){
 }
 
 function download_zip() {
+    create_and_render_loading_popup("Downloading Collection")
     console.log('Generating zipfile');
     let images = document.querySelectorAll(".collection_card > img");
     let metadata = document.querySelectorAll(".collection_card > div > pre");
@@ -353,6 +354,7 @@ function download_zip() {
             }
         });
     }
+    close_loading_popup()
 }
 
 function edit_image(title, description){

@@ -205,7 +205,7 @@ def create_and_save_collection(tempDict, db_collection, user = None):
     print("Creating/saving .png & .json")
     
     os.makedirs(db_collection.path[1:])
-    print(texturedAssetDict)
+    # print(texturedAssetDict)
     # getting longest layer
     longest_layer = 0
     for value in texturedAssetDict:

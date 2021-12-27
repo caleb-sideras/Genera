@@ -62,7 +62,7 @@ input[type="password"],
 input[type="email"] {
   background-color: var(--white-color);
   padding: 10px;
-  border: 0.5px solid var(--dark-grey-color);
+  border: 0.5px solid var(--border-color);
   -webkit-border-radius: 5px;
   border-radius: 5px;
   color: var(--dark-grey-color);
@@ -681,6 +681,14 @@ body {
   width: auto;
   text-align: center;
   margin: 25px 0;
+}
+.upload_preview > h3 {
+  color: var(--text-color);
+  width: auto;
+  text-align: center;
+  margin-top: 5px;
+  margin-bottom: 45px;
+  font-size: 1.5rem;
 }
 
 .upload_properties {

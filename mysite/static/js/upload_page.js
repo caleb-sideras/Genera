@@ -188,7 +188,8 @@ function add_smart_input(self, category) {
             this.upload.remove()
 
             remove_file(scoped_filename)
-            open_images(self)
+            // open_images(self)
+            remove_image(self, this, scoped_filename)
             delete rarity_map[scoped_filename] //delete rarity map link
             document.getElementById("rarity_map").value = JSON.stringify(rarity_map)
             create_notification("File removed", "You have succesfully removed '" + scoped_filename.split(".").slice(2,4).join(".") + "' from the component." , duration = 3500, "success") //20 years duration for sins
@@ -214,6 +215,7 @@ function add_smart_input(self, category) {
     var uploadbtn = document.createElement('input')
     uploadbtn.setAttribute('type', 'file')
     uploadbtn.setAttribute('multiple','')
+    uploadbtn.setAttribute('accept', 'image/*')
     uploadbtn.name = ""
     uploadbtn.style.marginBottom = "5px"
     uploadbtn.style.display = "none"
@@ -495,20 +497,71 @@ function open_images(self, new_layer = false){
             
         //     isfirst = true
         // }
+        function fileToDataUri(field) {
+            return new Promise((resolve) => {
+                const reader = new FileReader();
 
+                reader.addEventListener("load", () => {
+                    resolve(reader.result);
+                });
+
+                reader.readAsDataURL(field);
+            });
+        }
+        // async function add_main_image() {
+        //     var canvas = document.createElement("canvas");
+        //     canvas.width = 100;
+        //     canvas.height = 100;
+
+        //     var new_element_img = new Image()
+        //     // new_element_img.src = target.result;//result is base64-encoded Data URI
+        //     new_element_img.src = await fileToDataUri(filelist[0])
+    
+        //     var context = canvas.getContext("2d");
+        //     // console.log(new_element_img)
+        //     // console.log(new_element_img.src)
+        //     context.drawImage(new_element_img, 0, 0, canvas.width, canvas.height)
+        //     new_element_img.src = context.canvas.toDataURL(filelist[0].type)
+        //     console.log(canvas.toDataURL('image/png', 1))
+        //     console.log(new_element_img.src)
+        // }
+        // add_main_image()
         for (let i = 0; i < filelist.length; i++) {
             var new_element = document.createElement('li')
             var new_element_img = document.createElement('img')
             var new_element_text = document.createElement('h5')
             new_element_text.innerHTML = filelist[i].name
+            // console.log(context.drawImage(await fileToDataUri(filelist[i]), 0, 0, 300, 300))
             new_element_img.src = URL.createObjectURL(filelist[i])
             new_element.style = "cursor: pointer;"
-            new_element.addEventListener('click', function () { replace_image(URL.createObjectURL(filelist[i]), filelist[i].name, self.previousElementSibling.innerHTML)})
+            new_element.addEventListener('click', async function () { replace_image(URL.createObjectURL(filelist[i]), filelist[i].name, self.previousElementSibling.innerHTML)})
             new_element.appendChild(new_element_img)
             new_element.appendChild(new_element_text)
             document.getElementById("scroller").appendChild(new_element)
         }
     }
+}
+
+function remove_image(previous_self, current_self, name){
+    console.log(previous_self)
+    console.log(current_self)
+    console.log(name)
+
+    if (upload_preview.children[0].innerHTML == previous_self.previousElementSibling.innerHTML) {
+        var scroller = upload_preview.children[4]
+        console.log(scroller)
+        // console.log(scroller.querySelector("li > h5"))
+        // scroller.forEach(list_element => {
+        //     if (list_element[1].innerHTML == ) {
+                
+        //     }
+        // });
+    }
+    else{
+        open_images(previous_self)
+    }
+    //scroller
+    //upload_preview
 }
 
 function switch_tabs(target_tab, self) {
@@ -536,7 +589,6 @@ function delete_button() {
 }
 
 
-//EXTRA TEST STUFF
 function add_collection() {
     add_layer_input = document.getElementById("add_layer_input")
 
@@ -564,7 +616,7 @@ function add_collection() {
     add_layer_input.value = ""
 }
 
-//EXTRA TEST STUFF
+
 function expand_collapse_button(self) {
     // console.log(self)
     parent = self.parentElement.firstChild.innerHTML

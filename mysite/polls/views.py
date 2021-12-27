@@ -111,10 +111,10 @@ def upload_view(request):
                         count = int(filename.split(".")[1])
                         if layer_name =="asset":
                             layers_list[count] = file_to_pil(file, res_x, res_y)
-                            layers_list_names[count] = file.name
+                            layers_list_names[count] = file.name.split(".")[0]
                         else:
                             textures_list[count] = file_to_pil(file, res_x, res_y)
-                            textures_list_names[count] = file.name
+                            textures_list_names[count] = file.name.split(".")[0]
                 im = Image.new(
                 "RGBA", (res_x, res_y), (0, 0, 0, 0)
                 )
@@ -136,7 +136,7 @@ def upload_view(request):
                 "image": "",
                 "attributes": attributes
                 }
-                print(metadata)
+                # print(metadata)
                 content = serve_pil_image(im)    
                 # return HttpResponse(content, content_type="application/octet-stream")
                 return JsonResponse(
@@ -207,12 +207,12 @@ def upload_view(request):
             db_collection.save()
             
             for filename in request.FILES.keys():
-                print(request.FILES.keys())
+                # print(request.FILES.keys())
                 for file in request.FILES.getlist(filename): ##for this set of file get layer name and layer type
-                    print(file)
-                    print(filename)
-                    print(request.FILES.keys())
-                    print(request.FILES.getlist(filename))
+                    # print(file)
+                    # print(filename)
+                    # print(request.FILES.keys())
+                    # print(request.FILES.getlist(filename))
                     if "$" in filename: ##handle mutliple files.
                         individual_files = filename.split("$")
                         if individual_files:
@@ -721,22 +721,24 @@ def collection_view(request, username, collection_name):
                         status=200,
                     )
             elif "delete_duplicates" in received_json_data:
+                print('Entered delete duplicates')
                 if request.user.is_authenticated:
                     collection_query = collection_images.filter(deployed_bool = False)
                     i = 0
                     while i < len(collection_query):
-                        print(f"{len(collection_query)} LENGTH OF QUERY")
+                        # print(f"{len(collection_query)} LENGTH OF QUERY")
                         entry_metadata = json.loads(collection_query[i].metadata)
-                        print(f"{entry_metadata} COMPARISON METADATA {i}")
+                        # print(f"{entry_metadata} COMPARISON METADATA {i}")
                         for j in range(len(collection_query) - 1 - i):           
                             value_metadata = json.loads(collection_query[j + 1 + i].metadata)
-                            print(f"{value_metadata} CURRENT METADATA {j + 1 + i}")
+                            # print(f"{value_metadata} CURRENT METADATA {j + 1 + i}")
                             if entry_metadata['attributes'] == value_metadata['attributes']:
                                 collection_query[j + 1 + i].delete()
                                 user_collection.collection_size = user_collection.collection_size - 1
-                                print(f"{collection_query[j + 1 + i]} deleted {j + 1 + i}")
+                                # print(f"{collection_query[j + 1 + i]} deleted {j + 1 + i}")
                         i = i + 1
                         collection_query = collection_images.filter(deployed_bool = False)
+                    user_collection.duplicates_deleted = True
                     user_collection.save()
 
 
