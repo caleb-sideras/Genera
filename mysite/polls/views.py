@@ -35,9 +35,10 @@ import os
 from datetime import timezone
 from django.template.loader import render_to_string
 from io import BytesIO
-
+import cv2
+from mysite.tools import Timer
 # Create your views here.
-
+t = Timer()
 
 def main_view(request):
 
@@ -67,10 +68,29 @@ def upload_view(request):
     context = {}
     context["ajax_url"] = reverse("polls:upload")
     def file_to_pil(file, res_x, res_y):  # take POSt.request file that user sent over the form, and convert it into a PIL object.
+        t.start()
         PIL_image = Image.open(io.BytesIO(file.read()))
         horo, vert = PIL_image.size
         if horo != res_x or vert != res_y:
             PIL_image = PIL_image.resize((res_x, res_y))
+        
+        t.stop()
+        return PIL_image
+
+    def file_to_pil_cv2(file, res_x, res_y):  # take POSt.request file that user sent over the form, and convert it into a PIL object.
+        timeit_start = time.time()
+
+        PIL_image = cv2.imdecode(np.fromstring(file.read(), np.uint8), cv2.IMREAD_UNCHANGED)
+        PIL_image = cv2.cvtColor(PIL_image, cv2.COLOR_BGRA2RGBA)
+        height, width, channels = PIL_image.shape
+        if height != res_x or width != res_y:
+            print("reshaping")
+            PIL_image = cv2.resize(PIL_image, dsize=[res_x, res_y], interpolation=cv2.INTER_CUBIC)
+
+        timeit_end = time.time()
+        PIL_image = Image.fromarray(PIL_image)
+        print(f"Time taken individual pil open: {timeit_end-timeit_start:.3f}s")
+        
         return PIL_image
 
     calebs_gay_dict = {}
@@ -90,10 +110,47 @@ def upload_view(request):
         if len(request.FILES) != 0:
 
             def serve_pil_image(pil_img):
+                # t.start()
+
                 imageBytes = io.BytesIO()
+                t.start()
                 pil_img.save(imageBytes, format='PNG')
-                bytes = imageBytes.getvalue()
-                return base64.b64encode(bytes).decode('utf-8')
+                t.stop()
+                bytes = base64.b64encode(imageBytes.getvalue()).decode('utf-8')
+
+                # t.stop()
+                return bytes
+            
+            
+            def serve_pil_image_test(pil_img):
+                t.start()
+
+                ##mimic pil .save() method
+                imageBytes = io.BytesIO()
+                cv2_img = cv2.imencode('.png', np.array(pil_img))[1]
+                cv2.imwrite(imageBytes, cv2_img)
+                
+                t.stop()
+                
+                bytes = base64.b64encode(imageBytes.getvalue()).decode('utf-8')
+                # t.stop()
+                return bytes
+            
+            def serve_alternative(pil_img):
+                t.start()
+
+                cv2_img = cv2.imencode('.png', np.array(pil_img))[1].tobytes()
+                bytes = base64.b64encode(cv2_img).decode('utf-8')
+
+                t.stop()
+                return bytes
+            
+            def serve_cv2_image(np_array):
+                t.start()
+                cv2_img = cv2.imencode('.png', np_array)[1].tobytes()
+                bytes = base64.b64encode(cv2_img).decode('utf-8')
+                t.stop()
+                return bytes
 
             if 'properties' in request.POST:
                 properties = json.loads(request.POST.get('properties'))
@@ -115,8 +172,8 @@ def upload_view(request):
                         else:
                             textures_list[count] = file_to_pil(file, res_x, res_y)
                             textures_list_names[count] = file.name
-                im = Image.new(
-                "RGBA", (res_x, res_y), (0, 0, 0, 0)
+                im = Image.new (
+                    "RGBA", (res_x, res_y), (0, 0, 0, 0)
                 )
                 attributes = []
                 for i in range(len(layernames)):
@@ -131,12 +188,12 @@ def upload_view(request):
                         attributes.append({"trait_type": layernames[i], "value": value})
 
                 metadata = {
-                "name": properties[1],
-                "description": properties[2],
-                "image": "",
-                "attributes": attributes
+                    "name": properties[1],
+                    "description": properties[2],
+                    "image": "",
+                    "attributes": attributes
                 }
-                print(metadata)
+                # print(metadata)
                 content = serve_pil_image(im)    
                 # return HttpResponse(content, content_type="application/octet-stream")
                 return JsonResponse(

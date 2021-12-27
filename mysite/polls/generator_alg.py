@@ -7,6 +7,9 @@ from polls.models import *
 import hashlib
 import string
 import time
+import cv2
+from mysite.tools import Timer
+t = Timer()
 # Notes
 # - the current textures Samoshin sent me are buggy, they only use A (Alpha) values in the RGBA format
 
@@ -245,9 +248,22 @@ def create_and_save_collection(tempDict, db_collection, user = None):
         image_to_collection_db.metadata = json.dumps(temp_json)
 
         current_image_path = f"{db_collection.path}/{alphanum_random(6)}.png"
+
+        # t.start()
+        # cv2img = cv2.cvtColor(np.array(im), cv2.COLOR_RGB2BGR)
+        # cv2.imwrite(current_image_path[1:], cv2img)
+        # t.stop()
+
+        t.start()
         im.save(current_image_path[1:], "PNG")
-        im.thumbnail((200,200)) #comress to thumbnail size
+        t.stop()
+
         compressed_image_path = current_image_path.replace(".png", "_tbl.png")
+
+        # cv2img = cv2.resize(cv2img, dsize=[200, 200], interpolation=cv2.INTER_AREA)
+        # cv2.imwrite(compressed_image_path[1:], cv2img)
+
+        im.thumbnail((200,200)) #comress to thumbnail size
         im.save(f"{compressed_image_path[1:]}", "PNG") #save thumbnail
 
         image_to_collection_db.path = current_image_path
