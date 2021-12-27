@@ -77,7 +77,7 @@ def upload_view(request):
         t.stop()
         return PIL_image
 
-    def file_to_pil_cv2(file, res_x, res_y):  # take POSt.request file that user sent over the form, and convert it into a PIL object.
+    def file_to_pil_cv2(file, res_x, res_y):  # Use this in case we make use of numpy arrays instead of PIL objects. Return after cv2.cvtColor to get the array.
         timeit_start = time.time()
 
         PIL_image = cv2.imdecode(np.fromstring(file.read(), np.uint8), cv2.IMREAD_UNCHANGED)
@@ -109,46 +109,12 @@ def upload_view(request):
    
         if len(request.FILES) != 0:
 
-            def serve_pil_image(pil_img):
-                # t.start()
-
-                imageBytes = io.BytesIO()
-                t.start()
-                pil_img.save(imageBytes, format='PNG')
-                t.stop()
-                bytes = base64.b64encode(imageBytes.getvalue()).decode('utf-8')
-
-                # t.stop()
-                return bytes
-            
-            
-            def serve_pil_image_test(pil_img):
-                t.start()
-
-                ##mimic pil .save() method
-                imageBytes = io.BytesIO()
-                cv2_img = cv2.imencode('.png', np.array(pil_img))[1]
-                cv2.imwrite(imageBytes, cv2_img)
-                
-                t.stop()
-                
-                bytes = base64.b64encode(imageBytes.getvalue()).decode('utf-8')
-                # t.stop()
-                return bytes
-            
-            def serve_alternative(pil_img):
+            def pil_to_bytes(pil_img):
                 t.start()
 
                 cv2_img = cv2.imencode('.png', np.array(pil_img))[1].tobytes()
                 bytes = base64.b64encode(cv2_img).decode('utf-8')
 
-                t.stop()
-                return bytes
-            
-            def serve_cv2_image(np_array):
-                t.start()
-                cv2_img = cv2.imencode('.png', np_array)[1].tobytes()
-                bytes = base64.b64encode(cv2_img).decode('utf-8')
                 t.stop()
                 return bytes
 
@@ -194,7 +160,7 @@ def upload_view(request):
                     "attributes": attributes
                 }
                 # print(metadata)
-                content = serve_pil_image(im)    
+                content = pil_to_bytes(im)    
                 # return HttpResponse(content, content_type="application/octet-stream")
                 return JsonResponse(
                     {
