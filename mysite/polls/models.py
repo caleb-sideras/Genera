@@ -86,8 +86,8 @@ class User(AbstractBaseUser, PermissionsMixin, Model):
 class UserProfile(Model):
     # This line is required. Links UserProfile to a User model instance.
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    private = models.BooleanField(default=True)
     # The additional attributes we wish to include.
+    private = models.BooleanField(default=True)
     picture = models.ImageField(upload_to=generate_filename_userpic, blank=True)
     
     def __str__(self):
