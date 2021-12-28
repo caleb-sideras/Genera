@@ -2,6 +2,10 @@ button_section_layers = null
 button_section_textures = null
 button_section_collection = null
 rarity_map = {}
+uploaded_data = {
+    "Layers" : {},
+    "Textures" : {}
+}
 
 function main() {
     layer_update_mode = false
@@ -23,6 +27,26 @@ function main() {
     button_section_textures = document.getElementsByClassName("upload_layers_buttons")[1]
     button_section_collection = document.getElementsByClassName("upload_main")[0]
     upload_preview = document.getElementsByClassName('upload_preview')[0]
+}
+
+function add_uploaded_layers(layer_name) {
+    uploaded_data['Layers'][layer_name] = {}
+    uploaded_data['Textures'][layer_name] = {}
+    console.log(uploaded_data)
+}
+
+async function add_uploaded_files(filelist, context, section){
+    var new_items = {}
+    for (const file of filelist) {
+        await image_URLs(file).then(function (response) {
+            if (response) {
+                compressed_url = response
+                uploaded_data[section][context.previousElementSibling.innerHTML][file.name] = { "file": file, "compressed_url": compressed_url }
+                new_items[file.name] = { "file": file, "compressed_url": compressed_url}
+            }
+        })
+    }
+    open_images(section, context.previousElementSibling.innerHTML, new_items)
 }
 
 function add_smart_input(self, category) {
@@ -62,28 +86,26 @@ function add_smart_input(self, category) {
         }
     }
     var component_wrapper = self.parentNode.children[self.parentNode.children.length - 1]
-    // console.log(self.parentElement)
-    // console.log((self.parentElement).parentElement)
 
     var build_upload_section = function(filename, upload_button) {
         var full_file_name = ""
         
         function show_file(self, context) {
-            var attachments = upload_button.files;
-            // append the file list to an array iteratively
-            for (let i = 0; i < attachments.length; i++) {
-                if (attachments[i].name == filename) {
-                    if (upload_preview.children[0].innerHTML == self.previousElementSibling.innerHTML) {
-                        upload_preview.children[3].innerHTML = attachments[i].name
-                        upload_preview.children[1].src = URL.createObjectURL(attachments[i])
-                    }
-                    else(
-                        open_images(self, context.innerHTML)
-                    )
-                    break
-                }
-            } 
+            var section_name = ((self.parentNode).parentNode).previousElementSibling.innerHTML
+            var layer_name = self.previousElementSibling.innerHTML
+            var file_name = context.innerHTML
+            var title = section_name + " - " + layer_name
+            if (title == upload_preview.children[0].innerHTML) {
+                const BLOB_URL = URL.createObjectURL(uploaded_data[section_name][layer_name][file_name]['file'])
+                upload_preview.children[0].innerHTML = title
+                upload_preview.children[1].src = BLOB_URL
+                upload_preview.children[3].innerHTML = file_name  
+            }
+            else{
+                open_images(section_name, layer_name, uploaded_data[section_name][layer_name], uploaded_data[section_name][layer_name][file_name])
+            }
         }
+
         var remove_file = function(full_file_name){
             var attachments = upload_button.files; // <-- reference your file input here
             var fileBuffer = new DataTransfer();
@@ -175,7 +197,8 @@ function add_smart_input(self, category) {
 
         slider_section.appendChild(slider_value)
         slider_section.appendChild(slider_1)
-        slider_section.addEventListener('click', function () {
+        // think later or on click
+        slider_section.addEventListener('mousedown', function () {
             show_file(self, this.previousElementSibling)
         })
 
@@ -185,11 +208,11 @@ function add_smart_input(self, category) {
         deletetext.classList = "close_button_color"
         deletetext.addEventListener('click', function () {
             let scoped_filename = generate_full_filename(this.category)
+            remove_image(self, this, scoped_filename)
             this.upload.remove()
 
             remove_file(scoped_filename)
-            // open_images(self)
-            remove_image(self, this, scoped_filename)
+            // remove_image(self, this, scoped_filename)
             delete rarity_map[scoped_filename] //delete rarity map link
             document.getElementById("rarity_map").value = JSON.stringify(rarity_map)
             create_notification("File removed", "You have succesfully removed '" + scoped_filename.split(".").slice(2,4).join(".") + "' from the component." , duration = 3500, "success") //20 years duration for sins
@@ -231,6 +254,9 @@ function add_smart_input(self, category) {
         for (var i = 0; i < uploadbtn.files.length; i++) {
             fileList.push(uploadbtn.files[i])
         }
+
+        var upload_section = ((self.parentNode).parentNode).previousElementSibling
+        add_uploaded_files(fileList, self, upload_section.innerHTML)
         
         for (var i = 0; i < fileList.length; i++) {
             var file = fileList[i]
@@ -242,7 +268,6 @@ function add_smart_input(self, category) {
         }
         // console.log(uploadbtn)
         create_notification("Upload success", "You have succesfully uploaded " + n_files + " file(s) into the selected component" , duration = 5000, "success")
-        open_images(self)
         expand_button(self.nextElementSibling.lastElementChild)
     })
     component_wrapper.appendChild(uploadbtn)
@@ -359,6 +384,7 @@ function add_layer() {
         layer_name.classList = 'no_margin'
         layer_name.style = "cursor: pointer;"
         texture_name = layer_name.cloneNode(true)
+        add_uploaded_layers(add_layer_input.value)
 
         let handle_layer_properties_update = function() {
             // console.log(document.getElementById("rarity_map").value)
@@ -367,7 +393,6 @@ function add_layer() {
             linked_texture_name = this.textures_row.querySelector(":scope > h5")
             layer_name_update_field.value = clicked_layer_name.innerHTML
             
-            console.log(this.layers_row)
             let layers_input_fields = this.layers_row.querySelectorAll(":scope input[type='file']")
             let textures_input_fields = this.textures_row.querySelectorAll(":scope input[type='file']")
 
@@ -411,8 +436,9 @@ function add_layer() {
             //layers_row   
         }.bind({layers_row: layers_row, textures_row: textures_row})
 
-        layer_name.addEventListener('click', function() { open_images(this); handle_layer_properties_update()}.bind(add_layer_img))
-        texture_name.addEventListener('click', function () { open_images(this)}.bind(add_layer_img_2))
+        //update dict when layername change.... jesus!
+        layer_name.addEventListener('click', function () { open_images(((this.parentNode).parentNode).previousElementSibling.innerHTML, this.previousElementSibling.innerHTML, uploaded_data[((this.parentNode).parentNode).previousElementSibling.innerHTML][this.previousElementSibling.innerHTML]); handle_layer_properties_update();}.bind(add_layer_img))
+        texture_name.addEventListener('click', function () { open_images(((this.parentNode).parentNode).previousElementSibling.innerHTML, this.previousElementSibling.innerHTML, uploaded_data[((this.parentNode).parentNode).previousElementSibling.innerHTML][this.previousElementSibling.innerHTML]);}.bind(add_layer_img_2))
 
         
         layers_row.appendChild(layer_name)
@@ -450,13 +476,23 @@ function add_layer() {
     }
 }
 
-function replace_image(imge_url, image_name, image_layer) {
+function replace_image(imge_url = null, image_name, image_layer = null) {
     upload_preview.children[2].style.display = 'none'
     upload_preview.children[3].innerHTML = image_name
-    upload_preview.children[0].innerHTML = image_layer
+    if (image_layer) {
+        upload_preview.children[0].innerHTML = image_layer
+    }
     upload_preview.children[1].src = imge_url
     upload_preview.children[1].style.display = 'block'
 
+}
+
+function remove_image_preview(){
+    upload_preview.children[2].style.display = 'none'
+    upload_preview.children[3].innerHTML = ''
+    upload_preview.children[0].innerHTML = ''
+    upload_preview.children[1].removeAttribute('src')
+    upload_preview.children[1].style.display = 'block'
 }
 
 function replace_metadata(imge_url, image_name, image_layer) {
@@ -468,100 +504,120 @@ function replace_metadata(imge_url, image_name, image_layer) {
 
 }
 
-function open_images(self, new_layer = false){
-    var local_sliders = self.parentElement.children[4].querySelectorAll(":scope input[type=file]")
-    // var isfirst = false;
-    // upload_preview.children[2].innerHTML = self.previousElementSibling.innerHTML
-    upload_preview.children[4].innerHTML = ""
-    var filelist = []
-    for (let index = 0; index < local_sliders.length; index++) {
-        var tempfilelist = local_sliders[index].files
-        for (var i = 0, l = tempfilelist.length; i < l; i++) {
-            filelist.push(tempfilelist[i]);
-        }
+async function image_URLs(file) {
+    function calculateSize(img) {
+        var width = img.width;
+        var height = img.height;
+        MAX_WIDTH = 100
+        height = Math.round((height * MAX_WIDTH) / width);
+        return [MAX_WIDTH, height]
     }
-    if (filelist.length > 0) {
-        // if (!isfirst) {
-            if (new_layer) {
-                for (let i = 0; i < filelist.length; i++) {
-                    if (filelist[i].name == new_layer) {
-                        replace_image(URL.createObjectURL(filelist[i]), filelist[i].name, self.previousElementSibling.innerHTML);
-                        break
-                    }
 
-                }
-            }
-            else{
-                replace_image(URL.createObjectURL(filelist[0]), filelist[0].name, self.previousElementSibling.innerHTML);
-            }
-            
-        //     isfirst = true
-        // }
-        function fileToDataUri(field) {
-            return new Promise((resolve) => {
-                const reader = new FileReader();
-
-                reader.addEventListener("load", () => {
-                    resolve(reader.result);
-                });
-
-                reader.readAsDataURL(field);
-            });
-        }
-        // async function add_main_image() {
-        //     var canvas = document.createElement("canvas");
-        //     canvas.width = 100;
-        //     canvas.height = 100;
-
-        //     var new_element_img = new Image()
-        //     // new_element_img.src = target.result;//result is base64-encoded Data URI
-        //     new_element_img.src = await fileToDataUri(filelist[0])
+    const blobURL = URL.createObjectURL(file);
     
-        //     var context = canvas.getContext("2d");
-        //     // console.log(new_element_img)
-        //     // console.log(new_element_img.src)
-        //     context.drawImage(new_element_img, 0, 0, canvas.width, canvas.height)
-        //     new_element_img.src = context.canvas.toDataURL(filelist[0].type)
-        //     console.log(canvas.toDataURL('image/png', 1))
-        //     console.log(new_element_img.src)
-        // }
-        // add_main_image()
-        for (let i = 0; i < filelist.length; i++) {
-            var new_element = document.createElement('li')
-            var new_element_img = document.createElement('img')
-            var new_element_text = document.createElement('h5')
-            new_element_text.innerHTML = filelist[i].name
-            // console.log(context.drawImage(await fileToDataUri(filelist[i]), 0, 0, 300, 300))
-            new_element_img.src = URL.createObjectURL(filelist[i])
-            new_element.style = "cursor: pointer;"
-            new_element.addEventListener('click', async function () { replace_image(URL.createObjectURL(filelist[i]), filelist[i].name, self.previousElementSibling.innerHTML)})
-            new_element.appendChild(new_element_img)
-            new_element.appendChild(new_element_text)
-            document.getElementById("scroller").appendChild(new_element)
+    const img = new Image();
+    img.src = blobURL;
+    img.onerror = function () {
+        URL.revokeObjectURL(this.src);
+        // Handle the failure properly
+        console.log("Cannot load image");
+    };
+    return new Promise((resolve) => {
+        img.onload = function () {
+            URL.revokeObjectURL(this.src);
+            const [newWidth, newHeight] = calculateSize(img);
+
+            const canvas = document.createElement("canvas");
+            canvas.width = newWidth;
+            canvas.height = newHeight;
+            const ctx = canvas.getContext("2d");
+            ctx.drawImage(img, 0, 0, newWidth, newHeight);
+
+            url = canvas.toDataURL("image/png", 0.2)
+            resolve(url)
+        }
+        // handle error
+    })
+}
+
+function open_images(section, layer, new_items, optional_image = null){
+    if (Object.keys(new_items).length != 0) {
+        var section_layer = section + " - " + layer
+        var first_file = ""
+
+        if (optional_image) {
+            first_file = optional_image
+        }
+        else{
+            let [key] = Object.keys(uploaded_data[section][layer])
+            first_file = uploaded_data[section][layer][key]
+        }
+        
+
+        if (upload_preview.children[0].innerHTML != section_layer)
+        {
+            upload_preview.children[4].innerHTML = ""
+            replace_image(URL.createObjectURL(first_file['file']), first_file['file'].name, section_layer);
+        }
+
+        for (const [key, value] of Object.entries(new_items)) {
+            var list_element = document.createElement('li')
+            var list_element_img = document.createElement('img')
+            var list_element_text = document.createElement('h5')
+
+            list_element.style = "cursor: pointer;"
+            list_element_img.src = value['compressed_url']
+            list_element_text.innerHTML = key
+            
+            list_element.addEventListener('click', async function () { replace_image(URL.createObjectURL(value['file']), key, section_layer) })
+
+            list_element.appendChild(list_element_img)
+            list_element.appendChild(list_element_text)
+            document.getElementById("scroller").appendChild(list_element)
+            
         }
     }
 }
 
-function remove_image(previous_self, current_self, name){
-    console.log(previous_self)
-    console.log(current_self)
-    console.log(name)
+function remove_image(self, context, name){
+    const navObj = (obj, currentKey, direction) => {
+        return Object.values(obj)[Object.keys(obj).indexOf(currentKey) + direction];
+    };
 
-    if (upload_preview.children[0].innerHTML == previous_self.previousElementSibling.innerHTML) {
-        var scroller = upload_preview.children[4]
-        console.log(scroller)
-        // console.log(scroller.querySelector("li > h5"))
-        // scroller.forEach(list_element => {
-        //     if (list_element[1].innerHTML == ) {
-                
-        //     }
-        // });
+    var section = (((context.upload.parentNode).parentNode).parentNode).parentNode.children[0].innerHTML
+    var layer = (context.upload.parentNode).parentNode.children[1].innerHTML
+    var image = context.upload.children[0].innerHTML
+    var active_image = upload_preview.children[3].innerHTML
+
+    if (active_image == image) {
+        var replace_element = navObj(uploaded_data[section][layer], image, 1)
+        if (!replace_element) {
+            replace_element = navObj(uploaded_data[section][layer], image, -1)
+            if (!replace_element) {
+                remove_image_preview()
+            }
+            else{
+                replace_image(URL.createObjectURL(replace_element['file']), replace_element['file'].name)
+            }
+        }
+        else{
+            replace_image(URL.createObjectURL(replace_element['file']), replace_element['file'].name)
+        }  
     }
-    else{
-        open_images(previous_self)
-    }
-    //scroller
-    //upload_preview
+    remove_image_carousel(image)
+    delete uploaded_data[section][layer][image]
+
+}
+
+function remove_image_carousel(name){
+    console.log(name)
+    scroller = upload_preview.children[4]
+    name_elements = scroller.querySelectorAll("h5")
+    name_elements.forEach(element => {
+        if (element.innerHTML == name) {
+            element.parentNode.remove()
+        }
+    });
 }
 
 function switch_tabs(target_tab, self) {

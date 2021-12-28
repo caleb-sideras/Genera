@@ -154,7 +154,7 @@ function open_images(self){
                     })
                     close_yes_no_popup()
                 }
-                (document.body).children[0].remove()
+                (document.body).children[0].remove() // TODO fix
 
             })
         })

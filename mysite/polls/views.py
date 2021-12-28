@@ -194,7 +194,7 @@ def upload_view(request):
                     "attributes": attributes
                 }
                 # print(metadata)
-                content = serve_pil_image(im)    
+                content = serve_alternative(im)    
                 # return HttpResponse(content, content_type="application/octet-stream")
                 return JsonResponse(
                     {
@@ -297,7 +297,7 @@ def upload_view(request):
                                 layers[layer_name]["Assets"].append(
                                     {
                                         "Name": file_name_no_extension,
-                                        "PIL": file_to_pil(
+                                        "PIL": file_to_pil_cv2(
                                             file,
                                             calebs_gay_dict["Resolution_x"],
                                             calebs_gay_dict["Resolution_y"]
@@ -310,7 +310,7 @@ def upload_view(request):
                                 layers[layer_name]["Textures"].append(
                                     {
                                         "Name": file_name_no_extension,
-                                        "PIL": file_to_pil(
+                                        "PIL": file_to_pil_cv2(
                                             file,
                                             calebs_gay_dict["Resolution_x"],
                                             calebs_gay_dict["Resolution_y"]
