@@ -2,18 +2,18 @@ from django.db import models
 import uuid
 import os
 from functools import partial
-from polls.model_tools import *
+from main.model_tools import *
 from django.contrib.auth import get_user_model  # gets the user_model django  default or your own custom
 from django.db.models import Q
 from django.utils import timezone
 from django.utils.timezone import make_aware
 from django.template.defaultfilters import default, slugify
-# from mysite.settings import AUTH_USER_MODEL
+# from genera.settings import AUTH_USER_MODEL
 import datetime
 from django.contrib.auth.base_user import AbstractBaseUser
 from django.contrib.auth.models import PermissionsMixin
 from django.contrib.auth.base_user import BaseUserManager
-from polls.managers import *
+from main.managers import *
 # Create your models here.
 
 #use this class as the basis for any further classes in the project - every model should have an UUID!

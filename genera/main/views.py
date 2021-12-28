@@ -1,12 +1,12 @@
 from time import timezone
 from django.http.response import HttpResponse
 from django.shortcuts import render
-from polls.view_tools import generate_token
-from mysite.settings import MEDIA_DIR, DEFAULT_FROM_EMAIL, BASE_DIR
-from polls.models import User
-from polls.forms import *
-from polls.generator_alg import *
-from polls.contract_interaction import *
+from main.view_tools import generate_token
+from genera.settings import MEDIA_DIR, DEFAULT_FROM_EMAIL, BASE_DIR
+from main.models import User
+from main.forms import *
+from main.generator_alg import *
+from main.contract_interaction import *
 from django.templatetags.static import static
 from django.core.files.storage import FileSystemStorage
 from django.shortcuts import redirect
@@ -36,7 +36,7 @@ from datetime import timezone
 from django.template.loader import render_to_string
 from io import BytesIO
 import cv2
-from mysite.tools import Timer
+from genera.tools import Timer
 # Create your views here.
 t = Timer()
 
@@ -66,7 +66,7 @@ def temp_view(request):
 def upload_view(request):
     # users_imgs = UserAsset.objects.filter(user=request.user)
     context = {}
-    context["ajax_url"] = reverse("polls:upload")
+    context["ajax_url"] = reverse("main:upload")
     def file_to_pil(file, res_x, res_y):  # take POSt.request file that user sent over the form, and convert it into a PIL object.
         t.start()
         PIL_image = Image.open(io.BytesIO(file.read()))
@@ -293,11 +293,11 @@ def upload_view(request):
 
             messages.success(
                 request,
-                message="YOU HAVE GENERATED THE IMAGE - Redirectied to the newly created collection!!!!",
+                message="Collection generated succesfully! You have been redirected to the collection page ;)",
             )
             return redirect(
                 reverse(
-                    "polls:collection",
+                    "main:collection",
                     kwargs={
                         "username": request.user.username,
                         "collection_name": db_collection.collection_name,
@@ -305,8 +305,8 @@ def upload_view(request):
                 )
             )
         else:  # no files submitted
-            messages.success(request, message="NO FIELS ATTACHED!!!!")
-            return render(request, "upload.html", context)
+            error_params = {"title": "Upload Failure", "description": "No files have been recieved by the server. Please make sure that you are using PNG files only.", "code": "318XD"}
+            raise PermissionDenied(json.dumps(error_params))
 
     return render(request, "upload.html", context)
 
@@ -326,7 +326,7 @@ def login_view(request):
                 candidate_user = login_form.authenticate()
                 login(request, candidate_user)
                 messages.success(request, message="Logged in succesfully!")
-                return redirect(reverse("polls:main_view"))
+                return redirect(reverse("main:main_view"))
             except ValidationError as msg:
                 messages.error(request, msg)
                 login_form.add_error(None, msg)
@@ -342,7 +342,7 @@ def logout_view(request):
 
     logout(request)
     messages.success(request, 'Logged out Succesfully!')
-    return redirect(reverse('polls:main_view'))
+    return redirect(reverse('main:main_view'))
 
 def register_view(request):
     if request.user.is_authenticated:
@@ -375,7 +375,7 @@ def register_view(request):
 
             UserProfile.objects.create(user=user).save()
             messages.success(request, 'Registration Succesful!')
-            return redirect(reverse('polls:main_view'))
+            return redirect(reverse('main:main_view'))
 
     form_context = {"form": registration_form, "button_text": "Register", "identifier": form_id, "title": "Register for Genera"}
     
@@ -391,7 +391,7 @@ def account_activation_view(request, token_url):
         if time_difference.days > 7:
             token_instance.delete()
             messages.error(request, 'It has been more than one week, so the activation link has expired - please register again')
-            return redirect(reverse('polls:register'))
+            return redirect(reverse('main:register'))
 
         #if the time difference is less than one week, then activate the user.
         token_instance.user.is_active = True
@@ -400,7 +400,7 @@ def account_activation_view(request, token_url):
         messages.success(request, 'Account activated! Please log in.')
         login(request, token_instance.user)
         print(f"{token_instance.user.username} has been activated")
-        return redirect(reverse('polls:main_view'))
+        return redirect(reverse('main:main_view'))
     else:
         error_params = {"title": "Account activation", "description": "Invalid URL accessed. Please try again or reregister", "code": "323XD"}
         print("Invalid URL accessed")
@@ -424,7 +424,7 @@ def password_reset_view(request):
                 html_message=msg_html,
             )
             messages.success(request, 'Password reset email sent!')
-            return redirect(reverse('polls:main_view'))
+            return redirect(reverse('main:main_view'))
 
     form_context = {"form": password_reset_request_form, "button_text": "Request a password reset link!", "identifier": form_id, "title": "Password Reset Request"}
 
@@ -442,7 +442,7 @@ def password_reset_handler_view(request, token_url):
         if time_difference.days > 7:
             token.delete()
             messages.error(request, 'It has been more than one week, so the activation link has expired - please request a new password reset referral')
-            return redirect(reverse('polls:password_reset'))
+            return redirect(reverse('main:password_reset'))
             
         identified_user = token.user
 
@@ -455,7 +455,7 @@ def password_reset_handler_view(request, token_url):
                 password_reset_form.update_user_password(identified_user)
                 messages.success(request, 'Password Reset Succesful. You may now log in with your new password.')
                 token.delete()
-                return redirect(reverse('polls:login'))
+                return redirect(reverse('main:login'))
             else:
                 print(password_reset_form.errors)
 
@@ -474,7 +474,7 @@ def profile_view(request, username):
 
     if not user:
         messages.error(request, "NO SUCH PROFILE EXISTS - redirected to main !!!!")
-        return redirect(reverse("polls:main_view"))
+        return redirect(reverse("main:main_view"))
 
     return render(request, 'user_profile.html', context={"owner":owner, "user":user})
 
@@ -522,7 +522,7 @@ def collection_view(request, username, collection_name):
         user_collection = UserCollection.objects.filter(user=user, collection_name=collection_name).first()
         
         if user_collection:
-            context["ajax_url"] = reverse("polls:collection", 
+            context["ajax_url"] = reverse("main:collection", 
                     kwargs={
                         "username": request.user.username,
                         "collection_name": user_collection.collection_name,
@@ -556,7 +556,7 @@ def collection_view(request, username, collection_name):
                 collection_image.metadata = json.dumps(collection_image_description)
                 collection_image.save()
 
-                return redirect(reverse("polls:collection", kwargs= {
+                return redirect(reverse("main:collection", kwargs= {
                     "username": username,
                     "collection_name": collection_name,
                 }))

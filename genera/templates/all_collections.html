@@ -15,7 +15,7 @@
                         <p class="no_margin center">{{collection.collection_name}}</p>
                         <div><p style="font-size: smaller;" class="no_margin center">{{collection.description}}</p></div>
                         
-                        <a href="{% url 'polls:collection' user.username collection.collection_name %}" style="text-decoration: none;">
+                        <a href="{% url 'main:collection' user.username collection.collection_name %}" style="text-decoration: none;">
                             <button class="collection_card_button orange_background collection_card_button_text" >View</button>
                         </a>
                     </div>

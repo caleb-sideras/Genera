@@ -1,6 +1,6 @@
-from polls.models import Token
-from polls.models import User
-from mysite.settings import BASE_URL
+from main.models import Token
+from main.models import User
+from genera.settings import BASE_URL
 import uuid
 
 def get_absolute_path():

@@ -3,12 +3,12 @@ import numpy as np
 import random
 import os
 import json
-from polls.models import *
+from main.models import *
 import hashlib
 import string
 import time
 import cv2
-from mysite.tools import Timer
+from genera.tools import Timer
 t = Timer()
 # Notes
 # - the current textures Samoshin sent me are buggy, they only use A (Alpha) values in the RGBA format

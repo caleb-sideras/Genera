@@ -42,7 +42,7 @@
 
     <div class="nav_bar_wrapper shadow_strong">
       <div class="left_navbar">
-        <a href="{% url 'polls:main_view' %}">
+        <a href="{% url 'main:main_view' %}">
           <img src="/static/icons/logoV1.svg" class="logo1" alt="" />
           <img
             src="{% static 'Assets/Background/genera4.png' %}"
@@ -56,7 +56,7 @@
             id="myDropdown"
             class="dropdown-content rounded_container_no_padding shadow_strong"
           >
-            <a href="{% url 'polls:upload' %}"
+            <a href="{% url 'main:upload' %}"
               ><p>NFT Maker</p></a
             >
             <a href="#"
@@ -74,10 +74,10 @@
               id="myDropdown"
               class="dropdown-content rounded_container_no_padding shadow_strong"
             >
-              <a href="{% url 'polls:documentation' %}"
+              <a href="{% url 'main:documentation' %}"
                 ><p>Docs</p></a
               >
-              <a href="{% url 'polls:about' %}"
+              <a href="{% url 'main:about' %}"
                 ><p>About</p></a
               >
             </div> 
@@ -97,7 +97,7 @@
             id="more"
             class="dropdown-content rounded_container_no_padding"
           >
-            <a href="{% url 'polls:about'%}"
+            <a href="{% url 'main:about'%}"
               ><p>Documentation</p></a
             >
           </div>
@@ -116,23 +116,23 @@
             class="dropdown-content rounded_container_no_padding shadow_strong"
           >
             {% if request.user.is_authenticated %}
-            <a href="{% url 'polls:profile' request.user.username %}"
+            <a href="{% url 'main:profile' request.user.username %}"
               ><p>View your profile</p></a
             >
             {% endif %}
 
-            <a href="{% url 'polls:all_collections' request.user.username %}"
+            <a href="{% url 'main:all_collections' request.user.username %}"
               ><p>View Collections</p></a
             >
 
             {% if request.user.is_authenticated %}
-            <a href="{% url 'polls:logout' %}"><p>Log out</p></a>
+            <a href="{% url 'main:logout' %}"><p>Log out</p></a>
             {% endif %}
           </div>
         </div>
         {% else %}
         <div class="dropdown">
-          <a href="{% url 'polls:login' %}" style="text-decoration: none"
+          <a href="{% url 'main:login' %}" style="text-decoration: none"
             ><div class="dropbtn rounded_container_no_padding">Log in</div></a
           >
         </div>
@@ -143,12 +143,12 @@
     {% block body_block %}{% endblock %}
 
     <!-- <br><br><br><br>
-    <a href="{% url 'polls:upload' %}">
+    <a href="{% url 'main:upload' %}">
       <button class="general_button light_grey_background grow" style="margin: 15px;">GO HOME (UPLOAD PAGE LOL)!</button>
     </a>
     {% if request.user.is_authenticated %}
-      <a href="{% url 'polls:logout' %}">Log out</a> <br>
-      <a href="{% url 'polls:profile' request.user.username %}">View your profile!</a>
+      <a href="{% url 'main:logout' %}">Log out</a> <br>
+      <a href="{% url 'main:profile' request.user.username %}">View your profile!</a>
     {% endif %} -->
   </body>
 </html>
