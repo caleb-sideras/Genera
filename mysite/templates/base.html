@@ -33,6 +33,13 @@
         <img src="{% static 'Assets/Background/websitebackground2.png' %}" alt="">
       </div>
     </div> -->
+
+    {% if messages %}
+        {% for message in messages %}
+          <input type="hidden" id="server_message" value="{{message}}${{message.level_tags}}">
+        {% endfor %}
+    {% endif %}
+
     <div class="nav_bar_wrapper shadow_strong">
       <div class="left_navbar">
         <a href="{% url 'polls:main_view' %}">
@@ -61,7 +68,6 @@
           </div>  
         </div>
 
-
         <div class="dropdown">
           <div><p>Info</p></div>
             <div
@@ -76,18 +82,6 @@
               >
             </div> 
         </div>
-      </div>
-      <!-- {% if messages %}
-        <ul class="messages">
-            {% for message in messages %}
-            <li  {% if message.tags %} style="color: red; font-size: 2em;" class=" {{ message.tags }} " {% endif %}> {{ message }} </li>
-            {% endfor %}
-        </ul>
-      {% endif %} -->
-
-      <div class="nav_bar_links">
-        
-       
       </div>
 
       <!-- <img style="flex: 1 0;"> -->
