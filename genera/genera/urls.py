@@ -1,4 +1,4 @@
-"""mysite URL Configuration
+"""genera URL Configuration
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/3.2/topics/http/urls/
@@ -22,12 +22,12 @@ urlpatterns = [
     path('admin/', admin.site.urls),
 
     # include other apps
-    path('', include('polls.urls')),
+    path('', include('main.urls')),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 
-handler404 = 'mysite.error_handlers.error_404'
-handler500 = 'mysite.error_handlers.error_500'
-handler403 = 'mysite.error_handlers.error_403'
-handler400 = 'mysite.error_handlers.error_400'
+handler404 = 'genera.error_handlers.error_404'
+handler500 = 'genera.error_handlers.error_500'
+handler403 = 'genera.error_handlers.error_403'
+handler400 = 'genera.error_handlers.error_400'

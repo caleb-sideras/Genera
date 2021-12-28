@@ -4,6 +4,15 @@ function create_notification(title, message, duration = 5000, theme) { // succes
     window.createNotification({ theme: theme, showDuration: duration })({ title: title, message: message })
 }
 
+function create_server_notification() { // success, info, warning, error, and none
+    //if server message exists, create notification
+    if (typeof(document.getElementById("server_message")) != 'undefined' && document.getElementById("server_message") != null) {
+        var [server_message, message_type] = document.getElementById("server_message").value.split("$") 
+        
+        create_notification("Server message", server_message, duration=1000000, theme=message_type)
+    }
+}
+
 function get_cookie(name) {
     let cookieValue = null;
     if (document.cookie && document.cookie !== '') {
@@ -26,6 +35,8 @@ function main() {
         js_vars = document.getElementById("js_vars")
         ajax_url = js_vars.dataset.ajax_url
     }
+
+    create_server_notification()
     
     // Select the button
     const btn = document.querySelector(".btn_toggle");

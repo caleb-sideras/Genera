@@ -1,12 +1,12 @@
 import os
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'mysite.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'genera.settings')
 
 import django
 django.setup()
 
-from polls.models import User
-from polls.models import UserProfile
+from main.models import User
+from main.models import UserProfile
 
 def populate():
     print('starting expy population script')
