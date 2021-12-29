@@ -97,7 +97,6 @@
             required
             name="collection_name"
             type="text"
-            value="Void Chan"
             placeholder="E.g. Void Chans"
             onchange = ajax_validate_field(this)
           />
@@ -106,7 +105,6 @@
             required
             name="image_name"
             type="text"
-            value="Void"
             placeholder="E.g. Void"
             onchange = ajax_validate_field(this)
           />
@@ -115,7 +113,6 @@
             required
             name="token_name"
             type="text"
-            value="VDE"
             placeholder="E.g. VDE"
           />
           <h5 class="no_margin">Description</h5>
@@ -126,7 +123,7 @@
             name="description"
             type=""
             placeholder="E.g. A collection that shows the emptiness of the soul."
-          >A collection that shows the emptiness of the soul.</textarea>
+          ></textarea>
           <h5 class="no_margin">Size</h5>
           <input
             required
@@ -135,7 +132,6 @@
             max="1000"
             name="size"
             type="number"
-            value= "10"
             placeholder="E.g. 150"
           />
           <h5 class="no_margin">Resolution</h5>
@@ -146,7 +142,6 @@
               type="number"
               min="100"
               max="4000"
-              value="500"
               placeholder="X"
               title="X Resolution"
             />
@@ -156,7 +151,6 @@
               type="number"
               min="100"
               max="4000"
-              value="500"
               placeholder="Y"
               title="Y Resolution"
             />
@@ -201,7 +195,8 @@
         style="display: none;"
         type="submit"
         class="general_button_no_border light_purple_background shadow_strong rounded_container_no_padding"
-        onclick="create_and_render_loading_popup('Generating Collection')"
+        onkeypress="create_and_render_loading_popup('Generating Collection')"close_loading_popup
+        disabled
       >
       <h4 class="no_margin generate">Generate</h4> 
       </button>
