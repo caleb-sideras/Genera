@@ -72,10 +72,8 @@ function ajax_validate_field(field_object) {
 
     //if value is empty, show error img color tick
     if (field_object.value == "") {
-        field_object.style.background = "url('/static/icons/remove.svg') no-repeat right";
-        field_object.style.backgroundSize = "20px"
-        field_object.classList.add("error_img_color")
-        field_object.title = response["message"]
+        field_object.classList = "field_error"
+        field_object.title = "Field is empty"
         return
     }
 
@@ -83,15 +81,15 @@ function ajax_validate_field(field_object) {
 
     .then(function(response) {
         if (response["passed"] == 1) {
-            field_object.style.background = "url('/static/icons/check.svg') no-repeat right";
-            field_object.style.backgroundSize = "20px"
-            field_object.classList.remove("error_img_color")
-            field_object.title = ""
+            field_object.classList.add("field_success")
+            field_object.classList.remove("field_error")
+            field_object.setCustomValidity("")
+            field_object.removeAttribute("title")
         }
         else if (response["passed"] == 0) {
-            field_object.style.background = "url('/static/icons/remove.svg') no-repeat right";
-            field_object.style.backgroundSize = "20px"
-            field_object.classList.add("error_img_color")
+            field_object.classList.add("field_error")
+            field_object.classList.remove("field_success")
+            field_object.setCustomValidity(response["message"])
             field_object.title = response["message"]
         }
     })
@@ -213,6 +211,11 @@ async function yes_no_popup(query, yes, no){
 function close_yes_no_popup() {
     document.getElementsByClassName("popup_wrapper")[0].remove()
 }
+
+Object.prototype.isEmpty = function() { //check if object is empty
+    for (var prop in this) if (this.hasOwnProperty(prop)) return false;
+    return true;
+};
 
 window.addEventListener("load", main);
 

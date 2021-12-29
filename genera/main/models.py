@@ -105,7 +105,7 @@ class UserAsset(Model):
 class UserCollection(Model):
 
     collection_name = models.CharField(max_length=50, unique=False)
-    description = models.CharField(max_length=150, unique=False)
+    description = models.CharField(max_length=300, unique=False)
     dimension_x = models.IntegerField(default=4000)
     dimension_y = models.IntegerField(default=4000)
     collection_size = models.IntegerField(default=10)

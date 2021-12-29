@@ -92,6 +92,15 @@ def upload_view(request):
         print(f"Time taken individual pil open: {timeit_end-timeit_start:.3f}s")
         
         return PIL_image
+    
+    def pil_to_bytes(pil_img):
+                t.start()
+
+                cv2_img = cv2.imencode('.png', np.array(pil_img))[1].tobytes()
+                bytes = base64.b64encode(cv2_img).decode('utf-8')
+
+                t.stop()
+                return bytes
 
     calebs_gay_dict = {}
     
@@ -100,7 +109,7 @@ def upload_view(request):
             received_json_data = json.loads(request.body)
             if "field_name" in received_json_data:
                 if received_json_data["field_name"] == "collection_name":
-                    if UserCollection.objects.filter(user__id=request.user.id, collection_name=received_json_data["field_content"]).exists():
+                    if UserCollection.objects.filter(user=request.user, collection_name=received_json_data["field_content"]).exists():
                         return JsonResponse({"passed": 0, "message": "A collection with that name already exists!"}, status=200)
                     else:
                         return JsonResponse({"passed": 1}, status=200)
@@ -108,15 +117,6 @@ def upload_view(request):
             pass
    
         if len(request.FILES) != 0:
-
-            def pil_to_bytes(pil_img):
-                t.start()
-
-                cv2_img = cv2.imencode('.png', np.array(pil_img))[1].tobytes()
-                bytes = base64.b64encode(cv2_img).decode('utf-8')
-
-                t.stop()
-                return bytes
             
             if 'properties' in request.POST:
                 properties = json.loads(request.POST.get('properties'))
@@ -191,34 +191,35 @@ def upload_view(request):
             # print(f"Number of files: {file_count}")
             # print(request.POST["rarity_map"])
             # return render(request, "upload.html", context)
-            
+
+            calebs_gay_dict["CollectionName"] = request.POST.get("collection_name")
+            calebs_gay_dict["TokenName"] = request.POST.get("token_name")
+            calebs_gay_dict["ImageName"]= request.POST.get("image_name")
+            calebs_gay_dict["Description"] = request.POST.get("description")
+            calebs_gay_dict["Resolution_x"] = int(float(request.POST.get("resolution_x")))
+            calebs_gay_dict["Resolution_y"] = int(float(request.POST.get("resolution_y")))
+            calebs_gay_dict["CollectionSize"] = int(float(request.POST.get("size")))
+            calebs_gay_dict["TextureColor"] = request.POST.get("color")
+
+            for value in calebs_gay_dict.values():
+                if not value:
+                    messages.error(request, message=f"An Error has occured - data is missing. Please try again.")
+                    return redirect(reverse("main:upload"))
 
             if request.POST.get("rarity_map") == "":
-                messages.error(request, message="No rarities attached")
-                return render(request, "upload.html", context)
+                messages.error(request, message="No Rarities recieved. Please try again.")
+                return redirect(reverse("main:upload"))
 
-            rarity_map = json.loads(request.POST["rarity_map"])
-            calebs_gay_dict["CollectionName"] = request.POST["collection_name"]
-            calebs_gay_dict["TokenName"] = request.POST["token_name"]
-            calebs_gay_dict["ImageName"]= request.POST["image_name"]
-            calebs_gay_dict["Description"] = request.POST["description"]
-            calebs_gay_dict["Resolution_x"] = int(float(request.POST["resolution_x"]))
-            calebs_gay_dict["Resolution_y"] = int(float(request.POST["resolution_y"]))
-            calebs_gay_dict["CollectionSize"] = int(float(request.POST["size"]))
-            calebs_gay_dict["TextureColor"] = request.POST["color"]
+            rarity_map = json.loads(request.POST.get("rarity_map"))
+
             layers = {}
 
-            db_collection = UserCollection.objects.get_or_create(
-                user=request.user, collection_name=calebs_gay_dict["CollectionName"]
-            )
-            if db_collection[1]:
+            db_collection = UserCollection.objects.get_or_create(user=request.user, collection_name=calebs_gay_dict["CollectionName"])
+            if db_collection[1]: #new collection created
                 db_collection = db_collection[0]
             else:
-                messages.error(
-                    request,
-                    message="YOU ALREADY HAVE A COLLECTION WITH THAT NAME! !!! ! ! ! !! ",
-                )
-                return render(request, "upload.html", context)
+                messages.error(request, message="A collection with that name already exists!")
+                return redirect(reverse("main:upload"))
 
             db_collection.description = calebs_gay_dict["Description"]
             db_collection.dimension_x = calebs_gay_dict["Resolution_x"]
@@ -226,8 +227,13 @@ def upload_view(request):
             db_collection.token_name = calebs_gay_dict["TokenName"]
             db_collection.image_name = calebs_gay_dict["ImageName"]
             # db_collection.collection_size = calebs_gay_dict["CollectionSize"]
-            db_collection.path = f"/media/users/{request.user.username}/collections/{calebs_gay_dict['CollectionName'].replace(' ', '_')}"
-            db_collection.save()
+            db_collection.path = f"/media/users/{request.user.username}/collections/{calebs_gay_dict['CollectionName'].strip().replace(' ', '_')}"
+
+            try:
+                db_collection.save()
+            except:
+                messages.error(request, message="Critical Backend error. Please try again.")
+                return redirect(reverse("main:upload"))
             
             for filename in request.FILES.keys():
                 # print(request.FILES.keys())
@@ -291,19 +297,15 @@ def upload_view(request):
 
             create_and_save_collection(calebs_gay_dict, db_collection, request.user)
 
-            messages.success(
-                request,
-                message="Collection generated succesfully! You have been redirected to the collection page ;)",
-            )
-            return redirect(
-                reverse(
-                    "main:collection",
+            messages.success(request, message="Collection generated succesfully! You have been redirected to the collection page ;)")
+
+            return redirect(reverse("main:collection",
                     kwargs={
                         "username": request.user.username,
-                        "collection_name": db_collection.collection_name,
-                    },
-                )
+                        "collection_name": db_collection.collection_name
+                    })
             )
+                
         else:  # no files submitted
             error_params = {"title": "Upload Failure", "description": "No files have been recieved by the server. Please make sure that you are using PNG files only.", "code": "318XD"}
             raise PermissionDenied(json.dumps(error_params))
@@ -365,7 +367,7 @@ def register_view(request):
             msg_plain = render_to_string('email/verify_email.txt', {'url': account_activation_instance["token_url"], 'date': user.date_joined, 'username': user.username})
             msg_html = render_to_string('email/verify_email.html', {'url': account_activation_instance["token_url"], 'date': user.date_joined, 'username': user.username})
 
-            send_mail(
+            send_mail (
                 subject='Welcome to genera!',
                 message=msg_plain,
                 from_email=DEFAULT_FROM_EMAIL,
@@ -374,7 +376,7 @@ def register_view(request):
             )
 
             UserProfile.objects.create(user=user).save()
-            messages.success(request, 'Registration Succesful!')
+            messages.success(request, 'Registration Succesful! Please check your email to verify your account.')
             return redirect(reverse('main:main_view'))
 
     form_context = {"form": registration_form, "button_text": "Register", "identifier": form_id, "title": "Register for Genera"}
@@ -469,12 +471,11 @@ def password_reset_handler_view(request, token_url):
 
 def profile_view(request, username):
     user = User.objects.filter(username=username).first()
-    owner = (request.user.username == user.username)
-    print(user,owner)
+    owner = (request.user == user)
 
     if not user:
-        messages.error(request, "NO SUCH PROFILE EXISTS - redirected to main !!!!")
-        return redirect(reverse("main:main_view"))
+        error_params = {"title": "Profile", "description": "Profile does not exist", "code": "313XD"}
+        raise PermissionDenied(json.dumps(error_params))
 
     return render(request, 'user_profile.html', context={"owner":owner, "user":user})
 
@@ -517,7 +518,6 @@ def collection_view(request, username, collection_name):
     user = User.objects.filter(username=username).first()
     context["user"] = user
     
-
     if user:
         user_collection = UserCollection.objects.filter(user=user, collection_name=collection_name).first()
         

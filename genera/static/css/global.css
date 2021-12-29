@@ -350,6 +350,20 @@ body {
   filter: var(--red-img-color);
 }
 
+.field_error, .field_success {
+  background-repeat: no-repeat !important;
+  background-position: calc(100% - 5px) 8px !important;
+  background-size: 20px !important;
+}
+
+.field_error {
+  background: url('/static/icons/remove_red.svg');
+}
+
+.field_success {
+  background: url('/static/icons/check.svg');
+}
+
 .color_image_orange {
     /* filter: invert(74%) sepia(37%) saturate(553%) hue-rotate(332deg)
     brightness(95%) contrast(91%); */
