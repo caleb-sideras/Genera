@@ -160,7 +160,7 @@ def upload_view(request):
                     "attributes": attributes
                 }
                 # print(metadata)
-                content = serve_alternative(im)    
+                content = pil_to_bytes(im)    
                 # return HttpResponse(content, content_type="application/octet-stream")
                 return JsonResponse(
                     {
