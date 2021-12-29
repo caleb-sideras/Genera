@@ -8,10 +8,11 @@ uploaded_data = {
 }
 
 function main() {
+    all_layer_names = []
     layer_update_mode = false
     rarity_map = {}
-    all_layer_names = []
-
+    initialize_dynamic_form_validation()
+    
     document.getElementById("add_layer_input").addEventListener("keyup", ({key}) =>  {
         if (key === "Enter") 
             add_layer()
@@ -27,6 +28,67 @@ function main() {
     button_section_textures = document.getElementsByClassName("upload_layers_buttons")[1]
     button_section_collection = document.getElementsByClassName("upload_main")[0]
     upload_preview = document.getElementsByClassName('upload_preview')[0]
+}
+
+function initialize_dynamic_form_validation() {
+    var form = document.getElementById("upload_form")
+    var fields = form.querySelectorAll(".upload_properties input, .upload_properties textarea")
+
+    form.addEventListener("submit", function(event) {
+        if (onsubmit_final_form_validationn(event, form, fields)) {
+            form.submit()
+        }
+    })
+
+    //loop through all fields, checkValidity() and if false, show error img color tick
+    for (var i = 0; i < fields.length; i++) {
+        fields[i].addEventListener("input", function(event) { //discuss if input or change
+            if (event.target.checkValidity()) {
+                event.target.classList.add("field_success")
+                event.target.classList.remove("field_error")
+            } else {
+                event.target.classList.remove("field_success")
+                event.target.classList.add("field_error")
+            }
+        })
+    }
+}
+
+function onsubmit_final_form_validationn(event, form_reference, fields) {
+    event.preventDefault()
+    all_passed = true
+
+    if (all_layer_names.length == 0) {
+        create_notification("No Layers", "You did not add any layers. Submission prevented.", duration = 10000, "error")
+        return false
+    }
+
+    if (form_reference.querySelectorAll("input[type=file]").isEmpty()) {
+        create_notification("Empty Assets", "No files have been attached. Submission prevented.", duration = 10000, "error")
+        return false
+    }
+
+    if (rarity_map.isEmpty()) {
+        create_notification("No Rarity", "You did not add any rarities. Submission prevented.", duration = 10000, "error")
+        return false
+    }
+
+    for (var i = 0; i < fields.length; i++) {
+        if (fields[i].checkValidity() && !fields[i].classList.contains("field_error")) {
+            continue
+        } else {
+            all_passed = false
+            fields[i].reportValidity()
+        }
+    }
+
+    if(!all_passed) {
+        return false
+    }
+
+    console.log("Validation successful");
+    create_and_render_loading_popup("Generating collection")
+    return true;
 }
 
 function add_uploaded_layers(layer_name) {
