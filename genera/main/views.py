@@ -191,7 +191,7 @@ def upload_view(request):
             # print(f"Number of files: {file_count}")
             # print(request.POST["rarity_map"])
             # return render(request, "upload.html", context)
-
+            
 
             if request.POST.get("rarity_map") == "":
                 messages.error(request, message="No rarities attached")

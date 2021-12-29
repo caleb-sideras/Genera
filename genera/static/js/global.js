@@ -9,7 +9,7 @@ function create_server_notification() { // success, info, warning, error, and no
     if (typeof(document.getElementById("server_message")) != 'undefined' && document.getElementById("server_message") != null) {
         var [server_message, message_type] = document.getElementById("server_message").value.split("$") 
         
-        create_notification("Server message", server_message, duration=1000000, theme=message_type)
+        create_notification("Server message", server_message, duration=100000, theme=message_type)
     }
 }
 
@@ -69,8 +69,16 @@ function main() {
 
 //This function relies on having a js_vars element on the page, which stores the URL of the current page, inside data-ajax_url
 function ajax_validate_field(field_object) {
-    console.log(field_object.name)
-    console.log(field_object.value)
+
+    //if value is empty, show error img color tick
+    if (field_object.value == "") {
+        field_object.style.background = "url('/static/icons/remove.svg') no-repeat right";
+        field_object.style.backgroundSize = "20px"
+        field_object.classList.add("error_img_color")
+        field_object.title = response["message"]
+        return
+    }
+
     ajax_post({"field_name": field_object.name, "field_content": field_object.value})
 
     .then(function(response) {
