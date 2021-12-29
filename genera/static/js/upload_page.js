@@ -42,7 +42,7 @@ function initialize_dynamic_form_validation() {
 
     //loop through all fields, checkValidity() and if false, show error img color tick
     for (var i = 0; i < fields.length; i++) {
-        fields[i].addEventListener("input", function(event) { //discuss if input or change
+        fields[i].addEventListener("change", function(event) { //discuss if input or change
             if (event.target.checkValidity()) {
                 event.target.classList.add("field_success")
                 event.target.classList.remove("field_error")
