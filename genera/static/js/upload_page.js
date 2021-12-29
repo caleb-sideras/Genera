@@ -703,7 +703,8 @@ function remove_layer(section, layer){
         remove_image_preview()
         upload_preview.children[4].innerHTML = ""
     }
-    console.log(uploaded_data)
+    delete uploaded_data['Layers'][layer]
+    delete uploaded_data['Textures'][layer]
 }
 
 function switch_tabs(target_tab, self) {
@@ -729,7 +730,6 @@ function delete_button() {
     button_section_textures.remove()
     create_notification("Layer Update", "Layer removed succesfully", duration = 5000, "success") //20 years duration for sins9
 }
-
 
 function add_collection() {
     add_layer_input = document.getElementById("add_layer_input")

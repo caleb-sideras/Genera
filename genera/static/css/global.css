@@ -675,26 +675,15 @@ body {
 }
 
 #scroller li {
-  /* background: #b0bec5;
-  color: #fff; */
   display: inline-block;
   font-weight: bold;
-  height: 100px;
-  width: 100px;
-  /* line-height: 100px; */
+  max-height: 100px;
+  max-width: 100px;
   text-align: center;
   margin: 2px;
 }
 #scroller li >img {
-  /* background: #b0bec5;
-  color: #fff;
-  display: inline-block;
-  font-size: 80px;
-  font-weight: bold; */
-  height: 100px;
-  width: 100px;
-  /* line-height: 100px;
-  text-align: center; */
+  max-height: 100px;
 }
 #scroller li > pre{
   font-size: 0.5rem;
@@ -896,20 +885,14 @@ body {
   z-index: 1;
 }
 
-.image_preview >  .rounded_container {
+.image_preview > .rounded_container {
   display: block;
-    /* display: flex; */
-    margin-left: auto;
-    margin-right: auto;
-    margin-top: auto;
-    margin-bottom: auto;
-    /* padding-top: 0; */
-    width: 1000px;
-    /* height: 400px; */
-    /* vertical-align: middle; */
-      justify-content: space-around;
-    background-color: var(--light-grey-color);
-    padding: 0;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: auto;
+  margin-bottom: auto;
+  background-color: var(--light-grey-color);
+  padding: 0;
 }
 
 .top_row {
@@ -930,49 +913,48 @@ body {
 
 .image_preview > div > .content_wrapper {
   display: flex;
-  justify-content: space-around;
+  justify-content: space-between;
 }
-.image_preview > div > div > .image{
-  /* position: absolute;  */
-  aspect-ratio: 1;
-  width: 50%;
-  /* height: 100%;  */
-   /* margin-left: auto;
-  margin-right: auto; */
-  /* margin-left: auto;
-  margin-right: auto; */
+.image_preview > div > div > img{
+  max-height: 700px;
+  max-width: 700px;
+  min-height: 300px;
+  min-width: 300px;
+  display: block;
+  /* max-width: 230px; */
+  /* max-height: 95px; */
+  width: auto;
+  align-self: center;
+  height: auto;
 }
+
 .image_preview > div > div > div > .button{
-       height: 25px;
-    /* width: 5%; */
-    /* aspect-ratio: 1; */
-    /* align-items: center; */
-    /* margin-top: 250px; */
-    /* margin-bottom: auto; */
-    /* margin: 5px 0 0 0; */
-    margin-left: 5px;
-    /* width: 30%; */
+    height: 25px;
+    width: 100%;
     filter: var(--dark-grey-color-2);
 }
 .lbutton_wrapper {
-    background: var(--border-color);
-    border-radius: 20px 0 0 20px;
-    align-items: center;
-    vertical-align: middle;
-    width: 4%;
-    cursor: pointer;
-    display: flex;
+  background: var(--border-color);
+  border-radius: 20px 0 0 20px;
+  align-items: center;
+  vertical-align: middle;
+  width: 40px;
+  cursor: pointer;
+  display: flex;
+  flex-grow: 1;
 }
 
 .rbutton_wrapper {
-    background: var(--border-color);
-    border-radius: 0 20px 20px 0;
-    align-items: center;
-    vertical-align: middle;
-    width: 4%;
-    cursor: pointer;
-    display: flex;
+  background: var(--border-color);
+  border-radius: 0 20px 20px 0;
+  align-items: center;
+  vertical-align: middle;
+  width: 40px;
+  cursor: pointer;
+  display: flex;
+  flex-grow: 1;
 }
+
 .rbutton_wrapper:hover{
   background: var(--medium-grey-color);
 }
@@ -986,17 +968,14 @@ body {
   transform: rotate(270deg);
 }
 .image_preview > div > div > .info{
-  /* position: absolute;  */
-  aspect-ratio: 1;
-  width: 42%;
-     /* position: relative; */
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    overflow-x: none;
-    overflow-y: auto;
-    /* white-space: nowrap; */
-    text-align: center;
+  display: flex;
+  flex-direction: column;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  justify-content: space-between;
+  overflow-y: auto;
+  text-align: center;
 }
 .image_preview > div > div > div > div > h2{
   color: var(--medium-grey-color);
@@ -1067,10 +1046,8 @@ text-align: left;
 }
 
 .collection_card {
-  /* border-radius: 15px; */
-  min-height: 250px;
   max-height: 350px;
-  width: 200px;
+  max-width: 350px;
   background-color: var(--light-grey-color);
   overflow: hidden;
   display: flex;
@@ -1080,29 +1057,34 @@ text-align: left;
 }
 
 .collection_card > .nft_image {
-      /* max-height: 150px; */
-    aspect-ratio: 1;
-    /* height: 70%; */
-    /* width: 100%; */
-    margin-bottom: 15px;
-    cursor: pointer;
+  margin-bottom: 15px;
+  cursor: pointer
 }
 
 .collection_card > div {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
   gap: 5px;
-  height: 30%;
+  padding: 0 5px;
+  box-sizing: border-box;
 }
+
 .collection_card > div >div{
   height: 40%;
   overflow: hidden;
 }
 
-.collection_card > div > :last-child {
-  flex-grow: 1;
+.collection_card > div > div > p{
+  text-overflow: ellipsis;
+  font-size: smaller;
+  /* width: 50px; */
+  overflow: hidden;
+  /* white-space: nowrap; */
+  width: 100%;
+  box-sizing: border-box;
+  /* position: relative; */
+
 }
 
 .collection_card > div > p{

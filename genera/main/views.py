@@ -94,13 +94,13 @@ def upload_view(request):
         return PIL_image
     
     def pil_to_bytes(pil_img):
-                t.start()
+        t.start()
+        
+        cv2_img = cv2.imencode('.png', np.array(pil_img))[1].tobytes()
+        bytes = base64.b64encode(cv2_img).decode('utf-8')
 
-                cv2_img = cv2.imencode('.png', np.array(pil_img))[1].tobytes()
-                bytes = base64.b64encode(cv2_img).decode('utf-8')
-
-                t.stop()
-                return bytes
+        t.stop()
+        return bytes
 
     calebs_gay_dict = {}
     
