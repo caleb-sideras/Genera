@@ -160,7 +160,7 @@ def upload_view(request):
                     "attributes": attributes
                 }
                 # print(metadata)
-                content = serve_alternative(im)    
+                content = pil_to_bytes(im)    
                 # return HttpResponse(content, content_type="application/octet-stream")
                 return JsonResponse(
                     {
@@ -191,7 +191,7 @@ def upload_view(request):
             # print(f"Number of files: {file_count}")
             # print(request.POST["rarity_map"])
             # return render(request, "upload.html", context)
-
+            
 
             if request.POST.get("rarity_map") == "":
                 messages.error(request, message="No rarities attached")

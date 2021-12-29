@@ -722,11 +722,12 @@ function preview_button(){
     var upload_layers = document.getElementsByClassName('upload_layers')[0]
     var texture_layers = document.getElementsByClassName('upload_layers')[1]
     var collection_properties_container = document.getElementsByClassName('upload_properties')[0]
-    collection_properties = collection_properties_container.children[0].children[1].querySelectorAll(':scope input')
+    collection_properties = collection_properties_container.children[0].children[1].querySelectorAll(':scope input, :scope textarea, :scope div input')
     properties_list = [] // collection properites (metadata)
     properties_list.push(collection_properties[0].value)
     properties_list.push(collection_properties[1].value)
     properties_list.push(collection_properties[3].value)
+    console.log(properties_list)
     // make modular kings!!!
     if (!collection_properties[0].value) {
         alert("Please enter Collection Name")
