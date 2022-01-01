@@ -28,3 +28,4 @@ class UserCollection_Admin(admin.ModelAdmin):
 admin.site.register(User, User_Admin)
 admin.site.register(UserAsset, UserAsset_Admin)
 admin.site.register(UserCollection, UserCollection_Admin)
+# admin.site.register(Product)

@@ -216,6 +216,17 @@ def create_and_save_collection(tempDict, db_collection, user = None):
             longest_layer = len(texturedAssetDict[value])
     db_collection.collection_size = longest_layer
     db_collection.save()
+
+    if tempDict["Resolution_x"] > tempDict["Resolution_y"]:
+        compressed_y = int((tempDict["Resolution_y"] * 200) / tempDict["Resolution_x"])
+        compressed_x = 200
+    else:
+        compressed_x = int((tempDict["Resolution_x"] * 200) / tempDict["Resolution_y"])
+        compressed_y = 200
+    
+    print(compressed_y)
+    print(compressed_x)
+
     # iterating over textured assets dictionary, and combining them
     for i in range(longest_layer):
 
@@ -260,7 +271,7 @@ def create_and_save_collection(tempDict, db_collection, user = None):
 
         compressed_image_path = current_image_path.replace(".png", "_tbl.png")
 
-        cv2img = cv2.resize(cv2img, dsize=[200, 200], interpolation=cv2.INTER_AREA)
+        cv2img = cv2.resize(cv2img, dsize=[compressed_x, compressed_y], interpolation=cv2.INTER_AREA)
         cv2.imwrite(compressed_image_path[1:], cv2img)
 
         # im.thumbnail((200,200)) #comress to thumbnail size

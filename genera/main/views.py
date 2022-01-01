@@ -2,7 +2,7 @@ from time import timezone
 from django.http.response import HttpResponse
 from django.shortcuts import render
 from main.view_tools import generate_token
-from genera.settings import MEDIA_DIR, DEFAULT_FROM_EMAIL, BASE_DIR
+from genera.settings import MEDIA_DIR, DEFAULT_FROM_EMAIL, BASE_DIR, STRIPE_PUBILC_KEY, STRIPE_PRIVATE_KEY
 from main.models import User
 from main.forms import *
 from main.generator_alg import *
@@ -37,8 +37,10 @@ from django.template.loader import render_to_string
 from io import BytesIO
 import cv2
 from genera.tools import Timer
+import stripe
 # Create your views here.
 t = Timer()
+stripe.api_key = STRIPE_PRIVATE_KEY
 
 def main_view(request):
 
@@ -94,13 +96,13 @@ def upload_view(request):
         return PIL_image
     
     def pil_to_bytes(pil_img):
-                t.start()
+        t.start()
+        
+        cv2_img = cv2.imencode('.png', np.array(pil_img))[1].tobytes()
+        bytes = base64.b64encode(cv2_img).decode('utf-8')
 
-                cv2_img = cv2.imencode('.png', np.array(pil_img))[1].tobytes()
-                bytes = base64.b64encode(cv2_img).decode('utf-8')
-
-                t.stop()
-                return bytes
+        t.stop()
+        return bytes
 
     calebs_gay_dict = {}
     
@@ -792,6 +794,34 @@ def documentation_view(request):
 
 
     return render(request, "documentation.html", context)
+
+def checkout_view(request):
+    context = {}
+    if request.method == "POST":
+        DOMAIN = 'http://localhost:8000'
+        print(stripe.api_key)
+        print(STRIPE_PRIVATE_KEY)
+        print('entered checkout_view post')
+        try:
+            checkout_session = stripe.checkout.Session.create(
+                # price id passed into from post
+                line_items=[
+                    {
+                        # Provide the exact Price ID (for example, pr_1234) of the product you want to sell
+                        'price': 'price_1KDE5pDlWp2mVdKSktdCZEGL',#'{{PRICE_ID}}',
+                        'quantity': 1,
+                    },
+                ],
+                mode='payment',
+                success_url=DOMAIN, #+ '/success.html', # Increment credits
+                cancel_url=DOMAIN, #+ '/cancel.html',
+            )
+        except Exception as e:
+            print('Exception')
+            return str(e)
+        print('post api reuqest')
+        return redirect(checkout_session.url, code=303)
+    return render(request, "checkout.html", context)
 
 def upload_pinata_filepath(filepath, filename):
     with Path(filepath).open("rb") as fp:

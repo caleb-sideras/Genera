@@ -108,6 +108,10 @@ async function add_uploaded_files(filelist, context, section){
             }
         })
     }
+    // checking if preview is active
+    if (upload_preview.children[0].innerHTML == 'Preview') {
+        new_items = uploaded_data[section][context.previousElementSibling.innerHTML]
+    }
     open_images(section, context.previousElementSibling.innerHTML, new_items)
 }
 
@@ -435,6 +439,9 @@ function add_layer() {
         close_button_img = document.createElement('img')
         close_button_img.src = "static/icons/close.svg"
         close_button_img.classList = "close_button color_image_orange"
+        close_button_img.addEventListener('click', function () {
+            remove_layer(((this.parentNode).parentNode).previousElementSibling.innerHTML, this.previousElementSibling.innerHTML)
+        }.bind(add_layer_img))
         
         useless_div = document.createElement('div') // don't remove the earth will shatter
 
@@ -499,8 +506,8 @@ function add_layer() {
         }.bind({layers_row: layers_row, textures_row: textures_row})
 
         //update dict when layername change.... jesus!
-        layer_name.addEventListener('click', function () { open_images(((this.parentNode).parentNode).previousElementSibling.innerHTML, this.previousElementSibling.innerHTML, uploaded_data[((this.parentNode).parentNode).previousElementSibling.innerHTML][this.previousElementSibling.innerHTML]); handle_layer_properties_update();}.bind(add_layer_img))
-        texture_name.addEventListener('click', function () { open_images(((this.parentNode).parentNode).previousElementSibling.innerHTML, this.previousElementSibling.innerHTML, uploaded_data[((this.parentNode).parentNode).previousElementSibling.innerHTML][this.previousElementSibling.innerHTML]);}.bind(add_layer_img_2))
+        layer_name.addEventListener('click', function () { open_images(((this.parentNode).parentNode).previousElementSibling.innerHTML, this.previousElementSibling.innerHTML, uploaded_data[((this.parentNode).parentNode).previousElementSibling.innerHTML][this.previousElementSibling.innerHTML], null, true); handle_layer_properties_update();}.bind(add_layer_img))
+        texture_name.addEventListener('click', function () { open_images(((this.parentNode).parentNode).previousElementSibling.innerHTML, this.previousElementSibling.innerHTML, uploaded_data[((this.parentNode).parentNode).previousElementSibling.innerHTML][this.previousElementSibling.innerHTML],null, true);}.bind(add_layer_img_2))
 
         
         layers_row.appendChild(layer_name)
@@ -602,42 +609,50 @@ async function image_URLs(file) {
     })
 }
 
-function open_images(section, layer, new_items, optional_image = null){
+function open_images(section, layer, new_items, optional_image = null, double_click = false){
+    console.log(double_click)
     if (Object.keys(new_items).length != 0) {
         var section_layer = section + " - " + layer
         var first_file = ""
 
-        if (optional_image) {
-            first_file = optional_image
-        }
-        else{
-            let [key] = Object.keys(uploaded_data[section][layer])
-            first_file = uploaded_data[section][layer][key]
-        }
-        
-
-        if (upload_preview.children[0].innerHTML != section_layer)
-        {
-            upload_preview.children[4].innerHTML = ""
-            replace_image(URL.createObjectURL(first_file['file']), first_file['file'].name, section_layer);
-        }
-
-        for (const [key, value] of Object.entries(new_items)) {
-            var list_element = document.createElement('li')
-            var list_element_img = document.createElement('img')
-            var list_element_text = document.createElement('h5')
-
-            list_element.style = "cursor: pointer;"
-            list_element_img.src = value['compressed_url']
-            list_element_text.innerHTML = key
+        //TODO works but smelly
+        if (!double_click && !optional_image || upload_preview.children[0].innerHTML != section_layer) {
             
-            list_element.addEventListener('click', async function () { replace_image(URL.createObjectURL(value['file']), key, section_layer) })
-
-            list_element.appendChild(list_element_img)
-            list_element.appendChild(list_element_text)
-            document.getElementById("scroller").appendChild(list_element)
             
+            if (optional_image) {
+                first_file = optional_image
+            }
+            else{
+                let [key] = Object.keys(uploaded_data[section][layer])
+                first_file = uploaded_data[section][layer][key]
+            }
+            
+
+            if (upload_preview.children[0].innerHTML != section_layer)
+            {
+                upload_preview.children[4].innerHTML = ""
+                replace_image(URL.createObjectURL(first_file['file']), first_file['file'].name, section_layer);
+            }
+
+
+            for (const [key, value] of Object.entries(new_items)) {
+                var list_element = document.createElement('li')
+                var list_element_img = document.createElement('img')
+                var list_element_text = document.createElement('h5')
+
+                list_element.style = "cursor: pointer;"
+                list_element_img.src = value['compressed_url']
+                list_element_text.innerHTML = key
+                    
+                list_element.addEventListener('click', async function () { replace_image(URL.createObjectURL(value['file']), key, section_layer) })
+
+                list_element.appendChild(list_element_img)
+                list_element.appendChild(list_element_text)
+                document.getElementById("scroller").appendChild(list_element)
+                    
+            }
         }
+
     }
 }
 
@@ -682,6 +697,16 @@ function remove_image_carousel(name){
     });
 }
 
+function remove_layer(section, layer){
+    var section_layer = section + " - " + layer
+    if (section_layer == upload_preview.children[0].innerHTML) {
+        remove_image_preview()
+        upload_preview.children[4].innerHTML = ""
+    }
+    delete uploaded_data['Layers'][layer]
+    delete uploaded_data['Textures'][layer]
+}
+
 function switch_tabs(target_tab, self) {
     var upload_layers = document.getElementsByClassName("upload_layers")[0]
     var upload_textures = document.getElementsByClassName("upload_layers")[1]
@@ -705,7 +730,6 @@ function delete_button() {
     button_section_textures.remove()
     create_notification("Layer Update", "Layer removed succesfully", duration = 5000, "success") //20 years duration for sins9
 }
-
 
 function add_collection() {
     add_layer_input = document.getElementById("add_layer_input")

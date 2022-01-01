@@ -2,6 +2,8 @@ from django.db import models
 import uuid
 import os
 from functools import partial
+
+from numpy import character
 from main.model_tools import *
 from django.contrib.auth import get_user_model  # gets the user_model django  default or your own custom
 from django.db.models import Q
@@ -72,6 +74,8 @@ class User(AbstractBaseUser, PermissionsMixin, Model):
 
     USERNAME_FIELD = 'username'
     EMAIL_FIELD = 'email'
+
+    credits = models.IntegerField(default=50) # discuss
 
     class Admin:
         in_admin = True
@@ -162,7 +166,14 @@ class Token(Model):
     def __str__(self):
         return str(self.slug)
 
-
+# we need db that saves account purchase info?
+# this needs to be accessed anywhere
+# class Product(Model):
+#     # All need to be filled 
+#     name = models.CharField(max_length=25)
+#     price = models.IntegerField()
+#     price_id = models.CharField(max_length=100)
+#     # description?
 
 
 
