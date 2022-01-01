@@ -32,7 +32,7 @@ function main() {
 
 function initialize_dynamic_form_validation() {
     var form = document.getElementById("upload_form")
-    var fields = form.querySelectorAll(".upload_properties input, .upload_properties textarea")
+    var fields = form.querySelectorAll(".upload_properties input:not(input[type='color']), .upload_properties textarea")
 
     form.addEventListener("submit", function(event) {
         if (onsubmit_final_form_validationn(event, form, fields)) {
