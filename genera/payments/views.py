@@ -45,13 +45,6 @@ stripe.api_key = STRIPE_PRIVATE_KEY
 # Create your views here.
 
 def checkout_view(request):
-    all_products_list = stripe.Product.list(limit=10)["data"]
-    for product in all_products_list:
-        #get product price
-        price = stripe.Price.list(product=product["id"], limit=1)["data"][0]
-        Product.objects.get_or_create(name=product["name"], description=product["description"], price=price["unit_amount"], price_id=price["id"], currency=price["currency"])
-
-    print(all_products_list)
     context = {}
     if request.method == "POST":
         print(stripe.api_key)
@@ -95,7 +88,6 @@ def success_view(request, reference):
 
 def cancel_view(request, reference):
     context = {}
-
     try:
         checkout_session = stripe.checkout.Session.retrieve(reference)
         print(checkout_session)

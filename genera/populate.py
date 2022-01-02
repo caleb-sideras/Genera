@@ -19,7 +19,7 @@ def populate_products_from_stripe():
         Product.objects.get_or_create(
             name=product["name"], 
             description=product["description"], 
-            price=price["unit_amount"], 
+            price=price["unit_amount"],
             price_id=price["id"], 
             currency=price["currency"]
         )
