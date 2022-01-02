@@ -17,10 +17,11 @@ class Product(Price):
     # All need to be filled
     name = models.CharField(max_length=25)
     description = models.CharField(max_length=100, null=True, blank=True)
+    metadata = models.IntegerField(default=0)
     #Includes also 3 fields from Price Model - price_id, price, currency
 
-    def __str__(self):
-        return self.name
+    # def __str__(self):
+    #     return self.name
 
 
 class ProductPurchaseHistory(Model):

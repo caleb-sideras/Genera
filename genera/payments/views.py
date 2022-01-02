@@ -40,66 +40,194 @@ import cv2
 from django.views.decorators.csrf import csrf_exempt
 from genera.tools import Timer
 from .models import *
+from django.core import serializers
 
 stripe.api_key = STRIPE_PRIVATE_KEY
 # Create your views here.
 
 def checkout_view(request):
-    all_products_list = stripe.Product.list(limit=10)["data"]
-    for product in all_products_list:
-        #get product price
-        price = stripe.Price.list(product=product["id"], limit=1)["data"][0]
-        Product.objects.get_or_create(name=product["name"], description=product["description"], price=price["unit_amount"], price_id=price["id"], currency=price["currency"])
-
-    print(all_products_list)
     context = {}
-    if request.method == "POST":
-        print(stripe.api_key)
-        print(STRIPE_PRIVATE_KEY)
-        print('entered checkout_view post')
-        try:
-            checkout_session = stripe.checkout.Session.create(
-                # price id passed into from post
-                line_items=[
-                    {
-                        # Provide the exact Price ID (for example, pr_1234) of the product you want to sell
-                        'price': 'price_1KDE5pDlWp2mVdKSktdCZEGL',#'{{PRICE_ID}}',
-                        'quantity': 1,
-                    },
-                ],
-                mode='payment',
-                success_url = f"{BASE_URL}/checkout/success/" + "{CHECKOUT_SESSION_ID}",# reverse('payments:success'), #+ '/success.html', # Increment credits
-                cancel_url = f"{BASE_URL}/checkout/cancel/" + "{CHECKOUT_SESSION_ID}"# reverse('payments:cancel'), #+ '/cancel.html',
-            )
-            # print(checkout_session)
+    if request.user.username: 
+        if request.method == "POST":
+            if 'product_button' in request.POST:
+                price_id = request.POST.get("product_button")
+            if Product.objects.filter(price_id = price_id):
+                try:
+                    checkout_session = stripe.checkout.Session.create(
+                        # price id passed into from post
+                        line_items=[
+                            {
+                                # Provide the exact Price ID (for example, pr_1234) of the product you want to sell
+                                'price': price_id,
+                                'quantity': 1,
+                            },
+                        ],
+                        mode='payment',
+                        success_url = f"{BASE_URL}/checkout/success/" + "{CHECKOUT_SESSION_ID}",# reverse('payments:success') # Increment credits
+                        cancel_url = f"{BASE_URL}/checkout/cancel/" + "{CHECKOUT_SESSION_ID}"# reverse('payments:cancel')
+                    )
 
-        except Exception as e:
-            print(e)
-            return render(request, "payments/checkout.html", context)
-
-        print('post api request')
-        return redirect(checkout_session.url, code=303)
-        
+                except Exception as e:
+                    print(e)
+                    return render(request, "payments/checkout.html", context)
+                    
+                request.session['price_id'] = price_id
+                request.session['user'] = request.user.username
+                return redirect(checkout_session.url, code=303)
+            else:
+                print('Why you try hack us mbro????') # anti-hack page!!! scare them mofos!!
+    else:
+        print('not logged in view')
+    context['products'] = serializers.serialize( "python", Product.objects.all() )
     return render(request, "payments/checkout.html", context)
 
 def success_view(request, reference):
     context = {}
-
-    try:
-        checkout_session = stripe.checkout.Session.retrieve(reference)
-        print(checkout_session)
-    except Exception as e:
-        print(e)
+    if 'price_id' in request.session:
+        price_id = request.session['price_id']
+        del request.session['price_id']
+        price_object = Product.objects.filter(price_id = price_id).first()
+        credits = price_object.metadata
+        if 'user' in request.session:
+            user = User.objects.filter(username=request.session['user']).first()
+            del request.session['user']
+            if user:
+                print(user.credits)
+                user.credits = user.credits + int(credits)
+                user.save()
+                print(user.credits)
+        try:
+            checkout_session = stripe.checkout.Session.retrieve(reference)
+        except Exception as e:
+            print(e)
+    else:
+        print('not in session')
 
     return render(request, "payments/success.html", context)
 
 def cancel_view(request, reference):
     context = {}
-
-    try:
-        checkout_session = stripe.checkout.Session.retrieve(reference)
-        print(checkout_session)
-    except Exception as e:
-        print(e)
+    if 'price_id' in request.session:
+        del request.session['price_id']
+        if 'user' in request.session:
+            del request.session['user']
+        try:
+            checkout_session = stripe.checkout.Session.retrieve(reference)
+        except Exception as e:
+            print(e)
+    else:
+        print('not in session')
 
     return render(request, "payments/cancel.html", context)
+
+
+# EXAMPLES SUCCESS
+# {
+#   "after_expiration": null,
+#   "allow_promotion_codes": null,
+#   "amount_subtotal": 1000,
+#   "amount_total": 1000,
+#   "automatic_tax": {
+#     "enabled": false,
+#     "status": null
+#   },
+#   "billing_address_collection": null,
+#   "cancel_url": "http://localhost:8000/checkout/cancel/{CHECKOUT_SESSION_ID}",
+#   "client_reference_id": null,
+#   "consent": null,
+#   "consent_collection": null,
+#   "currency": "usd",
+#   "customer": "cus_Kt98VKgW3HJqxm",
+#   "customer_details": {
+#     "email": "caleb.sideras@outlook.com",
+#     "phone": null,
+#     "tax_exempt": "none",
+#     "tax_ids": []
+#   },
+#   "customer_email": null,
+#   "expires_at": 1641188520,
+#   "id": "cs_test_a1atUAFSitKnaPzUudUecvPmxDzvYp6vzKlHq3VyZSCF5MEAWek09bKiLL",
+#   "livemode": false,
+#   "locale": null,
+#   "metadata": {},
+#   "mode": "payment",
+#   "object": "checkout.session",
+#   "payment_intent": "pi_3KDMpQDlWp2mVdKS0CRLqAZh",
+#   "payment_method_options": {},
+#   "payment_method_types": [
+#     "card"
+#   ],
+#   "payment_status": "paid",
+#   "phone_number_collection": {
+#     "enabled": false
+#   },
+#   "recovered_from": null,
+#   "setup_intent": null,
+#   "shipping": null,
+#   "shipping_address_collection": null,
+#   "shipping_options": [],
+#   "shipping_rate": null,
+#   "status": "complete",
+#   "submit_type": null,
+#   "subscription": null,
+#   "success_url": "http://localhost:8000/checkout/success/{CHECKOUT_SESSION_ID}",
+#   "total_details": {
+#     "amount_discount": 0,
+#     "amount_shipping": 0,
+#     "amount_tax": 0
+#   },
+#   "url": null
+# }
+
+# EXAMPLE FAILURE
+    #     {
+#   "after_expiration": null,
+#   "allow_promotion_codes": null,
+#   "amount_subtotal": 1000,
+#   "amount_total": 1000,
+#   "automatic_tax": {
+#     "enabled": false,
+#     "status": null
+#   },
+#   "billing_address_collection": null,
+#   "cancel_url": "http://localhost:8000/checkout/cancel/{CHECKOUT_SESSION_ID}",
+#   "client_reference_id": null,
+#   "consent": null,
+#   "consent_collection": null,
+#   "currency": "usd",
+#   "customer": null,
+#   "customer_details": null,
+#   "customer_email": null,
+#   "expires_at": 1641188376,
+#   "id": "cs_test_a16vGNKL2WQwZS1Pn78LFN8Ag9dof5D2epvVAZDmhFgtitZ8R7ZRaVFGYB",
+#   "livemode": false,
+#   "locale": null,
+#   "metadata": {},
+#   "mode": "payment",
+#   "object": "checkout.session",
+#   "payment_intent": "pi_3KDMn6DlWp2mVdKS1sLCZhgi",
+#   "payment_method_options": {},
+#   "payment_method_types": [
+#     "card"
+#   ],
+#   "payment_status": "unpaid",
+#   "phone_number_collection": {
+#     "enabled": false
+#   },
+#   "recovered_from": null,
+#   "setup_intent": null,
+#   "shipping": null,
+#   "shipping_address_collection": null,
+#   "shipping_options": [],
+#   "shipping_rate": null,
+#   "status": "open",
+#   "submit_type": null,
+#   "subscription": null,
+#   "success_url": "http://localhost:8000/checkout/success/{CHECKOUT_SESSION_ID}",
+#   "total_details": {
+#     "amount_discount": 0,
+#     "amount_shipping": 0,
+#     "amount_tax": 0
+#   },
+#   "url": "https://checkout.stripe.com/pay/cs_test_a16vGNKL2WQwZS1Pn78LFN8Ag9dof5D2epvVAZDmhFgtitZ8R7ZRaVFGYB#fidkdWxOYHwnPyd1blpxYHZxWjA0Tjxmbm9BaVJ1N2hTYU5WTF9xX1JmQGhATGpiYjBJQjdTfTx1PUxvTEg2PWdKaj1GZ0J0YWFPcFxgQUBzZ1VQRmFINDRnMkhgQ0E9XEJGPTdTMGg3XXRqNTVmTXRTS2Y1MicpJ2N3amhWYHdzYHcnP3F3cGApJ2lkfGpwcVF8dWAnPyd2bGtiaWBabHFgaCcpJ2BrZGdpYFVpZGZgbWppYWB3dic%2FcXdwYHgl"
+# }

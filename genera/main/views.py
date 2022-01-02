@@ -4,10 +4,12 @@ from django.shortcuts import render
 from main.view_tools import generate_token
 from genera.settings import MEDIA_DIR, DEFAULT_FROM_EMAIL, BASE_DIR, STRIPE_PUBILC_KEY, STRIPE_PRIVATE_KEY
 from main.models import User
+from payments.models import Product, Price
 from main.forms import *
 from main.generator_alg import *
 from main.contract_interaction import *
 from django.templatetags.static import static
+from django.core import serializers
 from django.core.files.storage import FileSystemStorage
 from django.shortcuts import redirect
 from django.urls import reverse
@@ -43,27 +45,10 @@ t = Timer()
 stripe.api_key = STRIPE_PRIVATE_KEY
 
 def main_view(request):
-
-    # if request.METHOD == "POST":
-
-    # created = create_and_save_collection
-
-    # x = generateRandomNumber(1, 3, 5)
-    # context = {}
-
-    return render(request, "home.html") #, context={"created": created}
-
-
-def temp_view(request):
-
-    # if request.METHOD == "POST":
-
-    # created = create_and_save_collection
-
-    # x = generateRandomNumber(1, 3, 5)
-    # context = {}
-
-    return render(request, "testerman.html")
+    context = {}
+    context['products'] = serializers.serialize( "python", Product.objects.all() )
+    
+    return render(request, "home.html", context)
 
 def upload_view(request):
     # users_imgs = UserAsset.objects.filter(user=request.user)

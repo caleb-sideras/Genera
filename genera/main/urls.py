@@ -8,7 +8,6 @@ app_name = "main"
 urlpatterns = [
     # include other apps
     path("", main_view, name="main_view"),
-    path("temp", temp_view, name="temp_view"),
     path("upload", upload_view, name="upload"),
     path("login", login_view, name="login"),
     path("logout", logout_view, name="logout"),

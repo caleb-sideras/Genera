@@ -3,6 +3,7 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'genera.settings')
 
 import django
 import stripe
+import json
 django.setup()
 
 from main.models import *
@@ -19,7 +20,8 @@ def populate_products_from_stripe():
         Product.objects.get_or_create(
             name=product["name"], 
             description=product["description"], 
-            price=price["unit_amount"], 
+            metadata=int(list(product["metadata"].values())[0]), # if using more metadata in future, then json.dumps this dict
+            price=price["unit_amount"],
             price_id=price["id"], 
             currency=price["currency"]
         )

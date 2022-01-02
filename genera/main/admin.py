@@ -4,7 +4,7 @@ from django.contrib.auth import admin as auth_admin
 
 class User_Admin(auth_admin.UserAdmin):
     fieldsets = (
-        (None, {'fields': ('username','email', 'password')}),
+        (None, {'fields': ('username','email', 'password', 'credits')}),
     )
 
     list_display = ['username', 'email']
@@ -28,4 +28,3 @@ class UserCollection_Admin(admin.ModelAdmin):
 admin.site.register(User, User_Admin)
 admin.site.register(UserAsset, UserAsset_Admin)
 admin.site.register(UserCollection, UserCollection_Admin)
-# admin.site.register(Product)
