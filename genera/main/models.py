@@ -71,11 +71,10 @@ class User(AbstractBaseUser, PermissionsMixin, Model):
     date_joined = models.DateTimeField(default=timezone.now)
 
     is_staff = models.BooleanField(default=False)
+    credits = models.IntegerField(default=50) # discuss
 
     USERNAME_FIELD = 'username'
     EMAIL_FIELD = 'email'
-
-    credits = models.IntegerField(default=50) # discuss
 
     class Admin:
         in_admin = True
@@ -166,14 +165,7 @@ class Token(Model):
     def __str__(self):
         return str(self.slug)
 
-# we need db that saves account purchase info?
-# this needs to be accessed anywhere
-# class Product(Model):
-#     # All need to be filled 
-#     name = models.CharField(max_length=25)
-#     price = models.IntegerField()
-#     price_id = models.CharField(max_length=100)
-#     # description?
+
 
 
 

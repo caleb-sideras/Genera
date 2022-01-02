@@ -795,34 +795,6 @@ def documentation_view(request):
 
     return render(request, "documentation.html", context)
 
-def checkout_view(request):
-    context = {}
-    if request.method == "POST":
-        DOMAIN = 'http://localhost:8000'
-        print(stripe.api_key)
-        print(STRIPE_PRIVATE_KEY)
-        print('entered checkout_view post')
-        try:
-            checkout_session = stripe.checkout.Session.create(
-                # price id passed into from post
-                line_items=[
-                    {
-                        # Provide the exact Price ID (for example, pr_1234) of the product you want to sell
-                        'price': 'price_1KDE5pDlWp2mVdKSktdCZEGL',#'{{PRICE_ID}}',
-                        'quantity': 1,
-                    },
-                ],
-                mode='payment',
-                success_url=DOMAIN, #+ '/success.html', # Increment credits
-                cancel_url=DOMAIN, #+ '/cancel.html',
-            )
-        except Exception as e:
-            print('Exception')
-            return str(e)
-        print('post api reuqest')
-        return redirect(checkout_session.url, code=303)
-    return render(request, "checkout.html", context)
-
 def upload_pinata_filepath(filepath, filename):
     with Path(filepath).open("rb") as fp:
         image_binary = fp.read()

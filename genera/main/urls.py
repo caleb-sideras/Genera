@@ -21,6 +21,5 @@ urlpatterns = [
     path("user/<str:username>/profile", profile_view, name="profile"),
     path("user/<str:username>/collections", all_collections_view, name="all_collections"),
     path("user/<str:username>/collections/<str:collection_name>", collection_view, name="collection"),
-    path("checkout", checkout_view, name="checkout"),
     # path("create-checkout-session", checkout_session, name="create-checkout-session")
 ]

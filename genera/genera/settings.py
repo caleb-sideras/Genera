@@ -55,7 +55,7 @@ ALLOWED_HOSTS = ['localhost']
 
 
 # Application definition
-APPS = ['main']
+APPS = ['main', 'payments']
 
 INSTALLED_APPS = [
     'django.contrib.admin',
