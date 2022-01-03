@@ -2,32 +2,49 @@
 <script src="https://js.stripe.com/v3/"></script> -->
 
 <div class="payments_wrapper">
-  <div class="payments_description">
-    <h3>Credits</h3>
-    <p>Users will be given 50 free credits on account creation</p>
-    <p>
-      Credits allow users to perform actions on Genera. Each action performed
-      will use 1 credit, which include:
-    </p>
-    <ul>
-      <li>NFT Generation (w/ Metadata)</li>
-      <li>NFT IFPS Storage/Minting</li>
-    </ul>
-    <h4>Example w/ 50 credits</h4>
-    <ul>
-      <li>Generate 50 NFTs or</li>
-      <li>Generate 25 NFTs Mint 25 NFTs (w/ IFPS deployment)</li>
-      <li>Mint 50 NFTs (w/ IFPS deployment)</li>
-    </ul>
+  <h2>Credits</h2>
+  <h4>*Users will be given 50 free credits on account creation</h4>
+  <div class="payments_description rounded_container">
+    <div class="credit_section">
+      <h3>Credit based features</h3>
+      <ul>
+        <li>Asset Generation (w/ Metadata)</li>
+        <li>NFT IFPS Storage/Minting</li>
+      </ul>
+    </div>
+    <div class="credit_section middle_credit">
+      <h3>Non credit based features</h3>
+      <ul>
+        <li>Texture Mapping</li>
+        <li>Generative NFT Previews</li>
+      </ul>
+    </div>
+    <div class="credit_section">
+      <h3>Example w/ 50 credits</h3>
+      <ul>
+        <li>Generate 50 Assets (w/ Metadata)</li>
+        <p>or</p>
+        <li>Generate 25 Assets (w/ Metadata) and Mint 25 NFTs (w/ IFPS deployment)</li>
+        <p>or</p>
+        <li>Mint 50 NFTs (w/ IFPS deployment)</li>
+      </ul>
+    </div>
   </div>
   <div class="payments_options"></div>
   <!-- {url payments:’view_name’} -->
    <form method="POST" id="checkout_form" action="{% url 'payments:checkout'%}"> 
         {% csrf_token %}
         {% if products%}
+        <div class="credit_buttons_wrapper">
             {% for items in products %}
-            <button name="product_button" type="submit" value={{items.fields.price_id}}>{{items.fields.name}}</button>
+            <div class="general_button_no_border rounded_container_no_padding">
+              <h1>{{items.fields.name}}</h1>
+              <button class="general_button_no_border  light_purple_background  rounded_container_no_padding" name="product_button" type="submit" value={{items.fields.price_id}}>
+                ${{items.fields.price}}
+              </button>
+            </div>
             {% endfor %}
+        </div>
         {% endif %}
         
       </form>

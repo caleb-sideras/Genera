@@ -63,7 +63,7 @@ def checkout_view(request):
                             },
                         ],
                         mode='payment',
-                        success_url = f"{BASE_URL}/checkout/success/" + "{CHECKOUT_SESSION_ID}",# reverse('payments:success') # Increment credits
+                        success_url = f"{BASE_URL}/checkout/success/" + "{CHECKOUT_SESSION_ID}",# reverse('payments:success')
                         cancel_url = f"{BASE_URL}/checkout/cancel/" + "{CHECKOUT_SESSION_ID}"# reverse('payments:cancel')
                     )
 
@@ -83,6 +83,8 @@ def checkout_view(request):
 
 def success_view(request, reference):
     context = {}
+    # mutiple points of failure here... account credits might never increment
+    # if any error is called we have to try again and/or refund
     if 'price_id' in request.session:
         price_id = request.session['price_id']
         del request.session['price_id']

@@ -21,7 +21,7 @@ def populate_products_from_stripe():
             name=product["name"], 
             description=product["description"], 
             metadata=int(list(product["metadata"].values())[0]), # if using more metadata in future, then json.dumps this dict
-            price=price["unit_amount"],
+            price=int(price["unit_amount"])/100,
             price_id=price["id"], 
             currency=price["currency"]
         )
