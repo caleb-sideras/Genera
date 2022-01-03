@@ -17,6 +17,8 @@
   --filter-color-2: #627FEB;
   --p-text-color:rgb(76, 76, 76);
   --error-color: rgb(228, 86, 51);
+  --disabled-background-color: #EAEAEA;
+  --disabled-text-color: #A6A6A6;
   /* --filter-color: invert(15%) sepia(91%) saturate(4511%) hue-rotate(321deg) brightness(78%) contrast(110%); */
   --filter-color: invert(52%) sepia(52%) saturate(1041%) hue-rotate(200deg) brightness(88%) contrast(111%);
   --icon-color: invert(0%) sepia(3%) saturate(7485%) hue-rotate(139deg) brightness(87%) contrast(101%);
@@ -45,7 +47,8 @@ body.dark-mode {
   --text-preview-color: #5090EA;
   --filter-color-2: #1966D4;
   --error-color: rgb(228, 86, 51);
-
+  --disabled-background-color: #D8D8D8;
+  --disabled-text-color: #A6A6A6;
   --p-text-color:rgb(204, 204, 204);
   --filter-color: invert(41%) sepia(9%) saturate(1467%) hue-rotate(244deg) brightness(87%) contrast(85%);
   --dark-grey-color-2: invert(100%) sepia(100%) saturate(0%) hue-rotate(78deg) brightness(105%) contrast(101%);
@@ -1545,6 +1548,20 @@ text-align: left;
   justify-content: center;
 }
 
+.disabled_button{
+  cursor: default;
+  background: var(--disabled-background-color) !important;
+}
+
+.disabled_button >h2{
+  cursor: default !important;
+  color: var(--disabled-text-color) !important;
+}
+.disabled_button >h3{
+  cursor: default !important;
+  color: var(--disabled-text-color) !important;
+}
+
 .payments_wrapper{
   width: 100%;  
   text-align: center;
@@ -1704,7 +1721,7 @@ display: inline-block;
 .dropdown-content {
   display: none;
   position: absolute;
-  min-width: 160px;
+  min-width: 180px;
   z-index: 1;
   background-color: var(--light-grey-color);
   padding: 10px 0px;
@@ -1742,6 +1759,17 @@ display: inline-block;
 }
 .dropdown-content:hover {
   display: block;
+}
+.disable_content{
+  cursor: default;
+  color: var(--disabled-text-color) !important;
+}
+
+.disable_content:hover {
+  color: var(--disabled-text-color) !important;
+}
+.disable_content p:hover{
+  background-color: var(--light-grey-color) !important;
 }
 
 /* Show the dropdown menu (use JS to add this class to the .dropdown-content container when the user clicks on the dropdown button) */
