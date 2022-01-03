@@ -146,6 +146,9 @@ def upload_view(request):
                     "attributes": attributes
                 }
                 # print(metadata)
+                watermark = Image.open("./static/Assets/Background/genera_watermark.png")
+                resized_watermark =  watermark.resize((res_x, res_y))
+                im.paste(resized_watermark, (0,0), resized_watermark)
                 content = pil_to_bytes(im)    
                 # return HttpResponse(content, content_type="application/octet-stream")
                 return JsonResponse(
@@ -180,7 +183,7 @@ def upload_view(request):
             if int(float(request.POST.get("size"))) > request.user.credits:
                 messages.error(request, message="Not enough credits")
                 return redirect(reverse("main:upload"))
-                
+
             calebs_gay_dict["CollectionName"] = request.POST.get("collection_name")
             calebs_gay_dict["TokenName"] = request.POST.get("token_name")
             calebs_gay_dict["ImageName"]= request.POST.get("image_name")
