@@ -10,8 +10,7 @@ app_name = "payments"
 urlpatterns = [
     # include other apps
     path("checkout", checkout_view, name="checkout"),
-    path("checkout/success/<str:reference>", success_view, name="success"),
-    path("checkout/cancel/<str:reference>", cancel_view, name="cancel"),
+    path("checkout/<str:session_id>", handle_checkout_session_view, name="handle_checkout_session"),
 
     # path("create-checkout-session", checkout_session, name="create-checkout-session")
 ]

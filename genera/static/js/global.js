@@ -212,6 +212,22 @@ function close_yes_no_popup() {
     document.getElementsByClassName("popup_wrapper")[0].remove()
 }
 
+async function credit_check(){
+    user_credits = parseInt(document.getElementsByClassName('credits_button')[0].innerHTML)
+    collection_size =  parseInt(document.getElementById('collection_size').value)
+    console.log(user_credits)
+    console.log(collection_size)
+    console.log(typeof(user_credits))
+    console.log(typeof(collection_size))
+    
+    return new Promise((res) => {
+        if (collection_size > user_credits) {
+        return res(false)
+    }
+    return res(true)
+    });
+}
+
 Object.prototype.isEmpty = function() { //check if object is empty
     for (var prop in this) if (this.hasOwnProperty(prop)) return false;
     return true;

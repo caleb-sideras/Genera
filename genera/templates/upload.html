@@ -183,8 +183,16 @@
         class="general_button_no_border light_purple_background shadow_strong rounded_container_no_padding"
         onclick="yes_no_popup('Generate Collection?', 'Yes', 'No').then((response) =>{
           if (response){
-            close_yes_no_popup()
-            this.nextElementSibling.click()
+            credit_check().then((response) => {
+              if (response){
+                close_yes_no_popup()
+                this.nextElementSibling.click()
+              }
+              else{
+                close_yes_no_popup()
+                alert('Not enough credits')
+              }
+            }) 
           }
           else{
             close_yes_no_popup()
@@ -209,22 +217,5 @@
       </div>
     </div>
   </div>
-  <!--See Image Uploaded-->
-  <!-- <h2 class="my-4">Your Gallery!!</h2>
-    <div class="row">
-      {% if user_imgs %}
-      <div class="col-lg-4 col-md-6 col-sm-12 pb-4 custom_grid">
-        {% for img in user_imgs%}
-          <img
-          style="height: 200px; width: 200px"
-          src="/media/{{img.image}}"
-          class="img-fluid"
-        />
-        {% endfor %}
-      {% else %}
-        <p>No movies posters added.</p>
-      {% endif %}
-      </div>
-    </div> -->
 </form>
 {% endblock %}
