@@ -3,7 +3,8 @@ import stripe
 from time import timezone
 from django.http.response import HttpResponse
 from django.shortcuts import render
-from main.view_tools import generate_token
+from stripe.api_resources import checkout
+from main.view_tools import generate_token,generate_stripe_products_context
 from genera.settings import MEDIA_DIR, DEFAULT_FROM_EMAIL, BASE_DIR, STRIPE_PUBILC_KEY, STRIPE_PRIVATE_KEY, BASE_URL
 from main.models import User
 from main.forms import *
@@ -51,9 +52,8 @@ def checkout_view(request):
         if request.method == "POST":
             if 'product_button' in request.POST:
                 price_id = request.POST.get("product_button")
-            if Product.objects.filter(price_id = price_id):
                 try:
-                    checkout_session = stripe.checkout.Session.create(
+                    checkout_session = stripe.checkout.Session.create (
                         # price id passed into from post
                         line_items=[
                             {
@@ -63,62 +63,75 @@ def checkout_view(request):
                             },
                         ],
                         mode='payment',
-                        success_url = f"{BASE_URL}/checkout/success/" + "{CHECKOUT_SESSION_ID}",# reverse('payments:success') # Increment credits
-                        cancel_url = f"{BASE_URL}/checkout/cancel/" + "{CHECKOUT_SESSION_ID}"# reverse('payments:cancel')
-                    )
+                        success_url = f"{BASE_URL}/checkout/" + "{CHECKOUT_SESSION_ID}",# reverse('payments:success') # Increment credits
+                        cancel_url = f"{BASE_URL}/checkout/" + "{CHECKOUT_SESSION_ID}",
 
+                        metadata = {"price_id": price_id, "user_id": request.user.id}
+                    )
+                    request.session.set_expiry(86400)
+                    request.session["payment_initial"] = True
                 except Exception as e:
                     print(e)
                     return render(request, "payments/checkout.html", context)
-                    
-                request.session['price_id'] = price_id
-                request.session['user'] = request.user.username
+                
                 return redirect(checkout_session.url, code=303)
             else:
                 print('Why you try hack us mbro????') # anti-hack page!!! scare them mofos!!
     else:
-        print('not logged in view')
-    context['products'] = serializers.serialize( "python", Product.objects.all() )
+        error_params = {"title": "Permission Denied", "description": "Attempt to Pay for product when not logged in", "code": "325XD"}
+        raise PermissionDenied(json.dumps(error_params))
+    
+    context['products'] = generate_stripe_products_context()
     return render(request, "payments/checkout.html", context)
 
-def success_view(request, reference):
+def handle_checkout_session_view(request, session_id):
     context = {}
-    if 'price_id' in request.session:
-        price_id = request.session['price_id']
-        del request.session['price_id']
-        price_object = Product.objects.filter(price_id = price_id).first()
-        credits = price_object.metadata
-        if 'user' in request.session:
-            user = User.objects.filter(username=request.session['user']).first()
-            del request.session['user']
-            if user:
-                print(user.credits)
-                user.credits = user.credits + int(credits)
-                user.save()
-                print(user.credits)
-        try:
-            checkout_session = stripe.checkout.Session.retrieve(reference)
-        except Exception as e:
-            print(e)
-    else:
-        print('not in session')
+    checkout_session = None
+    try:
+        checkout_session = stripe.checkout.Session.retrieve(session_id)
+    except Exception as e:
+        print(e)
+    
+    if checkout_session:
 
-    return render(request, "payments/success.html", context)
+        if checkout_session["status"] == "open": # if session is still open - NOT PAID
+            messages.error(request, f"Session Open - not paid for yet")
+            context["payment_link"] = checkout_session["url"]
 
-def cancel_view(request, reference):
-    context = {}
-    if 'price_id' in request.session:
-        del request.session['price_id']
-        if 'user' in request.session:
-            del request.session['user']
-        try:
-            checkout_session = stripe.checkout.Session.retrieve(reference)
-        except Exception as e:
-            print(e)
+        elif checkout_session["status"] == "complete" and checkout_session["payment_status"] == "paid": ## if session is complete - PAID
+            context["amount_paid"] = checkout_session["amount_total"]
+            stripe_price_object = stripe.Price.retrieve(checkout_session["metadata"]["price_id"])
+            context["credits_gained"] = stripe_price_object["nickname"]
+
+            if "payment_initial" in request.session:
+                print(checkout_session["metadata"])
+                fetched_user = User.objects.filter(id=checkout_session["metadata"]["user_id"]).first()
+                print(stripe_price_object)
+                stripe_product_object = stripe.Product.retrieve(stripe_price_object["product"])
+                print(stripe_product_object)
+                if fetched_user:
+                    fetched_user.credits += int(stripe_price_object["nickname"]) ##NICKnAME (ACTUAL PRICE)
+                    fetched_user.save()
+                    del request.session["payment_initial"]
+                    messages.success(request, f"You have gained {stripe_price_object['nickname']} credits! ")
+                else:
+                    messages.error(request, f"CRITICAL ERROR. PLEASE EMAIL GENERA-NOREPLY@gmail.com")
+                ##PROVIDE CONTEXT FOR SUCCESS PAGE
+            else:
+                print(checkout_session["metadata"])
+                messages.error(request, f"NICE TRY BASTARD")
+            
+        elif checkout_session["status"] == "expired": ## if session is expired - PAID or NOT PAID AND AUTO EXPIRED
+
+            messages.error(request, f"Session Expired")
+            
+
     else:
-        print('not in session')
+        messages.error(request, f"No session could be found using the url. THis page is useless.")
+
 
     return render(request, "payments/cancel.html", context)
+
 
 
 # EXAMPLES SUCCESS

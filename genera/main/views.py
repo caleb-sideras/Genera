@@ -1,10 +1,9 @@
 from time import timezone
 from django.http.response import HttpResponse
 from django.shortcuts import render
-from main.view_tools import generate_token
+from main.view_tools import generate_token, generate_stripe_products_context
 from genera.settings import MEDIA_DIR, DEFAULT_FROM_EMAIL, BASE_DIR, STRIPE_PUBILC_KEY, STRIPE_PRIVATE_KEY
 from main.models import User
-from payments.models import Product, Price
 from main.forms import *
 from main.generator_alg import *
 from main.contract_interaction import *
@@ -46,7 +45,7 @@ stripe.api_key = STRIPE_PRIVATE_KEY
 
 def main_view(request):
     context = {}
-    context['products'] = serializers.serialize( "python", Product.objects.all() )
+    context['products'] = generate_stripe_products_context()
     
     return render(request, "home.html", context)
 
@@ -125,8 +124,8 @@ def upload_view(request):
                         else:
                             textures_list[count] = file_to_pil(file, res_x, res_y)
                             textures_list_names[count] = file.name.split(".")[0]
-                im = Image.new(
-                "RGBA", (res_x, res_y), (0, 0, 0, 0)
+                im = Image.new (
+                    "RGBA", (res_x, res_y), (0, 0, 0, 0)
                 )
                 attributes = []
                 for i in range(len(layernames)):

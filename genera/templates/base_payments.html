@@ -25,12 +25,10 @@
    <form method="POST" id="checkout_form" action="{% url 'payments:checkout'%}"> 
         {% csrf_token %}
         {% if products%}
-            {% for items in products %}
-            <button name="product_button" type="submit" value={{items.fields.price_id}}>{{items.fields.name}}</button>
+            {% for product in products %}
+              <button name="product_button" type="submit" value={{product.price_id}}>{{product.name}}</button>
             {% endfor %}
         {% endif %}
         
       </form>
 </div>
-
-{% block body_block %}{% endblock %}
