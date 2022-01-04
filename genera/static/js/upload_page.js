@@ -803,7 +803,7 @@ async function confirmation_button(){
     
 }
 
-function preview_button(){
+function preview_button(self){
     create_and_render_loading_popup("Generating Preview")
     var upload_layers = document.getElementsByClassName('upload_layers')[0]
     var texture_layers = document.getElementsByClassName('upload_layers')[1]
@@ -864,6 +864,15 @@ function preview_button(){
         alert("Upload images to use preview")
         close_loading_popup() 
         return
+    }
+    console.log(self.disabled)
+    if (self.disabled == true) {
+        close_loading_popup()
+        return
+    }
+    else{
+        self.disabled = true
+        setTimeout(function () { self.disabled = false; }, 30000);
     }
 
     var data = new FormData();

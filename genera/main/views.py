@@ -103,7 +103,7 @@ def upload_view(request):
             pass
    
         if len(request.FILES) != 0:
-            
+            # use throttling or async timer countdown
             if 'properties' in request.POST:
                 properties = json.loads(request.POST.get('properties'))
                 layernames = json.loads(request.POST.get('layernames'))
@@ -146,7 +146,10 @@ def upload_view(request):
                     "attributes": attributes
                 }
                 # print(metadata)
-                watermark = Image.open("./static/Assets/Background/genera_watermark.png")
+                try:
+                    watermark = Image.open("./static/Assets/Background/genera_watermark.png")
+                except:
+                    print("Could not open watermark")
                 resized_watermark =  watermark.resize((res_x, res_y))
                 im.paste(resized_watermark, (0,0), resized_watermark)
                 content = pil_to_bytes(im)    

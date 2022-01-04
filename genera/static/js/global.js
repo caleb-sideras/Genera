@@ -212,6 +212,7 @@ function close_yes_no_popup() {
     document.getElementsByClassName("popup_wrapper")[0].remove()
 }
 
+//refactor to take in any value/button
 async function credit_check(){
     user_credits = parseInt(document.getElementsByClassName('credits_button')[0].innerHTML)
     collection_size =  parseInt(document.getElementById('collection_size').value)
@@ -226,6 +227,10 @@ async function credit_check(){
     }
     return res(true)
     });
+}
+
+function button_cooldown(){
+
 }
 
 Object.prototype.isEmpty = function() { //check if object is empty

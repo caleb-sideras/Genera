@@ -311,6 +311,14 @@ body {
   cursor: pointer;
   border: none;
 }
+.general_button_no_border:disabled{
+  background: var(--disabled-background-color) !important;
+  cursor: default;
+  
+}
+.general_button_no_border:disabled > h4{
+  color: var(--disabled-text-color) !important;
+}
 
 .general_button_no_border > h4 {
   color:var(--text-preview-color);
@@ -786,8 +794,6 @@ body {
   margin-top: 10px;
   cursor: pointer;
 }
-
-
 
 /* UPLOAD PAGE */
 
