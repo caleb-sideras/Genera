@@ -31,10 +31,11 @@ def generate_stripe_products_context():
     all_prices_list = stripe.Price.list(limit=10)["data"]
     for price in all_prices_list:
         product = stripe.Product.retrieve(price["product"])
+        print(price)
         product_data = {}
         product_data["name"] = product["name"]
         product_data["description"] = product["description"]
-        product_data["price"] = price["nickname"]
+        product_data["price"] = price["unit_amount"] / 100
         product_data["currency"] = price["currency"]
         product_data["price_id"] = price["id"]
         products.append(product_data)

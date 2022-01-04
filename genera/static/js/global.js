@@ -131,6 +131,8 @@ function ajax_post(payload) {
                     resolve(JSON.parse(http_request.responseText))
                 }
                 else { //unhandled error
+                    close_loading_popup()
+                    console.log(JSON.parse(http_request.responseText))
                     alert("Unkown server error")
                     return
                 }   

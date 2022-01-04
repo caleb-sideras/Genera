@@ -159,6 +159,7 @@ def upload_view(request):
                     watermark = Image.open("./static/Assets/Background/genera_watermark.png")
                 except:
                     print("Could not open watermark")
+                    return
                 resized_watermark =  watermark.resize((res_x, res_y))
                 im.paste(resized_watermark, (0,0), resized_watermark)
                 content = pil_to_bytes(im)    
@@ -302,8 +303,7 @@ def upload_view(request):
             create_and_save_collection(calebs_gay_dict, db_collection, request.user)
             
             messages.success(request, message="Collection generated succesfully! You have been redirected to the collection page ;)")
-            request.user.credits = request.user.credits - calebs_gay_dict["CollectionSize"]
-            request.user.save()
+           
             return redirect(reverse("main:collection",
                     kwargs={
                         "username": request.user.username,
@@ -570,10 +570,25 @@ def collection_view(request, username, collection_name):
             if "notneeded" in received_json_data:  # handle
                 pinata_links =[]
                 entry_ids =[]
-                if request.user.is_authenticated:     
+                if request.user.is_authenticated:
+                    if len(collection_images.filter(ipfs_bool = False)) > request.user.credits:
+                        messages.error(request, message="Not enough credits")
+                        return JsonResponse(
+                            {"server_message": "USER DOES NOT HAVE ENOUGH CREDITS"},
+                                status=201,
+                            )
                     for entry in collection_images:
                         if not entry.deployed_bool:
-                            if not entry.ipfs_bool: 
+                            if not entry.ipfs_bool:
+                                if user.credits <= 0:
+                                    messages.error(request, message="You ran out of credits")
+                                    return JsonResponse(
+                                        {"server_message": "USER RAN OUT OF CREDITS"},
+                                        status=201,
+                                    )
+                                else:
+                                    user.credits -= 1
+                                    user.save()
                                 print(entry.name)
                                 
                                 # uploading image to ipfs & updating db
@@ -582,8 +597,6 @@ def collection_view(request, username, collection_name):
 
                                 # getting entry metadata
                                 temp_metadata = entry.metadata
-                                print(type(temp_metadata))
-                                print(json.loads(temp_metadata))
                                 temphello =json.loads(temp_metadata)
                                 # print(temphello)
                                 # print(temphello["name"])
@@ -604,7 +617,6 @@ def collection_view(request, username, collection_name):
                     # for entry in collection_images:
                     #     print(entry.ipfs_metadata_path)
                     token_name = user_collection.token_name
-                    print(token_name)
                     collection_name = user_collection.collection_name
                     return JsonResponse(
                         { # Links here are sent during inital contract deployment. should have bool checks so this ajax isnt done somehow.
@@ -618,7 +630,7 @@ def collection_view(request, username, collection_name):
                 else:
                     return JsonResponse(
                         {"server_message": "USER NOT LOGGED IN"},
-                        status=200,
+                        status=201,
                     )
             elif "address_check" in received_json_data:
                 if request.user.is_authenticated:
@@ -640,7 +652,7 @@ def collection_view(request, username, collection_name):
                 else:
                     return JsonResponse(
                         {"server_message": "USER NOT LOGGED IN"},
-                        status=200,
+                        status=201,
                     )
             elif "address_set" in received_json_data:
                 if request.user.is_authenticated:
@@ -685,7 +697,7 @@ def collection_view(request, username, collection_name):
                 else:
                     return JsonResponse(
                         {"server_message": "USER NOT LOGGED IN"},
-                        status=200,
+                        status=201,
                     )
             elif "token_deployed" in received_json_data:
                 if request.user.is_authenticated:
@@ -710,7 +722,7 @@ def collection_view(request, username, collection_name):
                 else:
                     return JsonResponse(
                         {"server_message": "USER NOT LOGGED IN"},
-                        status=200,
+                        status=201,
                     )
             elif "store_txhash" in received_json_data:
                 if request.user.is_authenticated:
@@ -727,7 +739,7 @@ def collection_view(request, username, collection_name):
                 else:
                     return JsonResponse(
                         {"server_message": "USER NOT LOGGED IN"},
-                        status=200,
+                        status=201,
                     )
             elif "delete_entry" in received_json_data:
                 if request.user.is_authenticated:
@@ -744,7 +756,7 @@ def collection_view(request, username, collection_name):
                 else:
                     return JsonResponse(
                         {"server_message": "USER NOT LOGGED IN"},
-                        status=200,
+                        status=201,
                     )
             elif "delete_duplicates" in received_json_data:
                 if request.user.is_authenticated:
@@ -774,7 +786,7 @@ def collection_view(request, username, collection_name):
                 else:
                     return JsonResponse(
                         {"server_message": "USER NOT LOGGED IN"},
-                        status=200,
+                        status=201,
                     )
             elif "delete_collection" in received_json_data:
                 if request.user.is_authenticated:
@@ -788,7 +800,7 @@ def collection_view(request, username, collection_name):
                 else:
                     return JsonResponse(
                         {"server_message": "USER NOT LOGGED IN"},
-                        status=200,
+                        status=201,
                     )
         except RawPostDataException:  # NO AJAX DATA PROVIDED - DIFFERENT POST REQUEST INSTEAD
             pass

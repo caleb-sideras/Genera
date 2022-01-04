@@ -282,6 +282,12 @@ def create_and_save_collection(tempDict, db_collection, user = None):
         image_to_collection_db.path_compressed = compressed_image_path #save thumbnail path
         image_to_collection_db.save()
         timeit_end = time.time()
+        if user.credits <= 0:
+            return
+        else:
+            user.credits -= 1
+            user.save()
+            
         print(f"Image {img_name} has been saved onto server (normal+compressed). Time taken: {timeit_end-timeit_start:.2f}s")
 
         # with open(
