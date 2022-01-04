@@ -323,7 +323,16 @@ body {
 .general_button_no_border:disabled > h4{
   color: var(--disabled-text-color) !important;
 }
-
+#preview:disabled ~ #cooldown{
+  display: block !important;
+}
+#cooldown{
+  display: none;
+  margin: 0;
+  font-size: 14px;
+  text-align: center;
+  color: var(--text-color-2);
+}
 .general_button_no_border > h4 {
   color:var(--text-preview-color);
   font-weight: bold;
@@ -699,6 +708,7 @@ body {
 }
 #scroller li >img {
   max-height: 100px;
+  max-width: 100px;
 }
 #scroller li > pre{
   font-size: 0.5rem;

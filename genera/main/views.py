@@ -109,6 +109,15 @@ def upload_view(request):
                 layernames = json.loads(request.POST.get('layernames'))
                 res_x = int(properties[3])
                 res_y = int(properties[4])
+                # could save extra computation if image < 200 and change css on front end
+                if res_y > 500 or res_x > 500:
+                    if res_x > res_y:
+                        res_y = int((res_y * 500) / res_x)
+                        res_x = 500
+                    else:
+                        res_x = int((res_x * 500) / res_y)
+                        res_y = 500
+    
                 texture_color = ImageColor.getcolor(properties[5], "RGB")
                 layers_list = [None] * len(layernames)
                 textures_list = [None] * len(layernames)

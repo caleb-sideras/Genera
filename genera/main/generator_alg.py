@@ -217,6 +217,7 @@ def create_and_save_collection(tempDict, db_collection, user = None):
     db_collection.collection_size = longest_layer
     db_collection.save()
 
+    # could save extra computation if image < 200 and change css on front end
     if tempDict["Resolution_x"] > tempDict["Resolution_y"]:
         compressed_y = int((tempDict["Resolution_y"] * 200) / tempDict["Resolution_x"])
         compressed_x = 200
