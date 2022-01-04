@@ -130,9 +130,13 @@ function ajax_post(payload) {
                     // close_loading_popup()
                     resolve(JSON.parse(http_request.responseText))
                 }
-                else { //unhandled error
+                else if (http_request.status === 201){
                     close_loading_popup()
-                    console.log(JSON.parse(http_request.responseText))
+                    parsed_json = JSON.parse(http_request.responseText)
+                    alert(parsed_json["server_message"])
+                    return
+                }
+                else { //unhandled error
                     alert("Unkown server error")
                     return
                 }   
