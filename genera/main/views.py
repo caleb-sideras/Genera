@@ -537,9 +537,6 @@ def collection_view(request, username, collection_name):
 
     if request.method == "POST":
         print("we posted")
-        # print(request.POST.get("entry_name"))
-        # print(request.POST.get("image_description"))
-        # print(request.POST.get("image_name"))
 
         if "image_name" in request.POST:
             collection_image = collection_images.filter(deployed_bool = False, name=request.POST.get("entry_name")).first()
@@ -741,7 +738,6 @@ def collection_view(request, username, collection_name):
                         status=200,
                     )
             elif "delete_duplicates" in received_json_data:
-                print('Entered delete duplicates')
                 if request.user.is_authenticated:
                     collection_query = collection_images.filter(deployed_bool = False)
                     i = 0
@@ -764,6 +760,20 @@ def collection_view(request, username, collection_name):
 
                     return JsonResponse(
                         {"server_message": "Deleted duplicates"},
+                        status=200,
+                    )
+                else:
+                    return JsonResponse(
+                        {"server_message": "USER NOT LOGGED IN"},
+                        status=200,
+                    )
+            elif "delete_collection" in received_json_data:
+                if request.user.is_authenticated:
+                    user_collection.delete()
+                    user.save()
+
+                    return JsonResponse(
+                        {"server_message": "Collection Deleted"},
                         status=200,
                     )
                 else:

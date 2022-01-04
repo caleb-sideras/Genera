@@ -124,9 +124,13 @@
                         {% endif %} 
                     {% endif %}
                 </div>
-                
+
+                <button name="delete_collection" onclick="delete_collection()" class="general_button_no_border red_background shadow_strong rounded_container_no_padding" type="button">
+                    <h4 class="no_margin generate" style="color: white;">Delete Collection</h4>
+                </button>
+
                 {% if not collection_data.collection_ifps_bool and not collection_data.duplicates_deleted %}
-                    <button type="button" class="general_button_no_border orange_background shadow_strong rounded_container_no_padding" style="cursor: default" onclick="delete_duplicates(this)">
+                    <button type="button" class="general_button_no_border orange_background shadow_strong rounded_container_no_padding" style="cursor: default" onclick="delete_duplicates()">
                         <h4 class="no_margin">Delete Duplicates</h4>
                     </button>
                 {% endif %}

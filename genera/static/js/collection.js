@@ -308,7 +308,7 @@ function expand_collapse_button(self) {
 
 }
 
-async function delete_duplicates(self){
+async function delete_duplicates(){
     await yes_no_popup("Delete ALL Duplicates?", "Delete", "Cancel")
         .then(function (reponse) {
             if (reponse) {
@@ -324,7 +324,22 @@ async function delete_duplicates(self){
 
         })
 }
+async function delete_collection(){
+    await yes_no_popup("Delete ENTIRE Collection?", "Delete", "Cancel")
+        .then(function (reponse) {
+            if (reponse) {
+                create_and_render_loading_popup("Deleting Collection")
+                ajax_post({ 'delete_collection': 'dayum he really doin it' })
+                    .then(function (response) { //Action that occurs after a response from the server was obtained - here (STATUS 200)
+                        console.log(response["server_message"])
+                        window.location = "http://localhost:8000/";
+                    })
+            }
+            close_yes_no_popup()
+            // (document.body).children[0].remove()
 
+        })
+}
 function download_zip() {
     create_and_render_loading_popup("Downloading Collection")
     console.log('Generating zipfile');

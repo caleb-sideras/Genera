@@ -248,6 +248,10 @@ body {
   background-color: var(--orange-color);
 }
 
+.red_background{
+  background-color: var(--error-color);
+}
+
 .image_text_background {
   background-color: var(--preview-button-color);
 }
