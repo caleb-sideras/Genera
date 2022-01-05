@@ -49,11 +49,11 @@
                             <img loading="lazy" src="{{entry.path_compressed}}" data-fullrez ="{{entry.path}}" data-name="{{entry.name}}" alt="{{entry.name}} image should be here" class="nft_image" onclick="open_images(this)">
                             {% endif %}
                             <div>
-                                <!-- <p class="no_margin center">{{entry.name}}</p>
-                                <pre style="display: none;">{{entry.metadata}}</pre>
+                                <input type="hidden" id="image_vars" data-name="{{entry.name}}" data-metadata="{{entry.metadata}}" data-ipfs_bool="{{entry.ipfs_bool}}" data-deployed_bool="{{entry.deployed_bool}}" data-token_uri="{{entry.ipfs_metadata_path}}"/>
+                                <p class="no_margin center">{{entry.name}}</p> 
+                                <!-- <pre style="display: none;">{{entry.metadata}}</pre>
                                 <div style="display: none;">{{entry.ipfs_bool}}</div>
                                 <div style="display: none;">{{entry.deployed_bool}}</div> -->
-                                <input type="hidden" id="image_vars" data-name="{{entry.name}}" data-metadata="{{entry.metadata}}" data-ipfs_bool="{{entry.ipfs_bool}}" data-deployed_bool="{{entry.deployed_bool}}" data-token_uri="{{entry.ipfs_metadata_path}}"/>
                                     <div class="collection_card_button_container">
                                         {% if entry.ipfs_bool%}
                                             <div class="collection_card_button white_background" style=" cursor: default;" >

@@ -534,14 +534,7 @@ def collection_view(request, username, collection_name):
                         "collection_name": user_collection.collection_name,
                     },)
             collection_images = CollectionImage.objects.filter(linked_collection__id=user_collection.id)
-            # id_list = []
-            # for entry in collection_images:
-            #     id_list.append(entry.id)
-            # print(id_list)
-            # context["entry_ids"] = id_list
-            context["entry_ids"] = list(CollectionImage.objects.filter(linked_collection__id=user_collection.id).values_list('id', flat=True).order_by('id'))
-            # cannot json dumps object UUID...
-
+            context["entry_ids"] = json.dumps([str(x) for x in CollectionImage.objects.filter(linked_collection__id=user_collection.id).values_list('id', flat=True)])
             context["collection_data"] = user_collection
             context["collection_images"] = collection_images
             
@@ -627,7 +620,7 @@ def collection_view(request, username, collection_name):
                     user_collection.collection_ifps_bool = True
                     user_collection.save()
                     return JsonResponse(
-                        { # Links here are sent during inital contract deployment. should have bool checks so this ajax isnt done somehow.
+                        {
                             "ipfs_links": pinata_links,
                             "entries" : entry_ids,
                         },
@@ -655,7 +648,7 @@ def collection_view(request, username, collection_name):
                     )
             elif "delete_entry" in received_json_data:
                 if request.user.is_authenticated:
-                    collection_query = collection_images.filter( deployed_bool = False, name = received_json_data['delete_entry']).delete()
+                    collection_query = collection_images.filter( deployed_bool = False, name = received_json_data['delete_entry']).delete() # change to id
                     print(f"deleted {received_json_data['delete_entry']}")
                     user_collection.collection_size = user_collection.collection_size - 1
                     user_collection.save()

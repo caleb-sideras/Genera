@@ -27,7 +27,7 @@ function main() {
     }
     token_name = js_vars.dataset.token_name
     image_name = js_vars.dataset.image_name
-    entries = js_vars.dataset.entry_ids
+    entries = JSON.parse(js_vars.dataset.entry_ids)
     collection_name = js_vars.dataset.collection_name
     if (js_vars.dataset.ipfs_links){
         ipfs_links = JSON.parse(js_vars.dataset.ipfs_links)
@@ -332,10 +332,10 @@ async function check_mint_status(){
         var temp_uri_list = uri_list.slice()
         image_data_elements = document.querySelectorAll('.all_collections_layout > div > div')
         image_data_elements.forEach(element => {
-            if ((element.children[0].dataset.ipfs_bool.toLowerCase() === 'true') == true && element.children[1].children[1].style.display == 'none'){
+            if ((element.children[0].dataset.ipfs_bool.toLowerCase() === 'true') == true && element.children[2].children[1].style.display == 'none'){
                 for (let i = 0; i < temp_uri_list.length; i++) {
                     if (temp_uri_list[i] == element.children[0].dataset.token_uri) {
-                        element.children[1].children[1].style.display = 'flex'
+                        element.children[2].children[1].style.display = 'flex'
                         temp_uri_list.splice(i, 1)
                         break;
                     }

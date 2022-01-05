@@ -1197,6 +1197,9 @@ text-align: left;
   height: 15px;
   margin-right: 5px;
 }
+.properties_container > h5{
+  margin:10px
+}
 
 /* #scroll-progress {
   background: green;
