@@ -526,6 +526,7 @@ def collection_view(request, username, collection_name):
     if user:
         user_collection = UserCollection.objects.filter(user=user, collection_name=collection_name).first()
         
+        # passing context
         if user_collection:
             context["ajax_url"] = reverse("main:collection", 
                     kwargs={
@@ -533,9 +534,22 @@ def collection_view(request, username, collection_name):
                         "collection_name": user_collection.collection_name,
                     },)
             collection_images = CollectionImage.objects.filter(linked_collection__id=user_collection.id)
-            
+            # id_list = []
+            # for entry in collection_images:
+            #     id_list.append(entry.id)
+            # print(id_list)
+            # context["entry_ids"] = id_list
+            context["entry_ids"] = list(CollectionImage.objects.filter(linked_collection__id=user_collection.id).values_list('id', flat=True).order_by('id'))
+            # cannot json dumps object UUID...
+
             context["collection_data"] = user_collection
             context["collection_images"] = collection_images
+            
+            if user_collection.collection_ifps_bool:
+                context["ipfs_links"] = json.dumps(list(collection_images.all().values_list('ipfs_metadata_path', flat=True))) 
+            else:
+                context["ipfs_links"] = ""
+
         else:
             messages.error(request, "COLLECTION DOES NOT EXIST !! !! !!!! !! ! !  !!!!!")
             return render(request, "collection.html", context)
@@ -567,7 +581,7 @@ def collection_view(request, username, collection_name):
         try:
             received_json_data = json.loads(request.body)
             # make this a async function for speed!!!!! Will need db changes
-            if "notneeded" in received_json_data:  # handle
+            if "ifps_deployment" in received_json_data:  # handle
                 pinata_links =[]
                 entry_ids =[]
                 if request.user.is_authenticated:
@@ -591,62 +605,32 @@ def collection_view(request, username, collection_name):
                                     user.save()
                                 print(entry.name)
                                 
-                                # uploading image to ipfs & updating db
+                                # uploading image to ipfs
                                 pinata_link_image = upload_pinata_filepath(entry.path[1:], entry.name)
-                                entry.ipfs_image_path = f"https://ipfs.io/ipfs/{pinata_link_image['IpfsHash']}"
 
                                 # getting entry metadata
-                                temp_metadata = entry.metadata
-                                temphello =json.loads(temp_metadata)
-                                # print(temphello)
-                                # print(temphello["name"])
+                                metadata = entry.metadata
+                                metadata_load =json.loads(metadata)
                                 
-                                temphello["image"] = f"https://ipfs.io/ipfs/{pinata_link_image['IpfsHash']}"
-                                entry.metadata = json.dumps(temphello)
-                                # print(temphello["image"])
-                                # entry.metadata = json.dumps(temp_metadata)
+                                # saving metdata
+                                metadata_load["image"] = f"https://ipfs.io/ipfs/{pinata_link_image['IpfsHash']}"
+                                entry.metadata = json.dumps(metadata_load)
+
                                 # uploading metadata w/image to ipfs & updating db
-                                pinata_link_data = upload_pinata_object(json.dumps(temphello), entry.name)
+                                pinata_link_data = upload_pinata_object(json.dumps(metadata_load), entry.name)
                                 entry.ipfs_metadata_path = f"https://ipfs.io/ipfs/{pinata_link_data['IpfsHash']}"
                                 entry.ipfs_bool = True
                                 entry.save()
+                                
                             pinata_links.append(entry.ipfs_metadata_path)
                             entry_ids.append(entry.id)
                     user_collection.collection_ifps_bool = True
                     user_collection.save()
-                    # for entry in collection_images:
-                    #     print(entry.ipfs_metadata_path)
-                    token_name = user_collection.token_name
-                    collection_name = user_collection.collection_name
                     return JsonResponse(
                         { # Links here are sent during inital contract deployment. should have bool checks so this ajax isnt done somehow.
                             "ipfs_links": pinata_links,
                             "entries" : entry_ids,
-                            "token_name" : token_name,
-                            "collection_name" : collection_name
                         },
-                        status=200,
-                    )
-                else:
-                    return JsonResponse(
-                        {"server_message": "USER NOT LOGGED IN"},
-                        status=201,
-                    )
-            elif "address_check" in received_json_data:
-                if request.user.is_authenticated:
-                    if user_collection.contract_bool:
-                        print("Contract already saved in db")
-                        temp ={
-                        'address_bool': True,
-                        'collection_address': user_collection.contract_address
-                        }
-                    else:
-                        print("Not in db")
-                        temp ={
-                        'address_bool': False
-                        }
-                    return JsonResponse(
-                        temp,
                         status=200,
                     )
                 else:
@@ -656,85 +640,13 @@ def collection_view(request, username, collection_name):
                     )
             elif "address_set" in received_json_data:
                 if request.user.is_authenticated:
-                    IPFS_links = []
-                    entry_ids = []
-
                     if not user_collection.contract_bool:
                         user_collection.contract_address = received_json_data["address_set"]
                         user_collection.contract_bool = True
                         user_collection.save()
-
-                        for entry in collection_images:
-                            IPFS_links.append(entry.ipfs_metadata_path)
-                            entry_ids.append(entry.id)
-                    else:
-                        tokenURIs = read_contract(user_collection.contract_address)
-                        if len(tokenURIs) == user_collection.collection_size:
-                            user_collection.tokens_deployed = True
-                            user_collection.save()
-                            print("All NFTs minted")
-                        else:
-                            user_collection.tokens_deployed_counter = len(tokenURIs)
-                            user_collection.save()
-                            for entry in collection_images:
-                                if entry.deployed_txhash and not entry.deployed_bool: #would save iterations if did only txhash[true] & make almost 100% fool proof, can iterate over ifps_deployed
-                                    if tokenURIs:
-                                        for value in tokenURIs:
-                                            if entry.ipfs_metadata_path == value:
-                                                entry.deployed_bool = True
-                                                entry.save()
-                                if not entry.deployed_bool:
-                                    IPFS_links.append(entry.ipfs_metadata_path)
-                                    entry_ids.append(entry.id)
-
                     return JsonResponse(
-                        {"server_message" :"Contract address set",
-                        "ipfs_links": IPFS_links,
-                        "entries" : entry_ids
-                        },
+                        {"server_message" :"Contract address set"},
                         status = 200
-                    )
-                else:
-                    return JsonResponse(
-                        {"server_message": "USER NOT LOGGED IN"},
-                        status=201,
-                    )
-            elif "token_deployed" in received_json_data:
-                if request.user.is_authenticated:
-                    collection_query = collection_images.filter(deployed_bool = False, deployed_txhash__isnull= False, id=received_json_data['token_deployed'])
-                    collection_image = collection_query.first()
-                    collection_image.deployed_bool = True
-                    collection_image.save()
-                    print(user_collection.tokens_deployed_counter)
-                    print(user_collection.collection_size)
-                    if user_collection.tokens_deployed_counter >= user_collection.collection_size:
-                        user_collection.tokens_deployed = True
-                        print("All NFTs minted")
-                    else:
-                        user_collection.tokens_deployed_counter = user_collection.tokens_deployed_counter + 1
-                    user_collection.save()
-                    print(collection_image.name)
-          
-                    return JsonResponse(
-                        {"server_message": "Image deployed, saved in db"},
-                        status=200,
-                    )
-                else:
-                    return JsonResponse(
-                        {"server_message": "USER NOT LOGGED IN"},
-                        status=201,
-                    )
-            elif "store_txhash" in received_json_data:
-                if request.user.is_authenticated:
-                    collection_query = collection_images.filter(deployed_bool = False, id=received_json_data['entry'])
-                    collection_image = collection_query.first()
-                    collection_image.deployed_txhash = received_json_data['store_txhash']
-                    collection_image.save()
-                    print(f"{collection_image.name} stored txhash {received_json_data['store_txhash']}")
-                    
-                    return JsonResponse(
-                        {"server_message": "txhash saved in db"},
-                        status=200,
                     )
                 else:
                     return JsonResponse(
@@ -795,6 +707,19 @@ def collection_view(request, username, collection_name):
 
                     return JsonResponse(
                         {"server_message": "Collection Deleted"},
+                        status=200,
+                    )
+                else:
+                    return JsonResponse(
+                        {"server_message": "USER NOT LOGGED IN"},
+                        status=201,
+                    )
+            elif "collection_minted" in received_json_data:
+                if request.user.is_authenticated:
+                    user_collection.tokens_deployed = True
+                    user_collection.save()
+                    return JsonResponse(
+                        {"server_message": "Collection Minted"},
                         status=200,
                     )
                 else:

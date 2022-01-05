@@ -11,7 +11,7 @@
 {% endblock %}
 
 {% block body_block %}
-    <input type="hidden" id="js_vars" data-collection_name='{{collection_data.collection_name}}' data-ajax_url='{{ajax_url}}' data-json="{{erc721_json}}">
+    <input type="hidden" id="js_vars" data-collection_name='{{collection_data.collection_name}}' data-ajax_url='{{ajax_url}}' data-json="{{erc721_json}}" data-contract_address='{{collection_data.contract_address}}' data-ipfs_links='{{ipfs_links}}' data-entry_ids ='{{entry_ids}}' data-token_name='{{collection_data.token_name}}' data-image_name='{{collection_data.image_name}}' data-ipfs_bool='{{collection_data.collection_ifps_bool}}' data-contract_bool='{{collection_data.contract_bool}}' data-tokens_minted_bool='{{collection_data.tokens_deployed}}' data-collection_size='{{collection_data.collection_size}}'/>
 
 <div class="filter">
     <form type="hidden" method="post" style="display: none;" enctype="multipart/form-data" class="image_edit_wrapper" >
@@ -49,24 +49,22 @@
                             <img loading="lazy" src="{{entry.path_compressed}}" data-fullrez ="{{entry.path}}" data-name="{{entry.name}}" alt="{{entry.name}} image should be here" class="nft_image" onclick="open_images(this)">
                             {% endif %}
                             <div>
-                                <p class="no_margin center">{{entry.name}}</p>
+                                <!-- <p class="no_margin center">{{entry.name}}</p>
                                 <pre style="display: none;">{{entry.metadata}}</pre>
                                 <div style="display: none;">{{entry.ipfs_bool}}</div>
-                                <div style="display: none;">{{entry.deployed_bool}}</div>
-                                <!-- <a href="https://moralis.io/" target="_blank" rel="noopener noreferrer"> -->
+                                <div style="display: none;">{{entry.deployed_bool}}</div> -->
+                                <input type="hidden" id="image_vars" data-name="{{entry.name}}" data-metadata="{{entry.metadata}}" data-ipfs_bool="{{entry.ipfs_bool}}" data-deployed_bool="{{entry.deployed_bool}}" data-token_uri="{{entry.ipfs_metadata_path}}"/>
                                     <div class="collection_card_button_container">
                                         {% if entry.ipfs_bool%}
-                                            <div class="collection_card_button white_background" style=" cursor: auto;" >
+                                            <div class="collection_card_button white_background" style=" cursor: default;" >
                                                 <img src="/static/icons/check.svg" alt="check">
                                                 <h5>IPFS</h5>
                                             </div>
                                         {% endif %}
-                                        {% if entry.deployed_bool%}
-                                        <div class="collection_card_button white_background" style=" cursor: auto;"> 
-                                            <img src="/static/icons/check.svg" alt="check">
-                                            <h5>Mint</h5>
-                                            </div>
-                                        {% endif %}
+                                    <div style='display: none; cursor: default;' class="collection_card_button white_background" style=" cursor: auto;"> 
+                                        <img src="/static/icons/check.svg" alt="check">
+                                        <h5>Mint</h5>
+                                    </div>
                                     </div>
                                 <!-- </a> -->
                             </div>
@@ -135,7 +133,7 @@
                     </button>
                 {% endif %}
                 {% if not collection_data.tokens_deployed %}
-                    <button class="general_button_no_border light_purple_background shadow_strong rounded_container_no_padding" onclick="mint_collection_request()" type="button">
+                    <button class="general_button_no_border light_purple_background shadow_strong rounded_container_no_padding" onclick="deploy_ipfs_request()" type="button">
                         <h4 class="no_margin generate">Mint Collection</h4>
                     </button>
                 {% endif %}

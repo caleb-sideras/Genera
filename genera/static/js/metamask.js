@@ -1,8 +1,11 @@
-ajax_script = null
 let web3 = new Web3(Web3.givenProvider);//Web3.givenProvider || "ws://localhost:8545"
+let web3_infura = new Web3(new Web3.providers.HttpProvider("https://rinkeby.infura.io/v3/d6c7a2d0b9bd40afa49d2eb06cc5baba"));
+
 contract_address = null
 ipfs_links = null
+uri_list = null
 entries = null
+entry_ids = null
 token_name = null
 collection_name = null
 token_counter = 0
@@ -10,16 +13,35 @@ function main() {
 
     ipfs_links = []
     entries = []
-    ajax_script = js_vars.dataset.json
+    uri_list = []
 
-    // ajax_script2 = ajax_button.dataset.metadata
-    // console.log(ajax_script2)
-    // console.log(typeof(ajax_script2))
-    // console.log(JSON.parse(ajax_script2))
-    // console.log(JSON.parse(ajax_script))
-    parsed_json = JSON.parse(ajax_script)
-    console.log(parsed_json)
+    parsed_json = JSON.parse(js_vars.dataset.json)
 
+    contract_address = js_vars.dataset.contract_address
+    contract_bool = (js_vars.dataset.contract_bool.toLowerCase() === 'true')
+    if (contract_bool) {
+        var temp = async function () {
+            await check_mint_status()
+        }
+        temp()
+    }
+    token_name = js_vars.dataset.token_name
+    image_name = js_vars.dataset.image_name
+    entries = js_vars.dataset.entry_ids
+    collection_name = js_vars.dataset.collection_name
+    if (js_vars.dataset.ipfs_links){
+        ipfs_links = JSON.parse(js_vars.dataset.ipfs_links)
+    }
+    ipfs_bool = (js_vars.dataset.ipfs_bool.toLowerCase() === 'true');
+    tokens_minted_bool = (js_vars.dataset.tokens_minted_bool.toLowerCase() === 'true');
+    collection_size = parseInt(js_vars.dataset.collection_size)
+
+    console.log(contract_bool)
+    console.log(ipfs_bool)
+    console.log(token_name)
+    console.log(image_name)
+    console.log(ipfs_links)
+    console.log(entries) // string
     // gas_estimate = document.querySelector('.testButton');
 
     // gas_estimate.addEventListener('click', async () =>{
@@ -55,41 +77,111 @@ async function metamask_check(){
     return active_account;
 }
 
+async function deploy_ipfs_request() {
+    
+    await yes_no_popup("Mint Collection?", "Yes", "No")
+        .then(function (reponse) {
+            if (reponse) {
+                close_yes_no_popup()
+            }
+            else {
+                close_yes_no_popup()
+                throw ("no deployment")
+            }
+
+        })
+
+    if (!ipfs_bool) {
+        create_and_render_loading_popup("Deploying to IPFS")
+        ajax_post({ 'ifps_deployment': "" })
+            .then(function (response) {
+                ipfs_links = response["ipfs_links"]
+                entries = response["entries"]
+                console.log("Received ipfs & entries from db")
+                ipfs_bool = true
+                close_loading_popup()
+                deploy_contract_request()
+            })
+    }
+    else{
+        deploy_contract_request()
+    }
+    
+    
+}
+
+async function deploy_contract_request() {
+    if (!contract_bool) {
+        create_and_render_loading_popup("Deploying Smart Contract")
+        await deploy_contract().then((reponse)=>{
+            // double checking user account
+            close_loading_popup()
+            add_tokens_request(reponse, ajax_url);
+        })
+        .catch((error) => {
+            close_loading_popup()
+            throw (error)
+        })
+    }else{
+        var active_account = await metamask_check()
+        close_loading_popup()
+        add_tokens_request(active_account, ajax_url);
+    }
+   
+}
+
 async function deploy_contract(){
     console.log("deploying contract")
     var active_account = await metamask_check()
-    constructor_paramter = constructor_string(collection_name, token_name); // User parameters
+    constructor_paramter = constructor_string(collection_name, token_name);
     deployed_contract = await ethereum
         .request({
             method: 'eth_sendTransaction',
             params: [
                 {
                     from: active_account[0],
-                    gas: '0x210000',//180-200k usually
+                    gas: '0x210000', //180-200k usually
                     gasLimit: '0x21000000',
                     data: parsed_json['bytecode'] + constructor_paramter,
                     chainId: '0x4',
                 },
             ],
         })
-        // .catch(function(error){
-        //     console.log(error)
-        //     return
-        // })
-        .then(async function (txHash) {
-            console.log('Transaction sent')
-            console.dir(txHash)
-            contract_address = await waitForTxToBeMined(txHash)
-            console.log("Contract mined, address:" + contract_address)
+        .catch(function(error){
+            throw(error)
         })
-        // .catch(console.error)
-        // .then((txHash) => console.log(txHash)).catch((error) => console.error);
+        .then(async function (txHash) {
+            contract_address = await waitForTxToBeMined(txHash)
+            contract_bool = true
+            console.log("Contract mined, address:" + contract_address)
+            save_contract_address()
+        })
     return active_account;
 }
 
+function add_tokens_request(active_account, ajax_url){
+    if (!tokens_minted_bool){
+        create_and_render_loading_popup("Minting NFTs")
+        if (uri_list.length == collection_size) {
+            ajax_post({'collection_minted': contract_address}).then((reponse) => {
+                window.location.reload()
+                return
+            })  
+        }else if(uri_list.length >= 0) {
+            for (let i = 0; i < uri_list.length; i++) {
+                for (let j = 0; j < ipfs_links.length; j++) {
+                    if (uri_list[i] == ipfs_links[j]) {
+                        ipfs_links.splice(j, 1)
+                        break;
+                    }
+                }
+            }
+            add_tokens(active_account, ajax_url)  
+        }    
+    }
+}
+
 async function add_tokens(active_account, url=null) {
- // ipfs metadata (token uri)
-    // create_and_render_loading_popup("Minting NFTs")
     console.log("Adding tokens to " + contract_address)
     console.log(ipfs_links)
     console.log(entries)
@@ -112,18 +204,15 @@ async function add_tokens(active_account, url=null) {
             })
             .then(function (txHash) {
                 console.log('Transaction sent')
-                // console.dir(txHash)
-                store_txhash(txHash, entries[index])
                 waitForTxToBeMined(txHash, true, index)
             })
-            // .then((txHash) => console.log(txHash))
             .catch((error) =>{
                 token_counter--
                 token_count_check()
-                throw (error)
-                
+                throw (error) 
             });
-    } }
+    }
+}
 
 async function waitForTxToBeMined(txHash, ajax = false, index = 0) {
     let txReceipt
@@ -138,336 +227,17 @@ async function waitForTxToBeMined(txHash, ajax = false, index = 0) {
         console.log(txReceipt)
         token_counter--
         console.log(token_counter)
-        console.log("Entry name bool swap " + entries[index])
-        if (txReceipt['status']==true) {
-            token_deployed(entries[index])
-        }
         token_count_check()
-        
     }
     console.log("Transaction sent " + txReceipt)
     return txReceipt['contractAddress']
 }
 
-async function mint_collection_request() {
-    await yes_no_popup("Deploy Collection?", "Yes", "No")
-        .then(function (reponse) {
-            if (reponse) {
-                close_yes_no_popup()
-            }
-            else{
-                close_yes_no_popup()
-                throw("no deployment")
-            }
-
-        })//try catching promise error
-
-
-    create_and_render_loading_popup("Deploying to IPFS")
-    ajax_post({'notneeded': "balls :)"})
-    .then(function(response) { //Action that occurs after a response from the server was obtained - here (STATUS 200)
-        ipfs_links = response["ipfs_links"]
-        entries = response["entries"]
-        token_name = response["token_name"]
-        collection_name = response["collection_name"]
-        console.log(ipfs_links)
-        console.log(entries)
-        console.log("Received ipfs & entries from db")
-        ajax_server_post2()
-    })
-}
-
-// function ajax_server_post(url) {
-
-//     //HTTPREQUEST INIT CODE
-//     if (window.XMLHttpRequest) { // Mozilla, Safari, IE7+ ...
-//         http_request = new XMLHttpRequest();
-//     } else if (window.ActiveXObject) { // IE 6 and older
-//         http_request = new ActiveXObject("Microsoft.XMLHTTP");
-//     }
-//     //HTTPREQUEST INIT CODE
-
-//     http_request.onreadystatechange = function () {
-//         // Process the server response here (Sent from Django view inside JsonResponse)
-//         if (http_request.readyState === XMLHttpRequest.DONE) {
-
-//             if (http_request.status === 200) { //Status can also be different and defined within the JSONResponse
-//                 var response = JSON.parse(http_request.responseText)
-//                 ipfs_links = response["ipfs_links"]
-//                 entries = response["entries"]
-//                 response['entry_objects'].forEach(element => {
-//                     console.log(element)
-//                 });
-//                 console.log(ipfs_links)
-//                 console.log(entries)
-//                 console.log("Received ipfs & entries from db")
-//                 ajax_server_post2()
-
-//             } else { //if status is not 200 - assume fail, unless different status handled explicitly
-//                 alert('There was a problem with the request.');
-//             }
-//         }
-//     };
-
-//     // Send the POST request to the url/DJANGO VIEW
-//     //setup for request header - not important
-//     http_request.open('POST', url, true);
-//     http_request.setRequestHeader('X-CSRFToken', get_cookie('csrftoken'));
-//     http_request.setRequestHeader('contentType', 'application/json');
-//     //end of setup
-
-//     // Send the request as a JSON MAKE SURE TO ALWAYS HAVE THE CSRFTOKEN COOKIE !!! !! ! ! ! !! 
-//     http_request.send(
-//         JSON.stringify(
-//             {
-//                 'csrfmiddlewaretoken': get_cookie('csrftoken'), //compulsory
-//                 'notneeded': "balls :)" //can add as many other entries to dict as necessary
-//             })
-//     )
-// }
-
-function ajax_server_post2() {
-    ajax_post({'address_check': contract_address})
-    .then(async function(response) { //Action that occurs after a response from the server was obtained - here (STATUS 200)
-        address_check = response['address_bool']
-        // if the contract has already been deployed/in db
-        if (address_check){
-            console.log("received contract from db")
-            contract_address = response["collection_address"]
-            console.log("already deployed contract" + contract_address)
-        }
-        else {
-            close_loading_popup()
-            create_and_render_loading_popup("Deploying Smart Contract")
-            active_account = await deploy_contract()
-                .catch((error) => {
-                    console.log(error)
-                    close_loading_popup()
-                    throw(error)
-                    
-                })
-            close_loading_popup()
-            // ajax_server_post3(url) //should not double set if here, test later
-        }
-
-        // double checking user account
-        active_account = await metamask_check()
-
-        ajax_server_post3()
-        close_loading_popup() // if contract adress not saved could have issues later.
-        create_and_render_loading_popup("Minting NFTs")
-        console.log("adding render screen")
-        await add_tokens(active_account, ajax_url);
-        // close_loading_popup()
-        // console.log("rejected")
-    })
-
-    // //HTTPREQUEST INIT CODE
-    // if (window.XMLHttpRequest) { // Mozilla, Safari, IE7+ ...
-    //     http_request = new XMLHttpRequest();
-    // } else if (window.ActiveXObject) { // IE 6 and older
-    //     http_request = new ActiveXObject("Microsoft.XMLHTTP");
-    // }
-    // //HTTPREQUEST INIT CODE
-
-    // http_request.onreadystatechange = async function () {
-    //     // Process the server response here (Sent from Django view inside JsonResponse)
-    //     if (http_request.readyState === XMLHttpRequest.DONE) {
-
-    //         if (http_request.status === 200) { //Status can also be different and defined within the JSONResponse
-    //             var response = JSON.parse(http_request.responseText)
-    //             address_check = response['address_bool']
-
-    //             // if the contract has already been deployed/in db
-    //             if (address_check){
-    //                 console.log("received contract from db")
-    //                 contract_address = response["collection_address"]
-    //                 console.log("already deployed contract" + contract_address)
-    //             }
-    //             else {
-    //                 active_account = await deploy_contract();
-    //                 // ajax_server_post3(url) //should not double set if here, test later
-    //             }
-
-    //             // double checking user account
-    //             active_account = await metamask_check()
-
-    //             ajax_server_post3(url) // if contract adress not saved could have issues later.
-
-    //             await add_tokens(active_account, url);
-
-
-    //         } else { //if status is not 200 - assume fail, unless different status handled explicitly
-    //             alert('There was a problem with the request.');
-    //         }
-    //     }
-    // };
-
-    // // Send the POST request to the url/DJANGO VIEW
-    // //setup for request header - not important
-    // http_request.open('POST', url, true);
-    // http_request.setRequestHeader('X-CSRFToken', get_cookie('csrftoken'));
-    // http_request.setRequestHeader('contentType', 'application/json');
-    // //end of setup
-
-    // // Send the request as a JSON MAKE SURE TO ALWAYS HAVE THE CSRFTOKEN COOKIE !!! !! ! ! ! !! 
-    // http_request.send(
-    //     JSON.stringify(
-    //         {
-    //             'csrfmiddlewaretoken': get_cookie('csrftoken'), //compulsory
-    //             'address_check': contract_address //can add as many other entries to dict as necessary
-    //         })
-    // )
-}
-
-function ajax_server_post3() {
-
+function save_contract_address() {
     ajax_post({'address_set': contract_address})
-    .then(function(response) { //Action that occurs after a response from the server was obtained - here (STATUS 200)
+    .then(function(response) {
         console.log("Contract adress stored in db " + response["server_message"])
-        ipfs_links = response["ipfs_links"]
-        entries = response["entries"]
-        console.log(ipfs_links)
-        console.log(entries)
     })
-
-
-    // //HTTPREQUEST INIT CODE
-    // if (window.XMLHttpRequest) { // Mozilla, Safari, IE7+ ...
-    //     http_request = new XMLHttpRequest();
-    // } else if (window.ActiveXObject) { // IE 6 and older
-    //     http_request = new ActiveXObject("Microsoft.XMLHTTP");
-    // }
-    // //HTTPREQUEST INIT CODE
-
-    // http_request.onreadystatechange = function () {
-    //     // Process the server response here (Sent from Django view inside JsonResponse)
-    //     if (http_request.readyState === XMLHttpRequest.DONE) {
-
-    //         if (http_request.status === 200) { //Status can also be different and defined within the JSONResponse
-    //             var response = JSON.parse(http_request.responseText)
-    //             console.log("Contract adress stored in db " + response["server_message"])
-    //             ipfs_links = response["ipfs_links"]
-    //             entries = response["entries"]
-    //             console.log(ipfs_links)
-    //             console.log(entries)
-
-    //         } else { //if status is not 200 - assume fail, unless different status handled explicitly
-    //             alert('There was a problem with the request.');
-    //         }
-    //     }
-    // };
-
-    // // Send the POST request to the url/DJANGO VIEW
-    // //setup for request header - not important
-    // http_request.open('POST', url, true);
-    // http_request.setRequestHeader('X-CSRFToken', get_cookie('csrftoken'));
-    // http_request.setRequestHeader('contentType', 'application/json');
-    // //end of setup
-
-    // // Send the request as a JSON MAKE SURE TO ALWAYS HAVE THE CSRFTOKEN COOKIE !!! !! ! ! ! !!
-    // http_request.send(
-    //     JSON.stringify(
-    //         {
-    //             'csrfmiddlewaretoken': get_cookie('csrftoken'), //compulsory
-    //             'address_set': contract_address //can add as many other entries to dict as necessary
-    //         })
-    // )
-}
-
-function store_txhash(txHash, entry) {
-
-    ajax_post({'store_txhash': txHash, 'entry': entry})
-    .then(function(response) { //Action that occurs after a response from the server was obtained - here (STATUS 200)
-        console.log(response["server_message"])
-    })
-
-    // //HTTPREQUEST INIT CODE
-    // if (window.XMLHttpRequest) { // Mozilla, Safari, IE7+ ...
-    //     http_request = new XMLHttpRequest();
-    // } else if (window.ActiveXObject) { // IE 6 and older
-    //     http_request = new ActiveXObject("Microsoft.XMLHTTP");
-    // }
-    // //HTTPREQUEST INIT CODE
-
-    // http_request.onreadystatechange = function () {
-    //     // Process the server response here (Sent from Django view inside JsonResponse)
-    //     if (http_request.readyState === XMLHttpRequest.DONE) {
-
-    //         if (http_request.status === 200) { //Status can also be different and defined within the JSONResponse
-    //             var response = JSON.parse(http_request.responseText)
-    //             console.log(response["server_message"])
-
-
-    //         } else { //if status is not 200 - assume fail, unless different status handled explicitly
-    //             alert('There was a problem with the request.');
-    //         }
-    //     }
-    // };
-
-    // // Send the POST request to the url/DJANGO VIEW
-    // //setup for request header - not important
-    // http_request.open('POST', url, true);
-    // http_request.setRequestHeader('X-CSRFToken', get_cookie('csrftoken'));
-    // http_request.setRequestHeader('contentType', 'application/json');
-    // //end of setup
-
-    // // Send the request as a JSON MAKE SURE TO ALWAYS HAVE THE CSRFTOKEN COOKIE !!! !! ! ! ! !! 
-    // http_request.send(
-    //     JSON.stringify(
-    //         {
-    //             'csrfmiddlewaretoken': get_cookie('csrftoken'), //compulsory
-    //             'store_txhash': txHash,
-    //             'entry': entry
-    //         })
-    // )
-}
-
-function token_deployed(entry) {
-    console.log("token deployed")
-    ajax_post({ 'token_deployed': entry})
-    .then(function(response) { //Action that occurs after a response from the server was obtained - here (STATUS 200)
-        console.log(response["server_message"])
-    })
-
-    // //HTTPREQUEST INIT CODE
-    // if (window.XMLHttpRequest) { // Mozilla, Safari, IE7+ ...
-    //     http_request = new XMLHttpRequest();
-    // } else if (window.ActiveXObject) { // IE 6 and older
-    //     http_request = new ActiveXObject("Microsoft.XMLHTTP");
-    // }
-    // //HTTPREQUEST INIT CODE
-
-    // http_request.onreadystatechange = function () {
-    //     // Process the server response here (Sent from Django view inside JsonResponse)
-    //     if (http_request.readyState === XMLHttpRequest.DONE) {
-
-    //         if (http_request.status === 200) { //Status can also be different and defined within the JSONResponse
-    //             var response = JSON.parse(http_request.responseText)
-    //             console.log(response["server_message"])
-
-
-    //         } else { //if status is not 200 - assume fail, unless different status handled explicitly
-    //             alert('There was a problem with the request.');
-    //         }
-    //     }
-    // };
-
-    // // Send the POST request to the url/DJANGO VIEW
-    // //setup for request header - not important
-    // http_request.open('POST', url, true);
-    // http_request.setRequestHeader('X-CSRFToken', get_cookie('csrftoken'));
-    // http_request.setRequestHeader('contentType', 'application/json');
-    // //end of setup
-
-    // // Send the request as a JSON MAKE SURE TO ALWAYS HAVE THE CSRFTOKEN COOKIE !!! !! ! ! ! !! 
-    // http_request.send(
-    //     JSON.stringify(
-    //         {
-    //             'csrfmiddlewaretoken': get_cookie('csrftoken'), //compulsory
-    //             'token_deployed': entry //can add as many other entries to dict as necessary
-    //         })
-    // )
 }
 
 async function startApp(provider) {
@@ -504,7 +274,6 @@ function constructor_string(name, symbol) {
 }
 
 function abi_token_uri(ipfs_link) {
-    console.log("Setting Token URI");
     token_uri = web3.eth.abi.encodeFunctionCall({
         "inputs": [
             {
@@ -519,16 +288,62 @@ function abi_token_uri(ipfs_link) {
         "type": "function"
     }, [ipfs_link]
     );
-    console.log(token_uri);
-
     return token_uri;
 }
 
 function token_count_check(){
     if (token_counter == 0) {
         console.log('closing token_counter')
-        close_loading_popup()
+        setTimeout(async function () {
+            await check_mint_status()
+            if (uri_list.length == collection_size) {
+                ajax_post({ 'collection_minted': contract_address }).then((reponse)=>{
+                    window.location.reload()
+                })
+            }else{
+                window.location.reload()
+            }
+        }, 20000);
+        console.log('waiting 20 seconds')
     }
+}
+
+async function get_contract_tokenURIs(contract_address){
+    var contract = new web3_infura.eth.Contract(parsed_json['abi'], contract_address)
+    let name = await contract.methods.name().call() // contract name
+    let supply = await contract.methods.totalSupply().call()
+    uri_list = []
+    for (let i = 0; i < supply; i++) {
+        try {
+            let data = await contract.methods.tokenURI(i).call()
+            uri_list.push(data)
+        } catch (error) {
+            console.log(error)
+            alert("Cannot connect to Ethereum, please refresh your page and make sure you have a stable internet connection.")
+        }
+    }
+    console.log("finished get_contract_tokenURIs")
+    return
+}
+
+async function check_mint_status(){
+    await get_contract_tokenURIs(contract_address)
+    if (uri_list) {
+        var temp_uri_list = uri_list.slice()
+        image_data_elements = document.querySelectorAll('.all_collections_layout > div > div')
+        image_data_elements.forEach(element => {
+            if ((element.children[0].dataset.ipfs_bool.toLowerCase() === 'true') == true && element.children[1].children[1].style.display == 'none'){
+                for (let i = 0; i < temp_uri_list.length; i++) {
+                    if (temp_uri_list[i] == element.children[0].dataset.token_uri) {
+                        element.children[1].children[1].style.display = 'flex'
+                        temp_uri_list.splice(i, 1)
+                        break;
+                    }
+                }
+            }
+        });
+    }
+    console.log("finished check_mint_status")
 }
 
 window.addEventListener("load", main);

@@ -125,7 +125,6 @@ class UserCollection(Model):
     contract_address = models.CharField(max_length=50, unique=False, blank = True, null = True)
     contract_bool =  models.BooleanField(default=False)
     tokens_deployed = models.BooleanField(default=False)
-    tokens_deployed_counter = models.IntegerField(default=1)
 
 class CollectionImage(Model):
     linked_collection = models.ForeignKey(UserCollection, on_delete=models.CASCADE)
@@ -137,13 +136,11 @@ class CollectionImage(Model):
     metadata = models.TextField(null = True, blank = True)
 
     # IPFS
-    ipfs_image_path = models.URLField(null = True, blank = True, max_length=50) #CharField
     ipfs_metadata_path =  models.URLField(null = True, blank = True, max_length=50)
     ipfs_bool = models.BooleanField(default=False)
 
     # Smart Contract
     deployed_bool =  models.BooleanField(default=False)
-    deployed_txhash = models.CharField(max_length=150, null = True, blank = True)
 
 class Token(Model):
 
