@@ -148,7 +148,7 @@ function open_images(self){
             await yes_no_popup("Permanently delete image?", "Delete", "Cancel")
             .then(function (reponse) {
                 if (reponse) {
-                    ajax_post({ 'delete_entry': ((self.parentNode).children[1]).children[0].dataset.id })
+                    ajax_post_json({ 'delete_entry': ((self.parentNode).children[1]).children[0].dataset.id })
                     .then(function (response) { //Action that occurs after a response from the server was obtained - here (STATUS 200)
                         console.log(response["server_message"])
                         card_element.remove()
@@ -314,7 +314,7 @@ async function delete_duplicates(){
         .then(function (reponse) {
             if (reponse) {
                 create_and_render_loading_popup("Deleting Duplicates")
-                ajax_post({ 'delete_duplicates': 'hello' })
+                ajax_post_json({ 'delete_duplicates': 'hello' })
                     .then(function (response) { //Action that occurs after a response from the server was obtained - here (STATUS 200)
                         console.log(response["server_message"])
                         location.reload();
@@ -331,7 +331,7 @@ async function delete_collection(){
         .then(function (reponse) {
             if (reponse) {
                 create_and_render_loading_popup("Deleting Collection")
-                ajax_post({ 'delete_collection': 'dayum he really doin it' })
+                ajax_post_json({ 'delete_collection': 'dayum he really doin it' })
                     .then(function (response) { //Action that occurs after a response from the server was obtained - here (STATUS 200)
                         console.log(response["server_message"])
                         window.location = "http://localhost:8000/";

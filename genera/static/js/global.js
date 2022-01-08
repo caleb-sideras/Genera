@@ -54,7 +54,7 @@ function main() {
     //showcase of new ajax function
     if (typeof(document.getElementById("button")) != 'undefined' && document.getElementById("button") != null) {
         document.getElementById("button").addEventListener("click", function() {
-            ajax_post({"hello":"there"}) //plug in the JSON here that you wish to send to the server. Cookies and certificates are all handled in the function
+            ajax_post_json({"hello":"there"}) //plug in the JSON here that you wish to send to the server. Cookies and certificates are all handled in the function
 
             .then(function(response) { //Action that occurs after a response from the server was obtained - here (STATUS 200)
 
@@ -77,7 +77,7 @@ function ajax_validate_field(field_object) {
         return
     }
 
-    ajax_post({"field_name": field_object.name, "field_content": field_object.value})
+    ajax_post_json({"field_name": field_object.name, "field_content": field_object.value})
 
     .then(function(response) {
         if (response["passed"] == 1) {
@@ -95,7 +95,7 @@ function ajax_validate_field(field_object) {
     })
 }
 
-function ajax_post_factory(post_type = "JSON") { //currently supports JSON and FORM data
+function ajax_post_factory(post_type) { //currently supports JSON and FORM data
 
     var generated_post_function = (payload) => {
         return new Promise(function(resolve) {
@@ -115,7 +115,7 @@ function ajax_post_factory(post_type = "JSON") { //currently supports JSON and F
             //setup for request header - not important
             http_request.open('POST', ajax_url, true);
             http_request.setRequestHeader('X-CSRFToken', get_cookie('csrftoken'));
-            
+
             if (post_type == "JSON") {
                 http_request.setRequestHeader('Content-Type', 'application/json');
                 http_request.send(
@@ -135,8 +135,9 @@ function ajax_post_factory(post_type = "JSON") { //currently supports JSON and F
                     }
                     else if (http_request.status === 201) { //handled response from Django view
                         close_loading_popup()
-                        parsed_json = JSON.parse(http_request.responseText)
-                        console.log(parsed_json["server_message"])
+                        response = JSON.parse(http_request.responseText)
+                        if (response["url"] != "")
+                            window.location.replace(response["url"]) //server redirect - imitate return redirect(reverse(...)) from django view for ajax stuff
                         return
                     }
                     else { //unhandled error
@@ -151,7 +152,7 @@ function ajax_post_factory(post_type = "JSON") { //currently supports JSON and F
     return generated_post_function
 }
 
-ajax_post = ajax_post_factory("JSON")
+ajax_post_json = ajax_post_factory("JSON")
 ajax_post_form = ajax_post_factory("FORM")
 
 function create_and_render_loading_popup(heading = "Loading") { //Not recommended to use more than 3 words - ull need to hard code edge cases for the offsets more.

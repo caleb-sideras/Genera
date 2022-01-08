@@ -999,32 +999,6 @@ async function preview_layer_search(res_x, res_y, layer_keys){
     return [asset_list, texture_list]
 }
 
-function send_form_ajax() {
-    var data = new FormData();
-    request = new XMLHttpRequest();
-    
-    data.append('XD', 'XD');
-    request.open('POST', ajax_url);
-    request.setRequestHeader('X-CSRFToken', get_cookie('csrftoken'));
-
-    request.send(data);
-
-    request.onreadystatechange = function () {
-        // Process the server response here (Sent from Django view inside JsonResponse)
-        if (request.readyState === XMLHttpRequest.DONE) {
-            if (request.status === 200) { //ifstatus is 200 - assume PROPER RESPONSE
-                // close_loading_popup()
-                console.log("ass")
-            }
-            else { //unhandled error
-                alert("Unkown server error")
-                return
-            }   
-        }
-    };
-
-}
-
 function initialize_dynamic_form_validation() {
     var form = document.getElementById("upload_form")
     var fields = form.querySelectorAll(".upload_properties input:not(input[type='color']), .upload_properties textarea")
@@ -1074,7 +1048,7 @@ async function validate_and_post_ajax_form() {
 
     ajax_post_form(form_data)
         .then(response => {
-            window.location.replace(response["redirect_url"]) //redirect to the new collection
+            window.location.replace(response["url"]) //redirect to the new collection
         })
     
 }

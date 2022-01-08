@@ -1,9 +1,11 @@
+from django.http.response import JsonResponse
 from main.models import Token
 from main.models import User
 from genera.settings import BASE_URL
 import uuid
 from django.urls import reverse
 from genera.settings import STRIPE_PRIVATE_KEY
+from django.contrib import messages
 import stripe
 stripe.api_key = STRIPE_PRIVATE_KEY
 
@@ -40,3 +42,6 @@ def generate_stripe_products_context():
         product_data["price_id"] = price["id"]
         products.append(product_data)
     return products
+
+def ajax_redirect(url = ""):
+    return JsonResponse({"url": url}, status=201)

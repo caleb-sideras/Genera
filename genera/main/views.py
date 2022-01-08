@@ -1,7 +1,7 @@
 from time import timezone
 from django.http.response import HttpResponse
 from django.shortcuts import render
-from main.view_tools import generate_token, generate_stripe_products_context
+from main.view_tools import generate_token, generate_stripe_products_context,ajax_redirect
 from genera.settings import MEDIA_DIR, DEFAULT_FROM_EMAIL, BASE_DIR, STRIPE_PUBILC_KEY, STRIPE_PRIVATE_KEY
 from main.models import User
 from main.forms import *
@@ -198,6 +198,7 @@ def upload_view(request):
             print("posted")
             if int(float(request.POST.get("size"))) > request.user.credits:
                 messages.error(request, message="Not enough credits")
+                return ajax_redirect(reverse("main:upload"), "Not enough credits")
                 return redirect(reverse("main:upload"))
 
             calebs_gay_dict["CollectionName"] = request.POST.get("collection_name")
@@ -212,7 +213,7 @@ def upload_view(request):
             for value in calebs_gay_dict.values():
                 if not value:
                     messages.error(request, message=f"An Error has occured - data is missing. Please try again.")
-                    return redirect(reverse("main:upload"))
+                    return ajax_redirect(reverse("main:upload"), "An Error has occured - data is missing. Please try again.")
 
             # if request.POST.get("rarity_map") == "":
             #     messages.error(request, message="No Rarities recieved. Please try again.")
@@ -226,7 +227,7 @@ def upload_view(request):
                 db_collection = db_collection[0]
             else:
                 messages.error(request, message="A collection with that name already exists!")
-                return redirect(reverse("main:upload"))
+                return ajax_redirect(reverse("main:upload"), "A collection with that name already exists!")
 
             db_collection.description = calebs_gay_dict["Description"]
             db_collection.dimension_x = calebs_gay_dict["Resolution_x"]
@@ -240,7 +241,7 @@ def upload_view(request):
                 db_collection.save()
             except:
                 messages.error(request, message="Critical Backend error. Please try again.")
-                return redirect(reverse("main:upload"))
+                return ajax_redirect(reverse("main:upload"), "Critical Backend error. Please try again.")
             
             for filename in request.FILES.keys():
                 # print(request.FILES.keys())
@@ -299,22 +300,15 @@ def upload_view(request):
             messages.success(request, message="Collection generated succesfully! You have been redirected to the collection page ;)")
 
             print("RETURNING COLLECTION")
-            return JsonResponse({"redirect_url": reverse("main:collection",
+            return JsonResponse({"url": reverse("main:collection",
                     kwargs={
                         "username": request.user.username,
                         "collection_name": db_collection.collection_name
                     })}, status=200)
-
-            return redirect(reverse("main:collection",
-                    kwargs={
-                        "username": request.user.username,
-                        "collection_name": db_collection.collection_name
-                    })
-            )
                 
         else:  # no files submitted
-            error_params = {"title": "Upload Failure", "description": "No files have been recieved by the server. Please make sure that you are using PNG files only.", "code": "318XD"}
-            raise PermissionDenied(json.dumps(error_params))
+            messages.error(request, message="No files recieved by the server")
+            return ajax_redirect(reverse("main:upload"), "No files recieved by the server. Please try again.")
 
     return render(request, "upload.html", context)
 

@@ -93,7 +93,7 @@ async function deploy_ipfs_request() {
 
     if (!ipfs_bool) {
         create_and_render_loading_popup("Deploying to IPFS")
-        ajax_post({ 'ifps_deployment': "" })
+        ajax_post_json({ 'ifps_deployment': "" })
             .then(function (response) {
                 ipfs_links = response["ipfs_links"]
                 entries = response["entries"]
@@ -163,7 +163,7 @@ function add_tokens_request(active_account, ajax_url){
     if (!tokens_minted_bool){
         create_and_render_loading_popup("Minting NFTs")
         if (uri_list.length == collection_size) {
-            ajax_post({'collection_minted': contract_address}).then((reponse) => {
+            ajax_post_json({'collection_minted': contract_address}).then((reponse) => {
                 window.location.reload()
                 return
             })  
@@ -234,7 +234,7 @@ async function waitForTxToBeMined(txHash, ajax = false, index = 0) {
 }
 
 function save_contract_address() {
-    ajax_post({'address_set': contract_address})
+    ajax_post_json({'address_set': contract_address})
     .then(function(response) {
         console.log("Contract adress stored in db " + response["server_message"])
     })
@@ -297,7 +297,7 @@ function token_count_check(){
         setTimeout(async function () {
             await check_mint_status()
             if (uri_list.length == collection_size) {
-                ajax_post({ 'collection_minted': contract_address }).then((reponse)=>{
+                ajax_post_json({ 'collection_minted': contract_address }).then((reponse)=>{
                     window.location.reload()
                 })
             }else{
