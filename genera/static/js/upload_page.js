@@ -1,9 +1,10 @@
 button_section_layers = null
 button_section_textures = null
 button_section_collection = null
-uploaded_data = {}
+uploaded_data = null
 
 function main() {
+    uploaded_data = {}
     all_layer_names = []
     layer_update_mode = false
     initialize_dynamic_form_validation()
@@ -12,7 +13,24 @@ function main() {
         if (key === "Enter") 
             add_layer()
     })
-    
+
+    document.getElementById("upload_button_submit").addEventListener("click", () => {
+        yes_no_popup('Generate Collection?', 'Yes', 'No').then((response) =>{
+            if (response) {
+                close_yes_no_popup();
+
+                credit_check()
+                .then(() => {
+                    validate_and_post_ajax_form();
+                }).catch(() => {
+                    alert('Not enough credits')
+                })
+            }
+            else 
+                close_yes_no_popup()
+        })
+    })
+
     init_layer_color = document.getElementsByClassName("upload_section_swap")
     switch_tabs("layers", init_layer_color[0].children[0])
 
@@ -23,68 +41,6 @@ function main() {
     button_section_textures = document.getElementsByClassName("upload_layers_buttons")[1]
     button_section_collection = document.getElementsByClassName("upload_main")[0]
     upload_preview = document.getElementsByClassName('upload_preview')[0]
-}
-
-function initialize_dynamic_form_validation() {
-    var form = document.getElementById("upload_form")
-    var fields = form.querySelectorAll(".upload_properties input:not(input[type='color']), .upload_properties textarea")
-
-    form.addEventListener("submit", function(event) {
-        if (onsubmit_final_form_validationn(event, form, fields)) {
-            form.submit()
-        }
-    })
-
-    //loop through all fields, checkValidity() and if false, show error img color tick
-    for (var i = 0; i < fields.length; i++) {
-        fields[i].addEventListener("change", function(event) { //discuss if input or change
-            if (event.target.checkValidity()) {
-                event.target.classList.add("field_success")
-                event.target.classList.remove("field_error")
-            } else {
-                event.target.classList.remove("field_success")
-                event.target.classList.add("field_error")
-            }
-        })
-    }
-}
-
-function onsubmit_final_form_validationn(event, form_reference, fields) {
-    event.preventDefault()
-    all_passed = true
-
-    if (all_layer_names.length == 0) {
-        create_notification("No Layers", "You did not add any layers. Submission prevented.", duration = 10000, "error")
-        return false
-    }
-
-    if (form_reference.querySelectorAll("input[type=file]").isEmpty()) {
-        create_notification("Empty Assets", "No files have been attached. Submission prevented.", duration = 10000, "error")
-        return false
-    }
-
-    //change to iterate over new dict
-    // if (rarity_map.isEmpty()) {
-    //     create_notification("No Rarity", "You did not add any rarities. Submission prevented.", duration = 10000, "error")
-    //     return false
-    // }
-
-    for (var i = 0; i < fields.length; i++) {
-        if (fields[i].checkValidity() && !fields[i].classList.contains("field_error")) {
-            continue
-        } else {
-            all_passed = false
-            fields[i].reportValidity()
-        }
-    }
-
-    if(!all_passed) {
-        return false
-    }
-
-    console.log("Validation successful");
-    create_and_render_loading_popup("Generating collection")
-    return true;
 }
 
 function add_uploaded_layers(layer_name) {
@@ -1069,7 +1025,61 @@ function send_form_ajax() {
 
 }
 
-async function post_data() {
+function initialize_dynamic_form_validation() {
+    var form = document.getElementById("upload_form")
+    var fields = form.querySelectorAll(".upload_properties input:not(input[type='color']), .upload_properties textarea")
+
+    //loop through all fields, checkValidity() and if false, show error img color tick
+    for (var i = 0; i < fields.length; i++) {
+        fields[i].addEventListener("change", function(event) { //discuss if input or change
+            if (event.target.checkValidity()) {
+                event.target.classList.add("field_success")
+                event.target.classList.remove("field_error")
+            } else {
+                event.target.classList.remove("field_success")
+                event.target.classList.add("field_error")
+            }
+        })
+    }
+}
+
+async function validate_and_post_ajax_form() {
+    var form = document.getElementById("upload_form")
+    var fields = form.querySelectorAll(".upload_properties input:not(input[type='color']), .upload_properties textarea")
+
+    //iterate over uploaded_data and do all checks here prior to sending
+    for (const [key, value] of Object.entries(uploaded_data)) {
+        var assets = Object.keys(value["Assets"]);
+        var textures = Object.keys(value["Textures"]);
+        if (assets.length == 0) {
+            create_notification("No Assets", "You did not add any assets. Submission prevented.", duration = 10000, "error")
+            return
+        }
+    }
+
+    for (var i = 0; i < fields.length; i++) {
+        if (fields[i].checkValidity() && !fields[i].classList.contains("field_error")) {
+            continue
+        } else {
+            fields[i].reportValidity()
+            return
+        }
+    }
+
+    // if passed all checks, post the ajax form.
+    console.log("Validation successful");
+    create_and_render_loading_popup("Generating collection")
+    var form_data = await generate_form_data_for_ajax_post_generate().then(data => data)
+    // console.log(form_data)
+
+    ajax_post_form(form_data)
+        .then(response => {
+            window.location.replace(response["redirect_url"]) //redirect to the new collection
+        })
+    
+}
+
+async function generate_form_data_for_ajax_post_generate() {
     var upload_layers = document.getElementsByClassName('upload_layers')[0]
     var collection_properties_container = document.getElementsByClassName('upload_properties')[0]
     collection_properties = collection_properties_container.children[0].children[1].querySelectorAll(':scope input, :scope textarea, :scope div input')
@@ -1082,7 +1092,6 @@ async function post_data() {
     res_y = collection_properties[6].value
     var upload_form = document.getElementById('upload_form');
     var file_data = new FormData(upload_form);
-    request = new XMLHttpRequest();
     file_data.append('image_dict', JSON.stringify(uploaded_data));
 
     sections = ["Assets", "Textures"]
@@ -1100,7 +1109,6 @@ async function post_data() {
             }
         }
     }
-
     // for (const [key, value] of  Object.entries(uploaded_data)) {
     //     for (const [subkey, subvalue] of  Object.entries(value)){
     //         console.log(subkey + "." + key + "." + subkey)
@@ -1115,20 +1123,7 @@ async function post_data() {
     //         file_data.append("texture." + key + "." + subkey, subvalue['file']);
     //     }
     // }
-    request.open('POST', ajax_url);
-    request.setRequestHeader('X-CSRFToken', get_cookie('csrftoken'));
 
-    request.send(file_data);
-
-    request.onreadystatechange = function () {
-        // Process the server response here (Sent from Django view inside JsonResponse)
-        if (request.readyState === XMLHttpRequest.DONE) {
-            if (request.status === 200) { //ifstatus is 200 - assume PROPER RESPONSE
-                //redirect here
-            }
-        }
-        close_loading_popup()
-    };
+    return file_data
 }
-
 window.addEventListener("load", main);

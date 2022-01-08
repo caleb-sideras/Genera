@@ -95,55 +95,64 @@ function ajax_validate_field(field_object) {
     })
 }
 
-function ajax_post(payload) {
-    return new Promise(function(resolve) {
-        console.log("url posted to: " + ajax_url)
-        if (ajax_url == null) {
-            alert("No URL found on the page!")
-            return
-        }
+function ajax_post_factory(post_type = "JSON") { //currently supports JSON and FORM data
 
-        if (window.XMLHttpRequest) { // Mozilla, Safari, IE7+ ...
-            http_request = new XMLHttpRequest();
-        } else if (window.ActiveXObject) { // IE 6 and older
-            http_request = new ActiveXObject("Microsoft.XMLHTTP");
-        }
-
-        // Send the POST request to the url/DJANGO VIEW
-        //setup for request header - not important
-        http_request.open('POST', ajax_url, true);
-        http_request.setRequestHeader('X-CSRFToken', get_cookie('csrftoken'));
-        http_request.setRequestHeader('contentType', 'application/json');
-        //end of setup
-
-        // Send the request as a JSON MAKE SURE TO ALWAYS HAVE THE CSRFTOKEN COOKIE !!! !! ! ! ! !! 
-        http_request.send(
-            JSON.stringify(
-                {...{'csrfmiddlewaretoken': get_cookie('csrftoken')}, ...payload}
-            )
-        )
-
-        http_request.onreadystatechange = function () {
-            // Process the server response here (Sent from Django view inside JsonResponse)
-            if (http_request.readyState === XMLHttpRequest.DONE) {
-                if (http_request.status === 200) { //ifstatus is 200 - assume PROPER RESPONSE
-                    // close_loading_popup()
-                    resolve(JSON.parse(http_request.responseText))
-                }
-                else if (http_request.status === 201){
-                    close_loading_popup()
-                    parsed_json = JSON.parse(http_request.responseText)
-                    alert(parsed_json["server_message"])
-                    return
-                }
-                else { //unhandled error
-                    alert("Unkown server error")
-                    return
-                }   
+    var generated_post_function = (payload) => {
+        return new Promise(function(resolve) {
+            console.log("url posted to: " + ajax_url)
+            if (ajax_url == null) {
+                alert("No URL found on the page!")
+                return
             }
-        };
-    })
+
+            if (window.XMLHttpRequest) { // Mozilla, Safari, IE7+ ...
+                http_request = new XMLHttpRequest();
+            } else if (window.ActiveXObject) { // IE 6 and older
+                http_request = new ActiveXObject("Microsoft.XMLHTTP");
+            }
+
+            // Send the POST request to the url/DJANGO VIEW
+            //setup for request header - not important
+            http_request.open('POST', ajax_url, true);
+            http_request.setRequestHeader('X-CSRFToken', get_cookie('csrftoken'));
+            
+            if (post_type == "JSON") {
+                http_request.setRequestHeader('Content-Type', 'application/json');
+                http_request.send(
+                    JSON.stringify(
+                        {...{'csrfmiddlewaretoken': get_cookie('csrftoken')}, ...payload}
+                    )
+                )
+            }
+            else 
+                http_request.send(payload)
+
+            http_request.onreadystatechange = function () {
+                // Process the server response here (Sent from Django view inside JsonResponse)
+                if (http_request.readyState === XMLHttpRequest.DONE) {
+                    if (http_request.status === 200) { //ifstatus is 200 - assume PROPER RESPONSE
+                        resolve(JSON.parse(http_request.responseText))
+                    }
+                    else if (http_request.status === 201) { //handled response from Django view
+                        close_loading_popup()
+                        parsed_json = JSON.parse(http_request.responseText)
+                        console.log(parsed_json["server_message"])
+                        return
+                    }
+                    else { //unhandled error
+                        alert("Unkown server error")
+                        return
+                    }   
+                }
+            };
+        })
+    }
+
+    return generated_post_function
 }
+
+ajax_post = ajax_post_factory("JSON")
+ajax_post_form = ajax_post_factory("FORM")
 
 function create_and_render_loading_popup(heading = "Loading") { //Not recommended to use more than 3 words - ull need to hard code edge cases for the offsets more.
     //CREATES THE LOOP ANIMATION IN THE CENTER OF THE SCREEN
@@ -219,7 +228,7 @@ function close_yes_no_popup() {
 }
 
 //refactor to take in any value/button
-async function credit_check(){
+function credit_check(){
     user_credits = parseInt(document.getElementsByClassName('credits_button')[0].innerHTML)
     collection_size =  parseInt(document.getElementById('collection_size').value)
     console.log(user_credits)
@@ -227,11 +236,11 @@ async function credit_check(){
     console.log(typeof(user_credits))
     console.log(typeof(collection_size))
     
-    return new Promise((res) => {
+    return new Promise((resolve, reject) => {
         if (collection_size > user_credits) {
-        return res(false)
+            return reject()
     }
-    return res(true)
+        return resolve()
     });
 }
 

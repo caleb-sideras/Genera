@@ -297,7 +297,14 @@ def upload_view(request):
             create_and_save_collection(calebs_gay_dict, db_collection, request.user)
             
             messages.success(request, message="Collection generated succesfully! You have been redirected to the collection page ;)")
-           
+
+            print("RETURNING COLLECTION")
+            return JsonResponse({"redirect_url": reverse("main:collection",
+                    kwargs={
+                        "username": request.user.username,
+                        "collection_name": db_collection.collection_name
+                    })}, status=200)
+
             return redirect(reverse("main:collection",
                     kwargs={
                         "username": request.user.username,

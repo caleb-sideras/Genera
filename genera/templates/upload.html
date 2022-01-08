@@ -173,26 +173,8 @@
       <input type="hidden" name="uploaded_data_dict" id="uploaded_data_dict" value="">
       <button
         type="button"
+        id="upload_button_submit"
         class="general_button_no_border light_purple_background shadow_strong rounded_container_no_padding"
-        onclick="yes_no_popup('Generate Collection?', 'Yes', 'No').then((response) =>{
-          if (response){
-            credit_check().then((response) => {
-              if (response){
-                close_yes_no_popup()
-                // this.nextElementSibling.click()
-                create_and_render_loading_popup('Generating Collection')
-                post_data()
-              }
-              else{
-                close_yes_no_popup()
-                alert('Not enough credits')
-              }
-            }) 
-          }
-          else{
-            close_yes_no_popup()
-          }
-        })"
       >
         <h4 class="no_margin generate">Generate</h4>
       </button>
