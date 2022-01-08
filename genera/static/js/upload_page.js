@@ -323,7 +323,6 @@ function add_smart_input(self, category) {
 }
 
 function update_sliders() {
-    console.log(uploaded_data)
     var get_layer_total = function(sliders) {
         var total = 0
         for (var i = 0; i < sliders.length; i++) {
