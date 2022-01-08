@@ -63,10 +63,11 @@ function open_images(self){
 
     card_element = (self.parentNode)
     temp = (self.parentNode).children[0].dataset.fullrez
-    temp2 = ((self.parentNode).children[1]).children[1].innerHTML // metadata
-    temp3 = ((self.parentNode).children[1]).children[0].innerHTML // title
-    temp4 = ((self.parentNode).children[1]).children[2].innerHTML // ifps_bool
-    temp5 = ((self.parentNode).children[1]).children[3].innerHTML //deployed_bool
+    image_data_elements = document.querySelectorAll('.all_collections_layout > div > div>input')
+    temp2 = ((self.parentNode).children[1]).children[0].dataset.metadata // metadata
+    temp3 = ((self.parentNode).children[1]).children[1].innerHTML // title
+    temp4 = ((self.parentNode).children[1]).children[0].dataset.ipfs_bool // ifps_bool
+    temp5 = ((self.parentNode).children[1]).children[2].children[0].style.display//deployed_bool
     if (card_element.children[0].dataset.ipfs) {
         token_uri = card_element.children[0].dataset.ipfs
     }
@@ -138,7 +139,7 @@ function open_images(self){
     mutipurpose_button_section.classList = 'mutipurpose_button_section'
     mutipurpose_button = document.createElement('div')
     mutipurpose_button.classList = 'general_button_no_border mutipurpose_button'
-
+    console.log(temp4)
     // ipfs, make ifps deletable
     if (temp4 == 'False') {
         temp_button = mutipurpose_button.cloneNode(true)
@@ -147,7 +148,7 @@ function open_images(self){
             await yes_no_popup("Permanently delete image?", "Delete", "Cancel")
             .then(function (reponse) {
                 if (reponse) {
-                    ajax_post({ 'delete_entry': temp3 })
+                    ajax_post({ 'delete_entry': ((self.parentNode).children[1]).children[0].dataset.id })
                     .then(function (response) { //Action that occurs after a response from the server was obtained - here (STATUS 200)
                         console.log(response["server_message"])
                         card_element.remove()
@@ -169,7 +170,7 @@ function open_images(self){
         button_link.appendChild(temp_button)
         mutipurpose_button_section.appendChild(button_link)
     }
-    if (temp5 == 'True') {
+    if (temp5 =='flex') {
         temp_button = mutipurpose_button.cloneNode(true)
         temp_button.appendChild(Object.assign(document.createElement('h4'), { textContent: 'OpenSea', style: 'color: dodgerblue' }))
         mutipurpose_button_section.appendChild(temp_button)
@@ -222,10 +223,10 @@ function next_element(self, bool){
         card_element = temp
         
         image = card_element.children[0].dataset.fullrez
-        metadata = (card_element.children[1]).children[1].innerHTML
-        temp3 = (card_element.children[1]).children[0].innerHTML
-        ifps_bool = (card_element.children[1]).children[2].innerHTML
-        deploy_bool = (card_element.children[1]).children[3].innerHTML
+        metadata = (card_element.children[1]).children[0].dataset.metadata
+        temp3 = (card_element.children[1]).children[1].innerHTML 
+        ifps_bool = (card_element.children[1]).children[0].dataset.ifps_bool
+        deploy_bool = (card_element.children[1]).children[0].dataset.deployed_bool
 
         parsed = JSON.parse(metadata)
 
@@ -324,6 +325,7 @@ async function delete_duplicates(){
 
         })
 }
+
 async function delete_collection(){
     await yes_no_popup("Delete ENTIRE Collection?", "Delete", "Cancel")
         .then(function (reponse) {
@@ -340,20 +342,21 @@ async function delete_collection(){
 
         })
 }
+
 function download_zip() {
     create_and_render_loading_popup("Downloading Collection")
     console.log('Generating zipfile');
     let images = document.querySelectorAll(".collection_card > img");
-    let metadata = document.querySelectorAll(".collection_card > div > pre");
+    let metadata = document.querySelectorAll(".collection_card > div > input");
 
     let zip = new JSZip();
     let folder_name = js_vars.dataset.collection_name + ".zip";
 
     for (let i = 0; i < images.length; i++) {
         let filename = images[i].dataset.name + ".png";
-        let url = images[i].src
+        let url = images[i].dataset.fullrez
         let metadata_name = images[i].dataset.name + ".json";
-        let json = metadata[i].innerHTML
+        let json = metadata[i].dataset.metadata
         JSZipUtils.getBinaryContent(url, function (err, data) {
             if (err) {
                 throw err // or handle the error

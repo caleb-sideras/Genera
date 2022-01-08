@@ -139,9 +139,6 @@ class CollectionImage(Model):
     ipfs_metadata_path =  models.URLField(null = True, blank = True, max_length=50)
     ipfs_bool = models.BooleanField(default=False)
 
-    # Smart Contract
-    deployed_bool =  models.BooleanField(default=False)
-
 class Token(Model):
 
     hash = models.UUIDField(default=uuid.uuid4, editable=True) #editable since we will generate new hashes every time this is requested

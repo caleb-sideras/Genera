@@ -59,10 +59,17 @@ def upload_view(request):
         horo, vert = PIL_image.size
         if horo != res_x or vert != res_y:
             PIL_image = PIL_image.resize((res_x, res_y))
+            print("resized")
         
         t.stop()
         return PIL_image
 
+    def file_to_pil_no_resize(file):
+        t.start()
+        PIL_image = Image.open(io.BytesIO(file.read()))
+        t.stop()
+        return PIL_image
+    
     def file_to_pil_cv2(file, res_x, res_y):  # Use this in case we make use of numpy arrays instead of PIL objects. Return after cv2.cvtColor to get the array.
         timeit_start = time.time()
 
@@ -109,15 +116,6 @@ def upload_view(request):
                 layernames = json.loads(request.POST.get('layernames'))
                 res_x = int(properties[3])
                 res_y = int(properties[4])
-                # could save extra computation if image < 200 and change css on front end
-                if res_y > 500 or res_x > 500:
-                    if res_x > res_y:
-                        res_y = int((res_y * 500) / res_x)
-                        res_x = 500
-                    else:
-                        res_x = int((res_x * 500) / res_y)
-                        res_y = 500
-    
                 texture_color = ImageColor.getcolor(properties[5], "RGB")
                 layers_list = [None] * len(layernames)
                 textures_list = [None] * len(layernames)
@@ -128,15 +126,16 @@ def upload_view(request):
                         layer_name = filename.split(".")[0]
                         count = int(filename.split(".")[1])
                         if layer_name =="asset":
-                            layers_list[count] = file_to_pil(file, res_x, res_y)
+                            layers_list[count] = file_to_pil_no_resize(file)
                             layers_list_names[count] = file.name.split(".")[0]
                         else:
-                            textures_list[count] = file_to_pil(file, res_x, res_y)
+                            textures_list[count] = file_to_pil_no_resize(file)
                             textures_list_names[count] = file.name.split(".")[0]
                 im = Image.new (
                     "RGBA", (res_x, res_y), (0, 0, 0, 0)
                 )
                 attributes = []
+                # metadata could be done in js
                 for i in range(len(layernames)):
                     if layers_list[i] and textures_list[i]:
                         texturedAsset = textureMapping(layers_list[i], textures_list[i], texture_color)
@@ -154,13 +153,15 @@ def upload_view(request):
                     "image": "",
                     "attributes": attributes
                 }
-                # print(metadata)
+                # could be done in js
                 try:
                     watermark = Image.open("./static/Assets/Background/genera_watermark.png")
                 except:
                     print("Could not open watermark")
                     return
+                
                 resized_watermark =  watermark.resize((res_x, res_y))
+                
                 im.paste(resized_watermark, (0,0), resized_watermark)
                 content = pil_to_bytes(im)    
                 # return HttpResponse(content, content_type="application/octet-stream")
@@ -176,6 +177,7 @@ def upload_view(request):
             #TEST FILE TRANSFER CODE
             # file_count = 0
             # for filename in request.FILES.keys():
+            #     print(filename)
             #     for file in request.FILES.getlist(filename): ##for this set of file get layer name and layer type
             #         if "$" in filename: ##handle mutliple files.
             #             individual_files = filename.split("$")
@@ -193,6 +195,7 @@ def upload_view(request):
             # print(f"Number of files: {file_count}")
             # print(request.POST["rarity_map"])
             # return render(request, "upload.html", context)
+            print("posted")
             if int(float(request.POST.get("size"))) > request.user.credits:
                 messages.error(request, message="Not enough credits")
                 return redirect(reverse("main:upload"))
@@ -205,18 +208,17 @@ def upload_view(request):
             calebs_gay_dict["Resolution_y"] = int(float(request.POST.get("resolution_y")))
             calebs_gay_dict["CollectionSize"] = int(float(request.POST.get("size")))
             calebs_gay_dict["TextureColor"] = request.POST.get("color")
-
+            new_dict = json.loads(request.POST.get("image_dict"))
             for value in calebs_gay_dict.values():
                 if not value:
                     messages.error(request, message=f"An Error has occured - data is missing. Please try again.")
                     return redirect(reverse("main:upload"))
 
-            if request.POST.get("rarity_map") == "":
-                messages.error(request, message="No Rarities recieved. Please try again.")
-                return redirect(reverse("main:upload"))
+            # if request.POST.get("rarity_map") == "":
+            #     messages.error(request, message="No Rarities recieved. Please try again.")
+            #     return redirect(reverse("main:upload"))
 
-            rarity_map = json.loads(request.POST.get("rarity_map"))
-
+            # rarity_map = json.loads(request.POST.get("rarity_map"))
             layers = {}
 
             db_collection = UserCollection.objects.get_or_create(user=request.user, collection_name=calebs_gay_dict["CollectionName"])
@@ -243,18 +245,10 @@ def upload_view(request):
             for filename in request.FILES.keys():
                 # print(request.FILES.keys())
                 for file in request.FILES.getlist(filename): ##for this set of file get layer name and layer type
-                    # print(file)
-                    # print(filename)
-                    # print(request.FILES.keys())
-                    # print(request.FILES.getlist(filename))
-                    if "$" in filename: ##handle mutliple files.
-                        individual_files = filename.split("$")
-                        if individual_files:
-                            layer_type = individual_files[0].split(".")[0]
-                            layer_name = individual_files[0].split(".")[1]
-                    else: ##handle 1 file
-                        layer_type = filename.split(".")[0]
-                        layer_name = filename.split(".")[1]
+                    print(file)
+                    layer_type = filename.split(".")[0]
+                    layer_name = filename.split(".")[1]
+                    file_name = file.name
                     file_name_no_extension = file.name.split(".")[0]
                     file_name_extension = file.name.split(".")[1]
                     full_file_name = f"{layer_type}.{layer_name}.{file_name_no_extension}.{file_name_extension}"
@@ -267,10 +261,10 @@ def upload_view(request):
                             "Assets": [],
                             "Textures": [],
                         }
-
+                    
                     if layer_name in layers:
-                        if layer_type == "asset":
-                            if int(float(rarity_map[full_file_name]) > 0):  # if rarity > 0
+                        if layer_type == "Assets":
+                            if int(float(new_dict[layer_name]['Assets'][file_name]['Rarity']) > 0):  # if rarity > 0
                                 layers[layer_name]["Assets"].append(
                                     {
                                         "Name": file_name_no_extension,
@@ -279,11 +273,11 @@ def upload_view(request):
                                             calebs_gay_dict["Resolution_x"],
                                             calebs_gay_dict["Resolution_y"]
                                         ),  # REPLACE WITH file_to_pil(file) WHEN NEED ACTUAL FILE OBJECT IN NUMPY
-                                        "Rarity": int(float(rarity_map[full_file_name])),
+                                        "Rarity": int(float(new_dict[layer_name]['Assets'][file_name]['Rarity'])),
                                     }
                                 )
-                        if layer_type == "texture":
-                            if int(float(rarity_map[full_file_name]) > 0):  # if rarity > 0
+                        if layer_type == "Textures":
+                            if int(float(new_dict[layer_name]['Textures'][file_name]['Rarity']) > 0):  # if rarity > 0
                                 layers[layer_name]["Textures"].append(
                                     {
                                         "Name": file_name_no_extension,
@@ -292,7 +286,7 @@ def upload_view(request):
                                             calebs_gay_dict["Resolution_x"],
                                             calebs_gay_dict["Resolution_y"]
                                         ),  # REPLACE WITH file_to_pil(file) WHEN NEED ACTUAL FILE OBJECT IN NUMPY
-                                        "Rarity": int(float(rarity_map[full_file_name])),
+                                        "Rarity": int(float(new_dict[layer_name]['Textures'][file_name]['Rarity'])),
                                     }
                                 )
 
@@ -492,7 +486,6 @@ def model_delete(sender, instance, **kwargs):
     except:
         print("Deletion of files failed OR files did not exist in the first place")
 
-
 def all_collections_view(request, username):
     context = {}
 
@@ -510,7 +503,6 @@ def all_collections_view(request, username):
             return render(request, "all_collections.html", context)
 
     return render(request, "all_collections.html", context)
-
 
 def collection_view(request, username, collection_name):
     context = {}
@@ -542,7 +534,6 @@ def collection_view(request, username, collection_name):
                 context["ipfs_links"] = json.dumps(list(collection_images.all().values_list('ipfs_metadata_path', flat=True))) 
             else:
                 context["ipfs_links"] = ""
-
         else:
             messages.error(request, "COLLECTION DOES NOT EXIST !! !! !!!! !! ! !  !!!!!")
             return render(request, "collection.html", context)
@@ -555,7 +546,7 @@ def collection_view(request, username, collection_name):
         print("we posted")
 
         if "image_name" in request.POST:
-            collection_image = collection_images.filter(deployed_bool = False, name=request.POST.get("entry_name")).first()
+            collection_image = collection_images.filter(name=request.POST.get("entry_name")).first()
             if collection_image:
                 print(collection_image.id)
                 collection_image.name = request.POST.get("image_name")
@@ -585,35 +576,35 @@ def collection_view(request, username, collection_name):
                                 status=201,
                             )
                     for entry in collection_images:
-                        if not entry.deployed_bool:
-                            if not entry.ipfs_bool:
-                                if user.credits <= 0:
-                                    messages.error(request, message="You ran out of credits")
-                                    return JsonResponse(
-                                        {"server_message": "USER RAN OUT OF CREDITS"},
-                                        status=201,
-                                    )
-                                else:
-                                    user.credits -= 1
-                                    user.save()
-                                print(entry.name)
+                        if not entry.ipfs_bool:
+                            if user.credits <= 0:
+                                messages.error(request, message="You ran out of credits")
+                                return JsonResponse(
+                                    {"server_message": "USER RAN OUT OF CREDITS"},
+                                    status=201,
+                                )
+                            else:
+                                user.credits -= 1
+                                user.save()
+                            print(entry.name)
                                 
-                                # uploading image to ipfs
-                                pinata_link_image = upload_pinata_filepath(entry.path[1:], entry.name)
-
-                                # getting entry metadata
-                                metadata = entry.metadata
-                                metadata_load =json.loads(metadata)
+                            # uploading image to ipfs
+                            pinata_link_image = upload_pinata_filepath(entry.path[1:], entry.name)
+                            print(pinata_link_image)
+                            # getting entry metadata
+                            metadata = entry.metadata
+                            metadata_load =json.loads(metadata)
                                 
-                                # saving metdata
-                                metadata_load["image"] = f"https://ipfs.io/ipfs/{pinata_link_image['IpfsHash']}"
-                                entry.metadata = json.dumps(metadata_load)
+                            # saving metdata
+                            metadata_load["image"] = f"https://ipfs.io/ipfs/{pinata_link_image['IpfsHash']}"
+                            entry.metadata = json.dumps(metadata_load)
 
-                                # uploading metadata w/image to ipfs & updating db
-                                pinata_link_data = upload_pinata_object(json.dumps(metadata_load), entry.name)
-                                entry.ipfs_metadata_path = f"https://ipfs.io/ipfs/{pinata_link_data['IpfsHash']}"
-                                entry.ipfs_bool = True
-                                entry.save()
+                            # uploading metadata w/image to ipfs & updating db
+                            pinata_link_data = upload_pinata_object(json.dumps(metadata_load), entry.name)
+                            print(pinata_link_data)
+                            entry.ipfs_metadata_path = f"https://ipfs.io/ipfs/{pinata_link_data['IpfsHash']}"
+                            entry.ipfs_bool = True
+                            entry.save()
                                 
                             pinata_links.append(entry.ipfs_metadata_path)
                             entry_ids.append(entry.id)
@@ -648,7 +639,7 @@ def collection_view(request, username, collection_name):
                     )
             elif "delete_entry" in received_json_data:
                 if request.user.is_authenticated:
-                    collection_query = collection_images.filter( deployed_bool = False, name = received_json_data['delete_entry']).delete() # change to id
+                    collection_query = collection_images.filter(id = received_json_data['delete_entry']).delete() # change to id
                     print(f"deleted {received_json_data['delete_entry']}")
                     user_collection.collection_size = user_collection.collection_size - 1
                     user_collection.save()
@@ -665,21 +656,19 @@ def collection_view(request, username, collection_name):
                     )
             elif "delete_duplicates" in received_json_data:
                 if request.user.is_authenticated:
-                    collection_query = collection_images.filter(deployed_bool = False)
                     i = 0
-                    while i < len(collection_query):
-                        # print(f"{len(collection_query)} LENGTH OF QUERY")
-                        entry_metadata = json.loads(collection_query[i].metadata)
+                    while i < len(collection_images):
+                        # print(f"{len(collection_images)} LENGTH OF QUERY")
+                        entry_metadata = json.loads(collection_images[i].metadata)
                         # print(f"{entry_metadata} COMPARISON METADATA {i}")
-                        for j in range(len(collection_query) - 1 - i):           
-                            value_metadata = json.loads(collection_query[j + 1 + i].metadata)
+                        for j in range(len(collection_images) - 1 - i):           
+                            value_metadata = json.loads(collection_images[j + 1 + i].metadata)
                             # print(f"{value_metadata} CURRENT METADATA {j + 1 + i}")
                             if entry_metadata['attributes'] == value_metadata['attributes']:
-                                collection_query[j + 1 + i].delete()
+                                collection_images[j + 1 + i].delete()
                                 user_collection.collection_size = user_collection.collection_size - 1
-                                # print(f"{collection_query[j + 1 + i]} deleted {j + 1 + i}")
+                                # print(f"{collection_images[j + 1 + i]} deleted {j + 1 + i}")
                         i = i + 1
-                        collection_query = collection_images.filter(deployed_bool = False)
                     user_collection.duplicates_deleted = True
                     user_collection.save()
 
@@ -724,7 +713,6 @@ def collection_view(request, username, collection_name):
             pass
         ##AJAX HANDLING SECTION END
     return render(request, "collection.html", context)
-
 
 def about_view(request):
     context = {}

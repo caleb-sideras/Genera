@@ -49,23 +49,20 @@
                             <img loading="lazy" src="{{entry.path_compressed}}" data-fullrez ="{{entry.path}}" data-name="{{entry.name}}" alt="{{entry.name}} image should be here" class="nft_image" onclick="open_images(this)">
                             {% endif %}
                             <div>
-                                <input type="hidden" id="image_vars" data-name="{{entry.name}}" data-metadata="{{entry.metadata}}" data-ipfs_bool="{{entry.ipfs_bool}}" data-deployed_bool="{{entry.deployed_bool}}" data-token_uri="{{entry.ipfs_metadata_path}}"/>
+                                <input type="hidden" id="image_vars" data-name="{{entry.name}}" data-metadata="{{entry.metadata}}" data-ipfs_bool="{{entry.ipfs_bool}}" data-deployed_bool="{{entry.deployed_bool}}" data-token_uri="{{entry.ipfs_metadata_path}}" data-id="{{entry.id}}"/>
                                 <p class="no_margin center">{{entry.name}}</p> 
-                                <!-- <pre style="display: none;">{{entry.metadata}}</pre>
-                                <div style="display: none;">{{entry.ipfs_bool}}</div>
-                                <div style="display: none;">{{entry.deployed_bool}}</div> -->
-                                    <div class="collection_card_button_container">
-                                        {% if entry.ipfs_bool%}
-                                            <div class="collection_card_button white_background" style=" cursor: default;" >
-                                                <img src="/static/icons/check.svg" alt="check">
-                                                <h5>IPFS</h5>
-                                            </div>
-                                        {% endif %}
+                                <div class="collection_card_button_container">
                                     <div style='display: none; cursor: default;' class="collection_card_button white_background" style=" cursor: auto;"> 
                                         <img src="/static/icons/check.svg" alt="check">
                                         <h5>Mint</h5>
                                     </div>
+                                    {% if entry.ipfs_bool%}
+                                    <div class="collection_card_button white_background" style=" cursor: default;" >
+                                        <img src="/static/icons/check.svg" alt="check">
+                                        <h5>IPFS</h5>
                                     </div>
+                                    {% endif %}
+                                </div>
                                 <!-- </a> -->
                             </div>
                         </div>
@@ -128,7 +125,7 @@
                 </button>
 
                 {% if not collection_data.collection_ifps_bool and not collection_data.duplicates_deleted %}
-                    <button type="button" class="general_button_no_border orange_background shadow_strong rounded_container_no_padding" style="cursor: default" onclick="delete_duplicates()">
+                    <button type="button" class="general_button_no_border orange_background shadow_strong rounded_container_no_padding" onclick="delete_duplicates()">
                         <h4 class="no_margin">Delete Duplicates</h4>
                     </button>
                 {% endif %}

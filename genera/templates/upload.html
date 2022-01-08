@@ -39,19 +39,10 @@
 
   <div class="upload_main">
     <div class="upload_layers rounded_container shadow_strong">
-      <!-- shadow_strong -->
+      <h3 style = "display: none;">Assets</h3>
       <h3 class="no_margin center" style="margin-bottom: 15px; font-size: 1.3rem;">Layers</h3>
-<!-- <div id="wrapper" class="open">
-  <div id="list">
-    <div style="display: flex;"><input type="file" name="asset.background" style="margin-bottom: 5px;"><h5>Remove</h5></div>
-    <div style="display: flex;"><input type="file" name="asset.background" style="margin-bottom: 5px;"><h5>Remove</h5></div>
-    <div style="display: flex;"><input type="file" name="asset.background" style="margin-bottom: 5px;"><h5>Remove</h5></div>
-    <div style="display: flex;"><input type="file" name="asset.background" style="margin-bottom: 5px;"><h5>Remove</h5></div>
-  </div>
-</div> -->
+
       <div class="upload_layers_buttons">
-        <!-- <div class="general_button white_background"><div class="close_button" onclick="delete_button()">X</div><h5 class="no_margin"">Textures</h5><img data-layer="textures" onclick="add_smart_input(this)" class="color_image_orange grow" src="{% static 'icons/plus.svg' %}" onclick="add_layer()">
-          </div> -->
       </div>
       <div class="add_layer_section">
         <input
@@ -179,6 +170,7 @@
       </button>
       <p id="cooldown">30 second cooldown</p>
       <input type="hidden" name="rarity_map" id="rarity_map" value="">
+      <input type="hidden" name="uploaded_data_dict" id="uploaded_data_dict" value="">
       <button
         type="button"
         class="general_button_no_border light_purple_background shadow_strong rounded_container_no_padding"
@@ -187,7 +179,9 @@
             credit_check().then((response) => {
               if (response){
                 close_yes_no_popup()
-                this.nextElementSibling.click()
+                // this.nextElementSibling.click()
+                create_and_render_loading_popup('Generating Collection')
+                post_data()
               }
               else{
                 close_yes_no_popup()
@@ -202,6 +196,7 @@
       >
         <h4 class="no_margin generate">Generate</h4>
       </button>
+      <!-- button not needed below -->
       <input type="submit" style="display:none;">
 
       <div style="display: none;" class="update_layer_parameters_menu rounded_container shadow_strong">
