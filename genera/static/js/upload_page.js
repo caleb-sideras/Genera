@@ -323,6 +323,7 @@ function add_smart_input(self, category) {
 }
 
 function update_sliders() {
+    console.log(uploaded_data)
     var get_layer_total = function(sliders) {
         var total = 0
         for (var i = 0; i < sliders.length; i++) {
@@ -1021,16 +1022,12 @@ async function validate_and_post_ajax_form() {
     var form = document.getElementById("upload_form")
     var fields = form.querySelectorAll(".upload_properties input:not(input[type='color']), .upload_properties textarea")
 
-    //iterate over uploaded_data and do all checks here prior to sending
-    for (const [key, value] of Object.entries(uploaded_data)) {
-        var assets = Object.keys(value["Assets"]);
-        var textures = Object.keys(value["Textures"]);
-        if (assets.length == 0) {
-            create_notification("No Assets", "You did not add any assets. Submission prevented.", duration = 10000, "error")
-            return
-        }
+    if (uploaded_data.isEmpty()) {
+        create_notification("Asset/Texture missing", "You did not add any layers for Assets or Textures. Submission prevented.", duration = 10000, "error")
+        return
     }
 
+    //clientside check all fields validity.
     for (var i = 0; i < fields.length; i++) {
         if (fields[i].checkValidity() && !fields[i].classList.contains("field_error")) {
             continue
@@ -1040,11 +1037,39 @@ async function validate_and_post_ajax_form() {
         }
     }
 
+    //iterate over uploaded_data and do all checks here prior to sending
+    for (const [key, value] of Object.entries(uploaded_data)) {
+        var assets = Object.keys(value["Assets"]);
+        var textures = Object.keys(value["Textures"]);
+        console.log(key)
+        console.log(value)
+        if (assets.length == 0) {
+            create_notification("Missing assets", `'${key}' Layer has no file assets attached! Please add some files or remove this layer.`, duration = 10000, "error")
+            return
+        }
+
+        //iterate over assets and check if they have a Rarity key
+        for (const asset of assets) {
+            if (value["Assets"][asset]['Rarity'] == undefined || value["Assets"][asset]['Rarity'] == "0") {
+                create_notification("Missing Rarity", `'${value["Assets"][asset]['file']['name']}' asset from the '${key}' Layer, has no Rarity specified!`, duration = 10000, "error")
+                return
+            }
+        }
+
+        //do the same for textures
+        for (const texture of textures) {
+            if (value["Textures"][texture]['Rarity'] == undefined || value["Textures"][texture]['Rarity'] == "0") {
+                create_notification("Missing Rarity", `'${value["Textures"][texture]['file']['name']}' texture from the '${key}' layer has no rarity specified!`, duration = 10000, "error")
+                return
+            }
+        }
+        //maybe check for file presence inside the file object? - idk if neccessary since we checking rarities anyways.
+    }
+
     // if passed all checks, post the ajax form.
     console.log("Validation successful");
     create_and_render_loading_popup("Generating collection")
     var form_data = await generate_form_data_for_ajax_post_generate().then(data => data)
-    // console.log(form_data)
 
     ajax_post_form(form_data)
         .then(response => {
