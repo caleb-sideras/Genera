@@ -2,6 +2,9 @@ button_section_layers = null
 button_section_textures = null
 button_section_collection = null
 uploaded_data = null
+active_section = null
+active_layer = null
+active_element = null
 
 function main() {
     uploaded_data = {}
@@ -143,7 +146,7 @@ function add_smart_input(self, category) {
                 open_images(section_name, layer_name, uploaded_data[layer_name][section_name], uploaded_data[layer_name][section_name][file_name])
             }
         }
-
+        
         var remove_file = function(full_file_name){
             var attachments = upload_button.files; // <-- reference your file input here
             var fileBuffer = new DataTransfer();
@@ -245,6 +248,7 @@ function add_smart_input(self, category) {
         // think later or on click
         slider_section.addEventListener('mousedown', function () {
             show_file(self, this.previousElementSibling)
+            highlight_file(this.previousElementSibling)
         })
 
         // var deletetext = Object.assign(document.createElement('h5'), { textContent: 'Remove', classList: 'no_margin'})
@@ -267,6 +271,7 @@ function add_smart_input(self, category) {
         image_name.classList = 'no_margin'
         image_name.addEventListener('click', function () {
             show_file(self, this)
+            highlight_file(this)
         })
 
         upload_section.appendChild(image_name)
@@ -317,6 +322,8 @@ function add_smart_input(self, category) {
         }      
         expand_button(self.nextElementSibling.lastElementChild)
         uploadbtn.remove()
+        highlight_file((((self.nextElementSibling).nextElementSibling).children[0]).children[0])
+        
     })
     // using dict using post, dont need this element post upload
     component_wrapper.appendChild(uploadbtn)
@@ -465,8 +472,8 @@ function add_layer() {
         }.bind({layers_row: layers_row, textures_row: textures_row})
     
         //update dict when layername change.... jesus!
-        layer_name.addEventListener('click', function () { open_images('Assets', this.previousElementSibling.innerHTML, uploaded_data[this.previousElementSibling.innerHTML]['Assets'], null, true); handle_layer_properties_update();}.bind(add_layer_img))
-        texture_name.addEventListener('click', function () { open_images('Textures', this.previousElementSibling.innerHTML, uploaded_data[this.previousElementSibling.innerHTML]['Textures'],null, true);}.bind(add_layer_img_2))
+        layer_name.addEventListener('click', function () { open_images('Assets', this.previousElementSibling.innerHTML, uploaded_data[this.previousElementSibling.innerHTML]['Assets'], null, true); handle_layer_properties_update(); highlight_file((((this.nextElementSibling).nextElementSibling).children[0]).children[0])}.bind(add_layer_img))
+        texture_name.addEventListener('click', function () { open_images('Textures', this.previousElementSibling.innerHTML, uploaded_data[this.previousElementSibling.innerHTML]['Textures'], null, true); highlight_file((((this.nextElementSibling).nextElementSibling).children[0]).children[0])}.bind(add_layer_img_2))
 
         layers_row.appendChild(layer_name)
         layers_row.appendChild(add_layer_img)
@@ -661,6 +668,19 @@ function open_images(section, layer, new_items, optional_image = null, double_cl
     }
 }
 
+function highlight_file(context){
+    update_active_elements(context)
+    active_element.style = "color: var(--image-text-color);"
+    context.style = "color: var(--medium-grey-color);"
+    active_element = context
+}
+function update_active_elements(context){
+    if (active_element == null) {
+        active_element = context
+    }
+    active_element = context
+    active_layer = (((context.parentElement).parentElement).parentElement.children[1])
+}
 function remove_image(self, context, name){
     const navObj = (obj, currentKey, direction) => {
         return Object.values(obj)[Object.keys(obj).indexOf(currentKey) + direction];
@@ -720,12 +740,14 @@ function switch_tabs(target_tab, self) {
         upload_textures.style.display = "none"
         self.style.background = "#2C2F36" // change color later to match css custom properties
         self.nextElementSibling.style.background = null
+        active_section = "Assets"
     }
     if (target_tab == "textures") {
         upload_textures.style.display = "block"
         upload_layers.style.display = "none"
         self.style.background = "#2C2F36"
         self.previousElementSibling.style.background = null
+        active_section = "Textures"
     }
 }
 
