@@ -82,9 +82,6 @@ tempDictPreview = {
     },
 }
 
-# metadataArray = [] # Example [t-shirt (texture1), t-shirt (texture2), crop-top (texture2), t-shirt, crop-top (texture1)] (RR)
-metadataDict = {} # Example {Body: metadataArray, Hair: metadataArray, Clothes: metadataArray} (NR)
-
 texturedAssetArray = [] # Example [texturedAsset1, texturedAsset2, texturedAsset3, texturedAsset4, texturedAsset5] (RR)
 texturedAssetDict = {} # Example {Body: texturedAssetArray1, Hair: texturedAssetArray2, Clothes: texturedAssetArray3] (NR)
 
