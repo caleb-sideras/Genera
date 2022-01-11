@@ -705,6 +705,7 @@ body {
   max-width: 100px;
   text-align: center;
   margin: 2px;
+  cursor: pointer;
 }
 #scroller li >img {
   max-height: 100px;

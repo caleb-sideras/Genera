@@ -5,6 +5,7 @@ uploaded_data = null
 active_section = null
 active_layer = null
 active_element = null
+active_carousel = null
 
 function main() {
     uploaded_data = {}
@@ -81,8 +82,7 @@ async function add_uploaded_files(filelist, context, section){
     if (upload_preview.children[0].innerHTML == 'Preview') {
         new_items = uploaded_data[layer_name][section]
     }
-    open_images(section, layer_name, new_items)
-    return new_items
+    return [section,layer_name, new_items]
 }
 
 function add_smart_input(self, category) {
@@ -249,6 +249,7 @@ function add_smart_input(self, category) {
         slider_section.addEventListener('mousedown', function () {
             show_file(self, this.previousElementSibling)
             highlight_file(this.previousElementSibling)
+            find_carousel(this.previousElementSibling.innerHTML)
         })
 
         // var deletetext = Object.assign(document.createElement('h5'), { textContent: 'Remove', classList: 'no_margin'})
@@ -272,6 +273,7 @@ function add_smart_input(self, category) {
         image_name.addEventListener('click', function () {
             show_file(self, this)
             highlight_file(this)
+            find_carousel(this.innerHTML)
         })
 
         upload_section.appendChild(image_name)
@@ -309,20 +311,20 @@ function add_smart_input(self, category) {
         } else if (category == 2) {
             var section_name = 'Textures'
         }
-        // check duplicate file names and not include them
-        fileList = await add_uploaded_files(fileList, self, section_name)
+        [section, layer_name, fileList] = await add_uploaded_files(fileList, self, section_name)
         for (const [key, value] of Object.entries(fileList)) {
             var return_compoments = build_upload_section(key, uploadbtn)
             uploadbtn = return_compoments[1]
             component_wrapper.appendChild(return_compoments[0])
             update_sliders()
         }
+        open_images(section, layer_name, fileList)
         if (Object.keys(fileList).length > 0) {
             create_notification("Upload success", "You have succesfully uploaded " + Object.keys(fileList).length + " file(s) into the selected component", duration = 5000, "success")
         }      
         expand_button(self.nextElementSibling.lastElementChild)
         uploadbtn.remove()
-        highlight_file((((self.nextElementSibling).nextElementSibling).children[0]).children[0])
+        // highlight_file((((self.nextElementSibling).nextElementSibling).children[0]).children[0])
         
     })
     // using dict using post, dont need this element post upload
@@ -623,27 +625,29 @@ function open_images(section, layer, new_items, optional_image = null, double_cl
         var section_layer = section + " - " + layer
         var first_file = ""
 
-        //TODO works but smelly
+        //TODO works but smelly -- it isn't kinge!
         if (!double_click && !optional_image || upload_preview.children[0].innerHTML != section_layer) {
             
-            
+            let condition_check = false
             if (optional_image) {
                 first_file = optional_image
             }
             else{
-                console.log(section)
-                console.log(layer)
-                console.log(uploaded_data[layer][section])
-                console.log(Object.keys(uploaded_data[layer][section]))
+                // console.log(section)
+                // console.log(layer)
+                // console.log(uploaded_data[layer][section])
+                // console.log(Object.keys(uploaded_data[layer][section]))
                 let [key] = Object.keys(uploaded_data[layer][section])
                 first_file = uploaded_data[layer][section][key]
             }
-            
 
-            if (upload_preview.children[0].innerHTML != section_layer)
-            {
+
+            if (upload_preview.children[0].innerHTML != section_layer) {
+                condition_check = true
+                console.log(condition_check)
                 upload_preview.children[4].innerHTML = ""
                 replace_image(URL.createObjectURL(first_file['file']), first_file['file'].name, section_layer);
+                new_items = uploaded_data[layer][section]
             }
 
 
@@ -652,28 +656,77 @@ function open_images(section, layer, new_items, optional_image = null, double_cl
                 var list_element_img = document.createElement('img')
                 var list_element_text = document.createElement('h5')
 
-                list_element.style = "cursor: pointer;"
                 list_element_img.src = value['compressed_url']
                 list_element_text.innerHTML = key
                     
-                list_element.addEventListener('click', async function () { replace_image(URL.createObjectURL(value['file']), key, section_layer) })
+                list_element.addEventListener('click', async function () { replace_image(URL.createObjectURL(value['file']), key, section_layer); highlight_carousel(this); find_file(this.children[1].innerHTML, section) })
 
                 list_element.appendChild(list_element_img)
                 list_element.appendChild(list_element_text)
                 document.getElementById("scroller").appendChild(list_element)
-                    
             }
+
+            if (condition_check) {
+                console.log(first_file['file'].name)
+                find_carousel(first_file['file'].name, true, section,)
+                condition_check = false
+            }
+           
         }
 
     }
 }
 
 function highlight_file(context){
-    update_active_elements(context)
+    if (active_element == null) {
+        active_element = context
+    }
     active_element.style = "color: var(--image-text-color);"
     context.style = "color: var(--medium-grey-color);"
     active_element = context
 }
+
+function find_file(name, section) {
+    console.log(name)
+    console.log(section)
+    if (section=='Assets') {
+        var upload_section = document.getElementsByClassName("upload_layers")[0]
+    }else {
+        var upload_section = document.getElementsByClassName("upload_layers")[1]
+    }
+    const file_elements = upload_section.querySelectorAll("#wrapper > div")
+    for (const element of file_elements) {
+        if (element.children[0].innerHTML==name) {
+            highlight_file(element.children[0])
+            break
+        }
+    }
+    
+}
+
+function highlight_carousel(context){
+    active_carousel.children[1].style = "color: var(--text-color-2);"
+    context.children[1].style = "color: var(--medium-grey-color);"
+    active_carousel = context
+}
+
+function find_carousel(name, active = null, file = null){
+    const carousel = document.querySelectorAll("#scroller > li")
+    for (const element of carousel) {
+        if (element.children[1].innerHTML == name) {
+            console.log(element.children[1].innerHTML)
+            if(active){
+                active_carousel = element
+            }
+            highlight_carousel(element)
+            if (file) {
+                find_file(element.children[1].innerHTML, file)
+            }  
+            break
+        }
+    }
+}
+
 function update_active_elements(context){
     if (active_element == null) {
         active_element = context
@@ -681,11 +734,11 @@ function update_active_elements(context){
     active_element = context
     active_layer = (((context.parentElement).parentElement).parentElement.children[1])
 }
+
 function remove_image(self, context, name){
     const navObj = (obj, currentKey, direction) => {
         return Object.values(obj)[Object.keys(obj).indexOf(currentKey) + direction];
     };
-
     var section = (((context.upload.parentNode).parentNode).parentNode).parentNode.children[0].innerHTML
     var layer = (context.upload.parentNode).parentNode.children[1].innerHTML
     var image = context.upload.children[0].innerHTML
@@ -700,10 +753,16 @@ function remove_image(self, context, name){
             }
             else{
                 replace_image(URL.createObjectURL(replace_element['file']), replace_element['file'].name)
+                // console.log(context.upload.previousElementSibling.children[0])
+                highlight_file(context.upload.previousElementSibling.children[0])
+                find_carousel(context.upload.previousElementSibling.children[0].innerHTML)
             }
         }
         else{
             replace_image(URL.createObjectURL(replace_element['file']), replace_element['file'].name)
+            // console.log(context.upload.nextElementSibling.children[0])
+            highlight_file(context.upload.nextElementSibling.children[0])
+            find_carousel(context.upload.nextElementSibling.children[0].innerHTML)
         }  
     }
     remove_image_carousel(image)
