@@ -1,7 +1,7 @@
 from time import timezone
 from django.http.response import HttpResponse
 from django.shortcuts import render
-from main.view_tools import generate_token, generate_stripe_products_context,ajax_redirect
+from main.view_tools import *
 from genera.settings import MEDIA_DIR, DEFAULT_FROM_EMAIL, BASE_DIR, STRIPE_PUBILC_KEY, STRIPE_PRIVATE_KEY
 from main.models import User
 from main.forms import *

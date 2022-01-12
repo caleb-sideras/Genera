@@ -6,6 +6,7 @@ import uuid
 from django.urls import reverse
 from genera.settings import STRIPE_PRIVATE_KEY
 from django.contrib import messages
+import json
 import stripe
 stripe.api_key = STRIPE_PRIVATE_KEY
 
@@ -28,6 +29,10 @@ def generate_token(request, type="A", user=None):
         
     return {"token_instance": token_instance, "token_url": token_url}
 
+def ajax_redirect(url = ""):
+    return JsonResponse({"url": url}, status=201)
+
+#STRIPE HELPER FUNCTIONS
 def generate_stripe_products_context():
     products =  []
     all_prices_list = stripe.Price.list(limit=10)["data"]
@@ -43,5 +48,22 @@ def generate_stripe_products_context():
         products.append(product_data)
     return products
 
-def ajax_redirect(url = ""):
-    return JsonResponse({"url": url}, status=201)
+#status = expired/complete/open
+def fetch_stripe_session_history_for_user(status):
+    def specific_session_history(user):
+        sessions = stripe.checkout.Session.list()["data"]
+        user_sessions = [session for session in sessions if session["metadata"]["user_id"] == str(user.id) and session["status"] == status]
+        return user_sessions
+        
+    return specific_session_history
+#3 functions to get different sessions from a user.
+stripe_user_session_history_open = fetch_stripe_session_history_for_user("open")
+stripe_user_session_history_expired = fetch_stripe_session_history_for_user("expired")
+stripe_user_session_history_complete = fetch_stripe_session_history_for_user("complete")
+
+def fetch_stripe_session_product_and_price(stripe_session_obbject):
+    
+    price = stripe.Price.retrieve(stripe_session_obbject["metadata"]["price_id"])
+    product = stripe.Product.retrieve(price["product"])
+    return (product,price)
+
