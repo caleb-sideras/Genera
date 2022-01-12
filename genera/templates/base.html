@@ -4,6 +4,7 @@
 
 <html lang="en">
   <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link
       rel="stylesheet"
       type="text/css"
@@ -50,8 +51,11 @@
             alt=""
           />
         </a>
-         <div class="dropdown">
-          <div><p style="margin-left: 30px">Tools</p></div>
+      </div>
+      <div class="left_navbar hide_burger">
+        <div class="dropdown">
+          <!-- style="margin-left: 30px" -->
+          <div><p>Tools</p></div>
           <div class="dropdown-content shadow_strong">
             <a href="{% url 'main:upload' %}">
               <p>NFT Maker/Minter</p>
@@ -64,22 +68,21 @@
             </a>
           </div>  
         </div>
-
         <div class="dropdown">
-          <div><p>Info</p></div>
-            <div class="dropdown-content shadow_strong">
-              <a href="{% url 'main:documentation' %}">
-                <p>Docs</p>
-              </a>
-              <a href="{% url 'main:about' %}">
-                <p>About</p>
-              </a>
-            </div> 
+            <div><p>Info</p></div>
+              <div class="dropdown-content shadow_strong">
+                <a href="{% url 'main:documentation' %}">
+                  <p>Docs</p>
+                </a>
+                <a href="{% url 'main:about' %}">
+                  <p>About</p>
+                </a>
+              </div>
         </div>
+        <div id="burger_flex" style="flex: 1;"></div>
+        <button class="btn_toggle">Toggle Theme</button> 
       </div>
-
       <div class="right_navbar">
-        <button class="btn_toggle">Toggle Theme</button>
         {% if request.user.is_authenticated%}
         <div class="dropdown">
           <button class="dropbtn light_purple_background  rounded_container_no_padding">
@@ -104,6 +107,7 @@
         <a href="{% url 'payments:checkout'%}">
           <button class="credits_button orange_background dropbtn" title="Credits">{{request.user.credits}}</button>
         </a>
+        <div class="burger" style="display: none;">button</div>
         {% else %}
         <div class="dropdown">
           <a href="{% url 'main:login' %}" style="text-decoration: none">
@@ -114,6 +118,34 @@
         </div>
         {% endif %}
       </div>
+    </div>
+    <div class="burger_navbar">
+        <div class="dropdown_burger">
+          <div class="burger_1"><p>Tools</p></div>
+          <div class="burger_2">
+            <a href="{% url 'main:upload' %}">
+              <p>NFT Maker/Minter</p>
+            </a>
+            <a href="#" class="disable_content">
+              <p>NFT Minter</p>
+            </a>
+            <a href="#" class="disable_content">
+              <p>Texture Mapping</p>
+            </a>
+          </div>  
+        </div>
+        <div class="dropdown_burger">
+            <div><p>Info</p></div>
+              <div class="burger_2">
+                <a href="{% url 'main:documentation' %}">
+                  <p>Docs</p>
+                </a>
+                <a href="{% url 'main:about' %}">
+                  <p>About</p>
+                </a>
+              </div>
+        </div>
+        <button class="btn_toggle">Toggle Theme</button> 
     </div>
 
     {% block body_block %}{% endblock %}

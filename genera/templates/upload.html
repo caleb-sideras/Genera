@@ -12,31 +12,24 @@
 
 <form method="post" id="upload_form" enctype="multipart/form-data" class="upload_wrapper">
   {% csrf_token %}
-  <div class="upload_upper">
-    <div class="upload_section_swap rounded_container shadow_strong">
+
+  <div class="upload_main">
+    <div class="upload_layers_wrapper">
+      <div class="upload_section_swap rounded_container shadow_strong">
       <img
         src="{% static 'icons/layer2.svg' %} "
         onclick="switch_tabs('layers', this)"
         tabindex="0"
         
       />
-      <!-- class="color_icon_background" -->
       <img
         src="{% static 'icons/texture2.svg' %}"
         onclick="switch_tabs('textures', this)"
         tabindex="0"
         
       />
-      <!-- class="color_icon_background" -->
-      <!-- <img
-        class="grow color_image_dark"
-        src="{% static 'icons/rarity.svg' %}"
-      /> -->
     </div>
-  </div>
-
-  <div class="upload_main">
-    <div class="upload_layers rounded_container shadow_strong">
+      <div class="upload_layers rounded_container shadow_strong">
       <h3 style = "display: none;">Assets</h3>
       <h3 class="no_margin center" style="margin-bottom: 15px; font-size: 1.3rem;">Layers</h3>
       <div class="upload_layers_buttons">
@@ -56,19 +49,13 @@
         />
       </div>
       
-    </div>
-    <div
-      class="upload_layers rounded_container"
-      style="display: none"
-    >
-    <!-- shadow_strong -->
+      </div>
+      <div class="upload_layers rounded_container" style="display: none">
       <h3 class="no_margin center" style="margin-bottom: 15px; font-size: 1.3rem;">Textures</h3>
       <div class="upload_layers_buttons">
-        <!-- <div class="general_button white_background"><h5 class="no_margin"">Textures</h5><img data-layer="textures" onclick="add_smart_input(this)" class="color_image_orange grow" src="{% static 'icons/plus.svg' %}" onclick="add_layer()">
-          </div> -->
       </div>
-    </div>
-
+      </div>
+    </div> 
     <div class="upload_preview" style="color: aliceblue">
       <h3></h3>
       <img src="{% static 'Assets/Examples/1.png' %}"/>
