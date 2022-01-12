@@ -16,6 +16,7 @@ from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from pathlib import Path
+from django.http import HttpResponseRedirect
 import json
 from django.http import JsonResponse, RawPostDataException
 from django.core.exceptions import PermissionDenied, ValidationError, BadRequest
@@ -335,21 +336,22 @@ def login_view(request):
                 messages.success(request, message="Logged in succesfully!")
                 return redirect(reverse("main:main_view"))
             except ValidationError as msg:
-                messages.error(request, msg)
+                msg = msg.args[0]
+                messages.error(request, str(msg))
                 login_form.add_error(None, msg)
 
     form_context = {"form": login_form, "button_text": "Log in", "identifier": form_id, "title": "Log in to Genera", "extra" : True}
 
     return render(request, 'base_form.html', form_context)
 
-def logout_view(request):
+def logout_view(request, current_extension):
     if not request.user.is_authenticated:
         error_params = {"title": "Logout", "description": "Attempt to logout when not logged in.", "code": "320XD"}
         raise PermissionDenied(json.dumps(error_params))
 
     logout(request)
     messages.success(request, 'Logged out Succesfully!')
-    return redirect(reverse('main:main_view'))
+    return HttpResponseRedirect(current_extension)
 
 def register_view(request):
     if request.user.is_authenticated:
