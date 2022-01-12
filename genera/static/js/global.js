@@ -37,20 +37,19 @@ function main() {
     }
 
     create_server_notification()
-    
-    // Select the button
-    const btn = document.querySelector(".btn_toggle");
 
-    // Listen for a click on the button
-    btn.addEventListener("click", function () {
-        if (localStorage.lightMode == "dark") {
-            localStorage.lightMode = "light";
-            document.body.classList = "";
+
+    //dark mode switch
+    document.querySelector(".btn_toggle").addEventListener("click", function () {
+        if (localStorage.dark_mode) {
+            localStorage.removeItem("dark_mode");
+            document.documentElement.classList.remove("dark-mode-root");
         } else {
-            localStorage.lightMode = "dark";
-            document.body.classList = "dark-mode";
+            localStorage.dark_mode = true;
+            document.documentElement.classList.add("dark-mode-root");
         }
-    }); 
+    });
+    
     //showcase of new ajax function
     if (typeof(document.getElementById("button")) != 'undefined' && document.getElementById("button") != null) {
         document.getElementById("button").addEventListener("click", function() {
