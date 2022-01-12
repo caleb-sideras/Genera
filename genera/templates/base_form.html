@@ -8,6 +8,11 @@
         <div>
             {{form.as_p}}
         </div>
+
+        {%if extra%}
+            <a href="{% url 'main:register' %}">Create an account</a>
+            <a href="{% url 'main:password_reset' %}">Forgot password?</a>
+        {%endif%}
         <button class="light_grey_background general_button_no_border" name="{{identifier}}" type="submit">
             {{button_text}}
         </button>

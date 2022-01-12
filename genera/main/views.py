@@ -338,7 +338,7 @@ def login_view(request):
                 messages.error(request, msg)
                 login_form.add_error(None, msg)
 
-    form_context = {"form": login_form, "button_text": "Log in", "identifier": form_id, "title": "Log in to Genera"}
+    form_context = {"form": login_form, "button_text": "Log in", "identifier": form_id, "title": "Log in to Genera", "extra" : True}
 
     return render(request, 'base_form.html', form_context)
 

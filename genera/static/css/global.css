@@ -239,24 +239,29 @@ input[type="email"]:focus::placeholder,
   margin-top: 25px;
 }
 
+/* Global Scrollbar */
 ::-webkit-scrollbar {
-  width: 20px;
+  width: 10px;
 }
 
 ::-webkit-scrollbar-track {
-  background-color: transparent;
+  background-image: var(--background-image);
 }
 
 ::-webkit-scrollbar-thumb {
   background-color: var(--orange-color);
-  border-radius: 20px;
-  border: 6px solid transparent;
-  background-clip: content-box;
+  background-clip: border-box;
+}
+/* inner scrollbars */
+body ::-webkit-scrollbar-track {
+  background-image: none;
+  margin: 10px 0;
 }
 
-/* ::-webkit-scrollbar-thumb:hover {
-  background-color: var(--orange-color);
-} */
+body ::-webkit-scrollbar-thumb {
+  border-radius: 5px;
+}
+/* end scrollbars */
 
 h3,
 h4,
@@ -274,6 +279,8 @@ body {
   font-family: "Roboto Condensed", sans-serif;
   color: var(--text-color);
   margin: 0;
+  width: 100vw;
+  overflow-x: hidden;
 }
 /* @font-face {
   font-family: 'Manrope';
