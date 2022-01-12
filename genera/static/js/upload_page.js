@@ -22,13 +22,7 @@ function main() {
         yes_no_popup('Generate Collection?', 'Yes', 'No').then((response) =>{
             if (response) {
                 close_yes_no_popup();
-
-                credit_check()
-                .then(() => {
-                    validate_and_post_ajax_form();
-                }).catch(() => {
-                    alert('Not enough credits')
-                })
+                validate_and_post_ajax_form();
             }
             else 
                 close_yes_no_popup()

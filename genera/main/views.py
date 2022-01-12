@@ -106,6 +106,12 @@ def upload_view(request):
                         return JsonResponse({"passed": 0, "message": "A collection with that name already exists!"}, status=200)
                     else:
                         return JsonResponse({"passed": 1}, status=200)
+                elif received_json_data["field_name"] == "size":
+                    if request.user.credits < int(received_json_data["field_content"]):
+                        return JsonResponse({"passed": 0, "message": "You don't have enough credits to generate this collection size!"}, status=200)
+                    else:
+                        return JsonResponse({"passed": 1}, status=200)
+                
         except RawPostDataException:
             pass
    
@@ -199,7 +205,6 @@ def upload_view(request):
             if int(float(request.POST.get("size"))) > request.user.credits:
                 messages.error(request, message="Not enough credits")
                 return ajax_redirect(reverse("main:upload"), "Not enough credits")
-                return redirect(reverse("main:upload"))
 
             calebs_gay_dict["CollectionName"] = request.POST.get("collection_name")
             calebs_gay_dict["TokenName"] = request.POST.get("token_name")

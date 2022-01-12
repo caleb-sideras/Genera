@@ -228,23 +228,6 @@ function close_yes_no_popup() {
     document.getElementsByClassName("popup_wrapper")[0].remove()
 }
 
-//refactor to take in any value/button
-function credit_check(){
-    user_credits = parseInt(document.getElementsByClassName('credits_button')[0].innerHTML)
-    collection_size =  parseInt(document.getElementById('collection_size').value)
-    console.log(user_credits)
-    console.log(collection_size)
-    console.log(typeof(user_credits))
-    console.log(typeof(collection_size))
-    
-    return new Promise((resolve, reject) => {
-        if (collection_size > user_credits) {
-            return reject()
-    }
-        return resolve()
-    });
-}
-
 function button_cooldown(){
 
 }
