@@ -24,8 +24,8 @@
 
   <body>
     <script>
-      if (localStorage.lightMode == "dark") {
-        document.body.classList = "dark-mode";
+      if (localStorage.dark_mode == 'true') {
+        document.documentElement.classList = "dark-mode-root";
       }
     </script>
     <!-- <div class="background_image_wrapper">
@@ -86,16 +86,15 @@
             <button class="dropbtn light_purple_background  rounded_container_no_padding">Logged in: {{request.user.username}}</button>
             <div class="dropdown-content rounded_container_no_padding shadow_strong">
               {% if request.user.is_authenticated %}
-              <a href="{% url 'main:profile' request.user.username %}">
-                <p>View your profile</p>
-              </a>
-              <a href="{% url 'main:all_collections' request.user.username %}">
-                <p>View Collections</p>
-              </a>
-            {% if request.user.is_authenticated %}
-            <a href="{% url 'main:logout' request.path%}">
-                <p>Log out</p>
-              </a>
+                <a href="{% url 'main:profile' request.user.username %}">
+                  <p>View your profile</p>
+                </a>
+                <a href="{% url 'main:all_collections' request.user.username %}">
+                  <p>View Collections</p>
+                </a>
+                <a href="{% url 'main:logout' request.path%}">
+                  <p>Log out</p>
+                </a>
               {% endif %}
             </div>
           </div>
@@ -132,7 +131,7 @@
             <a href="{% url 'main:all_collections' request.user.username %}" id="burger_enabled">
                 <p>View Collections</p>
               </a>
-            <a href="{% url 'main:logout' %}" id="burger_enabled">
+            <a href="{% url 'main:logout' request.path%}" id="burger_enabled">
                 <p>Log out</p>
               </a>
           </div>
