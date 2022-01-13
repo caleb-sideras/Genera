@@ -1,7 +1,7 @@
 from time import timezone
 from django.http.response import HttpResponse
 from django.shortcuts import render
-from main.view_tools import generate_token, generate_stripe_products_context,ajax_redirect
+from main.view_tools import *
 from genera.settings import MEDIA_DIR, DEFAULT_FROM_EMAIL, BASE_DIR, STRIPE_PUBILC_KEY, STRIPE_PRIVATE_KEY
 from main.models import User
 from main.forms import *
@@ -16,6 +16,7 @@ from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from pathlib import Path
+from django.http import HttpResponseRedirect
 import json
 from django.http import JsonResponse, RawPostDataException
 from django.core.exceptions import PermissionDenied, ValidationError, BadRequest
@@ -106,6 +107,12 @@ def upload_view(request):
                         return JsonResponse({"passed": 0, "message": "A collection with that name already exists!"}, status=200)
                     else:
                         return JsonResponse({"passed": 1}, status=200)
+                elif received_json_data["field_name"] == "size":
+                    if request.user.credits < int(received_json_data["field_content"]):
+                        return JsonResponse({"passed": 0, "message": "You don't have enough credits to generate this collection size!"}, status=200)
+                    else:
+                        return JsonResponse({"passed": 1}, status=200)
+                
         except RawPostDataException:
             pass
    
@@ -199,7 +206,6 @@ def upload_view(request):
             if int(float(request.POST.get("size"))) > request.user.credits:
                 messages.error(request, message="Not enough credits")
                 return ajax_redirect(reverse("main:upload"), "Not enough credits")
-                return redirect(reverse("main:upload"))
 
             calebs_gay_dict["CollectionName"] = request.POST.get("collection_name")
             calebs_gay_dict["TokenName"] = request.POST.get("token_name")
@@ -330,21 +336,22 @@ def login_view(request):
                 messages.success(request, message="Logged in succesfully!")
                 return redirect(reverse("main:main_view"))
             except ValidationError as msg:
-                messages.error(request, msg)
+                msg = msg.args[0]
+                messages.error(request, str(msg))
                 login_form.add_error(None, msg)
 
-    form_context = {"form": login_form, "button_text": "Log in", "identifier": form_id, "title": "Log in to Genera"}
+    form_context = {"form": login_form, "button_text": "Log in", "identifier": form_id, "title": "Log in to Genera", "extra" : True}
 
     return render(request, 'base_form.html', form_context)
 
-def logout_view(request):
+def logout_view(request, current_extension):
     if not request.user.is_authenticated:
         error_params = {"title": "Logout", "description": "Attempt to logout when not logged in.", "code": "320XD"}
         raise PermissionDenied(json.dumps(error_params))
 
     logout(request)
     messages.success(request, 'Logged out Succesfully!')
-    return redirect(reverse('main:main_view'))
+    return HttpResponseRedirect(current_extension)
 
 def register_view(request):
     if request.user.is_authenticated:

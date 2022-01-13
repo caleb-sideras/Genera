@@ -2,8 +2,7 @@
   --text-color: #000000;
   --text-color-2: #333333;
   --dark-grey-color: #535242;
-  /* background-image: linear-gradient(#6a74ff1f, #FFFFFF); */
-   background-color: #7e87f71f;
+  --background-image: linear-gradient(#6a74ff1f, #FFFFFF);
   --background-color: #7e87f71f;
   --light-grey-color: #FFFFFF;
   --medium-grey-color: #627EEA;
@@ -29,12 +28,11 @@
   --header-height: 60px;
 }
 
-body.dark-mode { 
+.dark-mode-root { 
   --text-color: #FFFFFF;
   --text-color-2: #F2F2F2;
   --dark-grey-color: #FFFFFF;
-  /* background-image: linear-gradient(#2D222E, #212429); */
-  background-color: #27232B;
+  --background-image: linear-gradient(#2D222E, #212429);
   --background-color: #27232B;
   --light-grey-color: #191B1F;
   --medium-grey-color: #755A7A;
@@ -280,24 +278,29 @@ input[type="email"]:focus::placeholder,
   margin-top: 25px;
 }
 
+/* Global Scrollbar */
 ::-webkit-scrollbar {
-  width: 20px;
+  width: 10px;
 }
 
 ::-webkit-scrollbar-track {
-  background-color: transparent;
+  background-image: var(--background-image);
 }
 
 ::-webkit-scrollbar-thumb {
   background-color: var(--orange-color);
-  border-radius: 20px;
-  border: 6px solid transparent;
-  background-clip: content-box;
+  background-clip: border-box;
+}
+/* inner scrollbars */
+body ::-webkit-scrollbar-track {
+  background-image: none;
+  margin: 10px 0;
 }
 
-/* ::-webkit-scrollbar-thumb:hover {
-  background-color: var(--orange-color);
-} */
+body ::-webkit-scrollbar-thumb {
+  border-radius: 5px;
+}
+/* end scrollbars */
 
 h3,
 h4,
@@ -311,11 +314,12 @@ a{
 }
 
 body {
-  /* background-color: var(--dark-grey-color); */
-  /* background-image: linear-gradient(#2D222E, #212429); */
+  background-image: var(--background-image);
   font-family: "Roboto Condensed", sans-serif;
   color: var(--text-color);
   margin: 0;
+  width: 100vw;
+  overflow-x: hidden;
 }
 /* @font-face {
   font-family: 'Manrope';

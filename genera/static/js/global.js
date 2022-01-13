@@ -38,19 +38,18 @@ function main() {
 
     create_server_notification()
     
-    // Select the button
-    const btn = document.querySelector(".btn_toggle");
 
-    // Listen for a click on the button
-    btn.addEventListener("click", function () {
-        if (localStorage.lightMode == "dark") {
-            localStorage.lightMode = "light";
-            document.body.classList = "";
+    //dark mode switch
+    document.querySelector(".btn_toggle").addEventListener("click", function () {
+        if (localStorage.dark_mode) {
+            localStorage.removeItem("dark_mode");
+            document.documentElement.classList.remove("dark-mode-root");
         } else {
-            localStorage.lightMode = "dark";
-            document.body.classList = "dark-mode";
+            localStorage.dark_mode = true;
+            document.documentElement.classList.add("dark-mode-root");
         }
     }); 
+    
 
     const burger_btn = document.querySelector(".burger_toggle");
     burger_btn.addEventListener("click", function () {
@@ -238,23 +237,6 @@ async function yes_no_popup(query, yes, no){
 
 function close_yes_no_popup() {
     document.getElementsByClassName("popup_wrapper")[0].remove()
-}
-
-//refactor to take in any value/button
-function credit_check(){
-    user_credits = parseInt(document.getElementsByClassName('credits_button')[0].innerHTML)
-    collection_size =  parseInt(document.getElementById('collection_size').value)
-    console.log(user_credits)
-    console.log(collection_size)
-    console.log(typeof(user_credits))
-    console.log(typeof(collection_size))
-    
-    return new Promise((resolve, reject) => {
-        if (collection_size > user_credits) {
-            return reject()
-    }
-        return resolve()
-    });
 }
 
 function button_cooldown(){

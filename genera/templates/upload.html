@@ -110,6 +110,7 @@
             max="1000"
             name="size"
             type="number"
+            onchange = ajax_validate_field(this)
             placeholder="E.g. 150"
           />
           <h5 class="no_margin">Resolution</h5>
@@ -159,6 +160,7 @@
         type="button"
         id="upload_button_submit"
         class="general_button_no_border light_purple_background shadow_strong rounded_container_no_padding"
+        {%if not user.is_authenticated%}disabled{%endif%}
       >
         <h4 class="no_margin generate">Generate</h4>
       </button>
