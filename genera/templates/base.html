@@ -5,21 +5,10 @@
 <html lang="en">
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link
-      rel="stylesheet"
-      type="text/css"
-      href="{% static 'css/global.css' %}"
-    />
-    <link
-      rel="stylesheet"
-      type="text/css"
-      href="{% static 'css/libraries/notifications.css' %}"
-    />
+    <link rel="stylesheet" type="text/css" href="{% static 'css/global.css' %}" />
+    <link rel="stylesheet" type="text/css" href="{% static 'css/libraries/notifications.css' %}"/>
     <script type="text/javascript" src="{% static 'js/global.js' %}"></script>
-    <script
-      type="text/javascript"
-      src="{% static 'js/libraries/notifications.js' %}"
-    ></script>
+    <script type="text/javascript" src="{% static 'js/libraries/notifications.js' %}"></script>
     {% block head_block %}{% endblock %}
   </head>
 
@@ -80,72 +69,97 @@
               </div>
         </div>
         <div id="burger_flex" style="flex: 1;"></div>
-        <button class="btn_toggle">Toggle Theme</button> 
+        <button class="btn_toggle">Toggle Theme</button>
+        
+        {% if request.user.is_authenticated%}
+          <div class="dropdown">
+            <button class="dropbtn light_purple_background  rounded_container_no_padding">Logged in: {{request.user.username}}</button>
+            <div class="dropdown-content rounded_container_no_padding shadow_strong">
+              {% if request.user.is_authenticated %}
+              <a href="{% url 'main:profile' request.user.username %}">
+                <p>View your profile</p>
+              </a>
+              <a href="{% url 'main:all_collections' request.user.username %}">
+                <p>View Collections</p>
+              </a>
+              <a href="{% url 'main:logout' %}">
+                <p>Log out</p>
+              </a>
+              {% endif %}
+            </div>
+          </div>
+          <a href="{% url 'payments:checkout'%}">
+            <button class="credits_button orange_background dropbtn" title="Credits">{{request.user.credits}}</button>
+          </a>
+        {% endif %} 
       </div>
       <div class="right_navbar">
-        {% if request.user.is_authenticated%}
-        <div class="dropdown">
-          <button class="dropbtn light_purple_background  rounded_container_no_padding">
-            Logged in as: {{request.user.username}}
-          </button>
-          <div class="dropdown-content rounded_container_no_padding shadow_strong">
-            {% if request.user.is_authenticated %}
-            <a href="{% url 'main:profile' request.user.username %}">
-              <p>View your profile</p>
+        {% if not request.user.is_authenticated%}
+          <div class="dropdown">
+            <a href="{% url 'main:login' %}" style="text-decoration: none">
+              <div class=" dropbtn light_purple_background" style="margin-right: 25px; border-radius: 10px;">Log in</div>
             </a>
-            {% endif %}
-            <a href="{% url 'main:all_collections' request.user.username %}">
-              <p>View Collections</p>
-            </a>
-            {% if request.user.is_authenticated %}
-            <a href="{% url 'main:logout' %}">
-              <p>Log out</p>
-            </a>
-            {% endif %}
           </div>
+        {% endif %} 
+        <div class="burger_toggle" style="display: none;">
+          <img src="/static/icons/menu.svg" alt="">
         </div>
-        <a href="{% url 'payments:checkout'%}">
-          <button class="credits_button orange_background dropbtn" title="Credits">{{request.user.credits}}</button>
-        </a>
-        <div class="burger" style="display: none;">button</div>
-        {% else %}
-        <div class="dropdown">
-          <a href="{% url 'main:login' %}" style="text-decoration: none">
-            <div class=" dropbtn light_purple_background" style="margin-right: 25px; border-radius: 10px;">
-              Log in
-            </div>
-          </a>
-        </div>
-        {% endif %}
       </div>
     </div>
-    <div class="burger_navbar">
+    <div class="burger_navbar" style="display: none;">
         <div class="dropdown_burger">
-          <div class="burger_1"><p>Tools</p></div>
+          {% if request.user.is_authenticated%}
+          <input type="checkbox" id="demo3" style="display: none;"/>
+          <div class="burger_1">
+            <label for="demo3"><p>Logged in: {{request.user.username}} Credits: {{request.user.credits}}</p></label>
+          </div>
+          
           <div class="burger_2">
-            <a href="{% url 'main:upload' %}">
+            <a href="{% url 'main:profile' request.user.username %}" id="burger_enabled">
+                <p>View your profile</p>
+              </a>
+            <a href="{% url 'main:all_collections' request.user.username %}" id="burger_enabled">
+                <p>View Collections</p>
+              </a>
+            <a href="{% url 'main:logout' %}" id="burger_enabled">
+                <p>Log out</p>
+              </a>
+          </div>
+          {% endif %}  
+        </div>
+        <div class="dropdown_burger">
+          <input type="checkbox" id="demo1" style="display: none;"/>
+          <div class="burger_1">
+            <label for="demo1"><p>Tools</p></label>
+          </div>
+          
+          <div class="burger_2">
+            <a href="{% url 'main:upload' %}" id="burger_enabled">
               <p>NFT Maker/Minter</p>
             </a>
-            <a href="#" class="disable_content">
+            <a href="#" id="burger_disabled"> 
               <p>NFT Minter</p>
             </a>
-            <a href="#" class="disable_content">
+            <a href="#" id="burger_disabled">
               <p>Texture Mapping</p>
             </a>
           </div>  
         </div>
         <div class="dropdown_burger">
-            <div><p>Info</p></div>
-              <div class="burger_2">
-                <a href="{% url 'main:documentation' %}">
-                  <p>Docs</p>
-                </a>
-                <a href="{% url 'main:about' %}">
-                  <p>About</p>
-                </a>
-              </div>
+          <input type="checkbox" id="demo2" style="display: none;"/>
+           <div class="burger_1">
+            <label for="demo2"><p>Info</p></label>
+          </div>
+          <div class="burger_2">
+            <a href="{% url 'main:documentation' %}" id="burger_enabled">
+              <p>Docs</p>
+            </a>
+            <a href="{% url 'main:about' %}" id="burger_enabled">
+              <p>About</p>
+            </a>
+          </div>
         </div>
-        <button class="btn_toggle">Toggle Theme</button> 
+        <!-- <button class="btn_toggle">Toggle Theme</button>  -->
     </div>
 
     {% block body_block %}{% endblock %}

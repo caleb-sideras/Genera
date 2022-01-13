@@ -99,10 +99,14 @@ function open_images(self){
     lbuttonwrapper.appendChild(left_button)
     wrapper.appendChild(lbuttonwrapper)
 
+    inner_content = document.createElement('div')
+    inner_content.classList = 'inner_content'
+
+    
     image = document.createElement('img')
     image.src = temp
     image.classList = 'image'
-    wrapper.appendChild(image)
+    
 
     info = document.createElement('div')
     info.classList = 'info'
@@ -180,7 +184,9 @@ function open_images(self){
     info.appendChild(upper_info_wrapper)
     info.appendChild(metadata)
     info.appendChild(mutipurpose_button_section)
-    wrapper.appendChild(info)
+    inner_content.appendChild(image)
+    inner_content.appendChild(info)
+    wrapper.appendChild(inner_content)
 
     rbuttonwrapper = document.createElement('div')
     rbuttonwrapper.classList = 'rbutton_wrapper'

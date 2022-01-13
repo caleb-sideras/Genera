@@ -72,15 +72,47 @@ body.dark-mode {
   [class*="hide_burger"]{
     display: none !important;
   }
-  
 
+  [class="burger_toggle"],
+  [class="inner_content"]
+  {
+    display: block !important; 
+  }
+  [class="all_collections_layout"]{
+    justify-content: center;
+  }
+  [class="collection_structure"] >h1{
+    text-align: center;
+  }
+  [class="image_preview"] > .rounded_container{
+    height: 80%;
+  }
+  [class="image_preview"] > div > .content_wrapper{
+    height: 100% !important;
+  }
+  [class="inner_content"] > img{
+  max-height: 50% !important;
+  max-width: 100% !important;
+  }
+  [class="image_preview"] > div > div > div > .info{
+  height: 50% !important;
+  }
+  
+}
+
+@media only screen and (min-width: 815px) {
+
+  [class="burger_navbar"]{
+    display: none !important;
+  }
 }
 
 @media only screen and (max-width: 500px) {
   [class="info_text"]{
     text-align: center!important;
   }
-  [class*="team_card"]
+  [class*="team_card"],
+  [class*="payments_description"]
   {
     display: block !important; 
   }
@@ -97,14 +129,21 @@ body.dark-mode {
   [class="main_upper"] > h4{
     font-size: 20px !important;
   }
-  [class*="payments_description"] {
-    display: block !important;
-  }
   [class*="credit_section"]{
     width: auto !important;
   }
   [class*="middle_credit"]{
     border-style: none !important;
+  }
+  [class="view_collection_main"]{
+    display: inline-grid !important;
+    margin: 10px !important;
+  }
+  [class="collection_structure"]{
+    order: 2;
+  }
+  [class="collection_title"]{
+    text-align: center;
   }
 }
 
@@ -979,6 +1018,8 @@ body {
   margin-bottom: auto;
   background-color: var(--light-grey-color);
   padding: 0;
+  max-width: 100%;
+  min-width: 0px;
 }
 
 .top_row {
@@ -1001,17 +1042,20 @@ body {
   display: flex;
   justify-content: space-between;
 }
-.image_preview > div > div > img{
+.inner_content >  img{
   max-height: 700px;
   max-width: 700px;
-  min-height: 300px;
-  min-width: 300px;
+  min-height: 50px;
+  min-width: 50px;
   display: block;
   /* max-width: 230px; */
   /* max-height: 95px; */
   width: auto;
   align-self: center;
   height: auto;
+  margin-left: auto;
+  margin-right: auto;
+  display: flex;
 }
 
 .image_preview > div > div > div > .button{
@@ -1053,7 +1097,11 @@ body {
 .right{
   transform: rotate(270deg);
 }
-.image_preview > div > div > .info{
+.inner_content{
+  display: flex;
+  max-width: 100%;
+}
+.image_preview > div > div > div > .info{
   display: flex;
   flex-direction: column;
   list-style: none;
@@ -1062,12 +1110,18 @@ body {
   justify-content: space-between;
   overflow-y: auto;
   text-align: center;
+  height: 100%;
 }
-.image_preview > div > div > div > div > h2{
+.image_preview > div > div > div > div > div > h2{
   color: var(--medium-grey-color);
   font-size: 2em;
   text-align: left;
   margin-left: 15px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 0;
+  flex-grow: 1;
+  white-space: pre;
 }
 
 .upper_info_wrapper{
@@ -1138,7 +1192,7 @@ text-align: left;
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  /* justify-content: space-between; */
   padding-bottom: 15px;
 }
 
@@ -1148,7 +1202,7 @@ text-align: left;
 }
 
 .collection_card > div {
-  display: flex;
+  display: inline-block;
   flex-direction: column;
   align-items: center;
   gap: 5px;
@@ -1156,20 +1210,16 @@ text-align: left;
   box-sizing: border-box;
 }
 
-.collection_card > div >div{
-  height: 40%;
-}
-
 .collection_card > div > div > p{
   text-overflow: ellipsis;
-  font-size: smaller;
-  /* width: 50px; */
   overflow: hidden;
   /* white-space: nowrap; */
-  width: 100%;
   box-sizing: border-box;
-  /* position: relative; */
-
+  /* flex-direction: column; */
+  flex-grow: 1;
+  width: 0;
+  /* max-height: 30px; */
+  white-space: pre;
 }
 
 .collection_card > div > p{
@@ -1179,6 +1229,10 @@ text-align: left;
 
 .collection_card > div>div{
   margin-top: 10px;
+  height: 40%;
+  /* text-overflow: ellipsis; */
+  /* overflow: hidden; */
+  display: flex;
 }
 
 .collection_card_button_container{
@@ -1740,6 +1794,8 @@ display: inline-block;
 .right_navbar {
   height: 100%;
   text-align: end;
+  display: flex;
+  align-items: center;
 }
 
 .dropbtn {
@@ -1750,10 +1806,12 @@ display: inline-block;
   cursor: pointer;
   margin-top: auto;
   margin-bottom: auto;
-  margin-top: 5px;
-  margin-right: -5px;
   text-decoration: none;
   border-radius: 10px 0 0 10px;
+  max-width: 200px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: pre;
 }
 
 /* .dropbtn:hover, .dropbtn:focus {
@@ -1854,7 +1912,7 @@ display: inline-block;
 .credits_button{
   color: var(--text-preview-color);
   border-radius: 0 10px 10px 0;
-  margin-right: 25px;
+  margin-right: 15px;
   font-weight: 900;
   font-size: 13px;
 }
@@ -1864,19 +1922,60 @@ display: inline-block;
   height: 20px;
   width: 20px;
 }
+.burger_navbar{
+  background-color: var(--light-grey-color);
+}
 
-.dropdown_burger > div > p{
+.dropdown_burger > div > label{
   color: var(--text-color-2);
-  margin: 15px;
   font-size: 18px;
   cursor: pointer;
 }
+
+.burger_1 p{
+  margin: 0px;
+  padding: 15px;
+}
 .burger_2{
   display: none;
+  background-color: var(--white-color);
 }
-.dropdown_burger:hover > .burger_2{
+.burger_2 > a > p{
+  margin: 0; 
+  padding: 10px;
+  padding-left: 15px;
+  color: var(--text-color-2);
+  background-color: var(--white-color)
+}
+
+#burger_enabled > p:hover{
+  color: var(--medium-grey-color);
+  background-color: var(--light-grey-color)
+}
+#burger_disabled{
+  cursor: default;
+}
+#burger_disabled>p{
+  color: var(--disabled-text-color) !important
+}
+.burger_toggle{
+  align-self: center;
+  margin-right: 15px;
+}
+.burger_toggle > img{
+  height: 40px;
+  aspect-ratio: 1;
+}
+
+/* ass way to do it ik, shut up */
+#demo1:checked ~ .burger_2 {
   display: block !important;
-  background-color: black;
+}
+#demo2:checked ~ .burger_2 {
+  display: block !important;
+}
+#demo3:checked ~ .burger_2 {
+  display: block !important;
 }
 
 /* NAV BAR */

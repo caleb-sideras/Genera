@@ -51,6 +51,18 @@ function main() {
             document.body.classList = "dark-mode";
         }
     }); 
+
+    const burger_btn = document.querySelector(".burger_toggle");
+    burger_btn.addEventListener("click", function () {
+        const burger_navbar = document.querySelector(".burger_navbar");
+        if (burger_navbar.style.display == "none") {
+            burger_navbar.style.display = "block"
+        }
+        else{
+            burger_navbar.style.display = "none"
+        }
+
+    })
     //showcase of new ajax function
     if (typeof(document.getElementById("button")) != 'undefined' && document.getElementById("button") != null) {
         document.getElementById("button").addEventListener("click", function() {
