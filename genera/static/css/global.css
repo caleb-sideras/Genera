@@ -143,6 +143,13 @@
   [class="collection_title"]{
     text-align: center;
   }
+  [class="main_wrapper"],
+  [class="main_section"]{
+    height: auto !important;
+  }
+  [class="background_image_wrapper"]{
+    display: none;
+  }
 }
 
 * {
@@ -294,11 +301,11 @@ input[type="email"]:focus::placeholder,
 /* inner scrollbars */
 body ::-webkit-scrollbar-track {
   background-image: none;
-  margin: 10px 0;
+  /* margin: 10px 0; */
 }
 
 body ::-webkit-scrollbar-thumb {
-  border-radius: 5px;
+  border-radius: 10px;
 }
 /* end scrollbars */
 
@@ -1448,6 +1455,7 @@ text-align: left;
   height: 95vh;
   align-items: center;
   position: relative;
+  background-image: "/static/Assets/Background/websitebackground2.png";
 }
 
 .main_upper {
