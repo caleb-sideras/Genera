@@ -176,6 +176,8 @@ function add_tokens_request(active_account, ajax_url){
                     }
                 }
             }
+            // console.log(uri_list)
+            // console.log(ipfs_links)
             add_tokens(active_account, ajax_url)  
         }    
     }
@@ -183,8 +185,8 @@ function add_tokens_request(active_account, ajax_url){
 
 async function add_tokens(active_account, url=null) {
     console.log("Adding tokens to " + contract_address)
-    console.log(ipfs_links)
-    console.log(entries)
+    // console.log(ipfs_links)
+    // console.log(entries)
     for (let index = 0; index < ipfs_links.length; index++) {
         token_counter++
         console.log(token_counter)
@@ -332,10 +334,10 @@ async function check_mint_status(){
         var temp_uri_list = uri_list.slice()
         image_data_elements = document.querySelectorAll('.all_collections_layout > div > div')
         image_data_elements.forEach(element => {
-            if ((element.children[0].dataset.ipfs_bool.toLowerCase() === 'true') == true && element.children[2].children[1].style.display == 'none'){
+            if ((element.children[0].dataset.ipfs_bool.toLowerCase() === 'true') == true && element.children[2].children[0].style.display == 'none'){
                 for (let i = 0; i < temp_uri_list.length; i++) {
                     if (temp_uri_list[i] == element.children[0].dataset.token_uri) {
-                        element.children[2].children[1].style.display = 'flex'
+                        element.children[2].children[0].style.display = 'flex'
                         temp_uri_list.splice(i, 1)
                         break;
                     }

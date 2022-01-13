@@ -1031,6 +1031,7 @@ body {
   padding: 0;
   max-width: 100%;
   min-width: 0px;
+  border-radius: 10px !important;
 }
 
 .top_row {
@@ -1076,7 +1077,7 @@ body {
 }
 .lbutton_wrapper {
   background: var(--border-color);
-  border-radius: 20px 0 0 20px;
+  border-radius: 10px 0 0 10px;
   align-items: center;
   vertical-align: middle;
   width: 40px;
@@ -1087,7 +1088,7 @@ body {
 
 .rbutton_wrapper {
   background: var(--border-color);
-  border-radius: 0 20px 20px 0;
+  border-radius: 0 10px 10px 0;
   align-items: center;
   vertical-align: middle;
   width: 40px;

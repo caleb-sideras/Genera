@@ -237,8 +237,8 @@ function next_element(self, bool){
         parsed = JSON.parse(metadata)
 
         parent = self.parentNode
-        parent.children[1].src = image
-        parent2 = parent.children[2]
+        parent.children[1].children[0].src = image
+        parent2 = parent.children[1].children[1]
         parent2.children[0].children[0].innerHTML = temp3
         parent2.children[1].children[0].children[2].children[0].innerHTML = parsed['description']
         if (card_element.children[0].dataset.ipfs) {
