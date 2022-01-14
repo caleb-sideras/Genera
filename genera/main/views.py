@@ -99,22 +99,25 @@ def upload_view(request):
     calebs_gay_dict = {}
     
     if request.method == "POST":
-        try:
-            received_json_data = json.loads(request.body)
-            if "field_name" in received_json_data:
-                if received_json_data["field_name"] == "collection_name":
-                    if UserCollection.objects.filter(user=request.user, collection_name=received_json_data["field_content"]).exists():
-                        return JsonResponse({"passed": 0, "message": "A collection with that name already exists!"}, status=200)
-                    else:
-                        return JsonResponse({"passed": 1}, status=200)
-                elif received_json_data["field_name"] == "size":
-                    if request.user.credits < int(received_json_data["field_content"]):
-                        return JsonResponse({"passed": 0, "message": "You don't have enough credits to generate this collection size!"}, status=200)
-                    else:
-                        return JsonResponse({"passed": 1}, status=200)
-                
-        except RawPostDataException:
-            pass
+        if request.user.is_authenticated:
+            try:
+                received_json_data = json.loads(request.body)
+                if "field_name" in received_json_data:
+                    if received_json_data["field_name"] == "collection_name":
+                        if UserCollection.objects.filter(user=request.user, collection_name=received_json_data["field_content"]).exists():
+                            return JsonResponse({"passed": 0, "message": "A collection with that name already exists!"}, status=200)
+                        else:
+                            return JsonResponse({"passed": 1}, status=200)
+                    elif received_json_data["field_name"] == "size":
+                        if request.user.credits < int(received_json_data["field_content"]):
+                            return JsonResponse({"passed": 0, "message": "You don't have enough credits to generate this collection size!"}, status=200)
+                        else:
+                            return JsonResponse({"passed": 1}, status=200)
+                    
+            except RawPostDataException:
+                pass
+        else:
+            return JsonResponse({"passed": 1}, status=200)
    
         if len(request.FILES) != 0:
             # use throttling or async timer countdown
