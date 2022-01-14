@@ -285,6 +285,8 @@ input[type="email"]:focus::placeholder,
   margin-top: 25px;
 }
 
+
+
 /* Global Scrollbar */
 ::-webkit-scrollbar {
   width: 10px;
@@ -308,6 +310,125 @@ body ::-webkit-scrollbar-thumb {
   border-radius: 10px;
 }
 /* end scrollbars */
+
+
+/* input range */
+
+/* SCROLLER TRACK! */
+input[type=range]::-webkit-slider-runnable-track {
+  /* width: 100%; */
+  height: 8.4px;
+  cursor: pointer;
+  /* background: var(--white-color); */
+  /* border-radius: 10px; */
+}
+
+/* input[type=range]:focus::-webkit-slider-runnable-track {
+  background: var(--medium-grey-color);
+} */
+
+input[type=range]::-moz-range-track {
+  /* width: 100%; */
+  height: 8.4px;
+  cursor: pointer;
+  /* background: var(--white-color); */
+  /* border-radius: 10px; */
+}
+
+/* input[type=range]:focus::-moz-range-track {
+  background: var(--medium-grey-color);
+} */
+/* 
+input[type=range]::-ms-track {
+  width: 100%;
+  height: 8.4px;
+  cursor: pointer;
+  background: transparent;
+  border-color: transparent;
+  border-width: 16px 0;
+  color: transparent;
+}
+input[type=range]::-ms-fill-lower {
+  background: #2a6495;
+  border: 0.2px solid #010101;
+  border-radius: 2.6px;
+  box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
+}
+input[type=range]:focus::-ms-fill-lower {
+  background: #3071a9;
+}
+input[type=range]::-ms-fill-upper {
+  background: #3071a9;
+  border: 0.2px solid #010101;
+  border-radius: 2.6px;
+  box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
+}
+input[type=range]:focus::-ms-fill-upper {
+  background: #367ebd;
+} */
+
+/* SCROLLER THUMBS! */
+/* Special styling for WebKit/Blink */
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  background: #d8d7d7;
+  border: 4px solid var(--border-color);
+  transition: all 0.3s ease;
+  margin-top: -9px;
+}
+/* All the same stuff for Firefox */
+input[type=range]::-moz-range-thumb {
+ -webkit-appearance: none;
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  background: #d8d7d7;
+  border: 4px solid var(--border-color);
+  transition: all 0.3s ease;
+  margin-top: -9px;
+}
+/* All the same stuff for IE */
+input[type=range]::-ms-thumb {
+  -webkit-appearance: none;
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  background: #d8d7d7;
+  border: 4px solid var(--border-color);
+  transition: all 0.3s ease;
+  margin-top: -9px;
+}
+
+input[type=range]::-webkit-slider-thumb:hover{
+  transform:scale(1.1);
+}
+input[type=range]::-moz-range-thumb:hover{
+  transform:scale(1.1);
+}
+input[type=range]::-ms-thumb:hover{
+  transform:scale(1.1);
+}
+
+input[type=range] {
+  margin: 4px;
+  -webkit-appearance: none;
+  width: 100%;
+  height: 8px;
+  border-radius: 10px;
+  background: var(--white-color);
+}
+
+input[type=range]:focus {
+  outline: none;
+}
+
+input[type="range"]:focus {
+  background: var(--medium-grey-color);
+}
+/* end input */
 
 h3,
 h4,
@@ -737,12 +858,12 @@ body {
   max-width: 100%;
   gap: 5px;
 } */
-
+/* 
 .dropdown_button > div > div > div  input[type=range] {
   background-color: var(--orange-color);
-  /* width: min(20vw, 250px); */
+  width: min(20vw, 250px);
   width: 100%;
-}
+} */
 /* how to fix above? */
 
 .upload_slider_section {

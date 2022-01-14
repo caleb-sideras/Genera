@@ -676,7 +676,10 @@ function highlight_file(context){
         active_element = context
     }
     active_element.style = "color: var(--image-text-color);"
+    active_element.nextElementSibling.children[1].style.background = "var(--white-color)"
+
     context.style = "color: var(--medium-grey-color);"
+    context.nextElementSibling.children[1].style.background = "var(--medium-grey-color)"
     active_element = context
 }
 
