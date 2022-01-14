@@ -13,10 +13,10 @@
 
 <div class="docs_wrapper">
     <div class="docs_column">
-        <div id="overview">
+        <!-- <div id="overview">
             <h3>Overview</h3>
             <img src="static/icons/expand.svg" alt="">
-        </div>
+        </div> -->
         <div id="smart_contract">
             <h3 onclick="docs_new_content(this.parentElement)">Smart Contract</h3>
             <img src="static/icons/expand.svg" alt="">
@@ -42,16 +42,17 @@
             <p>Genera's NFT smart contract inherits from the Open-Zeppelin-ERC721-3.4.0 contract. Open Zeppelin is an audited, trusted producer of verifiably safe smart contracts. Specifically, their ERC721 contracts have been used to mint 100s of thousands of NFTs. This contract will allow your NFTs to be sold on any Ethereum NFT marketplace.</p>
             <h3>Contract Ownership</h3>
             <p>Only the owner (address that deployed the smart  contract) can mint NFTs on the contract. This ensures only you, the owner, can make state changes on the blockchain involving the contract. Furthermore, you will be able to add NFTs to your contract using external websites, and/or by writing your own code.</p>
-            <h3>Etherscan</h3>
-            <p>Genera has implemented the Etherscan api into the contracts, thus allowing your deployed contracts to be viewed and interacted with on Etherscan.</p>
+            <!-- <h3>Etherscan</h3>
+            <p>Genera has implemented the Etherscan api into the contracts, thus allowing your deployed contracts to be viewed and interacted with on Etherscan.</p> -->
             <p class="roadmap">Roadmap: We intend to add functionality that will enable users to mint their NFT collections to more blockchains. Q1 2022 - Solana & Polygon blockchain support will be added.</p>
             <pre>// SPDX-License-Identifier: MIT
 
 pragma solidity 0.6.6;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract NFTGenerator is ERC721 {
+contract NFTGenerator is ERC721, Ownable {
     uint256 public tokenCounter;
 
     constructor(string memory _name, string memory _symbol)
@@ -61,7 +62,7 @@ contract NFTGenerator is ERC721 {
         tokenCounter = 0;
     }
 
-    function createNewCollectible(string memory _tokenURI) public {
+    function createNewNFT(string memory _tokenURI) public onlyOwner {
         uint256 newTokenId = tokenCounter;
         _safeMint(msg.sender, newTokenId); // openzeppelin safe mint
         _setTokenURI(newTokenId, _tokenURI); // openzeppelin set token uri
@@ -73,9 +74,9 @@ contract NFTGenerator is ERC721 {
         <div id="minting" style="display: none;">
             <h1>Minting</h1>
             <h3>Double-Mint Protection</h3>
-            <p>Our highest priority when developing the minting process, was that under no circumstances could an NFT be double minted. Specifically, the same NFT being unintentionally minted twice on the same smart contract. We have 4 major safety checks that will prevent this from happening.</p>
-            <h4>Database integration with Metamask</h4>
-            <p>Genera will save all public transaction information when you make state changes on Ethereum using your Metamask wallet; this will only be done when you explicitly deploy/mint a collection using our website. This information includes deployment addresses, contract addresses, transaction hashes, block hashes and tokenURIs. This ensures while Genera is connected to Metamask, all transactions can be verified and an NFT cannot be minted twice.</p>
+            <p>Our highest priority when developing the minting process, was that under no circumstances could an NFT be double minted. Specifically, the same NFT being unintentionally minted twice on the same smart contract. We have 3 major safety checks that will prevent this from happening.</p>
+            <!-- <h4>Database integration with Metamask</h4>
+            <p>Genera will save all public transaction information when you make state changes on Ethereum using your Metamask wallet; this will only be done when you explicitly deploy/mint a collection using our website. This information includes deployment addresses, contract addresses, transaction hashes, block hashes and tokenURIs. This ensures while Genera is connected to Metamask, all transactions can be verified and an NFT cannot be minted twice.</p> -->
             <h4>Smart Contract Interaction</h4>
             <p>In the event that your browser and/or Metamask wallet is intentionally or unintentionally closed during the minting process, Genera will use an Infura node to interact with the smart contract and verify which NFTs that have been minted. This data is then compared with our database and updates any irregularities.</p>
             <h4>Loading screen integration with Metamask</h4>
