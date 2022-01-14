@@ -284,7 +284,7 @@ function abi_token_uri(ipfs_link) {
                 "type": "string"
             }
         ],
-        "name": "createNewCollectible",
+        "name": "createNewNFT",
         "outputs": [],
         "stateMutability": "nonpayable",
         "type": "function"
