@@ -1139,9 +1139,8 @@ body {
   color: var(--medium-grey-color);
 }
 .view_collection_main {
-      margin-top: 15px;
-    /* width: 100%; */
-    /* height: 85vh; */
+    margin-top: 15px;
+    min-height: calc(100vh - var(--header-height));
     display: flex;
     gap: 20px;
     margin-right: 20px;
@@ -1330,11 +1329,8 @@ text-align: left;
   display: flex;
   flex: 1;
   flex-wrap: wrap;
-  /* width: 90vw; */
   gap: 15px;
-  /* max-width: 1000px; */
   margin-top: 15px;
-  
 }
 
 .collection_card {
@@ -1826,6 +1822,7 @@ text-align: left;
   text-align: center;
   /* background-image: url("credit_background.png"); */
   padding: 0px 5px;
+  margin-bottom: 50px;
 }
 .payments_wrapper > h2 {
   font-size: 2rem;
@@ -2125,7 +2122,35 @@ display: inline-block;
 
 /* NAV BAR */
 
+/* FOOTER */
+.footer{
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  text-align: left;
+  gap: 50px;
+  background: var(--light-grey-color);
+}
 
+.footer_section{
+  display: block;
+}
+.footer_section ul{
+  padding-left: 15px;
+}
+.footer_section li{
+  margin-bottom: 10px;
+}
+.footer_section h3{
+  color: var(--text-color);
+}
+.footer_section p, a{
+  color: var(--medium-grey-color);
+}
+.footer_section h3, a, p{
+  display: block;
+}
+/* FOOTER */
 
 /* ANIMATED LOOP IN CENTER */
 #loading_animation_wrapper {
