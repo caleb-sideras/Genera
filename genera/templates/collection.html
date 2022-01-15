@@ -125,19 +125,24 @@
                 </button>
 
                 {% if not collection_data.collection_ifps_bool and not collection_data.duplicates_deleted %}
-                    <button type="button" class="general_button_no_border orange_background shadow_strong rounded_container_no_padding" onclick="delete_duplicates()">
-                        <h4 class="no_margin">Delete Duplicates</h4>
+                    <button type="button" class="general_button_no_border light_red_background shadow_strong rounded_container_no_padding" onclick="delete_duplicates()">
+                        <h4 class="no_margin" style="color: white">Delete Duplicates</h4>
                     </button>
                 {% endif %}
+                <button name="download_collection" onclick="download_zip()" class="general_button_no_border orange_background shadow_strong rounded_container_no_padding" type="button">
+                    <h4 class="no_margin generate">Download collection</h4>
+                </button>
                 {% if not collection_data.tokens_deployed %}
                     <button class="general_button_no_border light_purple_background shadow_strong rounded_container_no_padding" onclick="deploy_ipfs_request()" type="button">
                         <h4 class="no_margin generate">Mint Collection</h4>
                     </button>
+                    <button class="general_button_no_border light_purple_background shadow_strong rounded_container_no_padding" onclick="" type="button" disabled>
+                        <h4 class="no_margin generate">Public Mint</h4>
+                    </button>
+                    <p style="margin: 0; font-size: 14px; text-align: center; color: var(--text-color-2);">Coming Soon</p>
                 {% endif %}
 
-                <button name="download_collection" onclick="download_zip()" class="general_button_no_border orange_background shadow_strong rounded_container_no_padding" type="button">
-                    <h4 class="no_margin generate">Download collection</h4>
-                </button>
+                
 
                 
         </div>

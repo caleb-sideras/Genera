@@ -2,18 +2,19 @@
 {% load static %}
 
 {% block body_block %}
-    
-    <h1> LMAOOOOOOO </h1>
-    
+<div style="height: 90vh; justify-content: center; text-align: center;  align-self: center; margin-left: auto; margin-right: auto;">
+    <h1 style="color: var(--medium-grey-color); font-size: 3rem;">USER PROFILES COMING SOON!</h1>
     {% if owner %}
         <!-- WHAT ACCOUNT OWNER SEES (PROFILE EDIT + OTHER SHIT OFC) -->
-        <h3 id="welcome" onclick="yes_no_popup('Welcome', 'accept', 'reject').then((res) => {console.log(res); close_yes_no_popup()})">WELCOME OWNER KING {{user.username}}</h3>
+        <h2 id="welcome" onclick="yes_no_popup('Welcome', 'accept', 'reject').then((res) => {console.log(res); close_yes_no_popup()})">Welcome {{user.username}}</h2>
     {% else %}
         <!-- WHAT OTHER PEOPLE SEE - NON OWNER -->
-        <h3 id="welcome">WELCOME NON-OWNER KING {{request.user.username}}, <br><br> 
-        YOU ARE VIEWEING {{user.username}}'s PROFILE!</h3>
+        <h3 id="welcome">Hello {{request.user.username}}! <br><br> 
+        You are viewing {{user.username}}'s profile!</h3>
     {% endif %}
+    <h3 style="max-width: 400px; margin-left: auto; margin-right: auto; color: grey;">Profiles will enable users to showcase their collections! <br><br>
+    Users will also have the option to set their collection up for a public mint, allowing anyone with a Metamask wallet to mint a random NFT from their collection.</h3>
 
-
-    <h1>IS THE PROFILE PRIVATE? {{user.userprofile.private}}</h1>
+    <h3>Private Profile? {{user.userprofile.private}}</h3>
+</div>
 {% endblock %}
