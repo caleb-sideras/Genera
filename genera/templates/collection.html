@@ -11,8 +11,49 @@
 {% endblock %}
 
 {% block body_block %}
-    <input type="hidden" id="js_vars" data-collection_name='{{collection_data.collection_name}}' data-ajax_url='{{ajax_url}}' data-json="{{erc721_json}}" data-contract_address='{{collection_data.contract_address}}' data-ipfs_links='{{ipfs_links}}' data-entry_ids ='{{entry_ids}}' data-token_name='{{collection_data.token_name}}' data-image_name='{{collection_data.image_name}}' data-ipfs_bool='{{collection_data.collection_ifps_bool}}' data-contract_bool='{{collection_data.contract_bool}}' data-tokens_minted_bool='{{collection_data.tokens_deployed}}' data-collection_size='{{collection_data.collection_size}}'/>
+    <input type="hidden" id="js_vars" data-collection_name='{{collection_data.collection_name}}' data-ajax_url='{{ajax_url}}' data-json="{{erc721_json}}" data-contract_address='{{collection_data.contract_address}}' data-ipfs_links='{{ipfs_links}}' data-entry_ids ='{{entry_ids}}' data-token_name='{{collection_data.token_name}}' data-image_name='{{collection_data.image_name}}' data-ipfs_bool='{{collection_data.collection_ifps_bool}}' data-contract_bool='{{collection_data.contract_bool}}' data-tokens_minted_bool='{{collection_data.tokens_deployed}}' data-collection_size='{{collection_data.collection_size}}' data-chain_id='{{collection_data.chain_id}}'/>
 
+<div class="deploy_collection_container shadow_strong rounded_container_no_padding">
+    <img class="dc_close close_button_color" src="/static/icons/remove.svg" onclick="close_deploy_collection()">
+    <div class="dc_content">
+        <div class="dc_status_container">
+            <div class="dc_status_sections">
+                <div style="text-align: left;">
+                    <div class="dc_status_dot" id="dc_status_4"></div>
+                    <p style="margin-left: -35px;">Deploy to IPFS</p>
+                </div>
+                <div>
+                    <div class="dc_status_dot" id="dc_status_4" style="left: 39%;"></div>
+                    <p>Choose Network</p>
+                </div>
+                <div>
+                    <div class="dc_status_dot" id="dc_status_4" style="left: 58%;"></div>
+                    <p>Deploy Contract</p>
+                </div>
+                <div style="text-align: right;">
+                    <div class="dc_status_dot" id="dc_status_4" style="left: 83.5%;"></div>
+                    <p>Mint</p>
+                </div>
+            </div>
+            <div class="dc_status_bar_container orange_background">
+                <div class="dc_status_bar_active light_purple_background"></div>
+            </div>
+        </div>
+        <h2></h2>
+        <h4></h4>
+        <div class="dc_body">
+            <div class="spinner">
+                <div class="rect1" id="spin1"></div>
+                <div class="rect1" id="spin2"></div>
+                <div class="rect1" id="spin3"></div>
+                <div class="rect1" id="spin4"></div>
+                <div class="rect1" id="spin5"></div>
+            </div>
+        </div>
+        <div class="dc_buttons">
+        </div>
+    </div>
+</div>    
 <div class="filter">
     <form type="hidden" method="post" style="display: none;" enctype="multipart/form-data" class="image_edit_wrapper" >
         {% csrf_token %}
@@ -119,11 +160,11 @@
                         {% endif %} 
                     {% endif %}
                 </div>
-
-                <button name="delete_collection" onclick="delete_collection()" class="general_button_no_border red_background shadow_strong rounded_container_no_padding" type="button">
-                    <h4 class="no_margin generate" style="color: white;">Delete Collection</h4>
-                </button>
-
+                {% if not collection_data.collection_ifps_bool %}
+                    <button name="delete_collection" onclick="delete_collection()" class="general_button_no_border red_background shadow_strong rounded_container_no_padding" type="button">
+                        <h4 class="no_margin generate" style="color: white;">Delete Collection</h4>
+                    </button>
+                {% endif %}
                 {% if not collection_data.collection_ifps_bool and not collection_data.duplicates_deleted %}
                     <button type="button" class="general_button_no_border light_red_background shadow_strong rounded_container_no_padding" onclick="delete_duplicates()">
                         <h4 class="no_margin" style="color: white">Delete Duplicates</h4>
@@ -133,8 +174,8 @@
                     <h4 class="no_margin generate">Download collection</h4>
                 </button>
                 {% if not collection_data.tokens_deployed %}
-                    <button class="general_button_no_border light_purple_background shadow_strong rounded_container_no_padding" onclick="deploy_ipfs_request()" type="button">
-                        <h4 class="no_margin generate">Mint Collection</h4>
+                    <button class="general_button_no_border light_purple_background shadow_strong rounded_container_no_padding" onclick="init_deploy_collection()" type="button">
+                        <h4 class="no_margin generate">Private Mint</h4>
                     </button>
                     <button class="general_button_no_border light_purple_background shadow_strong rounded_container_no_padding" onclick="" type="button" disabled>
                         <h4 class="no_margin generate">Public Mint</h4>

@@ -637,6 +637,7 @@ def collection_view(request, username, collection_name):
                 if request.user.is_authenticated:
                     if not user_collection.contract_bool:
                         user_collection.contract_address = received_json_data["address_set"]
+                        user_collection.chain_id = received_json_data["chain_id"]
                         user_collection.contract_bool = True
                         user_collection.save()
                     return JsonResponse(

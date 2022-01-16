@@ -6,8 +6,8 @@
   --background-color: #7e87f71f;
   --light-grey-color: #FFFFFF;
   --medium-grey-color: #627EEA;
-  --orange-color: #627dea85;
-  --image-text-color: #627dea85;
+  --orange-color: #A8B6F4;
+  --image-text-color: #A8B6F4;
   --white-color: #F7F8FA;
   --off-white-color: #2C2F36;
   --border-color: #EDEEF2;
@@ -1129,6 +1129,132 @@ body {
   justify-content: center; */
   /* margin-bottom: 100px; */
   /* cursor: pointer; */
+}
+
+.deploy_collection_container{
+  display: none;
+  --modal-max-width: min(calc(100% - 32px),768px);
+  --modal-max-height: calc(100% - 32px);
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+  max-width: var(--modal-max-width);
+  max-height: var(--modal-max-height);
+  overflow-y: auto;
+  border: 1px solid var(--border-color);
+  padding: 35px;
+  background: var(--light-grey-color);
+}
+.dc_close{
+  position: absolute;
+  height: 20px;
+  display: block;
+  left: 96%;
+  margin-top: -20px;
+  cursor: pointer;
+}
+.dc_content{
+  margin: 0px;
+  text-align: center;
+}
+.dc_status_container{
+  display: flex;
+  margin: 0px;
+  flex-direction: column-reverse;
+  box-sizing: border-box;
+  padding: 0;
+  align-items: center;
+}
+.dc_status_sections{
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  -webkit-box-pack: justify;
+  justify-content: space-between;
+  width: 80%;
+}
+.dc_status_bar_container{
+  height: 4px;
+  margin: 6px 0px;
+  width: 78%;
+  position: relative;
+}
+.dc_status_bar_active{
+  height: 4px;
+  position: absolute;
+  background: var(--medium-grey-color);
+  width: 0%;
+}
+.dc_status_dot {
+  height: 25px;
+  width: 25px;
+  background: var(--orange-color);
+  border-radius: 50%;
+  position: absolute;
+  top: 31px;
+  z-index: 1;
+}
+.dc_status_sections p{
+  font-size: 14px;
+  color: var(--text-color-2)
+}
+.dc_content h2{
+  color: var(--medium-grey-color);
+}
+.dc_content h4{
+  color: var(--text-color-2);
+  font-weight: bold;
+}
+.dc_body{
+  height: 180px;
+}
+.dc_buttons{
+  height: 50px;
+  display: flex;
+  justify-content: space-evenly;
+}
+.dc_buttons button{
+  height: 100%;
+  color: var(--text-generate-color);
+}
+.spinner{
+  height: 100%;
+  display: none;
+  justify-content: center;
+  align-items: center;
+  border-radius: 5px;
+}
+.spinner>div{
+  background: #C4C4C4;
+  height: 40%;
+  width: 15px;
+  margin-left: 2px;
+  animation: animationSpin 1.5s infinite ease-in-out;
+}
+#spin2{
+  animation-delay: 0.1s;
+}
+#spin3{
+  animation-delay: 0.2s;
+}
+#spin4{
+  animation-delay: 0.3s;
+}
+#spin5{
+  animation-delay: 0.4s;
+}
+
+@keyframes animationSpin {
+  0%,
+  40%, 
+  100%{
+    transform: scaleY(0.9);
+  }
+  20%{
+    border-radius: 0.6px;
+    transform: scaleY(2);
+  }
 }
 /* COLLECTION PAGE */
 

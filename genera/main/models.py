@@ -124,6 +124,7 @@ class UserCollection(Model):
     # Smart Contract
     contract_address = models.CharField(max_length=50, unique=False, blank = True, null = True)
     contract_bool =  models.BooleanField(default=False)
+    chain_id = models.CharField(max_length=10, unique=False, blank = True, null = True)
     tokens_deployed = models.BooleanField(default=False)
 
 class CollectionImage(Model):

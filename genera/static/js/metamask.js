@@ -8,7 +8,99 @@ entries = null
 entry_ids = null
 token_name = null
 collection_name = null
+active_account = null
+active_chain_id = null
+contract_chainid = null
 token_counter = 0
+deploy_collection_data ={
+    'IPFS' : [
+        {
+            'title' : 'Deploying to IPFS',
+            'subtitle' : 'This process is irreversible, are you sure?',
+            'buttons': [
+                {
+                'name' : 'Deploy',
+                'metadata' : '',
+                'status' : 'active'
+                }
+            ],
+            'width' : 100,
+            'section' : 0
+        },
+        {
+            'title': 'Deploying to IPFS',
+            'subtitle': 'Your collection is currently being deployed to IPFS, this may take a while...'
+        }
+    ],
+    'Network': [
+        {
+            'title': 'Choose a Network',
+            'subtitle': 'Please switch your Metamask active network to your intended network',
+            'buttons': [
+                {
+                    'name': 'Ethereum Mainnet',
+                    'metadata': '0x1',
+                    'status': 'active'
+                },
+                {
+                    'name': 'Rinkeby Testnet',
+                    'metadata': '0x4',
+                    'status': 'active'
+                },
+                // {
+                //     'name': 'Polygon',
+                //     'metadata': 'chainid',
+                //     'status': 'disabled'
+                // }
+            ],
+            'width': 37,
+            'section': 1
+        },
+        {
+            'title': 'Metamask Wallet',
+            'subtitle': 'Please connect your Metamask Wallet'
+        }
+
+    ],
+    'Contract': [
+        {
+            'title': 'Deploy Contract',
+            'subtitle': 'Private Mint Contract',
+            'buttons': [
+                {
+                    'name': 'Deploy',
+                    'metadata': 'private',
+                    'status': 'active'
+                },
+            ],
+            'width': 65,
+            'section': 2
+        },
+        {
+            'title': 'Deploying your Contract!',
+            'subtitle': 'Please confirm with your Metamask Wallet',
+        }
+    ],
+    'Mint': [
+        {
+            'title': 'Minting',
+            'subtitle': 'Mint your NFT(s)!',
+            'buttons': [
+                {
+                    'name': 'Mint',
+                    'metadata': 'private',
+                    'status': 'active'
+                },
+            ],
+            'width': 100,
+            'section': 3
+        },
+        {
+            'title': 'Minting your NFT(s)!',
+            'subtitle': 'Please confirm with your Metamask Wallet',
+        }
+    ]
+}
 function main() {
 
     ipfs_links = []
@@ -25,6 +117,7 @@ function main() {
         }
         temp()
     }
+    contract_chainid = js_vars.dataset.chain_id
     token_name = js_vars.dataset.token_name
     image_name = js_vars.dataset.image_name
     entries = JSON.parse(js_vars.dataset.entry_ids)
@@ -36,12 +129,15 @@ function main() {
     tokens_minted_bool = (js_vars.dataset.tokens_minted_bool.toLowerCase() === 'true');
     collection_size = parseInt(js_vars.dataset.collection_size)
 
-    console.log(contract_bool)
-    console.log(ipfs_bool)
-    console.log(token_name)
-    console.log(image_name)
-    console.log(ipfs_links)
-    console.log(entries) // string
+    deploy_collection_container = document.getElementsByClassName('deploy_collection_container')[0]
+
+
+    // console.log(contract_bool)
+    // console.log(ipfs_bool)
+    // console.log(token_name)
+    // console.log(image_name)
+    // console.log(ipfs_links)
+    // console.log(entries)
     // gas_estimate = document.querySelector('.testButton');
 
     // gas_estimate.addEventListener('click', async () =>{
@@ -65,155 +161,165 @@ function main() {
 }
 
 async function metamask_check(){
-    // console.log("Login clicked");
     const provider = await detectEthereumProvider();
 
     if (provider) {
-        // console.log('Installed!');
-        var active_account = startApp(provider);
+        await startApp(provider) 
     } else {
         alert('Please install MetaMask!');
+        close_deploy_collection()
     }
-    return active_account;
+}
+
+async function personal_sign(){
+    ethereum.request({ method: 'eth_personalSign'}).then((response) =>{
+        console.log(response)
+    })
+}
+
+async function choose_network(self){
+    console.log('Connecting to Wallet')
+    loading_deploy_collection(deploy_collection_data['Network'][1])
+    await metamask_check().then(async () =>{
+        await get_chainid().then(() => {
+            if (self !== active_chain_id) {
+                alert('Please change your Metamask wallet to your intended network')
+                populate_deploy_collection(deploy_collection_data['Network'][0], choose_network)
+                throw("wrong chainID")
+            }
+        })
+    })
+    .catch((error) => {
+        throw (error)
+    });
+    
+    populate_deploy_collection(deploy_collection_data['Contract'][0], deploy_contract_request)
 }
 
 async function deploy_ipfs_request() {
-    
-    await yes_no_popup("Mint Collection?", "Yes", "No")
-        .then(function (reponse) {
-            if (reponse) {
-                close_yes_no_popup()
-            }
-            else {
-                close_yes_no_popup()
-                throw ("no deployment")
-            }
-
-        })
-
-    if (!ipfs_bool) {
-        create_and_render_loading_popup("Deploying to IPFS")
-        ajax_post_json({ 'ifps_deployment': "" })
-            .then(function (response) {
-                ipfs_links = response["ipfs_links"]
-                entries = response["entries"]
-                console.log("Received ipfs & entries from db")
-                ipfs_bool = true
-                close_loading_popup()
-                deploy_contract_request()
-            })
-    }
-    else{
-        deploy_contract_request()
-    }
-    
-    
+    console.log("Deploying to IPFS")
+    loading_deploy_collection(deploy_collection_data['IPFS'][1])
+    ajax_post_json({ 'ifps_deployment': "" })
+        .then(function (response) {
+            ipfs_links = response["ipfs_links"]
+            entries = response["entries"]
+            console.log("Received ipfs & entries from db")
+            ipfs_bool = true
+            populate_deploy_collection(deploy_collection_data['Network'][0], choose_network)
+        }) 
 }
 
 async function deploy_contract_request() {
-    if (!contract_bool) {
-        create_and_render_loading_popup("Deploying Smart Contract")
-        await deploy_contract().then((reponse)=>{
-            // double checking user account
-            close_loading_popup()
-            add_tokens_request(reponse, ajax_url);
-        })
-        .catch((error) => {
-            close_loading_popup()
-            throw (error)
-        })
-    }else{
-        var active_account = await metamask_check()
-        close_loading_popup()
-        add_tokens_request(active_account, ajax_url);
-    }
+    loading_deploy_collection(deploy_collection_data['Contract'][1])
+    deploy_contract().then((reponse)=>{
+        populate_deploy_collection(deploy_collection_data['Mint'][0], add_tokens_request)
+    })
+    .catch((error) => {
+        throw (error)
+    })
    
 }
 
 async function deploy_contract(){
     console.log("deploying contract")
-    var active_account = await metamask_check()
     constructor_paramter = constructor_string(collection_name, token_name);
-    deployed_contract = await ethereum
-        .request({
-            method: 'eth_sendTransaction',
-            params: [
-                {
-                    from: active_account[0],
-                    gas: '0x210000', //180-200k usually
-                    gasLimit: '0x21000000',
-                    data: parsed_json['bytecode'] + constructor_paramter,
-                    chainId: '0x4',
-                },
-            ],
-        })
-        .catch(function(error){
-            throw(error)
-        })
-        .then(async function (txHash) {
-            contract_address = await waitForTxToBeMined(txHash)
-            contract_bool = true
-            console.log("Contract mined, address:" + contract_address)
-            save_contract_address()
-        })
-    return active_account;
-}
-
-function add_tokens_request(active_account, ajax_url){
-    if (!tokens_minted_bool){
-        create_and_render_loading_popup("Minting NFTs")
-        if (uri_list.length == collection_size) {
-            ajax_post_json({'collection_minted': contract_address}).then((reponse) => {
-                window.location.reload()
-                return
-            })  
-        }else if(uri_list.length >= 0) {
-            for (let i = 0; i < uri_list.length; i++) {
-                for (let j = 0; j < ipfs_links.length; j++) {
-                    if (uri_list[i] == ipfs_links[j]) {
-                        ipfs_links.splice(j, 1)
-                        break;
-                    }
-                }
-            }
-            // console.log(uri_list)
-            // console.log(ipfs_links)
-            add_tokens(active_account, ajax_url)  
-        }    
-    }
-}
-
-async function add_tokens(active_account, url=null) {
-    console.log("Adding tokens to " + contract_address)
-    // console.log(ipfs_links)
-    // console.log(entries)
-    for (let index = 0; index < ipfs_links.length; index++) {
-        token_counter++
-        console.log(token_counter)
-        deployed_token = await ethereum
+    try {
+        deployed_contract = await ethereum
             .request({
                 method: 'eth_sendTransaction',
                 params: [
                     {
-                        from: active_account[0],
-                        to: contract_address,
-                        gas: '0x210000',//180-200k usually
+                        from: active_account,
+                        gas: '0x210000', //180-200k usually
                         gasLimit: '0x21000000',
-                        data: abi_token_uri(ipfs_links[index]),
-                        chainId: '0x4',
+                        data: parsed_json['bytecode'] + constructor_paramter,
+                        chainId: active_chain_id,
                     },
                 ],
             })
-            .then(function (txHash) {
-                console.log('Transaction sent')
-                waitForTxToBeMined(txHash, true, index)
+            .catch(function (error) {
+                throw (error)
             })
-            .catch((error) =>{
-                token_counter--
-                token_count_check()
-                throw (error) 
-            });
+            .then(async function (txHash) {
+                contract_address = await waitForTxToBeMined(txHash)
+                contract_chainid = active_chain_id
+                contract_bool = true
+                console.log("Contract mined, address:" + contract_address)
+                save_contract_address()
+            })
+    } catch (error) {
+        close_deploy_collection()
+        throw (error)
     }
+    
+}
+
+function add_tokens_request(){
+    if (uri_list.length == collection_size) {
+        console.log('Collection Minted')
+        ajax_post_json({'collection_minted': contract_address}).then((reponse) => {
+            window.location.reload()
+            return
+        })  
+    }else if(uri_list.length >= 0) {
+        for (let i = 0; i < uri_list.length; i++) {
+            for (let j = 0; j < ipfs_links.length; j++) {
+                if (uri_list[i] == ipfs_links[j]) {
+                    ipfs_links.splice(j, 1)
+                    break;
+                }
+            }
+        }
+        add_tokens()  
+    }    
+}
+
+async function add_tokens() {
+    console.log("Adding tokens to " + contract_address)
+    console.log(ipfs_links)
+    loading_deploy_collection(deploy_collection_data['Mint'][1])
+    await metamask_check().then(async ()=>{
+        await get_chainid().then(async () => {
+            if (contract_chainid !== active_chain_id) {
+                alert('Please change your Metamask wallet to your intended network')
+                populate_deploy_collection(deploy_collection_data['Mint'][0], add_tokens_request)
+                throw ("wrong chainID")
+            }else{
+                for (let index = 0; index < ipfs_links.length; index++) {
+                    token_counter++
+                    console.log(token_counter)
+                    console.log(ipfs_links[index])
+                    deployed_token = await ethereum
+                        .request({
+                            method: 'eth_sendTransaction',
+                            params: [
+                                {
+                                    from: active_account,
+                                    to: contract_address,
+                                    gas: '0x210000',//180-200k usually
+                                    gasLimit: '0x21000000',
+                                    data: abi_token_uri(ipfs_links[index]),
+                                    chainId: active_chain_id,
+                                },
+                            ],
+                        })
+                        .then(function (txHash) {
+                            console.log('Transaction sent')
+                            waitForTxToBeMined(txHash, true, index)
+                        })
+                        .catch((error) => {
+                            token_counter--
+                            token_count_check()
+                            throw (error)
+                        });
+                }
+            }
+        })
+    })
+    .catch((error) => {
+        throw (error)
+    });
+    
 }
 
 async function waitForTxToBeMined(txHash, ajax = false, index = 0) {
@@ -236,7 +342,7 @@ async function waitForTxToBeMined(txHash, ajax = false, index = 0) {
 }
 
 function save_contract_address() {
-    ajax_post_json({'address_set': contract_address})
+    ajax_post_json({ 'address_set': contract_address, 'chain_id': active_chain_id})
     .then(function(response) {
         console.log("Contract adress stored in db " + response["server_message"])
     })
@@ -247,23 +353,73 @@ async function startApp(provider) {
     // window.ethereum, something is overwriting it, perhaps another wallet.
     if (provider !== window.ethereum) {
         console.error('Do you have multiple wallets installed?');
+        alert('Could not connect to Metamask, do you have multiple wallets installed?')
     } else {
-        account = await ethereum
+        await ethereum
             .request({ method: 'eth_requestAccounts' })
-            .then(console.log("handleAccountsChanged")) //define handleAccountsChanged
+            .then((response) =>{
+                active_account = response[0],
+                ethereum.on('accountsChanged', handleAccountsChanged),
+                ethereum.on('chainChanged', handleChainChanged)
+            }   
+            )
             .catch((err) => {
                 if (err.code === 4001) {
                     // EIP-1193 userRejectedRequest error
                     // If this happens, the user rejected the connection request.
+                    console.log('Please connect to MetaMask.')
                     alert('Please connect to MetaMask.');
-                    console.log('Please connect to MetaMask.');
+                    close_deploy_collection()
+                    throw(err)
                 } else {
-                    console.error(err);
+                    throw (err)
                 }
             });
 
     }
-    return account;
+}
+//for chain id on the mother fucking buttons!!!!!
+// const chainId = await ethereum.request({ method: 'eth_chainId' });
+// handleChainChanged(chainId);
+
+// button connecte!!
+// document.getElementById('connectButton', metamask_check); 
+
+// async function personalSign(){
+//     await ethereum
+//         .request({ method: 'eth_sign' })personal_sign
+//         .then((response)=>{
+//             console.log(response)
+//         })
+//         .catch((err) => {
+//             if (err.code === 4001) {
+//                 // EIP-1193 userRejectedRequest error
+//                 // If this happens, the user rejected the connection request.
+//                 console.log('Please connect to MetaMask.')
+//                 alert('Please connect to MetaMask.')
+//                 return
+//             } else {
+//                 console.error(err);
+//             }
+//         });
+// }
+async function get_chainid(){
+    active_chain_id = await ethereum.request({ method: 'eth_chainId' });
+}
+
+function handleChainChanged(_chainId) {
+    window.location.reload();
+}
+
+function handleAccountsChanged(accounts) {
+    if (accounts.length === 0) {
+        console.log("logged out")
+        alert('Logged out of metamask');
+        close_deploy_collection()
+    } else if (accounts[0] !== active_account) {
+        active_account = accounts[0];
+        console.log("New Account!!!")
+    }
 }
 
 function constructor_string(name, symbol) {
@@ -346,6 +502,57 @@ async function check_mint_status(){
         });
     }
     console.log("finished check_mint_status")
+}
+
+async function init_deploy_collection(){
+    if (!ipfs_bool){
+        populate_deploy_collection(deploy_collection_data['IPFS'][0], deploy_ipfs_request)
+    } else if (!contract_bool){
+        populate_deploy_collection(deploy_collection_data['Network'][0], choose_network)
+    } else if (!tokens_minted_bool){
+        populate_deploy_collection(deploy_collection_data['Mint'][0], add_tokens_request)
+    }
+}
+
+function populate_deploy_collection(populate_data, function_callback = null){
+    document.getElementsByClassName('filter')[0].style['pointer-events'] = "none"
+    document.body.classList.add('disable_scrolling');
+    deploy_collection_container.style.display = "block"
+    deploy_collection_container.querySelector(".dc_close").style.display = "block"
+    deploy_collection_container.querySelector(".spinner").style.display = 'none'
+    deploy_collection_container.querySelector("h2").innerText = populate_data['title']
+    deploy_collection_container.querySelector("h4").innerText = populate_data['subtitle']
+    deploy_collection_container.querySelector(".dc_status_bar_active ").style.width = `${populate_data['width']}%`
+    deploy_collection_container.querySelector(".dc_buttons").innerHTML = ""
+    status_dot_update(populate_data['section'])
+    populate_data['buttons'].forEach(element => {
+        let button = document.createElement('button')
+        button.classList = "general_button_no_border light_purple_background rounded_container_no_padding"
+        button.innerText = element['name']
+        button.onclick = () => { function_callback(element['metadata'])}
+        deploy_collection_container.querySelector(".dc_buttons").appendChild(button)
+    });
+}
+
+function loading_deploy_collection(populate_data){
+    deploy_collection_container.querySelector("h2").innerText = populate_data['title']
+    deploy_collection_container.querySelector("h4").innerText = populate_data['subtitle']
+    deploy_collection_container.querySelector(".spinner").style.display = 'flex'
+    deploy_collection_container.querySelector(".dc_buttons").innerHTML = ""
+    deploy_collection_container.querySelector(".dc_close").style.display = "none"
+}
+
+function close_deploy_collection(){
+    document.getElementsByClassName('filter')[0].style['pointer-events'] = "all"
+    document.body.classList.remove('disable_scrolling');
+    deploy_collection_container.style.display = "none"
+}
+
+function status_dot_update(section){
+    let status_dots = deploy_collection_container.querySelectorAll(".dc_status_dot")
+    for (let i = 0; i < section; i++) {
+        status_dots[i].style.background = "var(--medium-grey-color)"    
+    }
 }
 
 window.addEventListener("load", main);
