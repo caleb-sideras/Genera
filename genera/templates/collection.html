@@ -2,12 +2,14 @@
 {% load static %}
 
 {% block head_block %}
-<!-- <title>Metamask Demo</title> -->
     <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
     <script src="https://unpkg.com/@metamask/detect-provider/dist/detect-provider.min.js"></script>
     <script type="text/javascript" src="{% static 'js/metamask.js' %}"></script>
     <script type="text/javascript" src="{% static 'js/collection.js' %}"></script>
     <script type="text/javascript" src="{% static 'js/libraries/jszip.min.js' %}"></script>
+    <script type="module" crossorigin="" src="{% static 'js/car_generator.js' %}"></script>
+    <link rel="modulepreload" href="{% static 'js/ipfs_car.js' %}" />
+    <link rel="text/css" href="{% static 'index.a07e812f.cs' %}"  />
 {% endblock %}
 
 {% block body_block %}
@@ -189,4 +191,8 @@
         </div>
     </div>
 </div>
+
+<input class="dn" type="hidden" multiple=""/>
+<input class="dn2" type="hidden" multiple=""/>
+
 {% endblock %}

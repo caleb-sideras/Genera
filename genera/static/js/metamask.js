@@ -1,6 +1,7 @@
 let web3 = new Web3(Web3.givenProvider);//Web3.givenProvider || "ws://localhost:8545"
 let web3_infura = new Web3(new Web3.providers.HttpProvider("https://rinkeby.infura.io/v3/d6c7a2d0b9bd40afa49d2eb06cc5baba"));
 
+
 contract_address = null
 ipfs_links = null
 uri_list = null
@@ -24,7 +25,7 @@ deploy_collection_data ={
                 'status' : 'active'
                 }
             ],
-            'width' : 100,
+            'width' : 0,
             'section' : 0
         },
         {
@@ -128,10 +129,19 @@ function main() {
     ipfs_bool = (js_vars.dataset.ipfs_bool.toLowerCase() === 'true');
     tokens_minted_bool = (js_vars.dataset.tokens_minted_bool.toLowerCase() === 'true');
     collection_size = parseInt(js_vars.dataset.collection_size)
+    deploy_collection_container = document.querySelector(".deploy_collection_container")
+    // const { root, out } = await pack({
+    //     input: [new Uint8Array([21, 31, 41])],
+    //     blockstore: new MemoryBlockStore(),
+    //     wrapWithDirectory: true, // Wraps input into a directory. Defaults to `true`
+    //     maxChunkSize: 262144 // The maximum block size in bytes. Defaults to `262144`. Max safe value is < 1048576 (1MiB)
+    // })
 
-    deploy_collection_container = document.getElementsByClassName('deploy_collection_container')[0]
-
-
+    // const carParts = []
+    // for await (const part of out) {
+    //     carParts.push(part)
+    // }
+    // console.log()
     // console.log(contract_bool)
     // console.log(ipfs_bool)
     // console.log(token_name)
@@ -202,7 +212,7 @@ async function deploy_ipfs_request() {
     ajax_post_json({ 'ifps_deployment': "" })
         .then(function (response) {
             ipfs_links = response["ipfs_links"]
-            entries = response["entries"]
+            // entries = response["entries"]
             console.log("Received ipfs & entries from db")
             ipfs_bool = true
             populate_deploy_collection(deploy_collection_data['Network'][0], choose_network)
@@ -289,7 +299,7 @@ async function add_tokens() {
                     token_counter++
                     console.log(token_counter)
                     console.log(ipfs_links[index])
-                    deployed_token = await ethereum
+                    await ethereum //deployed_token = 
                         .request({
                             method: 'eth_sendTransaction',
                             params: [

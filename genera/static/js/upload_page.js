@@ -1185,21 +1185,6 @@ async function generate_form_data_for_ajax_post_generate() {
             }
         }
     }
-    // for (const [key, value] of  Object.entries(uploaded_data)) {
-    //     for (const [subkey, subvalue] of  Object.entries(value)){
-    //         console.log(subkey + "." + key + "." + subkey)
-    //         console.log(subvalue['file'])
-    //         console.log(subvalue)
-    //         file_data.append(subkey+ "." + key + "." + subkey, subvalue['file']);
-    //         console.log('file appended')
-    //     }     
-    // }
-    // for (const [key, value] of Object.entries(uploaded_data["Textures"])) {
-    //     for (const [subkey, subvalue] of Object.entries(value)) {
-    //         file_data.append("texture." + key + "." + subkey, subvalue['file']);
-    //     }
-    // }
-
     return file_data
 }
 window.addEventListener("load", main);

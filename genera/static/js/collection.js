@@ -1,6 +1,6 @@
 collection_main = null
 card_element = null
-
+// import { cock as pussy} from "./index3ffdeef9.js";
 function main() {
     preview_wrapper = document.getElementsByClassName("image_preview")[0]
     document_body = document.body
@@ -392,6 +392,40 @@ function edit_image(title, description){
     submit_button = document.getElementById("update_collection_submit_button")
     submit_button.removeAttribute("disabled")
     console.log("edit clicked")
+}
+
+function create_image_car(){
+    var input_field = document.getElementsByClassName("dn")
+    const event = new Event('change');
+    input_field[0].dispatchEvent(event)
+
+    input_field[0].onchange = function () {
+        var file_data = new FormData();
+        file_data.append("public_image_car", "")
+        file_data.append('car_blob', input_field.value);
+        ajax_post_form(file_data)
+            .then(response => {
+                create_base_car(JSON.parse(response["image_uri"]))
+                // console.log(JSON.parse(response["image_uri"]))
+            })
+    }
+}
+
+function create_base_car(json_list) {
+    var input_field = document.getElementsByClassName("dn2")
+    input_field.value = json_list
+    const event = new Event('change');
+    input_field[0].dispatchEvent(event)
+
+    input_field[0].onchange = function () {
+        var file_data = new FormData();
+        file_data.append("public_base_car", "")
+        file_data.append('car_blob', input_field.value);
+        ajax_post_form(file_data)
+            .then(response => {
+                console.log(response)
+            })
+    }
 }
 
 window.addEventListener("load", main);

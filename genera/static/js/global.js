@@ -147,9 +147,16 @@ function ajax_post_factory(post_type) { //currently supports JSON and FORM data
                     else if (http_request.status === 201) { //handled response from Django view
                         close_loading_popup()
                         response = JSON.parse(http_request.responseText)
-                        if (response["url"] != "")
+                        if (response["url"])
                             window.location.replace(response["url"]) //server redirect - imitate return redirect(reverse(...)) from django view for ajax stuff
+                        else{
+                            resolve(JSON.parse(http_request.responseText))
+                        }
                         return
+                    }
+                    else if (http_request.status === 202) { // error messages
+                        let parsed_json = JSON.parse(http_request.responseText)
+                        alert(parsed_json['server_message'])
                     }
                     else { //unhandled error
                         alert("Unkown server error")

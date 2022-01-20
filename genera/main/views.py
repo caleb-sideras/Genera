@@ -1,6 +1,8 @@
+from ast import Try
 from time import timezone
 from django.http.response import HttpResponse
 from django.shortcuts import render
+from main.helper_functions import nft_storage_api_store
 from main.view_tools import *
 from genera.settings import MEDIA_DIR, DEFAULT_FROM_EMAIL, BASE_DIR, STRIPE_PUBILC_KEY, STRIPE_PRIVATE_KEY
 from main.models import User
@@ -556,11 +558,102 @@ def collection_view(request, username, collection_name):
     if request.method == "POST":
         print("we posted")
 
+        if 'public_image_car' in request.POST:
+
+            if user_collection.contract_type == 1:
+                 return JsonResponse(
+                    {"server_message": "Wrong contract type"},
+                    status=202,
+                )
+            if len(collection_images) > request.user.credits:
+            # or user_collection.image_uri:
+                return JsonResponse(
+                    {"server_message": "USER DOES NOT HAVE ENOUGH CREDITS"},
+                    status=202,
+                )
+            if user_collection.collection_ifps_bool:
+                return JsonResponse(
+                    {"server_message": "collection_deployed"},
+                    status=200,
+                )
+            if user_collection.image_uri and not user_collection.base_uri:
+                metadata_list = []
+                for entry in collection_images:
+                    metadata_list.append(entry.metadata)
+                return JsonResponse(
+                    {"image_uri" : metadata_list},
+                    status=200
+                )
+                
+            for filename in request.FILES.keys():
+                for file in request.FILES.getlist(filename):
+                    response = nft_storage_api_store(file)
+                    if not response:
+                        return JsonResponse(
+                            {"server_message": "Failed to upload to IPFS, please try again"},
+                            status=202,
+                        )
+                    else:
+                        print(response['value']['cid'])
+                        user_collection.image_uri = response['value']['cid']
+
+                    metadata_list = []    
+                    for count, entry in enumerate(collection_images):
+                        metadata = json.loads(entry.metadata)
+                        metadata["image"] = f"https://{response['value']['cid']}.ipfs.dweb.link/{count}.png"
+                        metadata_list.append(metadata)
+                        entry.metadata = json.dumps(metadata)
+                        entry.save()
+            user_collection.contract_type = 2
+            user_collection.save()
+            return JsonResponse(
+                {
+                    "image_uri" : json.dumps(metadata_list)
+                },
+                status=200,
+            )
+        if 'public_base_car' in request.POST:
+
+            if user_collection.contract_type == 1:
+                return JsonResponse(
+                    {"server_message": "Wrong contract type"},
+                    status=202,
+                )
+            if len(collection_images) > request.user.credits:
+                return JsonResponse(
+                    {"server_message": "USER DOES NOT HAVE ENOUGH CREDITS"},
+                    status=202,
+                )
+            if not user_collection.image_uri:
+                return JsonResponse(
+                    {"server_message": "Images not deployed"},
+                    status=202,
+                )
+
+            for filename in request.FILES.keys():
+                for file in request.FILES.getlist(filename):
+                    response = nft_storage_api_store(file)
+                    if not response:
+                        return JsonResponse(
+                            {"server_message": "Failed to upload to IPFS, please try again"},
+                            status=202,
+                        )
+                    else:
+                        print(response['value']['cid'])
+                        user_collection.base_uri = response['value']['cid']
+                        user_collection.contract_type = 2
+                        user_collection.save()
+            return JsonResponse(
+                {
+                    "server_message" : "Sucess, collection Deployed!"
+                },
+                status=200,
+            )
         if "image_name" in request.POST:
             collection_image = collection_images.filter(name=request.POST.get("entry_name")).first()
             if collection_image:
                 print(collection_image.id)
-                collection_image.name = request.POST.get("image_name")
+                collection_image.name = request.POST.get("image_name") # not needed
                 collection_image_description = json.loads(collection_image.metadata)
                 collection_image_description["description"] = request.POST.get("image_description")
                 collection_image_description["name"] = request.POST.get("image_name")
@@ -576,55 +669,66 @@ def collection_view(request, username, collection_name):
         try:
             received_json_data = json.loads(request.body)
             # make this a async function for speed!!!!! Will need db changes
-            if "ifps_deployment" in received_json_data:  # handle
-                pinata_links =[]
-                entry_ids =[]
+            if "private_image_car" in received_json_data:
                 if request.user.is_authenticated:
-                    if len(collection_images.filter(ipfs_bool = False)) > request.user.credits:
-                        messages.error(request, message="Not enough credits")
+                    if user_collection.contract_type == 2:
+                        return JsonResponse(
+                            {"server_message": "Wrong contract type"},
+                            status=202,
+                        )
+                    if len(collection_images) > request.user.credits:
                         return JsonResponse(
                             {"server_message": "USER DOES NOT HAVE ENOUGH CREDITS"},
-                                status=201,
-                            )
-                    for entry in collection_images:
-                        if not entry.ipfs_bool:
-                            if user.credits <= 0:
-                                messages.error(request, message="You ran out of credits")
+                            status=202,
+                        )
+                    if user_collection.collection_ifps_bool:
+                        metadata_list = []
+                        for entry in collection_images:
+                            metadata_list.append(entry.ipfs_metadata_path)
+                        return JsonResponse(
+                            {"ipfs_links" : metadata_list},
+                            status=200
+                        )
+
+                    for filename in request.FILES.keys():
+                        for file in request.FILES.getlist(filename):
+                            response = nft_storage_api_store(file)
+                            if not response:
                                 return JsonResponse(
-                                    {"server_message": "USER RAN OUT OF CREDITS"},
-                                    status=201,
+                                    {"server_message": "Failed to upload to IPFS, please try again"},
+                                    status=202,
                                 )
                             else:
-                                user.credits -= 1
-                                user.save()
-                            print(entry.name)
-                                
-                            # uploading image to ipfs
-                            pinata_link_image = upload_pinata_filepath(entry.path[1:], entry.name)
-                            print(pinata_link_image)
-                            # getting entry metadata
-                            metadata = entry.metadata
-                            metadata_load =json.loads(metadata)
-                                
-                            # saving metdata
-                            metadata_load["image"] = f"https://ipfs.io/ipfs/{pinata_link_image['IpfsHash']}"
-                            entry.metadata = json.dumps(metadata_load)
+                                print(response['value']['cid'])
+                                user_collection.base_uri = response['value']['cid']
 
-                            # uploading metadata w/image to ipfs & updating db
-                            pinata_link_data = upload_pinata_object(json.dumps(metadata_load), entry.name)
-                            print(pinata_link_data)
-                            entry.ipfs_metadata_path = f"https://ipfs.io/ipfs/{pinata_link_data['IpfsHash']}"
-                            entry.ipfs_bool = True
-                            entry.save()
-                                
-                            pinata_links.append(entry.ipfs_metadata_path)
-                            entry_ids.append(entry.id)
+                    for filename in request.FILES.keys():
+                        for file in request.FILES.getlist(filename):
+                            response = nft_storage_api_store(file)
+                            if not response:
+                                return JsonResponse(
+                                    {"server_message": "Failed to upload to IPFS, please try again"},
+                                    status=202,
+                                )
+                            else:
+                                print(response['value']['cid'])
+                                user_collection.image_uri = response['value']['cid']
+                                user_collection.save()
+
+                            metadata_list = []    
+                            for count, entry in enumerate(collection_images):
+                                metadata = json.loads(entry.metadata)
+                                metadata["image"] = f"https://{response['value']['cid']}.ipfs.dweb.link/{count}.png"
+                                metadata_list.append(metadata)
+                                entry.metadata = json.dumps(metadata)
+                                entry.save()
+
+                    user_collection.contract_type == 2
                     user_collection.collection_ifps_bool = True
                     user_collection.save()
                     return JsonResponse(
                         {
-                            "ipfs_links": pinata_links,
-                            "entries" : entry_ids,
+                            "image_uri" : json.dumps(metadata_list)
                         },
                         status=200,
                     )
@@ -767,4 +871,3 @@ def upload_pinata_object(fileobject, filename):
     except requests.exceptions.HTTPError as e:
         print(e.response.text)
     return response.json()
-
