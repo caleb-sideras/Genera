@@ -120,7 +120,7 @@ class UserCollection(Model):
 
     # IFPS
     collection_ifps_bool = models.BooleanField(default=False)
-    image_uri = models.CharField(max_length=300, unique=False)
+    image_uri = models.CharField(max_length=100, unique=False)
 
     # Smart Contract Universal
     contract_address = models.CharField(max_length=50, unique=False, blank = True, null = True)
@@ -129,7 +129,8 @@ class UserCollection(Model):
     contract_type = models.IntegerField(default=0) # 0 = nothing, 1 = private, 2 = public
     
     # Smart Contract Public
-    base_uri = models.CharField(max_length=300, unique=False)
+    base_uri = models.CharField(max_length=100, unique=False)
+    minting_cost = models.CharField(max_length=50, unique=False)
     
     # Smart Contract Private
     tokens_deployed = models.BooleanField(default=False)

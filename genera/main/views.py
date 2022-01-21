@@ -226,11 +226,6 @@ def upload_view(request):
                     messages.error(request, message=f"An Error has occured - data is missing. Please try again.")
                     return ajax_redirect(reverse("main:upload"), "An Error has occured - data is missing. Please try again.")
 
-            # if request.POST.get("rarity_map") == "":
-            #     messages.error(request, message="No Rarities recieved. Please try again.")
-            #     return redirect(reverse("main:upload"))
-
-            # rarity_map = json.loads(request.POST.get("rarity_map"))
             layers = {}
 
             db_collection = UserCollection.objects.get_or_create(user=request.user, collection_name=calebs_gay_dict["CollectionName"])
@@ -245,7 +240,6 @@ def upload_view(request):
             db_collection.dimension_y = calebs_gay_dict["Resolution_y"]
             db_collection.token_name = calebs_gay_dict["TokenName"]
             db_collection.image_name = calebs_gay_dict["ImageName"]
-            # db_collection.collection_size = calebs_gay_dict["CollectionSize"]
             db_collection.path = f"/media/users/{request.user.username}/collections/{calebs_gay_dict['CollectionName'].strip().replace(' ', '_')}"
 
             try:
@@ -255,7 +249,6 @@ def upload_view(request):
                 return ajax_redirect(reverse("main:upload"), "Critical Backend error. Please try again.")
             
             for filename in request.FILES.keys():
-                # print(request.FILES.keys())
                 for file in request.FILES.getlist(filename): ##for this set of file get layer name and layer type
                     print(file)
                     layer_type = filename.split(".")[0]
@@ -308,7 +301,7 @@ def upload_view(request):
 
             create_and_save_collection(calebs_gay_dict, db_collection, request.user)
             
-            messages.success(request, message="Collection generated succesfully! You have been redirected to the collection page ;)")
+            messages.success(request, message="Collection generated succesfully!")
 
             print("RETURNING COLLECTION")
             return JsonResponse({"url": reverse("main:collection",
@@ -322,7 +315,6 @@ def upload_view(request):
             return ajax_redirect(reverse("main:upload"), "No files recieved by the server. Please try again.")
 
     return render(request, "upload.html", context)
-
 
 def login_view(request):
     if request.user.is_authenticated:
@@ -504,329 +496,281 @@ def all_collections_view(request, username):
 
     user = User.objects.filter(username=username).first()
     context["user"] = user
-
     if user:
-        users_collections = UserCollection.objects.filter(user=user)
-        print(users_collections)
-        if users_collections:
-            context["users_collections"] = users_collections
+        if request.user.is_authenticated:
+            users_collections = UserCollection.objects.filter(user=user)
+            print(users_collections)
+            if users_collections:
+                context["users_collections"] = users_collections
+            else:
+                print("User has no collections.")
+                messages.error(request, "You have no collections!")
+                return render(request, "all_collections.html", context)
         else:
-            print("User has no collections.")
-            messages.error(request, "You have no collections!")
-            return render(request, "all_collections.html", context)
+            messages.error(request, "Not Logged in")
+            return render(request, "home.html")
+    else:
+        messages.error(request, "User does not exist.")
+        return render(request, "home.html")
 
     return render(request, "all_collections.html", context)
 
 def collection_view(request, username, collection_name):
     context = {}
 
-    with open("static/Contracts/erc721_contract.json", "r") as myfile:
+    # make ajax function for this
+    with open("static/Contracts/erc1155_public_contract.json", "r") as myfile:
         data = myfile.read()
     json_string = json.loads(data)
     context["erc721_json"] = json.dumps(json_string)
-    # print(context)
+
     user = User.objects.filter(username=username).first()
     context["user"] = user
     
     if user:
-        user_collection = UserCollection.objects.filter(user=user, collection_name=collection_name).first()
-        
-        # passing context
-        if user_collection:
-            context["ajax_url"] = reverse("main:collection", 
-                    kwargs={
-                        "username": request.user.username,
-                        "collection_name": user_collection.collection_name,
-                    },)
-            collection_images = CollectionImage.objects.filter(linked_collection__id=user_collection.id)
-            context["entry_ids"] = json.dumps([str(x) for x in CollectionImage.objects.filter(linked_collection__id=user_collection.id).values_list('id', flat=True)])
-            context["collection_data"] = user_collection
-            context["collection_images"] = collection_images
+        if request.user.is_authenticated:
+            user_collection = UserCollection.objects.filter(user=user, collection_name=collection_name).first()
             
-            if user_collection.collection_ifps_bool:
-                context["ipfs_links"] = json.dumps(list(collection_images.all().values_list('ipfs_metadata_path', flat=True))) 
+            # passing context
+            if user_collection:
+                context["ajax_url"] = reverse("main:collection", 
+                        kwargs={
+                            "username": request.user.username,
+                            "collection_name": user_collection.collection_name,
+                        },)
+                collection_images = CollectionImage.objects.filter(linked_collection__id=user_collection.id)
+                context["entry_ids"] = json.dumps([str(x) for x in CollectionImage.objects.filter(linked_collection__id=user_collection.id).values_list('id', flat=True)])
+                context["collection_data"] = user_collection
+                context["collection_images"] = collection_images
+                
+                if user_collection.collection_ifps_bool:
+                    context["ipfs_links"] = json.dumps(list(collection_images.all().values_list('ipfs_metadata_path', flat=True))) 
+                else:
+                    context["ipfs_links"] = ""
             else:
-                context["ipfs_links"] = ""
+                messages.error(request, "This collection does not exist.")
+                return render(request, "collection.html", context)
         else:
-            messages.error(request, "COLLECTION DOES NOT EXIST !! !! !!!! !! ! !  !!!!!")
-            return render(request, "collection.html", context)
+            messages.error(request, "Not Logged in!")
+            return render(request, "home.html")
     else:
-        messages.error(request, "NOT LOGGED IN !!!!!")
-        return render(request, "collection.html", context)
-
+        messages.error(request, "User does not exist.")
+        return render(request, "home.html")
 
     if request.method == "POST":
-        print("we posted")
+        if request.user.is_authenticated:
+            if 'image_car' in request.POST:
 
-        if 'public_image_car' in request.POST:
-
-            if user_collection.contract_type == 1:
-                 return JsonResponse(
-                    {"server_message": "Wrong contract type"},
-                    status=202,
-                )
-            if len(collection_images) > request.user.credits:
-            # or user_collection.image_uri:
-                return JsonResponse(
-                    {"server_message": "USER DOES NOT HAVE ENOUGH CREDITS"},
-                    status=202,
-                )
-            if user_collection.collection_ifps_bool:
-                return JsonResponse(
-                    {"server_message": "collection_deployed"},
-                    status=200,
-                )
-            if user_collection.image_uri and not user_collection.base_uri:
-                metadata_list = []
-                for entry in collection_images:
-                    metadata_list.append(entry.metadata)
-                return JsonResponse(
-                    {"image_uri" : metadata_list},
-                    status=200
-                )
-                
-            for filename in request.FILES.keys():
-                for file in request.FILES.getlist(filename):
-                    response = nft_storage_api_store(file)
-                    if not response:
-                        return JsonResponse(
-                            {"server_message": "Failed to upload to IPFS, please try again"},
-                            status=202,
-                        )
-                    else:
+                if user_collection.contract_type == 1:
+                    return JsonResponse(
+                        {"server_message": "Wrong contract type"},
+                        status=202,
+                    )
+                if len(collection_images) > request.user.credits:
+                # or user_collection.image_uri:
+                    return JsonResponse(
+                        {"server_message": "USER DOES NOT HAVE ENOUGH CREDITS"},
+                        status=202,
+                    )
+                if user_collection.collection_ifps_bool:
+                    return JsonResponse(
+                        {"server_message": "collection_deployed"},
+                        status=200,
+                    )
+                if user_collection.image_uri and not user_collection.base_uri:
+                    metadata_list = []
+                    for entry in collection_images:
+                        metadata_list.append(entry.metadata)
+                    return JsonResponse(
+                        {"image_uri" : metadata_list},
+                        status=200
+                    )
+                    
+                for filename in request.FILES.keys():
+                    for file in request.FILES.getlist(filename):
+                        response = nft_storage_api_store(file)
+                        if not response or response['ok'] == False:
+                            print(response)
+                            return JsonResponse(
+                                {"server_message": "Failed to upload to IPFS, please try again"},
+                                status=202,
+                            )
                         print(response['value']['cid'])
                         user_collection.image_uri = response['value']['cid']
 
-                    metadata_list = []    
-                    for count, entry in enumerate(collection_images):
-                        metadata = json.loads(entry.metadata)
-                        metadata["image"] = f"https://{response['value']['cid']}.ipfs.dweb.link/{count}.png"
-                        metadata_list.append(metadata)
-                        entry.metadata = json.dumps(metadata)
-                        entry.save()
-            user_collection.contract_type = 2
-            user_collection.save()
-            return JsonResponse(
-                {
-                    "image_uri" : json.dumps(metadata_list)
-                },
-                status=200,
-            )
-        if 'public_base_car' in request.POST:
+                        metadata_list = []    
+                        for count, entry in enumerate(collection_images):
+                            metadata = json.loads(entry.metadata)
+                            metadata["image"] = f"https://{response['value']['cid']}.ipfs.dweb.link/{count}.png"
+                            metadata_list.append(metadata)
+                            entry.metadata = json.dumps(metadata)
+                            entry.save()
+                user_collection.contract_type = 2
+                user_collection.save()
+                return JsonResponse(
+                    {
+                        "image_uri" : json.dumps(metadata_list)
+                    },
+                    status=200,
+                )
+            if 'base_car' in request.POST:
+                print("base_car")
+                if user_collection.contract_type == 1:
+                    return JsonResponse(
+                        {"server_message": "Wrong contract type"},
+                        status=202,
+                    )
+                if len(collection_images) > request.user.credits:
+                    return JsonResponse(
+                        {"server_message": "USER DOES NOT HAVE ENOUGH CREDITS"},
+                        status=202,
+                    )
+                if not user_collection.image_uri:
+                    return JsonResponse(
+                        {"server_message": "Images not deployed"},
+                        status=202,
+                    )
 
-            if user_collection.contract_type == 1:
-                return JsonResponse(
-                    {"server_message": "Wrong contract type"},
-                    status=202,
-                )
-            if len(collection_images) > request.user.credits:
-                return JsonResponse(
-                    {"server_message": "USER DOES NOT HAVE ENOUGH CREDITS"},
-                    status=202,
-                )
-            if not user_collection.image_uri:
-                return JsonResponse(
-                    {"server_message": "Images not deployed"},
-                    status=202,
-                )
+                for filename in request.FILES.keys():
+                    for file in request.FILES.getlist(filename):
+                        response = nft_storage_api_store(file)
+                        if not response or response['ok'] == False:
+                            print(response)
+                            return JsonResponse(
+                                {"server_message": "Failed to upload to IPFS, please try again"},
+                                status=202,
+                            )
 
-            for filename in request.FILES.keys():
-                for file in request.FILES.getlist(filename):
-                    response = nft_storage_api_store(file)
-                    if not response:
-                        return JsonResponse(
-                            {"server_message": "Failed to upload to IPFS, please try again"},
-                            status=202,
-                        )
-                    else:
                         print(response['value']['cid'])
                         user_collection.base_uri = response['value']['cid']
-                        user_collection.contract_type = 2
+                        user_collection.collection_ifps_bool = True
                         user_collection.save()
-            return JsonResponse(
-                {
-                    "server_message" : "Sucess, collection Deployed!"
-                },
-                status=200,
-            )
-        if "image_name" in request.POST:
-            collection_image = collection_images.filter(name=request.POST.get("entry_name")).first()
-            if collection_image:
-                print(collection_image.id)
-                collection_image.name = request.POST.get("image_name") # not needed
-                collection_image_description = json.loads(collection_image.metadata)
-                collection_image_description["description"] = request.POST.get("image_description")
-                collection_image_description["name"] = request.POST.get("image_name")
-                collection_image.metadata = json.dumps(collection_image_description)
-                collection_image.save()
+                    
 
-                return redirect(reverse("main:collection", kwargs= {
-                    "username": username,
-                    "collection_name": collection_name,
-                }))
-        
-        ##AJAX HANDLING SECTION START
-        try:
-            received_json_data = json.loads(request.body)
-            # make this a async function for speed!!!!! Will need db changes
-            if "private_image_car" in received_json_data:
-                if request.user.is_authenticated:
-                    if user_collection.contract_type == 2:
-                        return JsonResponse(
-                            {"server_message": "Wrong contract type"},
-                            status=202,
-                        )
-                    if len(collection_images) > request.user.credits:
-                        return JsonResponse(
-                            {"server_message": "USER DOES NOT HAVE ENOUGH CREDITS"},
-                            status=202,
-                        )
-                    if user_collection.collection_ifps_bool:
-                        metadata_list = []
-                        for entry in collection_images:
-                            metadata_list.append(entry.ipfs_metadata_path)
-                        return JsonResponse(
-                            {"ipfs_links" : metadata_list},
-                            status=200
-                        )
+                return JsonResponse(
+                    {
+                        "base_uri" : response['value']['cid']
+                    },
+                    status=200,
+                )
+            if "image_name" in request.POST:
+                collection_image = collection_images.filter(name=request.POST.get("entry_name")).first()
+                if collection_image:
+                    print(collection_image.id)
+                    collection_image.name = request.POST.get("image_name") # not needed
+                    collection_image_description = json.loads(collection_image.metadata)
+                    collection_image_description["description"] = request.POST.get("image_description")
+                    collection_image_description["name"] = request.POST.get("image_name")
+                    collection_image.metadata = json.dumps(collection_image_description)
+                    collection_image.save()
 
-                    for filename in request.FILES.keys():
-                        for file in request.FILES.getlist(filename):
-                            response = nft_storage_api_store(file)
-                            if not response:
-                                return JsonResponse(
-                                    {"server_message": "Failed to upload to IPFS, please try again"},
-                                    status=202,
-                                )
+                    return redirect(reverse("main:collection", kwargs= {
+                        "username": username,
+                        "collection_name": collection_name,
+                    }))
+            ##AJAX HANDLING SECTION START
+            try:
+                received_json_data = json.loads(request.body)
+                # make this a async function for speed!!!!! Will need db changes
+
+                if "address_set" in received_json_data:
+                    if request.user.is_authenticated:
+                        if not user_collection.contract_bool:
+                            user_collection.contract_address = received_json_data["address_set"]
+                            user_collection.chain_id = received_json_data["chain_id"]
+                            user_collection.minting_cost = received_json_data["minting_cost"]
+                            if received_json_data["contract_type"] == 'Private':
+                                user_collection.contract_type = 1
                             else:
-                                print(response['value']['cid'])
-                                user_collection.base_uri = response['value']['cid']
+                                user_collection.contract_type = 2
 
-                    for filename in request.FILES.keys():
-                        for file in request.FILES.getlist(filename):
-                            response = nft_storage_api_store(file)
-                            if not response:
-                                return JsonResponse(
-                                    {"server_message": "Failed to upload to IPFS, please try again"},
-                                    status=202,
-                                )
-                            else:
-                                print(response['value']['cid'])
-                                user_collection.image_uri = response['value']['cid']
-                                user_collection.save()
-
-                            metadata_list = []    
-                            for count, entry in enumerate(collection_images):
-                                metadata = json.loads(entry.metadata)
-                                metadata["image"] = f"https://{response['value']['cid']}.ipfs.dweb.link/{count}.png"
-                                metadata_list.append(metadata)
-                                entry.metadata = json.dumps(metadata)
-                                entry.save()
-
-                    user_collection.contract_type == 2
-                    user_collection.collection_ifps_bool = True
-                    user_collection.save()
-                    return JsonResponse(
-                        {
-                            "image_uri" : json.dumps(metadata_list)
-                        },
-                        status=200,
-                    )
-                else:
-                    return JsonResponse(
-                        {"server_message": "USER NOT LOGGED IN"},
-                        status=201,
-                    )
-            elif "address_set" in received_json_data:
-                if request.user.is_authenticated:
-                    if not user_collection.contract_bool:
-                        user_collection.contract_address = received_json_data["address_set"]
-                        user_collection.chain_id = received_json_data["chain_id"]
-                        user_collection.contract_bool = True
+                            user_collection.contract_bool = True
+                            user_collection.save()
+                        return JsonResponse(
+                            {"server_message" :"Contract address set"},
+                            status = 200
+                        )
+                    else:
+                        return JsonResponse(
+                            {"server_message": "USER NOT LOGGED IN"},
+                            status=201,
+                        )
+                elif "delete_entry" in received_json_data:
+                    if request.user.is_authenticated:
+                        collection_query = collection_images.filter(id = received_json_data['delete_entry']).delete() # change to id
+                        print(f"deleted {received_json_data['delete_entry']}")
+                        user_collection.collection_size = user_collection.collection_size - 1
                         user_collection.save()
-                    return JsonResponse(
-                        {"server_message" :"Contract address set"},
-                        status = 200
-                    )
-                else:
-                    return JsonResponse(
-                        {"server_message": "USER NOT LOGGED IN"},
-                        status=201,
-                    )
-            elif "delete_entry" in received_json_data:
-                if request.user.is_authenticated:
-                    collection_query = collection_images.filter(id = received_json_data['delete_entry']).delete() # change to id
-                    print(f"deleted {received_json_data['delete_entry']}")
-                    user_collection.collection_size = user_collection.collection_size - 1
-                    user_collection.save()
 
 
-                    return JsonResponse(
-                        {"server_message": "Deleted collection_image object"},
-                        status=200,
-                    )
-                else:
-                    return JsonResponse(
-                        {"server_message": "USER NOT LOGGED IN"},
-                        status=201,
-                    )
-            elif "delete_duplicates" in received_json_data:
-                if request.user.is_authenticated:
-                    i = 0
-                    while i < len(collection_images):
-                        # print(f"{len(collection_images)} LENGTH OF QUERY")
-                        entry_metadata = json.loads(collection_images[i].metadata)
-                        # print(f"{entry_metadata} COMPARISON METADATA {i}")
-                        for j in range(len(collection_images) - 1 - i):           
-                            value_metadata = json.loads(collection_images[j + 1 + i].metadata)
-                            # print(f"{value_metadata} CURRENT METADATA {j + 1 + i}")
-                            if entry_metadata['attributes'] == value_metadata['attributes']:
-                                collection_images[j + 1 + i].delete()
-                                user_collection.collection_size = user_collection.collection_size - 1
-                                # print(f"{collection_images[j + 1 + i]} deleted {j + 1 + i}")
-                        i = i + 1
-                    user_collection.duplicates_deleted = True
-                    user_collection.save()
+                        return JsonResponse(
+                            {"server_message": "Deleted collection_image object"},
+                            status=200,
+                        )
+                    else:
+                        return JsonResponse(
+                            {"server_message": "USER NOT LOGGED IN"},
+                            status=201,
+                        )
+                elif "delete_duplicates" in received_json_data:
+                    if request.user.is_authenticated:
+                        i = 0
+                        while i < len(collection_images):
+                            # print(f"{len(collection_images)} LENGTH OF QUERY")
+                            entry_metadata = json.loads(collection_images[i].metadata)
+                            # print(f"{entry_metadata} COMPARISON METADATA {i}")
+                            for j in range(len(collection_images) - 1 - i):           
+                                value_metadata = json.loads(collection_images[j + 1 + i].metadata)
+                                # print(f"{value_metadata} CURRENT METADATA {j + 1 + i}")
+                                if entry_metadata['attributes'] == value_metadata['attributes']:
+                                    collection_images[j + 1 + i].delete()
+                                    user_collection.collection_size = user_collection.collection_size - 1
+                                    # print(f"{collection_images[j + 1 + i]} deleted {j + 1 + i}")
+                            i = i + 1
+                        user_collection.duplicates_deleted = True
+                        user_collection.save()
 
 
-                    return JsonResponse(
-                        {"server_message": "Deleted duplicates"},
-                        status=200,
-                    )
-                else:
-                    return JsonResponse(
-                        {"server_message": "USER NOT LOGGED IN"},
-                        status=201,
-                    )
-            elif "delete_collection" in received_json_data:
-                if request.user.is_authenticated:
-                    user_collection.delete()
-                    user.save()
+                        return JsonResponse(
+                            {"server_message": "Deleted duplicates"},
+                            status=200,
+                        )
+                    else:
+                        return JsonResponse(
+                            {"server_message": "USER NOT LOGGED IN"},
+                            status=201,
+                        )
+                elif "delete_collection" in received_json_data:
+                    if request.user.is_authenticated:
+                        user_collection.delete()
+                        user.save()
 
-                    return JsonResponse(
-                        {"server_message": "Collection Deleted"},
-                        status=200,
-                    )
-                else:
-                    return JsonResponse(
-                        {"server_message": "USER NOT LOGGED IN"},
-                        status=201,
-                    )
-            elif "collection_minted" in received_json_data:
-                if request.user.is_authenticated:
-                    user_collection.tokens_deployed = True
-                    user_collection.save()
-                    return JsonResponse(
-                        {"server_message": "Collection Minted"},
-                        status=200,
-                    )
-                else:
-                    return JsonResponse(
-                        {"server_message": "USER NOT LOGGED IN"},
-                        status=201,
-                    )
-        except RawPostDataException:  # NO AJAX DATA PROVIDED - DIFFERENT POST REQUEST INSTEAD
-            pass
+                        return JsonResponse(
+                            {"server_message": "Collection Deleted"},
+                            status=200,
+                        )
+                    else:
+                        return JsonResponse(
+                            {"server_message": "USER NOT LOGGED IN"},
+                            status=201,
+                        )
+                elif "collection_minted" in received_json_data:
+                    if request.user.is_authenticated:
+                        user_collection.tokens_deployed = True
+                        user_collection.save()
+                        return JsonResponse(
+                            {"server_message": "Collection Minted"},
+                            status=200,
+                        )
+                    else:
+                        return JsonResponse(
+                            {"server_message": "USER NOT LOGGED IN"},
+                            status=201,
+                        )
+            except RawPostDataException:  # NO AJAX DATA PROVIDED - DIFFERENT POST REQUEST INSTEAD
+                pass
+        else:
+            return
         ##AJAX HANDLING SECTION END
     return render(request, "collection.html", context)
 
@@ -841,33 +785,3 @@ def documentation_view(request):
 
 
     return render(request, "documentation.html", context)
-
-def upload_pinata_filepath(filepath, filename):
-    with Path(filepath).open("rb") as fp:
-        image_binary = fp.read()
-        try:
-            response = requests.post(
-                "https://api.pinata.cloud/" + "pinning/pinFileToIPFS",
-                files={"file": (filename, image_binary)},
-                headers={
-                    "pinata_api_key": "d15d7ee40273fd0f49ad",
-                    "pinata_secret_api_key": "ed514d486b0c4ab94dcfbff65174d98cc044a3885d40ec65d1dff4ffb2cb1c68",
-                },
-            ) 
-        except requests.exceptions.HTTPError as e:
-            print(e.response.text)
-        return response.json()
-
-def upload_pinata_object(fileobject, filename):
-    try:
-        response = requests.post(
-            "https://api.pinata.cloud/" + "pinning/pinFileToIPFS",
-            files={"file": (filename, fileobject)},
-            headers={
-                "pinata_api_key": "d15d7ee40273fd0f49ad",
-                "pinata_secret_api_key": "ed514d486b0c4ab94dcfbff65174d98cc044a3885d40ec65d1dff4ffb2cb1c68",
-            },
-        ) 
-    except requests.exceptions.HTTPError as e:
-        print(e.response.text)
-    return response.json()

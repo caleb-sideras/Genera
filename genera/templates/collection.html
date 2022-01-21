@@ -13,7 +13,7 @@
 {% endblock %}
 
 {% block body_block %}
-    <input type="hidden" id="js_vars" data-collection_name='{{collection_data.collection_name}}' data-ajax_url='{{ajax_url}}' data-json="{{erc721_json}}" data-contract_address='{{collection_data.contract_address}}' data-ipfs_links='{{ipfs_links}}' data-entry_ids ='{{entry_ids}}' data-token_name='{{collection_data.token_name}}' data-image_name='{{collection_data.image_name}}' data-ipfs_bool='{{collection_data.collection_ifps_bool}}' data-contract_bool='{{collection_data.contract_bool}}' data-tokens_minted_bool='{{collection_data.tokens_deployed}}' data-collection_size='{{collection_data.collection_size}}' data-chain_id='{{collection_data.chain_id}}'/>
+    <input type="hidden" id="js_vars" data-collection_name='{{collection_data.collection_name}}' data-ajax_url='{{ajax_url}}' data-json="{{erc721_json}}" data-contract_address='{{collection_data.contract_address}}' data-ipfs_links='{{ipfs_links}}' data-entry_ids ='{{entry_ids}}' data-token_name='{{collection_data.token_name}}' data-image_name='{{collection_data.image_name}}' data-ipfs_bool='{{collection_data.collection_ifps_bool}}' data-contract_bool='{{collection_data.contract_bool}}' data-tokens_minted_bool='{{collection_data.tokens_deployed}}' data-collection_size='{{collection_data.collection_size}}' data-chain_id='{{collection_data.chain_id}}' data-contract_type='{{collection_data.contract_type}}'/>
 
 <div class="deploy_collection_container shadow_strong rounded_container_no_padding">
     <img class="dc_close close_button_color" src="/static/icons/remove.svg" onclick="close_deploy_collection()">
@@ -51,13 +51,14 @@
                 <div class="rect1" id="spin4"></div>
                 <div class="rect1" id="spin5"></div>
             </div>
+            <div class="input_wrapper"></div>
         </div>
         <div class="dc_buttons">
         </div>
     </div>
 </div>    
 <div class="filter">
-    <form type="hidden" method="post" style="display: none;" enctype="multipart/form-data" class="image_edit_wrapper" >
+    <form type="hidden" method="post" style="display: none;" enctype="multipart/form-data" class="image_edit_wrapper">
         {% csrf_token %}
         <div class="image_edit rounded_container">
             <h3 class="no_margin">Name</h3>
@@ -99,7 +100,7 @@
                                         <img src="/static/icons/check.svg" alt="check">
                                         <h5>Mint</h5>
                                     </div>
-                                    {% if entry.ipfs_bool%}
+                                    {% if collection_data.collection_ifps_bool%}
                                     <div class="collection_card_button white_background" style=" cursor: default;" >
                                         <img src="/static/icons/check.svg" alt="check">
                                         <h5>IPFS</h5>
@@ -176,7 +177,7 @@
                     <h4 class="no_margin generate">Download collection</h4>
                 </button>
                 {% if not collection_data.tokens_deployed %}
-                    <button class="general_button_no_border light_purple_background shadow_strong rounded_container_no_padding" onclick="init_deploy_collection()" type="button">
+                    <button class="general_button_no_border light_purple_background shadow_strong rounded_container_no_padding" onclick="init_deploy_collection_public()" type="button">
                         <h4 class="no_margin generate">Private Mint</h4>
                     </button>
                     <button class="general_button_no_border light_purple_background shadow_strong rounded_container_no_padding" onclick="" type="button" disabled>
