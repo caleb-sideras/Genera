@@ -126,7 +126,7 @@ class UserCollection(Model):
     contract_address = models.CharField(max_length=50, unique=False, blank = True, null = True)
     contract_bool =  models.BooleanField(default=False) # probs not needed
     chain_id = models.CharField(max_length=10, unique=False)
-    contract_type = models.IntegerField(default=0) # 0 = nothing, 1 = private, 2 = public
+    contract_type = models.IntegerField(default=0) # 0 = nothing, 1 = privateV1, 2 = publicV1
     
     # Smart Contract Public
     base_uri = models.CharField(max_length=100, unique=False)

@@ -14,7 +14,7 @@ function docs_new_content(self){
     active_element_id = self.id
     docs_content.querySelector("#"+self.id).style = 'display:block;'
     active_element = docs_column.querySelector("#" + active_element_id) 
-    active_element.children[0].style.color = 'var(--medium-grey-color)'
+    active_element.children[0].style.color = 'var(--main-color)'
 }
 
 function create_subtitle(){

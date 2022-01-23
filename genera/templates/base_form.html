@@ -5,7 +5,7 @@
         <div class="background_image_wrapper">
             <div class="cover-image" style="position: absolute"></div>
         </div>
-        <form method="POST" class="base_form shadow_strong">
+        <form method="POST" class="base_form shadow_strong rounded_container_no_padding">
             {%csrf_token%}
             <h2>{{title}}</h2>
             <div>
@@ -16,7 +16,7 @@
                 <a href="{% url 'main:register' %}">Create an account</a>
                 <a href="{% url 'main:password_reset' %}">Forgot password?</a>
             {%endif%}
-            <button class="light_grey_background general_button_no_border" name="{{identifier}}" type="submit">
+            <button class="card_main_color_background general_button_no_border" name="{{identifier}}" type="submit">
                 {{button_text}}
             </button>
         </form>

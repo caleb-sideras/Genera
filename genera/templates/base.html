@@ -25,7 +25,7 @@
         {% endfor %}
     {% endif %}
 
-    <div class="nav_bar_wrapper shadow_strong">
+    <div class="nav_bar_wrapper top_bottom_border">
       <div class="left_navbar">
         <a href="{% url 'main:main_view' %}">
           <img src="/static/icons/logoV1.svg" class="logo1" alt="" />
@@ -68,14 +68,14 @@
         
         {% if request.user.is_authenticated%}
           <div class="dropdown">
-            <button class="dropbtn light_purple_background  rounded_container_no_padding">Logged in: {{request.user.username}}</button>
+            <button class="dropbtn main_color_background  rounded_container_no_padding">Logged in: {{request.user.username}}</button>
             <div class="dropdown-content rounded_container_no_padding shadow_strong">
               {% if request.user.is_authenticated %}
                 <a href="{% url 'main:profile' request.user.username %}">
-                  <p>View your profile</p>
+                  <p>Profile</p>
                 </a>
                 <a href="{% url 'main:all_collections' request.user.username %}">
-                  <p>View Collections</p>
+                  <p>Collections</p>
                 </a>
                 <a href="{% url 'main:logout' request.path%}">
                   <p>Log out</p>
@@ -84,7 +84,7 @@
             </div>
           </div>
           <a href="{% url 'payments:checkout'%}">
-            <button class="credits_button orange_background dropbtn" title="Credits">{{request.user.credits}}</button>
+            <button class="credits_button sub_color_background dropbtn" title="Credits">{{request.user.credits}}</button>
           </a>
         {% endif %} 
       </div>
@@ -92,7 +92,7 @@
         {% if not request.user.is_authenticated%}
           <div class="dropdown">
             <a href="{% url 'main:login' %}" style="text-decoration: none">
-              <div class=" dropbtn light_purple_background" style="margin-right: 25px; border-radius: 10px;">Log in</div>
+              <div class=" dropbtn main_color_background" style="margin-right: 25px; border-radius: 10px;">Log in</div>
             </a>
           </div>
         {% endif %} 
@@ -111,10 +111,10 @@
           
           <div class="burger_2">
             <a href="{% url 'main:profile' request.user.username %}" id="burger_enabled">
-                <p>View your profile</p>
+                <p>Profile</p>
               </a>
             <a href="{% url 'main:all_collections' request.user.username %}" id="burger_enabled">
-                <p>View Collections</p>
+                <p>Collections</p>
               </a>
             <a href="{% url 'main:logout' request.path%}" id="burger_enabled">
                 <p>Log out</p>

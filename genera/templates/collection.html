@@ -9,11 +9,12 @@
     <script type="text/javascript" src="{% static 'js/libraries/jszip.min.js' %}"></script>
     <script type="module" crossorigin="" src="{% static 'js/car_generator.js' %}"></script>
     <link rel="modulepreload" href="{% static 'js/ipfs_car.js' %}" />
-    <link rel="text/css" href="{% static 'index.a07e812f.cs' %}"  />
 {% endblock %}
 
 {% block body_block %}
-    <input type="hidden" id="js_vars" data-collection_name='{{collection_data.collection_name}}' data-ajax_url='{{ajax_url}}' data-json="{{erc721_json}}" data-contract_address='{{collection_data.contract_address}}' data-ipfs_links='{{ipfs_links}}' data-entry_ids ='{{entry_ids}}' data-token_name='{{collection_data.token_name}}' data-image_name='{{collection_data.image_name}}' data-ipfs_bool='{{collection_data.collection_ifps_bool}}' data-contract_bool='{{collection_data.contract_bool}}' data-tokens_minted_bool='{{collection_data.tokens_deployed}}' data-collection_size='{{collection_data.collection_size}}' data-chain_id='{{collection_data.chain_id}}' data-contract_type='{{collection_data.contract_type}}'/>
+    <input type="hidden" id="js_vars" data-collection_name='{{collection_data.collection_name}}' data-ajax_url='{{ajax_url}}' data-contract_address='{{collection_data.contract_address}}' data-ipfs_links='{{ipfs_links}}' data-entry_ids ='{{entry_ids}}' data-token_name='{{collection_data.token_name}}' data-image_name='{{collection_data.image_name}}' data-ipfs_bool='{{collection_data.collection_ifps_bool}}' data-contract_bool='{{collection_data.contract_bool}}' data-tokens_minted_bool='{{collection_data.tokens_deployed}}' data-collection_size='{{collection_data.collection_size}}' data-chain_id='{{collection_data.chain_id}}' data-base_uri='{{collection_data.base_uri}}'/> 
+    <!-- data-contract_type='{{collection_data.contract_type}}' -->
+    <a href="{% url 'main:user_mint' user.username  collection_data.collection_name%}" id="redirect" style="display: none;"></a>
 
 <div class="deploy_collection_container shadow_strong rounded_container_no_padding">
     <img class="dc_close close_button_color" src="/static/icons/remove.svg" onclick="close_deploy_collection()">
@@ -37,8 +38,8 @@
                     <p>Mint</p>
                 </div>
             </div>
-            <div class="dc_status_bar_container orange_background">
-                <div class="dc_status_bar_active light_purple_background"></div>
+            <div class="dc_status_bar_container sub_color_background">
+                <div class="dc_status_bar_active main_color_background"></div>
             </div>
         </div>
         <h2></h2>
@@ -68,11 +69,11 @@
             <textarea required class="image_edit_input" name="image_description" rows="5" value = ''></textarea>
 
             <div class="image_edit_button_wrapper">
-                <button class="general_button_no_border rounded_container_no_padding light_purple_background" id="update_collection_submit_button" onclick="create_and_render_loading_popup('Saving Changes')"
+                <button class="general_button_no_border rounded_container_no_padding main_color_background" id="update_collection_submit_button" onclick="create_and_render_loading_popup('Saving Changes')"
                 disabled>
                     <h4 class="no_margin generate">Save</h4>
                 </button>
-                <div class="general_button_no_border rounded_container_no_padding light_purple_background" onclick="close_edit()">
+                <div class="general_button_no_border rounded_container_no_padding main_color_background" onclick="close_edit()">
                     <h4 class="no_margin generate">Cancel</h4>
                 </div>
             </div>
@@ -85,12 +86,12 @@
             <div class="all_collections_layout">
                 {% if collection_images %}
                     {% for entry in collection_images %}
-                        <div class="collection_card shadow_strong rounded_container_no_padding">
+                        <div class="collection_card grow border rounded_container_no_padding" onclick="open_images(this.nextElementSibling)">
                                 
                             {% if entry.ipfs_bool%}
-                            <img loading="lazy" src="{{entry.path_compressed}}" data-fullrez ="{{entry.path}}" data-name="{{entry.name}}" data-ipfs ="{{entry.ipfs_metadata_path}}" alt="{{entry.name}} image should be here" class="nft_image" onclick="open_images(this)">
+                            <img loading="lazy" src="{{entry.path_compressed}}" data-fullrez ="{{entry.path}}" data-name="{{entry.name}}" data-ipfs ="{{entry.ipfs_metadata_path}}" alt="{{entry.name}} image should be here" class="nft_image">
                             {% else %}
-                            <img loading="lazy" src="{{entry.path_compressed}}" data-fullrez ="{{entry.path}}" data-name="{{entry.name}}" alt="{{entry.name}} image should be here" class="nft_image" onclick="open_images(this)">
+                            <img loading="lazy" src="{{entry.path_compressed}}" data-fullrez ="{{entry.path}}" data-name="{{entry.name}}" alt="{{entry.name}} image should be here" class="nft_image">
                             {% endif %}
                             <div>
                                 <input type="hidden" id="image_vars" data-name="{{entry.name}}" data-metadata="{{entry.metadata}}" data-ipfs_bool="{{entry.ipfs_bool}}" data-deployed_bool="{{entry.deployed_bool}}" data-token_uri="{{entry.ipfs_metadata_path}}" data-id="{{entry.id}}"/>
@@ -116,75 +117,71 @@
         </div>
 
         <div class="upload_properties">
-                <div class="rounded_container shadow_strong" style="margin-top: 0;">
-                    <h3 class="no_margin center">Collection Properties</h3>
-                    {% if collection_data %}
-                        <div >
-                            <h5 class="no_margin">Name</h5>
-                            <h5 class="collection_properties white_background">
-                                {{collection_data.collection_name}}
-                            </h5>
-                        </div>
-                        <div>
-                            <h5 class="no_margin">Resolution</h5>
-                            <h5 class="collection_properties white_background">
-                                {{collection_data.dimension_x}} {{collection_data.dimension_y}}
-                            </h5>
-                        </div>
-                        <div>
-                            <h5 class="no_margin">Size</h5>
-                            <h5 class="collection_properties white_background">
-                                {{collection_data.collection_size}}
-                            </h5>
-                        </div>
-                        <div>
-                            <h5 class="no_margin">Description</h5>
-                            <h5 class="collection_properties white_background">
-                                {{collection_data.description}}
-                            </h5>
-                        </div>
-                        {% if collection_data.collection_ifps_bool %}
-                        <div class="properties_container">
-                            <img src="/static/icons/check.svg" alt="check">
-                            <h5>Collection Uploaded to IFPS</h5>
-                        </div>
-                        {% endif %} 
-                        {% if collection_data.contract_bool %}
-                        <div class="properties_container">
-                            <img src="/static/icons/check.svg" alt="check">
-                            <h5>Contract Deployed <a href="https://rinkeby.etherscan.io/address/{{collection_data.contract_address}}" style="text-decoration: underline;" target="_blank">{{collection_data.contract_address}}</a></h5>
-                        </div>
-                        {% endif %}
-                        {% if collection_data.tokens_deployed %}
-                        <div class="properties_container">
-                            <img src="/static/icons/check.svg" alt="check">
-                            <h5>Collection Minted</h5>
-                        </div>
-                        {% endif %} 
+            <div class="rounded_container border_1px" style="margin-top: 0;">
+                <h3 class="no_margin center">Collection Properties</h3>
+                {% if collection_data %}
+                    <div >
+                        <h5 class="no_margin">Name</h5>
+                        <h5 class="collection_properties white_background">
+                            {{collection_data.collection_name}}
+                        </h5>
+                    </div>
+                    <div>
+                        <h5 class="no_margin">Resolution</h5>
+                        <h5 class="collection_properties white_background">
+                            {{collection_data.dimension_x}} {{collection_data.dimension_y}}
+                        </h5>
+                    </div>
+                    <div>
+                        <h5 class="no_margin">Size</h5>
+                        <h5 class="collection_properties white_background">
+                            {{collection_data.collection_size}}
+                        </h5>
+                    </div>
+                    <div>
+                        <h5 class="no_margin">Description</h5>
+                        <h5 class="collection_properties white_background">
+                            {{collection_data.description}}
+                        </h5>
+                    </div>
+                    {% if collection_data.collection_ifps_bool %}
+                    <div class="properties_container">
+                        <img src="/static/icons/check.svg" alt="check">
+                        <h5>Collection Uploaded to IFPS</h5>
+                    </div>
+                    {% endif %} 
+                    {% if collection_data.contract_bool %}
+                    <div class="properties_container">
+                        <img src="/static/icons/check.svg" alt="check">
+                        <h5>Contract Deployed <a href="https://rinkeby.etherscan.io/address/{{collection_data.contract_address}}" style="text-decoration: underline;" target="_blank">{{collection_data.contract_address}}</a></h5>
+                    </div>
                     {% endif %}
-                </div>
-                {% if not collection_data.collection_ifps_bool %}
-                    <button name="delete_collection" onclick="delete_collection()" class="general_button_no_border red_background shadow_strong rounded_container_no_padding" type="button">
-                        <h4 class="no_margin generate" style="color: white;">Delete Collection</h4>
-                    </button>
+                    {% if collection_data.tokens_deployed %}
+                    <div class="properties_container">
+                        <img src="/static/icons/check.svg" alt="check">
+                        <h5>Collection Minted</h5>
+                    </div>
+                    {% endif %} 
                 {% endif %}
-                {% if not collection_data.collection_ifps_bool and not collection_data.duplicates_deleted %}
-                    <button type="button" class="general_button_no_border light_red_background shadow_strong rounded_container_no_padding" onclick="delete_duplicates()">
-                        <h4 class="no_margin" style="color: white">Delete Duplicates</h4>
-                    </button>
-                {% endif %}
-                <button name="download_collection" onclick="download_zip()" class="general_button_no_border orange_background shadow_strong rounded_container_no_padding" type="button">
-                    <h4 class="no_margin generate">Download collection</h4>
+            </div>
+            {% if not collection_data.collection_ifps_bool %}
+                <button name="delete_collection" onclick="delete_collection()" class="general_button_no_border red_background shadow_strong rounded_container_no_padding" type="button">
+                    <h4 class="no_margin generate" style="color: white;">Delete Collection</h4>
                 </button>
-                {% if not collection_data.tokens_deployed %}
-                    <button class="general_button_no_border light_purple_background shadow_strong rounded_container_no_padding" onclick="init_deploy_collection_public()" type="button">
-                        <h4 class="no_margin generate">Private Mint</h4>
-                    </button>
-                    <button class="general_button_no_border light_purple_background shadow_strong rounded_container_no_padding" onclick="" type="button" disabled>
-                        <h4 class="no_margin generate">Public Mint</h4>
-                    </button>
-                    <p style="margin: 0; font-size: 14px; text-align: center; color: var(--text-color-2);">Coming Soon</p>
-                {% endif %}
+            {% endif %}
+            {% if not collection_data.collection_ifps_bool and not collection_data.duplicates_deleted %}
+                <button type="button" class="general_button_no_border light_red_background shadow_strong rounded_container_no_padding" onclick="delete_duplicates()">
+                    <h4 class="no_margin" style="color: white">Delete Duplicates</h4>
+                </button>
+            {% endif %}
+            <button name="download_collection" onclick="download_zip()" class="general_button_no_border sub_color_background shadow_strong rounded_container_no_padding" type="button">
+                <h4 class="no_margin generate">Download collection</h4>
+            </button>
+            {% if not collection_data.tokens_deployed %}
+                <button class="general_button_no_border main_color_background shadow_strong rounded_container_no_padding" onclick="init_deploy_collection_public()" type="button">
+                    <h4 class="no_margin generate">Deploy collection</h4>
+                </button>
+            {% endif %}
 
                 
 

@@ -480,8 +480,45 @@ def profile_view(request, username):
     if not user:
         error_params = {"title": "Profile", "description": "Profile does not exist", "code": "313XD"}
         raise PermissionDenied(json.dumps(error_params))
+    
+    users_collections = UserCollection.objects.filter(user=user)
+    
 
-    return render(request, 'user_profile.html', context={"owner":owner, "user":user})
+    return render(request, 'user_profile.html', context={"owner":owner, "user":user, "users_collections":users_collections})
+
+def mint_view(request, username, collection_name):
+    user = User.objects.filter(username=username).first()
+    # owner = (request.user == user)
+
+    if user:
+        context ={}
+        context["owner"] = user
+        user_collection = UserCollection.objects.filter(user=user, collection_name=collection_name).first()
+        if user_collection:
+            if user_collection.contract_bool and user_collection.contract_type == 2:
+                context["ajax_url"] = reverse("main:user_mint", 
+                        kwargs={
+                            "username": user,
+                            "collection_name": user_collection.collection_name,
+                        },)
+                context['contract_address'] = user_collection.contract_address
+                context['chain_id'] = user_collection.chain_id
+                context['collection_name'] = user_collection.collection_name
+                context['description'] = user_collection.description
+                print(context['contract_address'])
+                print( context['chain_id'])
+            else:
+                error_params = {"title": "Collection", "description": "Permission Error", "code": "313XD"}
+                raise PermissionDenied(json.dumps(error_params))
+        else:
+            error_params = {"title": "Collection", "description": "This Collection does not exist", "code": "313XD"}
+            raise PermissionDenied(json.dumps(error_params))
+    elif not user:
+        error_params = {"title": "Profile", "description": "Profile does not exist", "code": "313XD"}
+        raise PermissionDenied(json.dumps(error_params))
+    
+
+    return render(request, "user_mint.html", context)
 
 @receiver(pre_delete, sender=UserCollection)
 def model_delete(sender, instance, **kwargs):
@@ -518,12 +555,6 @@ def all_collections_view(request, username):
 def collection_view(request, username, collection_name):
     context = {}
 
-    # make ajax function for this
-    with open("static/Contracts/erc1155_public_contract.json", "r") as myfile:
-        data = myfile.read()
-    json_string = json.loads(data)
-    context["erc721_json"] = json.dumps(json_string)
-
     user = User.objects.filter(username=username).first()
     context["user"] = user
     
@@ -543,10 +574,10 @@ def collection_view(request, username, collection_name):
                 context["collection_data"] = user_collection
                 context["collection_images"] = collection_images
                 
-                if user_collection.collection_ifps_bool:
-                    context["ipfs_links"] = json.dumps(list(collection_images.all().values_list('ipfs_metadata_path', flat=True))) 
-                else:
-                    context["ipfs_links"] = ""
+                # if user_collection.collection_ifps_bool:
+                #     context["ipfs_links"] = json.dumps(list(collection_images.all().values_list('ipfs_metadata_path', flat=True))) 
+                # else:
+                #     context["ipfs_links"] = ""
             else:
                 messages.error(request, "This collection does not exist.")
                 return render(request, "collection.html", context)
@@ -566,12 +597,12 @@ def collection_view(request, username, collection_name):
                         {"server_message": "Wrong contract type"},
                         status=202,
                     )
-                if len(collection_images) > request.user.credits:
-                # or user_collection.image_uri:
-                    return JsonResponse(
-                        {"server_message": "USER DOES NOT HAVE ENOUGH CREDITS"},
-                        status=202,
-                    )
+                # if len(collection_images) > request.user.credits:
+                # # or user_collection.image_uri:
+                #     return JsonResponse(
+                #         {"server_message": "USER DOES NOT HAVE ENOUGH CREDITS"},
+                #         status=202,
+                #     )
                 if user_collection.collection_ifps_bool:
                     return JsonResponse(
                         {"server_message": "collection_deployed"},
@@ -620,11 +651,11 @@ def collection_view(request, username, collection_name):
                         {"server_message": "Wrong contract type"},
                         status=202,
                     )
-                if len(collection_images) > request.user.credits:
-                    return JsonResponse(
-                        {"server_message": "USER DOES NOT HAVE ENOUGH CREDITS"},
-                        status=202,
-                    )
+                # if len(collection_images) > request.user.credits:
+                #     return JsonResponse(
+                #         {"server_message": "USER DOES NOT HAVE ENOUGH CREDITS"},
+                #         status=202,
+                #     )
                 if not user_collection.image_uri:
                     return JsonResponse(
                         {"server_message": "Images not deployed"},
@@ -678,7 +709,6 @@ def collection_view(request, username, collection_name):
                         if not user_collection.contract_bool:
                             user_collection.contract_address = received_json_data["address_set"]
                             user_collection.chain_id = received_json_data["chain_id"]
-                            user_collection.minting_cost = received_json_data["minting_cost"]
                             if received_json_data["contract_type"] == 'Private':
                                 user_collection.contract_type = 1
                             else:
@@ -693,7 +723,7 @@ def collection_view(request, username, collection_name):
                     else:
                         return JsonResponse(
                             {"server_message": "USER NOT LOGGED IN"},
-                            status=201,
+                            status=202,
                         )
                 elif "delete_entry" in received_json_data:
                     if request.user.is_authenticated:
@@ -710,7 +740,7 @@ def collection_view(request, username, collection_name):
                     else:
                         return JsonResponse(
                             {"server_message": "USER NOT LOGGED IN"},
-                            status=201,
+                            status=202,
                         )
                 elif "delete_duplicates" in received_json_data:
                     if request.user.is_authenticated:
@@ -738,7 +768,7 @@ def collection_view(request, username, collection_name):
                     else:
                         return JsonResponse(
                             {"server_message": "USER NOT LOGGED IN"},
-                            status=201,
+                            status=202,
                         )
                 elif "delete_collection" in received_json_data:
                     if request.user.is_authenticated:
@@ -752,7 +782,42 @@ def collection_view(request, username, collection_name):
                     else:
                         return JsonResponse(
                             {"server_message": "USER NOT LOGGED IN"},
-                            status=201,
+                            status=202,
+                        )
+                elif "get_contract" in received_json_data:
+                    if request.user.is_authenticated:
+                        if not user_collection.contract_bool:
+                            print("hello")
+                            # assign name to variable
+                            if received_json_data['get_contract'] == '1':
+                                with open("static/Contracts/erc1155_private_contract.json", "r") as myfile:
+                                    data = myfile.read()
+                                return JsonResponse(
+                                    {"contract": data},
+                                    status=200,
+                                )
+                            if received_json_data['get_contract'] == '2':
+                                with open("static/Contracts/erc1155_public_contract.json", "r") as myfile:
+                                    data = myfile.read()
+                                    print(data)
+                                return JsonResponse(
+                                    {"contract": data},
+                                    status=200,
+                                )
+                            return JsonResponse(
+                                {"server_message": "Contract type not found"},
+                                status=202,
+                            )
+                        else:
+                            return JsonResponse(
+                                {"server_message": "Contract already deploy!"},
+                                status=202,
+                            )
+
+                    else:
+                        return JsonResponse(
+                            {"server_message": "USER NOT LOGGED IN"},
+                            status=202,
                         )
                 elif "collection_minted" in received_json_data:
                     if request.user.is_authenticated:
@@ -765,8 +830,26 @@ def collection_view(request, username, collection_name):
                     else:
                         return JsonResponse(
                             {"server_message": "USER NOT LOGGED IN"},
-                            status=201,
+                            status=202,
                         )
+                elif "opensea_metadata" in received_json_data:
+                    if request.user.is_authenticated:
+                        # find better implementaion
+                        for entry in collection_images:
+                            entry_metadata = json.loads(entry.metadata)
+                            if received_json_data['royalty_points']:
+                                entry_metadata['seller_fee_basis'] = received_json_data['royalty_points']
+                            if received_json_data['royalty_address']:
+                                entry_metadata['fee_recipeint'] = received_json_data['royalty_address']
+                            if received_json_data['url']:
+                                entry_metadata['external_url'] = received_json_data['url']
+                            entry.metadata = json.dumps(entry_metadata)
+                            entry.save()
+                        return JsonResponse(
+                            {"server_message": "metadata changed"},
+                            status=200,
+                        )
+                    
             except RawPostDataException:  # NO AJAX DATA PROVIDED - DIFFERENT POST REQUEST INSTEAD
                 pass
         else:

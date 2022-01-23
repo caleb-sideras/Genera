@@ -3,17 +3,17 @@ let web3_infura = new Web3(new Web3.providers.HttpProvider("https://rinkeby.infu
 
 
 contract_address = null
-ipfs_links = null
-uri_list = null
-entries = null
-entry_ids = null
+// ipfs_links = null
+// uri_list = null
+// entries = null
+// entry_ids = null
 token_name = null
 collection_name = null
 active_account = null
 active_chain_id = null
 contract_chainid = null
 token_counter = 0
-contract_type = null
+// contract_type = null
 base_uri = null
 minting_cost = null
 
@@ -110,7 +110,34 @@ deploy_collection_data_public = {
     'IPFS': [
         {
             'title': 'Deploying to IPFS',
-            'subtitle': 'This process is irreversible, are you sure?',
+            'subtitle': 'Optional metadata parameters',
+            'body': [
+                {
+                    'button': 'button',
+                    'name': 'Royalties',
+                    'type': 'number',
+                    'step': 0.01,
+                    'text': 'E.g. 5%',
+                    'info': '% of resale price sent to your address',
+                    'status': 'active'
+                },
+                {
+                    'button': 'button',
+                    'name': 'Royalties Address',
+                    'type': 'text',
+                    'text': 'E.g. 0x36aCd7...',
+                    'info': '',
+                    'status': 'active'
+                },
+                {
+                    'button': 'button',
+                    'name': 'Website URL',
+                    'type': 'text',
+                    'text': 'E.g. https://genera...',
+                    'info': '',
+                    'status': 'active'
+                },
+            ],
             'buttons': [
                 {
                     'name': 'Deploy',
@@ -120,7 +147,7 @@ deploy_collection_data_public = {
             ],
             'width': 0,
             'section': 0,
-            'onpress': deploy_ipfs_request
+            'onpress': opensea_metadata_request
         },
         {
             'title': 'Deploying to IPFS',
@@ -170,35 +197,24 @@ deploy_collection_data_public = {
             'body': [
                 {
                     'button': 'button',
-                    'name': 'Royalties',
-                    'type': 'number',
-                    'step' : 0.01,
-                    'text' : '5%',
-                    'info' : '% of resale price sent to your address',
-                    'status': 'active'
-                },
-                {
-                    'button': 'button',
-                    'name': 'Royalties Address',
-                    'type': 'text',
-                    'text': '0x36aCd7...',
-                    'info': '',
-                    'status': 'active'
-                },
-                {
-                    'button': 'button',
                     'name': 'Minting Cost',
                     'type': 'number',
                     'step': '0.000000001',
-                    'text': 'E.g. 2 MATIC',
+                    'text': 'E.g. 1 MATIC or 0.01 ETH',
                     'info': 'Cost of minting an NFT',
                     'status': 'active'
                 },
                 {
                     'select': 'select',
                     'options' : [
-                        'Public',
-                        'Private'
+                        {
+                            'name':'Public',
+                            'value' : 2,
+                        },
+                        {
+                            'name': 'Private',
+                            'value' : 1,
+                        }
                     ],
                     'name': 'Mint Type',
                     'type': 'dropdown',
@@ -206,6 +222,24 @@ deploy_collection_data_public = {
                     'info': 'Public: Anyone can mint\nPrivate: Only you can mint',
                     'status': 'active'
                 },
+                {
+                    'select': 'select',
+                    'options': [
+                        {
+                            'name': 'Yes',
+                            'value': true,
+                        },
+                        {
+                            'name': 'No',
+                            'value': false,
+                        }
+                    ],
+                    'name': 'Allow Mint on Deploy?',
+                    'type': 'dropdown',
+                    'text': '',
+                    'info': 'This can be changed later',
+                    'status': 'active'
+                }
             ],
             'buttons': [
                 {
@@ -226,7 +260,7 @@ deploy_collection_data_public = {
     'Mint': [
         {
             'title': 'Minting',
-            'subtitle': 'Public Mine Page Available!',
+            'subtitle': 'Public Mint Page Available!',
             'buttons': [
                 {
                     'name': 'Go to Mint Page!',
@@ -236,7 +270,7 @@ deploy_collection_data_public = {
             ],
             'width': 100,
             'section': 3,
-            'onpress': "add_tokens_request_public"
+            'onpress': mint_page_redirect
         },
         {
             'title': 'Minting your NFT(s)!',
@@ -246,11 +280,9 @@ deploy_collection_data_public = {
 }
 function main() {
 
-    ipfs_links = []
-    entries = []
-    uri_list = []
-
-    parsed_json = JSON.parse(js_vars.dataset.json)
+    // ipfs_links = []
+    // entries = []
+    // uri_list = []
 
     contract_address = js_vars.dataset.contract_address
     contract_bool = (js_vars.dataset.contract_bool.toLowerCase() === 'true')
@@ -263,39 +295,23 @@ function main() {
     contract_chainid = js_vars.dataset.chain_id
     token_name = js_vars.dataset.token_name
     image_name = js_vars.dataset.image_name
-    entries = JSON.parse(js_vars.dataset.entry_ids)
+    base_uri = js_vars.dataset.base_uri
+    // entries = JSON.parse(js_vars.dataset.entry_ids)
     collection_name = js_vars.dataset.collection_name
-    contract_type = js_vars.dataset.contract_type
-    if (js_vars.dataset.ipfs_links){
-        ipfs_links = JSON.parse(js_vars.dataset.ipfs_links)
-    }
+    // contract_type = js_vars.dataset.contract_type
+    // if (js_vars.dataset.ipfs_links){
+    //     ipfs_links = JSON.parse(js_vars.dataset.ipfs_links)
+    // }
     ipfs_bool = (js_vars.dataset.ipfs_bool.toLowerCase() === 'true');
     tokens_minted_bool = (js_vars.dataset.tokens_minted_bool.toLowerCase() === 'true');
     collection_size = parseInt(js_vars.dataset.collection_size)
     deploy_collection_container = document.querySelector(".deploy_collection_container")
 
-    // gas_estimate = document.querySelector('.testButton');
-
-    // gas_estimate.addEventListener('click', async () =>{
-    //     // mainnet
-    //     // gas estimate when deploying contract
-    //     constructor_paramter = constructor_string('Void', 'vde');
-    //     var result = await web3.eth.estimateGas({
-    //         data: parsed_json['bytecode'] + constructor_paramter
-    //     }).then(console.log);
-
-    //     // gas estimate when deploying token (doesnt work on Rinkeby testnet)
-    //     // token_uri = abi_token_uri('https://ipfs.io/ipfs/QmNco8G5hrJfLdJpYwsxrygWXS1zcmW9AuY9Q8PstJFX9c');
-    //     // var result = await web3.eth.estimateGas({
-    //     //     to: "0x240D3014Cdc300A9939AeDCcb508DD34cDcd815e", // ERC721: mint to the zero address error
-    //     //     data: token_uri
-    //     // }).then(console.log);
-            
-    // });
     // ethereum.on('chainChanged', (_chainId) => window.location.reload());
     // ethereum.on('disconnect', (ProviderRpcError) => window.location.reload());
 }
 
+// bye bye?
 async function deploy_ipfs_request_private() {
     console.log("Deploying to IPFS")
     loading_deploy_collection(deploy_collection_data['IPFS'][1])
@@ -478,6 +494,7 @@ async function check_mint_status() {
     }
     console.log("finished check_mint_status")
 }
+// not needed?
 function create_ipfs_links() {
     ipfs_links = []
     for (let i = 0; i < collection_size; i++) {
@@ -588,7 +605,6 @@ async function init_deploy_collection_public() {
     contract_type = 2
     if (!ipfs_bool) {
         populate_deploy_collection(deploy_collection_data_public['IPFS'][0])
-        console.log("lmao")
     } else if (!contract_bool) {
         populate_deploy_collection(deploy_collection_data_public['Network'][0])
     } else if (!tokens_minted_bool) {
@@ -601,9 +617,30 @@ async function init_deploy_collection_public() {
 
 
 // IPFS DELPOY //
-async function deploy_ipfs_request() {
+async function opensea_metadata_request(){
+    let contract_inputs = deploy_collection_container.querySelectorAll(':scope input')
+    let royalty = parseInt(contract_inputs[0].value * 100)
+    let royalty_address = contract_inputs[1].value
+    let url = contract_inputs[2].value
+
+    if (royalty > 10000) {
+        alert('Royalty percentage has to be less than 100')
+        return
+    }
     console.log("Deploying to IPFS")
     loading_deploy_collection(deploy_collection_data['IPFS'][1])
+    if (royalty || royalty_address || url){
+        ajax_post_json({ 'opensea_metadata': '', 'royalty_points': royalty, 'royalty_address': royalty_address, 'url': url })
+            .then(function (response) {
+                console.log("Open sea king" + response["server_message"])
+                deploy_ipfs_request()
+            })
+    }else{
+        deploy_ipfs_request()
+    }
+    
+}
+async function deploy_ipfs_request() {
     await ipfs_deploy()
         .then(() => {
             ipfs_bool = true
@@ -681,23 +718,33 @@ async function choose_network(self) {
 
 
 // CONTRACT DEPLOY //
-//get contract
 async function deploy_contract_request_public(){
     let contract_inputs = deploy_collection_container.querySelectorAll(':scope input, :scope select')
-    //make open sea metadata!!
-    let royality = contract_inputs[0].value * 100
-    let royality_address = contract_inputs[1].value
-    minting_cost = web3.utils.toWei(String(contract_inputs[2].value), 'ether')
-    contract_type = contract_inputs[3].value
-    let constructor_parameters = constructor_string(`https://${base_uri}.ipfs.dweb.link/`, collection_name, token_name, collection_size, minting_cost, true)
-    let gas_estimate = await web3.eth.estimateGas({
-        data: parsed_json['bytecode'] + constructor_parameters
-    });
-    console.log(gas_estimate)
-    console.log(`0x${String(parseInt(gas_estimate / 5))}`)
-    deploy_contract_public(constructor_parameters, `0x${String(parseInt(gas_estimate/5))}`)
+   
+    if (!contract_inputs[0].value) {
+        alert('Please input a Minting Cost')
+        return
+    }
+    minting_cost = web3.utils.toWei(String(contract_inputs[0].value), 'ether')
+    contract_type = contract_inputs[1].value
+    deploy_bool = contract_inputs[2].value
+
+    loading_deploy_collection(deploy_collection_data_public['Contract'][1])
+    try {
+        var constructor_parameters = constructor_string(`https://${base_uri}.ipfs.dweb.link/`, collection_name, token_name, collection_size, minting_cost, deploy_bool)
+        var contract = await get_contract(contract_type)
+        gas_estimate = await web3.eth.estimateGas({
+            data: contract['bytecode'] + constructor_parameters
+        });
+    } catch (error) {
+        alert("There was a error processing your request, please try again")
+        populate_deploy_collection(deploy_collection_data_public['Contract'][0])
+    }
+    
+    await deploy_contract_public(constructor_parameters, `${parseInt(gas_estimate*2).toString(16)}`, contract['bytecode'])
+    populate_deploy_collection(deploy_collection_data_public['Mint'][0])
 }
-async function deploy_contract_public(constructor_parameters, gas_estimate){
+async function deploy_contract_public(constructor_parameters, gas_estimate, contract){
     await ethereum
         .request({
             method: 'eth_sendTransaction',
@@ -705,8 +752,8 @@ async function deploy_contract_public(constructor_parameters, gas_estimate){
                 {
                     from: active_account,
                     gas: gas_estimate,
-                    gasLimit: '0x10000000',
-                    data: parsed_json['bytecode'] + constructor_parameters,
+                    gasLimit: parseInt(10000000).toString(16),
+                    data: contract + constructor_parameters,
                     chainId: active_chain_id,
                 },
             ],
@@ -725,10 +772,19 @@ async function deploy_contract_public(constructor_parameters, gas_estimate){
         })
 }
 function save_contract_address() {
-    ajax_post_json({ 'address_set': contract_address, 'chain_id': active_chain_id, 'minting_cost': minting_cost, 'contract_type': contract_type })
+    ajax_post_json({ 'address_set': contract_address, 'chain_id': active_chain_id, 'contract_type': contract_type })
         .then(function (response) {
             console.log("Contract adress stored in db " + response["server_message"])
         })
+}
+async function get_contract(type){
+    return new Promise((res) =>{
+        ajax_post_json({ 'get_contract': type })
+            .then(function (response) {
+                res(JSON.parse(response["contract"]))
+            })
+    })
+    
 }
 // CONTRACT DEPLOY //
 
@@ -737,7 +793,7 @@ function save_contract_address() {
 
 // MINT //
 function mint_page_redirect(){
-    // go to mint page
+    window.location.replace(document.querySelector("#redirect"));
 }
 // MINT //
 
@@ -779,8 +835,8 @@ function populate_deploy_collection(populate_data){
                 input_field.name = element['select']
                 element['options'].forEach(element => {
                     let option_field = document.createElement('option')
-                    option_field.value = element
-                    option_field.innerText = element
+                    option_field.value = element['value']
+                    option_field.innerText = element['name']
                     input_field.appendChild(option_field)
                 });
             }
@@ -795,7 +851,7 @@ function populate_deploy_collection(populate_data){
     }
     populate_data['buttons'].forEach(element => {
         let button = document.createElement('button')
-        button.classList = "general_button_no_border light_purple_background rounded_container_no_padding"
+        button.classList = "general_button_no_border main_color_background rounded_container_no_padding"
         button.innerText = element['name']
         button.onclick = () => { function_callback(element['metadata'])}
         deploy_collection_container.querySelector(".dc_buttons").appendChild(button)
@@ -807,6 +863,8 @@ function loading_deploy_collection(populate_data){
     deploy_collection_container.querySelector(".spinner").style.display = 'flex'
     deploy_collection_container.querySelector(".dc_buttons").innerHTML = ""
     deploy_collection_container.querySelector(".dc_close").style.display = "none"
+    deploy_collection_container.querySelector('.input_wrapper').innerHTML = ''
+    deploy_collection_container.querySelector('.input_wrapper').style.display = 'none'
 }
 function close_deploy_collection(){
     document.getElementsByClassName('filter')[0].style['pointer-events'] = "all"
@@ -818,7 +876,7 @@ function close_deploy_collection(){
 function status_dot_update(section){
     let status_dots = deploy_collection_container.querySelectorAll(".dc_status_dot")
     for (let i = 0; i < section; i++) {
-        status_dots[i].style.background = "var(--medium-grey-color)"    
+        status_dots[i].style.background = "var(--main-color)"    
     }
 }
 // DEPLOY COLLECTION FUNCTIONS //

@@ -61,13 +61,13 @@ function open_images(self){
         return [button, expand_collapse_button]
     }
 
-    card_element = (self.parentNode)
-    temp = (self.parentNode).children[0].dataset.fullrez
+    card_element = self
+    temp = self.children[0].dataset.fullrez
     image_data_elements = document.querySelectorAll('.all_collections_layout > div > div>input')
-    temp2 = ((self.parentNode).children[1]).children[0].dataset.metadata // metadata
-    temp3 = ((self.parentNode).children[1]).children[1].innerHTML // title
-    temp4 = ((self.parentNode).children[1]).children[0].dataset.ipfs_bool // ifps_bool
-    temp5 = ((self.parentNode).children[1]).children[2].children[0].style.display//deployed_bool
+    temp2 = (self.children[1]).children[0].dataset.metadata // metadata
+    temp3 = (self.children[1]).children[1].innerHTML // title
+    temp4 = (self.children[1]).children[0].dataset.ipfs_bool // ifps_bool
+    temp5 = (self.children[1]).children[2].children[0].style.display//deployed_bool
     if (card_element.children[0].dataset.ipfs) {
         token_uri = card_element.children[0].dataset.ipfs
     }
@@ -118,7 +118,7 @@ function open_images(self){
 
     if (temp4!='True') {
         edit_wrapper = document.createElement('div')
-        edit_wrapper.classList = "general_button_no_border light_purple_background"
+        edit_wrapper.classList = "general_button_no_border main_color_background"
         edit_button = document.createElement('img')
         edit_button.src = '/static/icons/edit.svg'
         edit_text = document.createElement('h4')
@@ -152,7 +152,7 @@ function open_images(self){
             await yes_no_popup("Permanently delete image?", "Delete", "Cancel")
             .then(function (reponse) {
                 if (reponse) {
-                    ajax_post_json({ 'delete_entry': ((self.parentNode).children[1]).children[0].dataset.id })
+                    ajax_post_json({ 'delete_entry': (self.children[1]).children[0].dataset.id })
                     .then(function (response) { //Action that occurs after a response from the server was obtained - here (STATUS 200)
                         console.log(response["server_message"])
                         card_element.remove()

@@ -678,8 +678,8 @@ function highlight_file(context){
     active_element.style = "color: var(--image-text-color);"
     active_element.nextElementSibling.children[1].style.background = "var(--white-color)"
 
-    context.style = "color: var(--medium-grey-color);"
-    context.nextElementSibling.children[1].style.background = "var(--medium-grey-color)"
+    context.style = "color: var(--main-color);"
+    context.nextElementSibling.children[1].style.background = "var(--main-color)"
     active_element = context
 }
 
@@ -703,7 +703,7 @@ function find_file(name, section) {
 
 function highlight_carousel(context){
     active_carousel.children[1].style = "color: var(--text-color-2);"
-    context.children[1].style = "color: var(--medium-grey-color);"
+    context.children[1].style = "color: var(--main-color);"
     active_carousel = context
 }
 
@@ -830,7 +830,7 @@ function add_collection() {
         add_layer_img.dataset.layer = add_layer_input.value
 
         layers_row2.appendChild(Object.assign(document.createElement('h4'), { textContent: "#" + step, classList: "nft_text center" }))
-        layers_row2.appendChild(Object.assign(document.createElement('div'), { textContent: "View Metadata", classList: "view_metadata orange_background rounded_container_no_padding" }))
+        layers_row2.appendChild(Object.assign(document.createElement('div'), { textContent: "View Metadata", classList: "view_metadata sub_color_background rounded_container_no_padding" }))
 
         layers_row.appendChild(add_layer_img)
         layers_row.appendChild(layers_row2)
