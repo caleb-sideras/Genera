@@ -2,7 +2,7 @@
   --text-color: #000000;
   --text-color-2: #333333;
   --dark-grey-color: #535242;
-  --background-image: linear-gradient(#6a74ff1f, #FFFFFF);
+  --background-image: linear-gradient(#F2F3FF, #F2F3FF);
   --background-color: #7e87f71f;
   --main-card-color: #FFFFFF;
   --main-color: #627EEA;
@@ -33,7 +33,7 @@
   --text-color: #FFFFFF;
   --text-color-2: #F2F2F2;
   --dark-grey-color: #FFFFFF;
-  --background-image: linear-gradient(#2c292f, #212429);
+  --background-image: linear-gradient(#27272C, #27272C);
   /* linear-gradient(#2D222E, #212429); */
   --background-color: #27232B;
   --main-card-color: #191B1F;
@@ -62,8 +62,10 @@
   [class*="col-"],
   [class="upload_layers_wrapper"],
   [class="upload_preview"],
-  [class="upload_properties"]{
+  [class="upload_properties"],
+  [class="info"]{
     width: 100% !important;
+    max-width: 100% !important;
   }
 
   [id="upload_form"]{
@@ -74,10 +76,11 @@
     display: none !important;
   }
 
-  [class="burger_toggle"],
-  [class="inner_content"]
-  {
+  [class="burger_toggle"]{
     display: block !important; 
+  }
+  [class="inner_content"]{
+    flex-direction: column;
   }
   [class="all_collections_layout"]{
     justify-content: center;
@@ -92,8 +95,8 @@
     height: 100% !important;
   }
   [class="inner_content"] > img{
-  max-height: 50% !important;
-  max-width: 100% !important;
+    max-height: 50% !important;
+    max-width: 100% !important;
   }
   [class="image_preview"] > div > div > div > .info{
   height: 50% !important;
@@ -1353,9 +1356,8 @@ input[type='number']{
   margin-bottom: auto;
   background-color: var(--main-card-color);
   padding: 0;
-  max-width: 100%;
+  max-width: 1400px;
   min-width: 0px;
-  border-radius: 10px !important;
 }
 
 .top_row {
@@ -1379,8 +1381,8 @@ input[type='number']{
   justify-content: space-between;
 }
 .inner_content >  img{
-  max-height: 700px;
-  max-width: 700px;
+  max-height: 100%;
+  max-width: 50%;
   min-height: 50px;
   min-width: 50px;
   display: block;
@@ -1404,7 +1406,7 @@ input[type='number']{
   border-radius: 10px 0 0 10px;
   align-items: center;
   vertical-align: middle;
-  width: 40px;
+  min-width: 35px;
   cursor: pointer;
   display: flex;
   flex-grow: 1;
@@ -1415,7 +1417,7 @@ input[type='number']{
   border-radius: 0 10px 10px 0;
   align-items: center;
   vertical-align: middle;
-  width: 40px;
+  min-width: 35px;
   cursor: pointer;
   display: flex;
   flex-grow: 1;
@@ -1435,7 +1437,7 @@ input[type='number']{
 }
 .inner_content{
   display: flex;
-  max-width: 100%;
+  justify-content: space-between;
 }
 .image_preview > div > div > div > .info{
   display: flex;
@@ -1447,6 +1449,7 @@ input[type='number']{
   overflow-y: auto;
   text-align: center;
   height: 100%;
+  width: 50%;
 }
 .image_preview > div > div > div > div > div > h2{
   color: var(--main-color);

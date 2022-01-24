@@ -60,7 +60,6 @@ function open_images(self){
         button.addEventListener('click', function () { expand_collapse(this)})
         return [button, expand_collapse_button]
     }
-
     card_element = self
     temp = self.children[0].dataset.fullrez
     image_data_elements = document.querySelectorAll('.all_collections_layout > div > div>input')
