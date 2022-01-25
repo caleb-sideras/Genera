@@ -67,9 +67,12 @@ def upload_view(request):
         t.stop()
         return PIL_image
 
-    def file_to_pil_no_resize(file):
+    def file_to_pil_no_resize(file, res_x, res_y):
         t.start()
         PIL_image = Image.open(io.BytesIO(file.read()))
+        height, width = PIL_image.size
+        if height != res_x or width != res_y:
+            raise RawPostDataException
         t.stop()
         return PIL_image
     
@@ -101,28 +104,37 @@ def upload_view(request):
     calebs_gay_dict = {}
     
     if request.method == "POST":
-        if request.user.is_authenticated:
-            try:
-                received_json_data = json.loads(request.body)
-                if "field_name" in received_json_data:
+        
+        # Ajax feild validation
+        try:
+            received_json_data = json.loads(request.body)
+            if "field_name" in received_json_data:
                     if received_json_data["field_name"] == "collection_name":
-                        if UserCollection.objects.filter(user=request.user, collection_name=received_json_data["field_content"]).exists():
-                            return JsonResponse({"passed": 0, "message": "A collection with that name already exists!"}, status=200)
+                        if request.user.is_authenticated:
+                            if UserCollection.objects.filter(user=request.user, collection_name=received_json_data["field_content"]).exists():
+                                return JsonResponse({"passed": 0, "message": "A collection with that name already exists!"}, status=200)
+                            else:
+                                return JsonResponse({"passed": 1}, status=200)
                         else:
                             return JsonResponse({"passed": 1}, status=200)
                     elif received_json_data["field_name"] == "size":
-                        if request.user.credits < int(received_json_data["field_content"]):
-                            return JsonResponse({"passed": 0, "message": "You don't have enough credits to generate this collection size!"}, status=200)
+                        if request.user.is_authenticated:
+                            if request.user.credits < int(received_json_data["field_content"]):
+                                return JsonResponse({"passed": 0, "message": "You don't have enough credits to generate this collection size!"}, status=200)
+                            else:
+                                return JsonResponse({"passed": 1}, status=200)
+                        elif 100 < int(received_json_data["field_content"]):
+                                return JsonResponse({"passed": 0, "message": "Maximum of 100 free generations allowed"}, status=200)
                         else:
                             return JsonResponse({"passed": 1}, status=200)
-                    
-            except RawPostDataException:
-                pass
-        else:
-            return JsonResponse({"passed": 1}, status=200)
-   
+                
+        except RawPostDataException:
+            pass
+        
+        #Image handling section
         if len(request.FILES) != 0:
-            # use throttling or async timer countdown
+
+            # Preview handling
             if 'properties' in request.POST:
                 properties = json.loads(request.POST.get('properties'))
                 layernames = json.loads(request.POST.get('layernames'))
@@ -138,10 +150,10 @@ def upload_view(request):
                         layer_name = filename.split(".")[0]
                         count = int(filename.split(".")[1])
                         if layer_name =="asset":
-                            layers_list[count] = file_to_pil_no_resize(file)
+                            layers_list[count] = file_to_pil_no_resize(file, res_x, res_y)
                             layers_list_names[count] = file.name.split(".")[0]
                         else:
-                            textures_list[count] = file_to_pil_no_resize(file)
+                            textures_list[count] = file_to_pil_no_resize(file, res_x, res_y)
                             textures_list_names[count] = file.name.split(".")[0]
                 im = Image.new (
                     "RGBA", (res_x, res_y), (0, 0, 0, 0)
@@ -185,40 +197,28 @@ def upload_view(request):
                     status=200,
                 )
 
+            # Generation Handling
+
+            #Paid or Free Generation
+            if request.user.is_authenticated:
+                if int(float(request.POST.get("size"))) > request.user.credits:
+                    paid_generation = False
+                    # messages.error(request, message="Not enough credits")
+                    # return ajax_redirect(reverse("main:upload"), "Not enough credits")
+                else:
+                    paid_generation = True
+            else:
+                paid_generation = False
+                    
             
-            #TEST FILE TRANSFER CODE
-            # file_count = 0
-            # for filename in request.FILES.keys():
-            #     print(filename)
-            #     for file in request.FILES.getlist(filename): ##for this set of file get layer name and layer type
-            #         if "$" in filename: ##handle mutliple files.
-            #             individual_files = filename.split("$")
-            #             if individual_files:
-            #                 layer_name = individual_files[0].split(".")[1]
-            #                 layer_type = individual_files[0].split(".")[0]
-            #         else: ##handle 1 file
-            #             layer_name = filename.split(".")[1]
-            #             layer_type = filename.split(".")[0]
-            #         file_name_no_extension = file.name.split(".")[0]
-            #         file_name_extension = file.name.split(".")[1]
-            #         # print(f"{layer_name}.{layer_type}.{file_name_no_extension}.{file_name_extension}")
-            #         print(file.name)
-            #         file_count += 1
-            # print(f"Number of files: {file_count}")
-            # print(request.POST["rarity_map"])
-            # return render(request, "upload.html", context)
-            print("posted")
-            if int(float(request.POST.get("size"))) > request.user.credits:
-                messages.error(request, message="Not enough credits")
-                return ajax_redirect(reverse("main:upload"), "Not enough credits")
 
             calebs_gay_dict["CollectionName"] = request.POST.get("collection_name")
-            calebs_gay_dict["TokenName"] = request.POST.get("token_name")
+            calebs_gay_dict["TokenName"] = request.POST.get("token_name") # not needed
             calebs_gay_dict["ImageName"]= request.POST.get("image_name")
             calebs_gay_dict["Description"] = request.POST.get("description")
             calebs_gay_dict["Resolution_x"] = int(float(request.POST.get("resolution_x")))
             calebs_gay_dict["Resolution_y"] = int(float(request.POST.get("resolution_y")))
-            calebs_gay_dict["CollectionSize"] = int(float(request.POST.get("size")))
+            # calebs_gay_dict["CollectionSize"] = int(float(request.POST.get("size")))
             calebs_gay_dict["TextureColor"] = request.POST.get("color")
             new_dict = json.loads(request.POST.get("image_dict"))
             for value in calebs_gay_dict.values():
@@ -227,26 +227,27 @@ def upload_view(request):
                     return ajax_redirect(reverse("main:upload"), "An Error has occured - data is missing. Please try again.")
 
             layers = {}
+            if paid_generation:
 
-            db_collection = UserCollection.objects.get_or_create(user=request.user, collection_name=calebs_gay_dict["CollectionName"])
-            if db_collection[1]: #new collection created
-                db_collection = db_collection[0]
-            else:
-                messages.error(request, message="A collection with that name already exists!")
-                return ajax_redirect(reverse("main:upload"), "A collection with that name already exists!")
+                db_collection = UserCollection.objects.get_or_create(user=request.user, collection_name=calebs_gay_dict["CollectionName"])
+                if db_collection[1]: #new collection created
+                    db_collection = db_collection[0]
+                else:
+                    messages.error(request, message="A collection with that name already exists!")
+                    return ajax_redirect(reverse("main:upload"), "A collection with that name already exists!")
 
-            db_collection.description = calebs_gay_dict["Description"]
-            db_collection.dimension_x = calebs_gay_dict["Resolution_x"]
-            db_collection.dimension_y = calebs_gay_dict["Resolution_y"]
-            db_collection.token_name = calebs_gay_dict["TokenName"]
-            db_collection.image_name = calebs_gay_dict["ImageName"]
-            db_collection.path = f"/media/users/{request.user.username}/collections/{calebs_gay_dict['CollectionName'].strip().replace(' ', '_')}"
+                db_collection.description = calebs_gay_dict["Description"]
+                db_collection.dimension_x = calebs_gay_dict["Resolution_x"]
+                db_collection.dimension_y = calebs_gay_dict["Resolution_y"]
+                db_collection.token_name = calebs_gay_dict["TokenName"]
+                db_collection.image_name = calebs_gay_dict["ImageName"]
+                db_collection.path = f"/media/users/{request.user.username}/collections/{calebs_gay_dict['CollectionName'].strip().replace(' ', '_')}"
 
-            try:
-                db_collection.save()
-            except:
-                messages.error(request, message="Critical Backend error. Please try again.")
-                return ajax_redirect(reverse("main:upload"), "Critical Backend error. Please try again.")
+                try:
+                    db_collection.save()
+                except:
+                    messages.error(request, message="Critical Backend error. Please try again. No credits were deducted.")
+                    return ajax_redirect(reverse("main:upload"), "Critical Backend error. Please try again.  No credits were deducted.")
             
             for filename in request.FILES.keys():
                 for file in request.FILES.getlist(filename): ##for this set of file get layer name and layer type
@@ -273,11 +274,9 @@ def upload_view(request):
                                 layers[layer_name]["Assets"].append(
                                     {
                                         "Name": file_name_no_extension,
-                                        "PIL": file_to_pil_cv2(
-                                            file,
-                                            calebs_gay_dict["Resolution_x"],
-                                            calebs_gay_dict["Resolution_y"]
-                                        ),  # REPLACE WITH file_to_pil(file) WHEN NEED ACTUAL FILE OBJECT IN NUMPY
+                                        "PIL": file_to_pil_no_resize(file,
+                                        calebs_gay_dict["Resolution_x"],
+                                        calebs_gay_dict["Resolution_y"]),  # REPLACE WITH file_to_pil(file) WHEN NEED ACTUAL FILE OBJECT IN NUMPY
                                         "Rarity": int(float(new_dict[layer_name]['Assets'][file_name]['Rarity'])),
                                     }
                                 )
@@ -286,7 +285,7 @@ def upload_view(request):
                                 layers[layer_name]["Textures"].append(
                                     {
                                         "Name": file_name_no_extension,
-                                        "PIL": file_to_pil_cv2(
+                                        "PIL": file_to_pil_no_resize(
                                             file,
                                             calebs_gay_dict["Resolution_x"],
                                             calebs_gay_dict["Resolution_y"]
@@ -295,20 +294,30 @@ def upload_view(request):
                                     }
                                 )
 
-            calebs_gay_dict["Layers"] = layers  # calebd gay dict complete
+            calebs_gay_dict["Layers"] = layers  # calebs gay dict complete
 
-            print(calebs_gay_dict["Layers"])
-
-            create_and_save_collection(calebs_gay_dict, db_collection, request.user)
+            # print(calebs_gay_dict["Layers"])
             
-            messages.success(request, message="Collection generated succesfully!")
+            if paid_generation:
+                create_and_save_collection_paid(calebs_gay_dict, db_collection, request.user)
 
-            print("RETURNING COLLECTION")
-            return JsonResponse({"url": reverse("main:collection",
+                messages.success(request, message="Collection generated succesfully!")
+                return JsonResponse({"url": reverse("main:collection",
                     kwargs={
                         "username": request.user.username,
                         "collection_name": db_collection.collection_name
                     })}, status=200)
+            else:
+                images_list, metadata_list = create_and_save_collection_free(calebs_gay_dict)
+                print("Free collection")
+                return JsonResponse(
+                    {
+                        "images" : images_list,
+                        "metadata" : metadata_list
+                    },
+                    status=200,
+                )
+            
                 
         else:  # no files submitted
             messages.error(request, message="No files recieved by the server")

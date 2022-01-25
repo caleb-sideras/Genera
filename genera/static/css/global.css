@@ -1,9 +1,11 @@
 :root {
   --text-color: #000000;
   --text-color-2: #333333;
-  --dark-grey-color: #535242;
+  --text-color-3: #666565;
   --background-image: linear-gradient(#F2F3FF, #F2F3FF);
-  --background-color: #7e87f71f;
+  --background-color: #FFFFFF;
+  --background-color-2: #F7F8FA;
+  --background-color-3: #F7F8FA;
   --main-card-color: #FFFFFF;
   --main-color: #627EEA;
   --sub-color: #A8B6F4;
@@ -22,7 +24,7 @@
   /* --filter-color: invert(15%) sepia(91%) saturate(4511%) hue-rotate(321deg) brightness(78%) contrast(110%); */
   --filter-color: invert(52%) sepia(52%) saturate(1041%) hue-rotate(200deg) brightness(88%) contrast(111%);
   --icon-color: invert(0%) sepia(3%) saturate(7485%) hue-rotate(139deg) brightness(87%) contrast(101%);
-  --dark-grey-color-2: invert(28%) sepia(11%) saturate(872%) hue-rotate(19deg) brightness(92%) contrast(79%);
+  --dark-grey-color-2: brightness(0) saturate(100%) invert(14%) sepia(0%) saturate(1%) hue-rotate(116deg) brightness(94%) contrast(82%);
   --tab-img-color: invert(100%) sepia(4%) saturate(16%) hue-rotate(186deg) brightness(107%) contrast(106%);
   --remove-button-color: invert(80%) sepia(6%) saturate(35%) hue-rotate(169deg) brightness(97%) contrast(93%);
   --red-img-color: invert(55%) sepia(79%) saturate(3057%) hue-rotate(332deg) brightness(100%) contrast(101%);
@@ -34,8 +36,11 @@
   --text-color-2: #F2F2F2;
   --dark-grey-color: #FFFFFF;
   --background-image: linear-gradient(#27272C, #27272C);
+  /* #27272C */
   /* linear-gradient(#2D222E, #212429); */
-  --background-color: #27232B;
+  --background-color: #191B1F;
+  --background-color-2: #2a2e34;
+  --background-color-3: #2a2e34;
   --main-card-color: #191B1F;
   --main-color: #755A7A;
   --sub-color: #a894ab; 
@@ -487,7 +492,7 @@ body {
 }
 
 .sub_color_background {
-  background-color: var(--sub-color);
+  background-color: var(--sub-color) !important;
 }
 
 .red_background{
@@ -732,7 +737,7 @@ body {
 .popup_wrapper > .yes_no_container {
   width: 400px;
   height: 150px;
-  background: var(--main-color);
+  background: var(--sub-color);
   margin: auto;
   justify-content: space-evenly;
   text-align: center
@@ -852,7 +857,6 @@ body {
   height: 15px;
   aspect-ratio: 1;
   box-sizing: border-box;
-  border-radius: 10px 0 0 0;
   overflow: hidden;
   left: 5px;
   top: 0;
@@ -890,7 +894,7 @@ body {
 }
 
 .dropdown_button > .expand_button_container > h5 {
-  color: var(--dark-grey-color);
+  color: var(--text-color-2);
   width: 50%;
   margin: 2px 0 0 0;
   text-align: center;
@@ -1354,7 +1358,7 @@ input[type='number']{
   margin-right: auto;
   margin-top: auto;
   margin-bottom: auto;
-  background-color: var(--main-card-color);
+  background-color: var(--background-color);
   padding: 0;
   max-width: 1400px;
   min-width: 0px;
@@ -1479,11 +1483,12 @@ input[type='number']{
     justify-content: space-evenly;
 }
 .upper_info_wrapper > div > h4{
-  color: var(--dark-grey-color);
+  color: var(--text-color-2);
 }
 
 .upper_info_wrapper > div > img {
   height: 15px;
+  filter: var(--dark-grey-color-2);
 }
 /* pre */
 .image_preview > div > div > div > p{
@@ -1592,6 +1597,7 @@ text-align: left;
     margin-left: auto;
     margin-right: auto;
     height: 20px;
+    background-color: var(--background-color-2);
 }
 
 .collection_card_button >img {
@@ -1641,6 +1647,7 @@ text-align: left;
     overflow-wrap: break-word;
     max-height: 100px;
     overflow-y: auto;
+    background-color: var(--background-color-2);
 }
 .properties_container{
   display: flex;
@@ -1976,7 +1983,7 @@ text-align: left;
   font-weight: bold;
 }
 .features_wrapper{
- background: var(--main-card-color);
+ background: var(--background-color);
  padding-top: 50px;
  padding-bottom: 100px;
 }
@@ -2314,6 +2321,8 @@ display: inline-block;
   flex-wrap: wrap;
   text-align: left;
   gap: 50px;
+  padding-top: 50px;
+  padding-bottom: 50px;
   background: var(--main-card-color);
 }
 
@@ -2322,18 +2331,18 @@ display: inline-block;
 }
 .footer_section ul{
   padding-left: 15px;
+  list-style-type: none; /* Remove bullets */
+  padding: 0; /* Remove padding */
+  margin: 0; /* Remove margins */
 }
 .footer_section li{
-  margin-bottom: 10px;
+  margin-bottom: 15px;
 }
 .footer_section h3{
-  color: var(--text-color);
+  color: grey;
 }
 .footer_section p, a{
-  color: var(--main-color);
-}
-.footer_section h3, a, p{
-  display: block;
+  color: var(--text-color-2);
 }
 /* FOOTER */
 
@@ -2504,7 +2513,7 @@ display: inline-block;
   color: grey;
 }
 .about_main{
-  background: var(--main-card-color);
+  background: var(--background-color);
 }
 .about_row{
      display: flex;
@@ -2604,7 +2613,7 @@ display: inline-block;
 
 .roadmap_section >div{
      width: 450px;
-    background-color: var(--main-card-color);
+    background-color: var(--background-color);
     border-radius: 20px;
     padding: 25px;
 }
@@ -2619,7 +2628,7 @@ display: inline-block;
 .docs_wrapper{
   display: flex;
   position: fixed;
-  background-color: var(--white-color);
+  background-color: var(--background-color-3);
   width: 100vw;
 }
 
@@ -2629,7 +2638,6 @@ display: inline-block;
   height: 50px;
   text-align: center;
   border-bottom: solid;
-  border-top: solid;
   border-width: 2px;
   border-color: var(--border-color);
   justify-content: center;

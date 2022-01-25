@@ -3,12 +3,12 @@
 
 {% block head_block %}
   <script type="text/javascript" src="{% static 'js/upload_page.js' %}"></script>
-  <!-- <script type="text/javascript" src="{% static 'js/temp.js' %}"></script> -->
+  <script type="text/javascript" src="{% static 'js/libraries/jszip.min.js' %}"></script>
 <link rel="stylesheet" href="">
 {% endblock %}
 
 {% block body_block %}
-<input type="hidden" id="js_vars" data-ajax_url='{{ajax_url}}'>
+<input type="hidden" id="js_vars" data-ajax_url='{{ajax_url}}'' data-user_login='{{user.is_authenticated}}'>
 
 <form method="post" id="upload_form" enctype="multipart/form-data" class="upload_wrapper">
   {% csrf_token %}
@@ -150,7 +150,6 @@
         type="button"
         id="upload_button_submit"
         class="general_button_no_border main_color_background shadow_strong rounded_container_no_padding"
-        {%if not user.is_authenticated%}disabled{%endif%}
       >
         <h4 class="no_margin generate">Generate</h4>
       </button>

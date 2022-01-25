@@ -357,27 +357,40 @@ function download_zip() {
     let zip = new JSZip();
     let folder_name = js_vars.dataset.collection_name + ".zip";
 
+    function zipFiles(img_data, json, i) {
+        return new Promise((res, rej) => {
+            JSZipUtils.getBinaryContent(img_data, function (err, data) {
+                if (err) {
+                    rej(err) // or handle the error
+                }
+                zip.file(i + ".json", json)
+                console.log("resolved" + i)
+                // probs just res true
+                res(zip.file(i + ".png", data, { binary: true }))
+            });
+        })
+    }
+    let promise_list = []
     for (let i = 0; i < images.length; i++) {
-        let filename = images[i].dataset.name + ".png";
+        // let filename = images[i].dataset.name + ".png";
         let url = images[i].dataset.fullrez
         let metadata_name = images[i].dataset.name + ".json";
         let json = metadata[i].dataset.metadata
-        JSZipUtils.getBinaryContent(url, function (err, data) {
-            if (err) {
-                throw err // or handle the error
-            }
-
-            zip.file(filename, data, { binary: true })
-            zip.file(metadata_name, json)
-
-            if (i+1 == images.length) {
-                zip.generateAsync({ type: 'blob' }).then(function (content) {
-                    saveAs(content, folder_name);
-                });
-            }
-        });
+        promise_list.push(
+            zipFiles(
+                url,
+                metadata_name,
+                i
+            )
+        )
     }
-    close_loading_popup()
+    Promise.all(promise_list).then((value) => {
+        console.log("THE BIG ZIP")
+        zip.generateAsync({ type: 'blob' }).then(function (content) {
+            saveAs(content, "GeneraCollection.zip");
+            close_loading_popup()
+        });
+    })
 }
 
 function edit_image(title, description){
