@@ -2,38 +2,48 @@
 <script src="https://js.stripe.com/v3/"></script> -->
 
 <div class="payments_wrapper">
-  <h2>Credits</h2>
-  <h4>*Users will be given 50 free credits on account creation</h4>
+  <h1>Credits</h1>
   <div class="payments_description rounded_container">
-    <div class="credit_section">
-      <h3>Free Features</h3>
+    <div class="credit_section border rounded_container">
+      <h2>Free Features</h2>
       <ul>
-        <li>Generative NFT Previews</li>
-        <li>Post Generation Collection Download</li>
-        <li>Post Generation Collection Changes (Metadata, Deletions etc)</li>
-        <p style="margin-top: 10px; text-align: start;">*Coming next</p>
-        <li>User provided TokenURI NFT Minting</li>
-        <li>Stand Alone Texture Mapping</li>
+        <li>Up to 100 Assets Generated</li>
+        <li>Metadata Generation w/ Layer Attributes</li>
+        <li>Asset and Metadata Previews</li>
+        <li>Collection Download</li>
+        <li>Watermarked</li>
+        <h3 style="margin-top: 35px; text-align: start;">Q1 2022</h3>
+        <li>NFT Minting without using our generation tool</li>
+        <li>Hosted Minting Pages</li>
+        <li>Mass Texture Mapper Tool</li>
       </ul>
     </div>
-    <div class="credit_section middle_credit">
-      <h3>Credit based features</h3>
+    <div class="credit_section border rounded_container">
+      <h2>Credit based features</h2>
       <ul>
-        <li>Asset Generation (w/ Metadata)</li>
-        <li>NFT Minting (w/ IFPS Storage)</li>
-      </ul>
-    </div>
-    <div class="credit_section">
-      <h3>Example w/ 50 credits</h3>
-      <ul>
-        <li>Generate 50 Assets (w/ Metadata)</li>
-        <p>or</p>
-        <li>Generate 25 Assets (w/ Metadata) and Mint 25 NFTs (w/ IFPS deployment)</li>
-        <p>or</p>
-        <li>Mint 50 NFTs (w/ IFPS deployment)</li>
+        <li>Up to 10,000 Assets Generated</li>
+        <li>Metadata Generation w/ Layer Attributes</li>
+        <li>Asset and Metadata Previews</li>
+        <li>Collection Download</li>
+        <li>No Watermark</li>
+        <li>Genera Collection Management System</li>
+        <li>OpenSea Metadata Customization</li>
+        <li>Asset and Metadata IPFS Storage</li>
+        <li>Deploy a Customizable Smart Contract</li>
+        <li>NFT Minting (Ethereum & Polygon)</li>
+        <li>Hosted Minting and Profile Page</li>
       </ul>
     </div>
   </div>
+  <div class="credit_section border rounded_container">
+    <h2>Example w/ 10,000 credits</h2>
+    <ul>
+      <li>Generate 10,000 Assets (w/ Metadata)</li>
+      <li>Manage Collection Properties with Genera's Collection Management System</li>
+      <li>Deploy Smart Contract to Ethereum or Polygon</li>
+      <li>Hosted Minted page for 10,000 NFTs</li>
+    </ul>
+    </div>
   <div class="payments_options"></div>
   <!-- {url payments:’view_name’} -->
    <form method="POST" id="checkout_form" action="{% url 'payments:checkout'%}"> 

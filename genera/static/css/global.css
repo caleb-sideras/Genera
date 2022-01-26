@@ -2022,9 +2022,8 @@ text-align: left;
 }
 .payments_wrapper > h2 {
   font-size: 2rem;
-  padding-top: 25px;
-  margin-top: 0;
-  margin-bottom: 0;
+  margin-top: 50px;
+  margin-bottom: 50px;
 }
 .payments_wrapper > h4 {
   margin-top: 5px;
@@ -2034,11 +2033,8 @@ text-align: left;
   min-width: 200px;
   margin: 0px auto;
   display: flex;
-  background-color: var(--main-card-color);
   padding: 0;
-  /* border-style: solid;
-  border-width: 1px;
-  border-color: var(--border-color); */
+  gap: 20px;
 }
 .payments_description > h3 {
   margin: 0 5px;
@@ -2049,30 +2045,33 @@ text-align: left;
 .payments_description > ul{
 display: inline-block;
 }
+.payments_wrapper > .credit_section{
+  margin: auto;
+  margin-top: 20px;
+}
 .credit_section{
-  width: 33%;
+  width: 50%;
   padding: 10px 5px;
+  background-color: var(--main-card-color);
 }
 .credit_section > h3{
   font-weight: bold;
 }
+.credit_section >ul{
+  padding-left: 30px;
+}
 .credit_section > ul > li {
   text-align: initial;
-  font-size: 18px;
-  color: var(--text-color-2);
+  font-size: 17px;
+  color: var(--p-text-color);
   padding-top: 5px;
   padding-bottom: 5px;
 }
-.credit_section > ul > p {
+.credit_section > ul > p, 
+.credit_section > ul >h3 {
   text-align: center;
   margin: 0;
   color: var(--text-color-2);
-}
-.middle_credit{
-  border-style: solid;
-  border-top: 0;
-  border-bottom: 0;
-  border-color: var(--border-color);
 }
 .credit_buttons_wrapper{
   display: flex;
@@ -2087,6 +2086,17 @@ display: inline-block;
   color: var(--text-button-color-1);
   font-weight: bold;
 }
+
+ul { list-style: none; } /* Remove default bullets */
+
+li::before {
+  /* font-family: 'Font Awesome 5 Free'; */
+  content: "\2713";
+  color: var(--main-color);
+   font-size: 1.3em;
+  margin-right: 10px; /* Optional tweak */
+}
+
 /* HOME */
 
 /* NAV BAR */
@@ -2628,7 +2638,7 @@ display: inline-block;
 .docs_wrapper{
   display: flex;
   position: fixed;
-  background-color: var(--background-color-3);
+  background-color: var(--white-color);
   width: 100vw;
 }
 
