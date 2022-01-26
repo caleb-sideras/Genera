@@ -2059,6 +2059,7 @@ display: inline-block;
 }
 .credit_section >ul{
   padding-left: 30px;
+  list-style: none;
 }
 .credit_section > ul > li {
   text-align: initial;
@@ -2067,6 +2068,13 @@ display: inline-block;
   padding-top: 5px;
   padding-bottom: 5px;
 }
+.credit_section > ul > li::before {
+  content: "\2713";
+  color: var(--main-color);
+  font-size: 1.3em;
+  margin-right: 10px;
+}
+
 .credit_section > ul > p, 
 .credit_section > ul >h3 {
   text-align: center;
@@ -2085,16 +2093,6 @@ display: inline-block;
   font-size: 18px;
   color: var(--text-button-color-1);
   font-weight: bold;
-}
-
-ul { list-style: none; } /* Remove default bullets */
-
-li::before {
-  /* font-family: 'Font Awesome 5 Free'; */
-  content: "\2713";
-  color: var(--main-color);
-   font-size: 1.3em;
-  margin-right: 10px; /* Optional tweak */
 }
 
 /* HOME */
