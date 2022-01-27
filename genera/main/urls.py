@@ -25,7 +25,6 @@ urlpatterns = [
     path("user/<str:username>/profile/<str:collection_name>", mint_view, name="user_mint"),
     path("user/<str:username>/collections", all_collections_view, name="all_collections"),
     path("user/<str:username>/collections/<str:collection_name>", collection_view, name="collection"),
-    path("xd", xd, name="xd")
     # path("create-checkout-session", checkout_session, name="create-checkout-session")
 ]
  

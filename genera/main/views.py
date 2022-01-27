@@ -1,8 +1,5 @@
-<<<<<<< HEAD
 from json.decoder import JSONDecodeError
-=======
 from ast import Try
->>>>>>> 5ae89d8d10a2b7d2df1a0b4290c2673791d55170
 from time import timezone
 from django.http.response import HttpResponse
 from django.shortcuts import render
