@@ -1,3 +1,4 @@
+import base64
 from PIL import Image, ImageColor
 import numpy as np
 import random
@@ -123,7 +124,7 @@ def rarityAppend2(json_object, json_name, rarity_list, asset_dict):
             rarity_list.append(asset["Name"])
 
 
-def create_and_save_collection(tempDict, db_collection, user = None):
+def create_and_save_collection_paid(tempDict, db_collection, user = None):
     print(tempDict["CollectionName"])
     print(tempDict["Description"])
 
@@ -296,6 +297,152 @@ def create_and_save_collection(tempDict, db_collection, user = None):
         #     json.dump(temp_json, json_file)
     print("Finished generation")
 
+def create_and_save_collection_free(tempDict):
+    print(tempDict["CollectionName"])
+    print(tempDict["Description"])
+
+    rarityArrayAsset = []
+    rarityArrayTexture = []
+    texturedAssetArray = []
+    texturedAssetDict = {}
+    rarityDictAsset = {}
+    rarityDictTexture = {}
+    metadataArray = []
+    metadataDict = {}
+
+    texture_map_color = ImageColor.getcolor(tempDict['TextureColor'], "RGB")
+    print(tempDict['TextureColor'])
+    print(texture_map_color)
+    for key, value in tempDict["Layers"].items():
+        texturedAsset = 0
+        print(f"Generating {key} layer")
+
+        if value["Assets"] and value["Textures"]:
+
+            # adding assets/textures to individual arrays
+            rarityAppend(value, "Assets", rarityArrayAsset, rarityDictAsset)
+            rarityAppend(value, "Textures", rarityArrayTexture, rarityDictTexture)
+
+            while rarityArrayAsset:
+                # randomly choosing assets/textures
+                tempAsset = random.choice(rarityArrayAsset)
+                texturedAsset = rarityDictAsset[tempAsset]
+                tempMetadata = tempAsset
+                if rarityArrayTexture:
+                    
+                    tempTexture = random.choice(rarityArrayTexture)
+                        
+                    # mapping texture to asset
+                    texturedAsset = textureMapping(
+                        rarityDictAsset[tempAsset], rarityDictTexture[tempTexture], texture_map_color
+                    )
+
+                    # metadata variable
+                    tempMetadata = f"{tempAsset} ({tempTexture})"
+                    
+                    # removing used texture
+                    rarityArrayTexture.remove(tempTexture)
+
+                # adding final asset
+                texturedAssetArray.append(texturedAsset)
+
+                # adding metadata
+                metadataArray.append(tempMetadata)
+
+                # removing used asset
+                rarityArrayAsset.remove(tempAsset)
+
+        else:
+
+            if value["Assets"]:
+
+                rarityAppend2(value, "Assets", rarityArrayAsset, rarityDictAsset)
+                arrayRange = len(rarityArrayAsset)
+                # adding just assets to an individual array
+                for _ in range(arrayRange):
+
+                    # randomly choosing assets
+                    tempAsset = random.choice(rarityArrayAsset)
+                    
+                    # adding final asset
+                    texturedAssetArray.append(rarityDictAsset[tempAsset])
+                    # adding metadata
+                    metadataArray.append(f"{tempAsset}")
+                    # removing used asset
+                    rarityArrayAsset.remove(tempAsset)
+
+
+        name = key
+        texturedAssetDict.update({name: texturedAssetArray})
+        metadataDict.update({name: metadataArray})
+        texturedAssetArray = []
+        metadataArray = []
+        rarityDictAsset = {}
+        rarityDictTexture = {}
     
-def preview_collection(tempDict, db_collection, user = None):
-    return
+    # getting longest layer
+    longest_layer = 0
+    for value in texturedAssetDict:
+        if len(texturedAssetDict[value]) > longest_layer:
+            longest_layer = len(texturedAssetDict[value])
+
+    bytes_list = []
+    metadata_list = []
+
+    try:
+        watermark = Image.open("./static/Assets/Background/genera_watermark.png")
+    except:
+        print("Could not open watermark")
+        return
+    
+    resized_watermark =  watermark.resize((tempDict["Resolution_x"], tempDict["Resolution_y"]))   
+
+    # iterating over textured assets dictionary, and combining them
+    for i in range(longest_layer):
+
+        timeit_start = time.time()
+        img_name = f"{tempDict['ImageName']} {i+1}"
+
+        im = Image.new(
+            "RGBA", (tempDict["Resolution_x"], tempDict["Resolution_y"]), (0, 0, 0, 0)
+        )
+        # creating json template
+        temp_json = {
+            "name": f"{tempDict['ImageName']}#{i}",
+            "description": tempDict["Description"],
+            "image": "",
+        }
+        temp_list = []
+        
+        for value in texturedAssetDict:
+            # print(texturedAssetDict[value])
+            if len(texturedAssetDict[value]) > i: # we already iterate over texturedAssetDict, save len values in array and use them # also, lots of double checks happening, find a way using len values for this not to happen
+                temp_asset = texturedAssetDict[value][i]
+                # creating attributes in metadata
+                im.paste(temp_asset, (0, 0), temp_asset)
+                temp_list.append(
+                    {"trait_type": value, "value": metadataDict[value][i]}
+                )
+        im.paste(resized_watermark, (0, 0), resized_watermark)
+        temp_json.update({"attributes": temp_list})
+        metadata_list.append(temp_json)
+
+        t.start()
+        bytes_list.append(pil_to_bytes(im)) 
+        t.stop()
+        
+        timeit_end = time.time()
+
+            
+        print(f"Image {img_name} has been generated (max 500px) Time taken: {timeit_end-timeit_start:.2f}s")
+
+    print("Finished generation") 
+    return bytes_list, metadata_list
+
+
+def pil_to_bytes(pil_img):
+        
+    cv2_img = cv2.imencode('.png', np.array(pil_img))[1].tobytes()
+    bytes = base64.b64encode(cv2_img).decode('utf-8')
+
+    return bytes

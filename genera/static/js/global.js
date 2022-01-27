@@ -37,7 +37,7 @@ function main() {
     }
 
     create_server_notification()
-
+    
 
     //dark mode switch
     document.querySelector(".btn_toggle").addEventListener("click", function () {
@@ -48,8 +48,20 @@ function main() {
             localStorage.dark_mode = true;
             document.documentElement.classList.add("dark-mode-root");
         }
-    });
+    }); 
     
+
+    const burger_btn = document.querySelector(".burger_toggle");
+    burger_btn.addEventListener("click", function () {
+        const burger_navbar = document.querySelector(".burger_navbar");
+        if (burger_navbar.style.display == "none") {
+            burger_navbar.style.display = "block"
+        }
+        else{
+            burger_navbar.style.display = "none"
+        }
+
+    })
     //showcase of new ajax function
     if (typeof(document.getElementById("button")) != 'undefined' && document.getElementById("button") != null) {
         document.getElementById("button").addEventListener("click", function() {
@@ -130,14 +142,22 @@ function ajax_post_factory(post_type) { //currently supports JSON and FORM data
                 // Process the server response here (Sent from Django view inside JsonResponse)
                 if (http_request.readyState === XMLHttpRequest.DONE) {
                     if (http_request.status === 200) { //ifstatus is 200 - assume PROPER RESPONSE
+                        console.log(JSON.parse(http_request.responseText))
                         resolve(JSON.parse(http_request.responseText))
                     }
                     else if (http_request.status === 201) { //handled response from Django view
                         close_loading_popup()
                         response = JSON.parse(http_request.responseText)
-                        if (response["url"] != "")
+                        if (response["url"])
                             window.location.replace(response["url"]) //server redirect - imitate return redirect(reverse(...)) from django view for ajax stuff
+                        else{
+                            resolve(JSON.parse(http_request.responseText))
+                        }
                         return
+                    }
+                    else if (http_request.status === 202) { // error messages
+                        let parsed_json = JSON.parse(http_request.responseText)
+                        alert(parsed_json['server_message'])
                     }
                     else { //unhandled error
                         alert("Unkown server error")
@@ -235,6 +255,12 @@ Object.prototype.isEmpty = function() { //check if object is empty
     for (var prop in this) if (this.hasOwnProperty(prop)) return false;
     return true;
 };
+
+function getRandomInt(min, max) {
+    min = Math.ceil(min);
+    max = Math.floor(max);
+    return Math.floor(Math.random() * (max - min) + min); //The maximum is exclusive and the minimum is inclusive
+}
 
 window.addEventListener("load", main);
 

@@ -7,19 +7,17 @@
         <div class="all_collections_layout">
         {% if users_collections %}
             {% for collection in users_collections %}
-                
-                <div class="collection_card shadow_strong rounded_container_no_padding">
-                    <!-- <img src="/static/icons/remove.svg" class="close_button remove_image_button color_image_orange"> -->
-                    <img loading="lazy" src="{{collection.collectionimage_set.first.path_compressed}}" class="nft_image">
-                    <div>
-                        <p class="no_margin center">{{collection.collection_name}}</p>
-                        <div><p style="font-size: smaller;" class="no_margin center">{{collection.description}}</p></div>
-                        
-                        <a href="{% url 'main:collection' user.username collection.collection_name %}" style="text-decoration: none;">
-                            <button class="collection_card_button orange_background collection_card_button_text" >View</button>
-                        </a>
+                <a href="{% url 'main:collection' user.username collection.collection_name %}" style="text-decoration: none; color: inherit;">
+                    <div class="collection_card border_1px grow rounded_container_no_padding">
+                        <img loading="lazy" src="{{collection.collectionimage_set.first.path_compressed}}" class="nft_image">
+                        <div>
+                            <div><p class="no_margin center" id="title">{{collection.collection_name}}</p></div>
+                            <div><p style="font-size: smaller;" class="no_margin center">{{collection.description}}</p></div>
+                            
+                            <button class="collection_card_button sub_color_background collection_card_button_text" >Open</button>
+                        </div>
                     </div>
-                </div>
+                </a>
             {% endfor %}
         {% endif %}
         </div>

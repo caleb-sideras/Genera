@@ -45,8 +45,6 @@ EMAIL_FROM_ADDRESS = 'artemlimo@gmail.com'
 DEFAULT_FROM_EMAIL = 'artemlimo@gmail.com'
 EMAIL_USE_TLS = True
 
-
-
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 

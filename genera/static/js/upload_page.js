@@ -11,6 +11,8 @@ function main() {
     uploaded_data = {}
     all_layer_names = []
     layer_update_mode = false
+    user_login = (js_vars.dataset.user_login.toLowerCase() === 'true');
+
     initialize_dynamic_form_validation()
     
     document.getElementById("add_layer_input").addEventListener("keyup", ({key}) =>  {
@@ -676,7 +678,10 @@ function highlight_file(context){
         active_element = context
     }
     active_element.style = "color: var(--image-text-color);"
-    context.style = "color: var(--medium-grey-color);"
+    active_element.nextElementSibling.children[1].style.background = "var(--white-color)"
+
+    context.style = "color: var(--main-color);"
+    context.nextElementSibling.children[1].style.background = "var(--main-color)"
     active_element = context
 }
 
@@ -700,7 +705,7 @@ function find_file(name, section) {
 
 function highlight_carousel(context){
     active_carousel.children[1].style = "color: var(--text-color-2);"
-    context.children[1].style = "color: var(--medium-grey-color);"
+    context.children[1].style = "color: var(--main-color);"
     active_carousel = context
 }
 
@@ -827,7 +832,7 @@ function add_collection() {
         add_layer_img.dataset.layer = add_layer_input.value
 
         layers_row2.appendChild(Object.assign(document.createElement('h4'), { textContent: "#" + step, classList: "nft_text center" }))
-        layers_row2.appendChild(Object.assign(document.createElement('div'), { textContent: "View Metadata", classList: "view_metadata orange_background rounded_container_no_padding" }))
+        layers_row2.appendChild(Object.assign(document.createElement('div'), { textContent: "View Metadata", classList: "view_metadata sub_color_background rounded_container_no_padding" }))
 
         layers_row.appendChild(add_layer_img)
         layers_row.appendChild(layers_row2)
@@ -1043,32 +1048,6 @@ async function preview_layer_search(res_x, res_y, layer_keys){
             texture_list.push(undefined)
         }
     }
-    // for (const [key, value] of Object.entries(uploaded_data)) {
-    //     var assets = Object.keys(value["Assets"]);
-    //     console.log(value)
-    //     console.log(assets)
-    //     if (assets.length>0) {
-    //         let asset = value["Assets"][assets[Math.floor(Math.random() * assets.length)]]
-    //         var resized_asset = await image_resize(asset['file'], res_x, res_y)
-    //         asset_list.push(resized_asset)
-
-    //         var textures = Object.keys(value["Textures"]);
-    //         if (textures.length > 0) {
-    //             let texture = value["Textures"][textures[Math.floor(Math.random() * textures.length)]]
-    //             var resized_texture = await image_resize(texture['file'], res_x, res_y)
-    //             texture_list.push(resized_texture)
-    //         }
-    //         else{
-    //             let undefined = {}
-    //             texture_list.push(undefined)
-    //         }
-    //     }
-    //     else {
-    //         let undefined = {}
-    //         asset_list.push(undefined)
-    //         texture_list.push(undefined)
-    //     }
-    // }
     console.log(asset_list)
     console.log(texture_list)
     return [asset_list, texture_list]
@@ -1110,6 +1089,7 @@ async function validate_and_post_ajax_form() {
             return
         }
     }
+    // <input required="" name="resolution_y" type="number" min="100" max="4000" placeholder="Y" title="Y Resolution" class="field_success"></input>
 
     //iterate over uploaded_data and do all checks here prior to sending
     for (const [key, value] of Object.entries(uploaded_data)) {
@@ -1147,9 +1127,48 @@ async function validate_and_post_ajax_form() {
 
     ajax_post_form(form_data)
         .then(response => {
-            window.location.replace(response["url"]) //redirect to the new collection
+            console.log(response)
+            if (typeof response["url"] !== 'undefined'){
+                // window.location.replace(response["url"]) //redirect to the new collection
+            }
+            else if(response['images']){
+                let zip = new JSZip();
+
+                function zipFiles(img_data, json, i){
+                    return new Promise((res, rej) => {
+                        JSZipUtils.getBinaryContent(img_data, function (err, data) {
+                            if (err) {
+                                rej(err) // or handle the error
+                            }
+                            zip.file(i + ".json", json)
+                            console.log("resolved" + i)
+                            // probs just res true
+                            res(zip.file(i + ".png", data, { binary: true }))
+                        });
+                    })
+                }
+
+                let promise_list = []
+                for (let i = 0; i < response['images'].length; i++) {
+                    console.log("pushing"+i)
+                    promise_list.push(
+                        zipFiles(
+                            `data:image/png;base64,${response['images'][i]}`, 
+                            JSON.stringify(response['metadata'][i]),
+                            i
+                        )
+                    )
+                }
+                
+                Promise.all(promise_list).then((value)=>{
+                    console.log("THE BIG ZIP")
+                    zip.generateAsync({ type: 'blob' }).then(function (content) {
+                        saveAs(content, "GeneraCollection.zip");
+                        close_loading_popup()
+                    });
+                })
+            }   
         })
-    
 }
 
 async function generate_form_data_for_ajax_post_generate() {
@@ -1161,8 +1180,17 @@ async function generate_form_data_for_ajax_post_generate() {
     layer_buttons.forEach(element => {
         layername_list.push(element.querySelectorAll("h5")[0].innerHTML)
     });
-    res_x = collection_properties[5].value
-    res_y = collection_properties[6].value
+
+    if (user_login) {
+        res_x = collection_properties[5].value
+        res_y = collection_properties[6].value
+    }
+    else{
+        [res_x, res_y] = preview_image_size(collection_properties[5].value, collection_properties[6].value)
+        collection_properties[5].value = res_y
+        collection_properties[6].value = res_x
+    }
+
     var upload_form = document.getElementById('upload_form');
     var file_data = new FormData(upload_form);
     file_data.append('image_dict', JSON.stringify(uploaded_data));
@@ -1170,7 +1198,6 @@ async function generate_form_data_for_ajax_post_generate() {
     sections = ["Assets", "Textures"]
     for (const key of layername_list) {
         console.log(key)
-        console.log(section_list)
         for (const section of sections) {
             console.log(section)
             var section_list = Object.keys(uploaded_data[key][section]);
@@ -1182,21 +1209,6 @@ async function generate_form_data_for_ajax_post_generate() {
             }
         }
     }
-    // for (const [key, value] of  Object.entries(uploaded_data)) {
-    //     for (const [subkey, subvalue] of  Object.entries(value)){
-    //         console.log(subkey + "." + key + "." + subkey)
-    //         console.log(subvalue['file'])
-    //         console.log(subvalue)
-    //         file_data.append(subkey+ "." + key + "." + subkey, subvalue['file']);
-    //         console.log('file appended')
-    //     }     
-    // }
-    // for (const [key, value] of Object.entries(uploaded_data["Textures"])) {
-    //     for (const [subkey, subvalue] of Object.entries(value)) {
-    //         file_data.append("texture." + key + "." + subkey, subvalue['file']);
-    //     }
-    // }
-
     return file_data
 }
 window.addEventListener("load", main);

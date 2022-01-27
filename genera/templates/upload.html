@@ -3,12 +3,12 @@
 
 {% block head_block %}
   <script type="text/javascript" src="{% static 'js/upload_page.js' %}"></script>
-  <!-- <script type="text/javascript" src="{% static 'js/temp.js' %}"></script> -->
+  <script type="text/javascript" src="{% static 'js/libraries/jszip.min.js' %}"></script>
 <link rel="stylesheet" href="">
 {% endblock %}
 
 {% block body_block %}
-<input type="hidden" id="js_vars" data-ajax_url='{{ajax_url}}'>
+<input type="hidden" id="js_vars" data-ajax_url='{{ajax_url}}'' data-user_login='{{user.is_authenticated}}'>
 
 <form method="post" id="upload_form" enctype="multipart/form-data" class="upload_wrapper">
   {% csrf_token %}
@@ -35,22 +35,12 @@
       <div class="upload_layers_buttons">
       </div>
       <div class="add_layer_section">
-        <input
-          id="add_layer_input"
-          class="general_input"
-          type="text"
-          placeholder="Add Layer"
-        />
-        <img
-          class="color_image_orange"
-          src="{% static 'icons/plus.svg' %}"
-          onclick="add_layer()"
-          id="add_layer_button"
-        />
+        <input id="add_layer_input" class="general_input" type="text" placeholder="Add Layer" />
+        <img class="color_image_orange" src="{% static 'icons/plus.svg' %}" onclick="add_layer()" id="add_layer_button" />
       </div>
       
       </div>
-      <div class="upload_layers rounded_container" style="display: none">
+      <div class="upload_layers rounded_container shadow_strong" style="display: none">
       <h3 class="no_margin center" style="margin-bottom: 15px; font-size: 1.3rem;">Textures</h3>
       <div class="upload_layers_buttons">
       </div>
@@ -58,7 +48,7 @@
     </div> 
     <div class="upload_preview" style="color: aliceblue">
       <h3></h3>
-      <img src="{% static 'Assets/Examples/1.png' %}"/>
+      <img src="{% static 'Assets/Background/genera_watermark.png' %}"/>
       <pre style="display: none;"></pre>
       <p></p>
       <ul id="scroller"></ul>
@@ -148,7 +138,7 @@
       <button
         id="preview"
         type="button"
-        class="general_button_no_border orange_background shadow_strong rounded_container_no_padding"
+        class="general_button_no_border sub_color_background shadow_strong rounded_container_no_padding"
         onclick="preview_button(this)"
       >
         <h4 class="no_margin">Preview</h4>
@@ -159,8 +149,7 @@
       <button
         type="button"
         id="upload_button_submit"
-        class="general_button_no_border light_purple_background shadow_strong rounded_container_no_padding"
-        {%if not user.is_authenticated%}disabled{%endif%}
+        class="general_button_no_border main_color_background shadow_strong rounded_container_no_padding"
       >
         <h4 class="no_margin generate">Generate</h4>
       </button>
@@ -174,7 +163,7 @@
             <h5 style="margin: 5px 0;">Layer Name</h5>
             <input class="general_input" id="layer_name_update_field" type="text">
           </div> 
-          <button id="confirm_layer_properties_update" type="button" class="light_purple_background general_input general_button_no_border"> <h3 class="no_margin generate">Update properties!</h3> </button>
+          <button id="confirm_layer_properties_update" type="button" class="main_color_background general_input general_button_no_border"> <h3 class="no_margin generate">Update properties!</h3> </button>
         </div>
 
 

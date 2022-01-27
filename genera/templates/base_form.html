@@ -1,23 +1,26 @@
 {% extends 'base.html' %}
 
 {% block body_block %}
-    
-    <form method="POST" class="base_form">
-        {%csrf_token%}
-        <h2>{{title}}</h2>
-        <div>
-            {{form.as_p}}
+    <div class="form_wrapper">
+        <div class="background_image_wrapper">
+            <div class="cover-image" style="position: absolute"></div>
         </div>
+        <form method="POST" class="base_form shadow_strong rounded_container_no_padding">
+            {%csrf_token%}
+            <h2>{{title}}</h2>
+            <div>
+                {{form.as_p}}
+            </div>
 
-        {%if extra%}
-            <a href="{% url 'main:register' %}">Create an account</a>
-            <a href="{% url 'main:password_reset' %}">Forgot password?</a>
-        {%endif%}
-        <button class="light_grey_background general_button_no_border" name="{{identifier}}" type="submit">
-            {{button_text}}
-        </button>
-    </form>
-    
+            {%if extra%}
+                <a href="{% url 'main:register' %}">Create an account</a>
+                <a href="{% url 'main:password_reset' %}">Forgot password?</a>
+            {%endif%}
+            <button class="card_main_color_background general_button_no_border" name="{{identifier}}" type="submit">
+                {{button_text}}
+            </button>
+        </form>
+    </div>
 {% endblock %}
 
 

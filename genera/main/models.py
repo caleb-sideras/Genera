@@ -114,29 +114,39 @@ class UserCollection(Model):
     collection_size = models.IntegerField(default=10)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     path = models.CharField(max_length=250)
-    token_name = models.CharField(max_length=9)
+    token_name = models.CharField(max_length=9) # wait till deploy?
     image_name = models.CharField(max_length=10)
     duplicates_deleted = models.BooleanField(default=False)
 
     # IFPS
     collection_ifps_bool = models.BooleanField(default=False)
+    image_uri = models.CharField(max_length=100, unique=False)
 
-    # Smart Contract
+    # Smart Contract Universal
     contract_address = models.CharField(max_length=50, unique=False, blank = True, null = True)
-    contract_bool =  models.BooleanField(default=False)
+    contract_bool =  models.BooleanField(default=False) # probs not needed
+    chain_id = models.CharField(max_length=10, unique=False)
+    contract_type = models.IntegerField(default=0) # 0 = nothing, 1 = privateV1, 2 = publicV1
+    
+    # Smart Contract Public
+    base_uri = models.CharField(max_length=100, unique=False)
+    minting_cost = models.CharField(max_length=50, unique=False)
+    
+    # Smart Contract Private
     tokens_deployed = models.BooleanField(default=False)
 
 class CollectionImage(Model):
     linked_collection = models.ForeignKey(UserCollection, on_delete=models.CASCADE)
-    name = models.CharField(max_length=50, unique=False)
+    name = models.CharField(max_length=50, unique=False) # not needed
 
     path = models.FilePathField()
     path_compressed = models.FilePathField()
-    # metadata = models.JSONField(null = True, blank = True)
     metadata = models.TextField(null = True, blank = True)
 
     # IPFS
-    ipfs_metadata_path =  models.URLField(null = True, blank = True, max_length=50)
+    ipfs_metadata_path =  models.URLField(null = True, blank = True, max_length=50) # not needed 
+
+    # Private Contract
     ipfs_bool = models.BooleanField(default=False)
 
 class Token(Model):

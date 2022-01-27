@@ -60,14 +60,13 @@ function open_images(self){
         button.addEventListener('click', function () { expand_collapse(this)})
         return [button, expand_collapse_button]
     }
-
-    card_element = (self.parentNode)
-    temp = (self.parentNode).children[0].dataset.fullrez
+    card_element = self
+    temp = self.children[0].dataset.fullrez
     image_data_elements = document.querySelectorAll('.all_collections_layout > div > div>input')
-    temp2 = ((self.parentNode).children[1]).children[0].dataset.metadata // metadata
-    temp3 = ((self.parentNode).children[1]).children[1].innerHTML // title
-    temp4 = ((self.parentNode).children[1]).children[0].dataset.ipfs_bool // ifps_bool
-    temp5 = ((self.parentNode).children[1]).children[2].children[0].style.display//deployed_bool
+    temp2 = (self.children[1]).children[0].dataset.metadata // metadata
+    temp3 = (self.children[1]).children[1].innerHTML // title
+    temp4 = (self.children[1]).children[0].dataset.ipfs_bool // ifps_bool
+    temp5 = (self.children[1]).children[2].children[0].style.display//deployed_bool
     if (card_element.children[0].dataset.ipfs) {
         token_uri = card_element.children[0].dataset.ipfs
     }
@@ -99,10 +98,14 @@ function open_images(self){
     lbuttonwrapper.appendChild(left_button)
     wrapper.appendChild(lbuttonwrapper)
 
+    inner_content = document.createElement('div')
+    inner_content.classList = 'inner_content'
+
+    
     image = document.createElement('img')
     image.src = temp
     image.classList = 'image'
-    wrapper.appendChild(image)
+    
 
     info = document.createElement('div')
     info.classList = 'info'
@@ -114,7 +117,7 @@ function open_images(self){
 
     if (temp4!='True') {
         edit_wrapper = document.createElement('div')
-        edit_wrapper.classList = "general_button_no_border light_purple_background"
+        edit_wrapper.classList = "general_button_no_border main_color_background"
         edit_button = document.createElement('img')
         edit_button.src = '/static/icons/edit.svg'
         edit_text = document.createElement('h4')
@@ -148,7 +151,7 @@ function open_images(self){
             await yes_no_popup("Permanently delete image?", "Delete", "Cancel")
             .then(function (reponse) {
                 if (reponse) {
-                    ajax_post_json({ 'delete_entry': ((self.parentNode).children[1]).children[0].dataset.id })
+                    ajax_post_json({ 'delete_entry': (self.children[1]).children[0].dataset.id })
                     .then(function (response) { //Action that occurs after a response from the server was obtained - here (STATUS 200)
                         console.log(response["server_message"])
                         card_element.remove()
@@ -180,7 +183,9 @@ function open_images(self){
     info.appendChild(upper_info_wrapper)
     info.appendChild(metadata)
     info.appendChild(mutipurpose_button_section)
-    wrapper.appendChild(info)
+    inner_content.appendChild(image)
+    inner_content.appendChild(info)
+    wrapper.appendChild(inner_content)
 
     rbuttonwrapper = document.createElement('div')
     rbuttonwrapper.classList = 'rbutton_wrapper'
@@ -231,8 +236,8 @@ function next_element(self, bool){
         parsed = JSON.parse(metadata)
 
         parent = self.parentNode
-        parent.children[1].src = image
-        parent2 = parent.children[2]
+        parent.children[1].children[0].src = image
+        parent2 = parent.children[1].children[1]
         parent2.children[0].children[0].innerHTML = temp3
         parent2.children[1].children[0].children[2].children[0].innerHTML = parsed['description']
         if (card_element.children[0].dataset.ipfs) {
@@ -352,27 +357,40 @@ function download_zip() {
     let zip = new JSZip();
     let folder_name = js_vars.dataset.collection_name + ".zip";
 
+    function zipFiles(img_data, json, i) {
+        return new Promise((res, rej) => {
+            JSZipUtils.getBinaryContent(img_data, function (err, data) {
+                if (err) {
+                    rej(err) // or handle the error
+                }
+                zip.file(i + ".json", json)
+                console.log("resolved" + i)
+                // probs just res true
+                res(zip.file(i + ".png", data, { binary: true }))
+            });
+        })
+    }
+    let promise_list = []
     for (let i = 0; i < images.length; i++) {
-        let filename = images[i].dataset.name + ".png";
+        // let filename = images[i].dataset.name + ".png";
         let url = images[i].dataset.fullrez
         let metadata_name = images[i].dataset.name + ".json";
         let json = metadata[i].dataset.metadata
-        JSZipUtils.getBinaryContent(url, function (err, data) {
-            if (err) {
-                throw err // or handle the error
-            }
-
-            zip.file(filename, data, { binary: true })
-            zip.file(metadata_name, json)
-
-            if (i+1 == images.length) {
-                zip.generateAsync({ type: 'blob' }).then(function (content) {
-                    saveAs(content, folder_name);
-                });
-            }
-        });
+        promise_list.push(
+            zipFiles(
+                url,
+                metadata_name,
+                i
+            )
+        )
     }
-    close_loading_popup()
+    Promise.all(promise_list).then((value) => {
+        console.log("THE BIG ZIP")
+        zip.generateAsync({ type: 'blob' }).then(function (content) {
+            saveAs(content, "GeneraCollection.zip");
+            close_loading_popup()
+        });
+    })
 }
 
 function edit_image(title, description){

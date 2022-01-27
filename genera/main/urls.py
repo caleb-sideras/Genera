@@ -22,6 +22,7 @@ urlpatterns = [
     path("about", about_view, name="about"),
     path("documentation", documentation_view, name="documentation"),
     path("user/<str:username>/profile", profile_view, name="profile"),
+    path("user/<str:username>/profile/<str:collection_name>", mint_view, name="user_mint"),
     path("user/<str:username>/collections", all_collections_view, name="all_collections"),
     path("user/<str:username>/collections/<str:collection_name>", collection_view, name="collection"),
     path("xd", xd, name="xd")
