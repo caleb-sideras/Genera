@@ -1,7 +1,6 @@
 async function main2() {
     globalThis.pyodide = await loadPyodide({
       indexURL: "https://cdn.jsdelivr.net/pyodide/dev/full/",
-  
     });
     let namespace = pyodide.globals.get("dict")();
     await pyodide.loadPackage("numpy");
