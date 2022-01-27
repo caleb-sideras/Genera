@@ -37,7 +37,6 @@ import os
 from datetime import timezone
 from django.template.loader import render_to_string
 from io import BytesIO
-import cv2
 from django.views.decorators.csrf import csrf_exempt
 from genera.tools import Timer
 from .models import *
@@ -104,11 +103,11 @@ def handle_checkout_session_view(request, session_id):
             context["credits_gained"] = stripe_price_object["nickname"]
 
             if "payment_initial" in request.session:
-                print(checkout_session["metadata"])
+                # print(checkout_session["metadata"])
                 fetched_user = User.objects.filter(id=checkout_session["metadata"]["user_id"]).first()
-                print(stripe_price_object)
+                # print(stripe_price_object)
                 stripe_product_object = stripe.Product.retrieve(stripe_price_object["product"])
-                print(stripe_product_object)
+                # print(stripe_product_object)
                 if fetched_user:
                     fetched_user.credits += int(stripe_price_object["nickname"]) ##NICKnAME (ACTUAL PRICE)
                     fetched_user.save()
@@ -118,7 +117,7 @@ def handle_checkout_session_view(request, session_id):
                     messages.error(request, f"CRITICAL ERROR. PLEASE EMAIL GENERA-NOREPLY@gmail.com")
                 ##PROVIDE CONTEXT FOR SUCCESS PAGE
             else:
-                print(checkout_session["metadata"])
+                # print(checkout_session["metadata"])
                 messages.error(request, f"NICE TRY BASTARD")
 
         elif checkout_session["status"] == "expired": ## if session is expired - PAID or NOT PAID AND AUTO EXPIRED

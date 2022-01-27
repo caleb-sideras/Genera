@@ -8,7 +8,7 @@ from main.models import *
 import hashlib
 import string
 import time
-import cv2
+from cv2 import cvtColor, imencode, resize, imwrite, COLOR_RGB2BGR, INTER_AREA
 from genera.tools import Timer
 t = Timer()
 # Notes
@@ -263,8 +263,8 @@ def create_and_save_collection_paid(tempDict, db_collection, user = None):
         current_image_path = f"{db_collection.path}/{alphanum_random(6)}.png"
 
         t.start()
-        cv2img = cv2.cvtColor(np.array(im), cv2.COLOR_RGB2BGR)
-        cv2.imwrite(current_image_path[1:], cv2img)
+        cv2img = cvtColor(np.array(im), COLOR_RGB2BGR)
+        imwrite(current_image_path[1:], cv2img)
         t.stop()
 
         # t.start()
@@ -273,8 +273,8 @@ def create_and_save_collection_paid(tempDict, db_collection, user = None):
 
         compressed_image_path = current_image_path.replace(".png", "_tbl.png")
 
-        cv2img = cv2.resize(cv2img, dsize=[compressed_x, compressed_y], interpolation=cv2.INTER_AREA)
-        cv2.imwrite(compressed_image_path[1:], cv2img)
+        cv2img = resize(cv2img, dsize=[compressed_x, compressed_y], interpolation=INTER_AREA)
+        imwrite(compressed_image_path[1:], cv2img)
 
         # im.thumbnail((200,200)) #comress to thumbnail size
         # im.save(f"{compressed_image_path[1:]}", "PNG") #save thumbnail
@@ -442,7 +442,7 @@ def create_and_save_collection_free(tempDict):
 
 def pil_to_bytes(pil_img):
         
-    cv2_img = cv2.imencode('.png', np.array(pil_img))[1].tobytes()
+    cv2_img = imencode('.png', np.array(pil_img))[1].tobytes()
     bytes = base64.b64encode(cv2_img).decode('utf-8')
 
     return bytes

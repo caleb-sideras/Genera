@@ -40,7 +40,7 @@ import os
 from datetime import timezone
 from django.template.loader import render_to_string
 from io import BytesIO
-import cv2
+from cv2 import imencode
 from genera.tools import Timer
 import stripe
 # Create your views here.
@@ -77,26 +77,26 @@ def upload_view(request):
         t.stop()
         return PIL_image
     
-    def file_to_pil_cv2(file, res_x, res_y):  # Use this in case we make use of numpy arrays instead of PIL objects. Return after cv2.cvtColor to get the array.
-        timeit_start = time.time()
+    # def file_to_pil_cv2(file, res_x, res_y):  # Use this in case we make use of numpy arrays instead of PIL objects. Return after cv2.cvtColor to get the array.
+    #     timeit_start = time.time()
 
-        PIL_image = cv2.imdecode(np.fromstring(file.read(), np.uint8), cv2.IMREAD_UNCHANGED)
-        PIL_image = cv2.cvtColor(PIL_image, cv2.COLOR_BGRA2RGBA)
-        height, width, channels = PIL_image.shape
-        if height != res_x or width != res_y:
-            print("reshaping")
-            PIL_image = cv2.resize(PIL_image, dsize=[res_x, res_y], interpolation=cv2.INTER_CUBIC)
+    #     PIL_image = imdecode(np.fromstring(file.read(), np.uint8), IMREAD_UNCHANGED)
+    #     PIL_image = cvtColor(PIL_image, COLOR_BGRA2RGBA)
+    #     height, width, channels = PIL_image.shape
+    #     if height != res_x or width != res_y:
+    #         print("reshaping")
+    #         PIL_image = cv2.resize(PIL_image, dsize=[res_x, res_y], interpolation=cv2.INTER_CUBIC)
 
-        timeit_end = time.time()
-        PIL_image = Image.fromarray(PIL_image)
-        print(f"Time taken individual pil open: {timeit_end-timeit_start:.3f}s")
+    #     timeit_end = time.time()
+    #     PIL_image = Image.fromarray(PIL_image)
+    #     print(f"Time taken individual pil open: {timeit_end-timeit_start:.3f}s")
         
-        return PIL_image
+    #     return PIL_image
     
     def pil_to_bytes(pil_img):
         t.start()
         
-        cv2_img = cv2.imencode('.png', np.array(pil_img))[1].tobytes()
+        cv2_img = imencode('.png', np.array(pil_img))[1].tobytes()
         bytes = base64.b64encode(cv2_img).decode('utf-8')
 
         t.stop()
@@ -253,7 +253,6 @@ def upload_view(request):
             
             for filename in request.FILES.keys():
                 for file in request.FILES.getlist(filename): ##for this set of file get layer name and layer type
-                    print(file)
                     layer_type = filename.split(".")[0]
                     layer_name = filename.split(".")[1]
                     file_name = file.name
@@ -524,8 +523,8 @@ def mint_view(request, username, collection_name):
                 context['chain_id'] = user_collection.chain_id
                 context['collection_name'] = user_collection.collection_name
                 context['description'] = user_collection.description
-                print(context['contract_address'])
-                print( context['chain_id'])
+                # print(context['contract_address'])
+                # print( context['chain_id'])
             else:
                 error_params = {"title": "Collection", "description": "Permission Error", "code": "313XD"}
                 raise PermissionDenied(json.dumps(error_params))
@@ -543,7 +542,7 @@ def mint_view(request, username, collection_name):
 def model_delete(sender, instance, **kwargs):
     try:
         shutil.rmtree(instance.path[1:])
-        print("Collection folder deleted from server succesfully")
+        # print("Collection folder deleted from server succesfully")
     except:
         print("Deletion of files failed OR files did not exist in the first place")
 
@@ -558,11 +557,11 @@ def all_collections_view(request, username):
 
     if user: ##user exists and is the owner of the profile
         users_collections = UserCollection.objects.filter(user=user)
-        print(users_collections)
+        # print(users_collections)
         if users_collections:
             context["users_collections"] = users_collections
         else:
-            print("User has no collections.")
+            # print("User has no collections.")
             messages.error(request, "You have no collections!")
             return render(request, "all_collections.html", context)
     else:
@@ -706,7 +705,7 @@ def collection_view(request, username, collection_name):
             if "image_name" in request.POST:
                 collection_image = collection_images.filter(name=request.POST.get("entry_name")).first()
                 if collection_image:
-                    print(collection_image.id)
+                    # print(collection_image.id)
                     collection_image.name = request.POST.get("image_name") # not needed
                     collection_image_description = json.loads(collection_image.metadata)
                     collection_image_description["description"] = request.POST.get("image_description")
@@ -806,7 +805,7 @@ def collection_view(request, username, collection_name):
                 elif "get_contract" in received_json_data:
                     if request.user.is_authenticated:
                         if not user_collection.contract_bool:
-                            print("hello")
+                            # print("hello")
                             # assign name to variable
                             if received_json_data['get_contract'] == '1':
                                 with open("static/Contracts/erc1155_private_contract.json", "r") as myfile:
