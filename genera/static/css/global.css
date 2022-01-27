@@ -1811,19 +1811,14 @@ text-align: left;
   font-size: 22px;
 }
 .main_upper > img {
-  /* aspect-ratio: 1; */
   width: 200px;
 }
 
 .main_section {
-  /* padding: 20px 0px 0px; */
   align-items: center;
   display: flex;
   flex-direction: column;
-  /* width: 100vw; */
-  height: 95vh;
-  /* flex: 1 1 0%; */
-  /* height: 50%; */
+  height: calc(100vh - var(--header-height));
   position: relative;
   justify-content: center;
 }
@@ -2020,7 +2015,7 @@ text-align: left;
   padding: 0px 5px;
   margin-bottom: 50px;
 }
-.payments_wrapper > h2 {
+.payments_wrapper > h1 {
   font-size: 2rem;
   margin-top: 50px;
   margin-bottom: 50px;
