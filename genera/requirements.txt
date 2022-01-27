@@ -1,0 +1,7 @@
+numpy==1.21.2
+pip==21.2.4
+Pillow==8.3.2
+opencv-python==4.5.4.60
+stripe==2.64.0
+Django==3.2.8
+web3==5.25.0

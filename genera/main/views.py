@@ -1,3 +1,4 @@
+from json.decoder import JSONDecodeError
 from time import timezone
 from django.http.response import HttpResponse
 from django.shortcuts import render
@@ -99,6 +100,8 @@ def upload_view(request):
     calebs_gay_dict = {}
     
     if request.method == "POST":
+        print(request.method)
+        print(request.body)
         try:
             received_json_data = json.loads(request.body)
             if "field_name" in received_json_data:
@@ -114,6 +117,8 @@ def upload_view(request):
                         return JsonResponse({"passed": 1}, status=200)
                 
         except RawPostDataException:
+            pass
+        except JSONDecodeError:
             pass
    
         if len(request.FILES) != 0:
@@ -314,18 +319,20 @@ def upload_view(request):
                 
         else:  # no files submitted
             messages.error(request, message="No files recieved by the server")
-            return ajax_redirect(reverse("main:upload"), "No files recieved by the server. Please try again.")
+            return ajax_redirect(reverse("main:upload"))
 
     return render(request, "upload.html", context)
 
 
-def login_view(request):
+def login_view(request, current_extension=404):
+    print("WHY ARE WE STILL HERE")
+    form_id = "login_form"
+
     if request.user.is_authenticated:
         error_params = {"title": "Login", "description": "Attempt to Log in when already logged in.", "code": "321XD"}
         raise PermissionDenied(json.dumps(error_params))
 
     login_form = LoginForm(label_suffix="")
-    form_id = "login_form"
 
     if request.method == "POST" and form_id in request.POST:
         login_form = LoginForm(request.POST, label_suffix="")
@@ -334,24 +341,29 @@ def login_view(request):
                 candidate_user = login_form.authenticate()
                 login(request, candidate_user)
                 messages.success(request, message="Logged in succesfully!")
+                if current_extension != 404:
+                    return HttpResponseRedirect(current_extension)
                 return redirect(reverse("main:main_view"))
+
             except ValidationError as msg:
                 msg = msg.args[0]
                 messages.error(request, str(msg))
                 login_form.add_error(None, msg)
 
-    form_context = {"form": login_form, "button_text": "Log in", "identifier": form_id, "title": "Log in to Genera", "extra" : True}
+    form_context = {"form": login_form, "button_text": "Log in", "identifier": form_id, "title": "Log in to Genera", "login_url" : current_extension}
 
     return render(request, 'base_form.html', form_context)
 
-def logout_view(request, current_extension):
+def logout_view(request, current_extension=None):
     if not request.user.is_authenticated:
         error_params = {"title": "Logout", "description": "Attempt to logout when not logged in.", "code": "320XD"}
         raise PermissionDenied(json.dumps(error_params))
 
     logout(request)
     messages.success(request, 'Logged out Succesfully!')
-    return HttpResponseRedirect(current_extension)
+    if current_extension:
+        return HttpResponseRedirect(current_extension)
+    return redirect(reverse("main:main_view"))
 
 def register_view(request):
     if request.user.is_authenticated:
@@ -496,11 +508,14 @@ def model_delete(sender, instance, **kwargs):
 
 def all_collections_view(request, username):
     context = {}
+    if request.user.username != username:
+        error_params = {"title": "Collections", "description": "You are not authorised to view this page. (If you just logged out then we're sorry, the quality of life feature of logging out and remaining on the page you were on comes at a price... ;d)", "code": "313XD"}
+        raise PermissionDenied(json.dumps(error_params))
 
     user = User.objects.filter(username=username).first()
     context["user"] = user
 
-    if user:
+    if user: ##user exists and is the owner of the profile
         users_collections = UserCollection.objects.filter(user=user)
         print(users_collections)
         if users_collections:
@@ -509,6 +524,9 @@ def all_collections_view(request, username):
             print("User has no collections.")
             messages.error(request, "You have no collections!")
             return render(request, "all_collections.html", context)
+    else:
+        error_params = {"title": "Collections", "description": "User does not exist", "code": "313XD"}
+        raise PermissionDenied(json.dumps(error_params))
 
     return render(request, "all_collections.html", context)
 
@@ -764,3 +782,6 @@ def upload_pinata_object(fileobject, filename):
         print(e.response.text)
     return response.json()
 
+def xd(request):
+
+    return render(request, "test.html")

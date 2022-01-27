@@ -141,3 +141,8 @@ expy/__pycache__/settings.cpython-38.pyc
 artem_db_changes.bat
 
 */CACHE/*
+
+# Elastic Beanstalk Files
+.elasticbeanstalk/*
+!.elasticbeanstalk/*.cfg.yml
+!.elasticbeanstalk/*.global.yml

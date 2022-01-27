@@ -1,3 +1,5 @@
+from re import A
+import xdrlib
 from django.contrib import admin
 from django.urls import path, include
 from django.conf.urls.static import static
@@ -10,6 +12,8 @@ urlpatterns = [
     path("", main_view, name="main_view"),
     path("upload", upload_view, name="upload"),
     path("login", login_view, name="login"),
+    path("login/<path:current_extension>", login_view, name="login"),
+    path("logout", logout_view, name="logout"),
     path("logout/<path:current_extension>", logout_view, name="logout"),
     path("register", register_view, name="register"),
     path("register/<uuid:token_url>", account_activation_view, name="account_activation"),
@@ -20,5 +24,7 @@ urlpatterns = [
     path("user/<str:username>/profile", profile_view, name="profile"),
     path("user/<str:username>/collections", all_collections_view, name="all_collections"),
     path("user/<str:username>/collections/<str:collection_name>", collection_view, name="collection"),
+    path("xd", xd, name="xd")
     # path("create-checkout-session", checkout_session, name="create-checkout-session")
 ]
+ 
