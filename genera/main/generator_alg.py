@@ -5,12 +5,9 @@ import random
 import os
 import json
 from main.models import *
-import hashlib
 import string
 import time
-from cv2 import cvtColor, imencode, resize, imwrite, COLOR_RGB2BGR, INTER_AREA
-from genera.tools import Timer
-t = Timer()
+from io import BytesIO
 # Notes
 # - the current textures Samoshin sent me are buggy, they only use A (Alpha) values in the RGBA format
 
@@ -262,22 +259,17 @@ def create_and_save_collection_paid(tempDict, db_collection, user = None):
 
         current_image_path = f"{db_collection.path}/{alphanum_random(6)}.png"
 
-        t.start()
-        cv2img = cvtColor(np.array(im), COLOR_RGB2BGR)
-        imwrite(current_image_path[1:], cv2img)
-        t.stop()
-
-        # t.start()
-        # im.save(current_image_path[1:], "PNG")
-        # t.stop()
+        # cv2img = cvtColor(np.array(im), COLOR_RGB2BGR)
+        # imwrite(current_image_path[1:], cv2img)
+        im.save(current_image_path[1:], "PNG")
 
         compressed_image_path = current_image_path.replace(".png", "_tbl.png")
 
-        cv2img = resize(cv2img, dsize=[compressed_x, compressed_y], interpolation=INTER_AREA)
-        imwrite(compressed_image_path[1:], cv2img)
+        im.thumbnail((200,200)) #comress to thumbnail size
+        im.save(f"{compressed_image_path[1:]}", "PNG") #save thumbnail
 
-        # im.thumbnail((200,200)) #comress to thumbnail size
-        # im.save(f"{compressed_image_path[1:]}", "PNG") #save thumbnail
+        # cv2img = resize(cv2img, dsize=[compressed_x, compressed_y], interpolation=INTER_AREA)
+        # imwrite(compressed_image_path[1:], cv2img)
 
         image_to_collection_db.path = current_image_path
         image_to_collection_db.path_compressed = compressed_image_path #save thumbnail path
@@ -427,9 +419,7 @@ def create_and_save_collection_free(tempDict):
         temp_json.update({"attributes": temp_list})
         metadata_list.append(temp_json)
 
-        t.start()
         bytes_list.append(pil_to_bytes(im)) 
-        t.stop()
         
         timeit_end = time.time()
 
@@ -441,8 +431,6 @@ def create_and_save_collection_free(tempDict):
 
 
 def pil_to_bytes(pil_img):
-        
-    cv2_img = imencode('.png', np.array(pil_img))[1].tobytes()
-    bytes = base64.b64encode(cv2_img).decode('utf-8')
-
-    return bytes
+    imageBytes = BytesIO()
+    pil_img.save(imageBytes, format='PNG')
+    return base64.b64encode(imageBytes.getvalue()).decode('utf-8')

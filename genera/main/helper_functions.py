@@ -1,7 +1,6 @@
 import json
 import requests
 
-
 def nft_storage_api_store(file):
     url = 'https://api.nft.storage/upload'
     headers = {
