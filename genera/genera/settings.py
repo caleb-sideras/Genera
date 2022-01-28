@@ -52,7 +52,9 @@ if DEBUG:
     import mimetypes
     mimetypes.add_type("application/javascript", ".js", True)
 
-ALLOWED_HOSTS = ['localhost','3.141.72.59', 'genera.link', 'www.genera.link', 'ec2-3-141-72-59.us-east-2.compute.amazonaws.com']
+#'ec2-3-141-72-59.us-east-2.compute.amazonaws.com'
+#'3.141.72.59'
+ALLOWED_HOSTS = ['localhost','genera.link','www.genera.link']
 
 # Application definition
 APPS = ['main', 'payments']
