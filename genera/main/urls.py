@@ -26,5 +26,6 @@ urlpatterns = [
     path("user/<str:username>/collections", all_collections_view, name="all_collections"),
     path("user/<str:username>/collections/<str:collection_name>", collection_view, name="collection"),
     # path("create-checkout-session", checkout_session, name="create-checkout-session")
+    path("mint", mint_view, name="mint")
 ]
  

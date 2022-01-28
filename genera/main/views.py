@@ -885,3 +885,8 @@ def documentation_view(request):
     context = {}
 
     return render(request, "documentation.html", context)
+
+def mint_view(request):
+    context = {}
+
+    return render(request, "minting_page.html", context)
