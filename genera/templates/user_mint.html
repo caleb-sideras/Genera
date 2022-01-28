@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block head_block %}
+<script type="text/javascript" src="{% static 'js/mint_page.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
+<script src="https://unpkg.com/@metamask/detect-provider/dist/detect-provider.min.js"></script>
+{% endblock %}
+
+{% block body_block %}
+<input type="hidden" id="js_vars" data-contract_address='{{contract_address}}' data-chain_id='{{chain_id}}'/>
+<div class="mint_wrapper">
+    <div class="mint_body">
+        {% if owner %}
+
+        {% else %}
+
+        {% endif %}
+
+        {% if owner %}
+            <div class="mint_title center"> 
+                <h1 class="no_margin">{{collection_name}}</h1>             
+                <h2 class="no_margin">by {{owner.username}}</h2>
+            </div>
+        
+            <div class="mint_card shadow_strong rounded_container_no_padding">
+                <div class="loading_circle"></div>
+                <img src="" class="nft_image" style="display: none;">
+                <img src="" class="nft_image" style="display: none;">
+                <img src="" class="nft_image" style="display: none;">
+                <img src="" class="nft_image" style="display: none;">
+                <img src="" class="nft_image" style="display: none;"> 
+            </div>
+            <div class="mint_buttons_wrapper">
+                <div class="mint_buttons center">
+                    <div class="rounded_container grow card_main_color_background shadow_strong" onclick="mint(this.nextElementSibling.value)">
+                        <h2 class="no_margin">MINT</h2>
+                    </div>
+                    <select id="mint_select" name="select" class="card_main_color_background rounded_container shadow_strong">
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                    </select>
+                </div>
+                <div class="mint_buttons center">
+                    <p class="mint_supply no_margin">
+                    </p>
+                    <p class="mint_supply no_margin" id="mint_cost">
+                    </p>
+                </div>
+            </div>
+            </div>
+            <div class="mint_description center card_main_color_background">
+                <h1>Description</h1>
+                <p>{{description}}</p>
+            </div>
+        {% endif %}
+
+    <!-- <h3>Private Profile? {{user.userprofile.private}}</h3> -->
+</div>
+{% endblock %}

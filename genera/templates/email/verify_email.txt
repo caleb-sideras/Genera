@@ -1,0 +1,7 @@
+Dear {{username}}, 
+
+Please verify your peoplio email 
+
+An account has been registered for this email on {{date}}
+
+Press the following link Reset Link: {{url}}

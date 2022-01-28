@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block head_block %}
+<script type="text/javascript" src="{% static 'js/temp.js' %}"></script>
+{% endblock %}
+
+{% block body_block %}
+<div class="profile_banner"></div>
+<div class="collection_structure">
+    <div class="profile_info">
+        <div class="profile-picture bottom_border" style="background: var(--main-color); width: 130px; height: 130px;"></div>
+        <h1 id="welcome" class="no_margin">{{user.username}}</h1>
+        <h3>Joined {{user.date_joined}}</h3>
+    </div>
+    {% if owner %}
+    {% else %}
+    {% endif %}
+    <div class="all_collections_layout profile_layout">
+        {% if users_collections %}
+            {% for collection in users_collections %}
+                {% if collection.contract_bool and collection.contract_type == 2 %}
+
+                <input type="hidden" value="https://{{collection.base_uri}}.ipfs.dweb.link/0.json">
+                <div class="collection_card grow border_1px rounded_container_no_padding" style="cursor: pointer;" onclick="lol = () => {this.nextElementSibling.click()}
+                lol()">
+                    <img loading="lazy" src="" class="nft_image">
+                    <div class="loading_circle"></div>
+                    <div>
+                        <div><p class="no_margin center" id="title">{{collection.collection_name}}</p></div>
+                        <div><p style="font-size: smaller;" class="no_margin center">{{collection.description}}</p></div>
+                        <button class="collection_card_button sub_color_background collection_card_button_text" >Open</button>
+ 
+                    </div>
+                </div>
+                <a href="{% url 'main:user_mint' user.username  collection.collection_name%}"style="text-decoration: none;"></a>
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+    </div>
+
+    <!-- <h3>Private Profile? {{user.userprofile.private}}</h3> -->
+</div>
+{% endblock %}

@@ -1,0 +1,174 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block head_block %}
+  <script type="text/javascript" src="{% static 'js/upload_page.js' %}"></script>
+  <script type="text/javascript" src="{% static 'js/libraries/jszip.min.js' %}"></script>
+<link rel="stylesheet" href="">
+{% endblock %}
+
+{% block body_block %}
+<input type="hidden" id="js_vars" data-ajax_url='{{ajax_url}}'' data-user_login='{{user.is_authenticated}}'>
+
+<form method="post" id="upload_form" enctype="multipart/form-data" class="upload_wrapper">
+  {% csrf_token %}
+
+  <div class="upload_main">
+    <div class="upload_layers_wrapper">
+      <div class="upload_section_swap rounded_container shadow_strong">
+      <img
+        src="{% static 'icons/layer2.svg' %} "
+        onclick="switch_tabs('layers', this)"
+        tabindex="0"
+        
+      />
+      <img
+        src="{% static 'icons/texture2.svg' %}"
+        onclick="switch_tabs('textures', this)"
+        tabindex="0"
+        
+      />
+    </div>
+      <div class="upload_layers rounded_container shadow_strong">
+      <h3 style = "display: none;">Assets</h3>
+      <h3 class="no_margin center" style="margin-bottom: 15px; font-size: 1.3rem;">Layers</h3>
+      <div class="upload_layers_buttons">
+      </div>
+      <div class="add_layer_section">
+        <input id="add_layer_input" class="general_input" type="text" placeholder="Add Layer" />
+        <img class="color_image_orange" src="{% static 'icons/plus.svg' %}" onclick="add_layer()" id="add_layer_button" />
+      </div>
+      
+      </div>
+      <div class="upload_layers rounded_container shadow_strong" style="display: none">
+      <h3 class="no_margin center" style="margin-bottom: 15px; font-size: 1.3rem;">Textures</h3>
+      <div class="upload_layers_buttons">
+      </div>
+      </div>
+    </div> 
+    <div class="upload_preview" style="color: aliceblue">
+      <h3></h3>
+      <img src="{% static 'Assets/Background/genera_watermark.png' %}"/>
+      <pre style="display: none;"></pre>
+      <p></p>
+      <ul id="scroller"></ul>
+    </div>
+    <div class="upload_properties">
+      <div class="rounded_container shadow_strong">
+        <h3 class="no_margin center" style="margin-bottom: 15px; font-size: 1.3rem;">Collection Properties</h3>
+        <div class="upload_page_property_fields">
+          <h5 class="no_margin">Collection Name</h5>
+          <input
+            required
+            name="collection_name"
+            type="text"
+            placeholder="E.g. Void Chans"
+            onchange = ajax_validate_field(this)
+            maxlength="50"
+          />
+          <h5 class="no_margin">Image Name</h5>
+          <input
+            required
+            name="image_name"
+            type="text"
+            placeholder="E.g. Void"
+            maxlength="10"
+          />
+          <h5 class="no_margin">Token Name</h5>
+          <input
+            required
+            name="token_name"
+            type="text"
+            placeholder="E.g. VDE"
+            maxlength="9"
+          />
+          <h5 class="no_margin">Description</h5>
+          <textarea
+            style="resize: vertical"
+            required
+            class="inputize"
+            name="description"
+            type=""
+            placeholder="E.g. A collection that shows the emptiness of the soul."
+            maxlength="300"
+          ></textarea>
+          <h5 class="no_margin">Size</h5>
+          <input
+            required
+            id="collection_size"
+            min="0"
+            max="1000"
+            name="size"
+            type="number"
+            onchange = ajax_validate_field(this)
+            placeholder="E.g. 150"
+          />
+          <h5 class="no_margin">Resolution</h5>
+          <div style="display: flex; width: 100%; gap: 10px;">
+            <input
+              required
+              name="resolution_x"
+              type="number"
+              min="100"
+              max="4000"
+              placeholder="X"
+              title="X Resolution"
+            />
+              <input
+              required
+              name="resolution_y"
+              type="number"
+              min="100"
+              max="4000"
+              placeholder="Y"
+              title="Y Resolution"
+            />
+          </div>
+          <h5 class="no_margin">Texture Map Color</h5>
+          <input
+            style="width: 50%"
+            required
+            name="color"
+            type="color"
+            value="#FFFFFF"
+          />
+        </div>
+      </div>
+      <button disabled type="submit" style="display: none;"></button>
+      <button
+        id="preview"
+        type="button"
+        class="general_button_no_border sub_color_background shadow_strong rounded_container_no_padding"
+        onclick="preview_button(this)"
+      >
+        <h4 class="no_margin">Preview</h4>
+      </button>
+      <p id="cooldown">30 second cooldown</p>
+      <input type="hidden" name="rarity_map" id="rarity_map" value="">
+      <input type="hidden" name="uploaded_data_dict" id="uploaded_data_dict" value="">
+      <button
+        type="button"
+        id="upload_button_submit"
+        class="general_button_no_border main_color_background shadow_strong rounded_container_no_padding"
+      >
+        <h4 class="no_margin generate">Generate</h4>
+      </button>
+      <!-- button not needed below -->
+      <input type="submit" style="display:none;">
+
+      <div style="display: none;" class="update_layer_parameters_menu rounded_container shadow_strong">
+        <h3 class="no_margin center">Layer Properties</h3>
+        <div style="height:auto; margin: 10px 0; display: flex; flex-direction: column; gap: 25px; align-items: center; justify-content: space-between;">
+          <div style="text-align: center; width: 100%;">
+            <h5 style="margin: 5px 0;">Layer Name</h5>
+            <input class="general_input" id="layer_name_update_field" type="text">
+          </div> 
+          <button id="confirm_layer_properties_update" type="button" class="main_color_background general_input general_button_no_border"> <h3 class="no_margin generate">Update properties!</h3> </button>
+        </div>
+
+
+      </div>
+    </div>
+  </div>
+</form>
+{% endblock %}
