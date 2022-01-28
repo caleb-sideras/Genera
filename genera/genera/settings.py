@@ -52,7 +52,7 @@ if DEBUG:
     import mimetypes
     mimetypes.add_type("application/javascript", ".js", True)
 
-ALLOWED_HOSTS = ['localhost','3.14.255.107']
+ALLOWED_HOSTS = ['localhost','3.141.72.59']
 
 # Application definition
 APPS = ['main', 'payments']
