@@ -285,11 +285,7 @@ def upload_view(request):
                 create_and_save_collection_paid(calebs_gay_dict, db_collection, request.user)
 
                 messages.success(request, message="Collection generated succesfully!")
-                return JsonResponse({"url": reverse("main:collection",
-                    kwargs={
-                        "username": request.user.username,
-                        "collection_name": db_collection.collection_name
-                    })}, status=200)
+                return ajax_redirect(reverse("main:collection", args=[request.user.username, db_collection.collection_name]))
             else:
                 images_list, metadata_list = create_and_save_collection_free(calebs_gay_dict)
                 print("Free collection")

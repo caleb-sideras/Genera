@@ -1129,7 +1129,7 @@ async function validate_and_post_ajax_form() {
         .then(response => {
             console.log(response)
             if (typeof response["url"] !== 'undefined'){
-                // window.location.replace(response["url"]) //redirect to the new collection
+                window.location.replace(response["url"]) //redirect to the new collection
             }
             else if(response['images']){
                 let zip = new JSZip();
