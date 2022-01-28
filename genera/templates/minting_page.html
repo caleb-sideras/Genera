@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block head_block %}
+<!-- <script type="text/javascript" src="{% static 'js/minting_page_vue.js' %}"></script> -->
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.min.js"></script>
+<script src="https://unpkg.com/vue@next"></script>
+<!-- type="text/javascript"  -->
+{% endblock %}
+
+{% block body_block %}
+<!-- <div id="components-demo">
+  <button-counter></button-counter>
+</div>
+<script>// Create a Vue application
+const app = Vue.createApp({})
+
+// Define a new global component called button-counter
+app.component('button-counter', {
+    delimiters: ["[[", "]]"],
+    data() {
+        return {
+            count: 0
+        }
+    },
+    template: `
+    <button v-on:click="count++">
+      You clicked me [[ count ]] times.
+    </button>`
+})
+
+app.mount('#components-demo')
+</script> -->
+
+<div id="add-files-component" class="">
+   
+  <!-- :key="post.id" -->
+  <file-preview
+    v-for="(value, name, index) in files"
+    :value="value",
+    :name="name"
+  ></file-preview>
+  <add-files></add-files>
+</div>
+<script>
+
+  const app = Vue.createApp({
+    data() {
+      return {
+        files: {
+          "cocker" : 'cock',
+          'cocking' : 'cocks'
+        }
+      }
+    }
+  })
+
+  app.component('file-preview', {
+  delimiters: ["[[", "]]"],
+  props: ['value'],['name'],
+  template: `
+    <div class="blog-post">
+      <h4>[[ value ]]</h4>
+    </div>
+  `
+})
+
+
+  app.component('add-files', {
+    delimiters: ["[[", "]]"],
+    template:
+    // `<img src="static/icons/plus.svg" class="color_image_orange" @click="onFileChange" ref="input">`,
+    `<input type="file" multiple accept="image/*" @change="onFileChange" ref="input" />`,
+    methods: {
+      onFileChange(event) {
+        console.log(event.target.files)
+        console.log(this.files)
+        console.log(files)
+        for (const file of event.target.files) {
+          this.files[file.name] = {"file": file}
+        }
+        // this.$emit('onFileChange');
+        console.log(this.files)
+      }
+    }
+  }).mount('#add-files-component')
+</script>
+
+{% endblock %}
