@@ -1,7 +1,4 @@
 from json.decoder import JSONDecodeError
-from ast import Try
-from time import timezone
-from django.http.response import HttpResponse
 from django.shortcuts import render
 from main.helper_functions import nft_storage_api_store
 from main.view_tools import *
@@ -10,41 +7,27 @@ from main.models import User
 from main.forms import *
 from main.generator_alg import *
 from main.contract_interaction import *
-from django.templatetags.static import static
-from django.core import serializers
-from django.core.files.storage import FileSystemStorage
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.contrib.auth import login, logout
-from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from pathlib import Path
 from django.http import HttpResponseRedirect
 import json
 from django.http import JsonResponse, RawPostDataException
-from django.core.exceptions import PermissionDenied, ValidationError, BadRequest
+from django.core.exceptions import PermissionDenied, ValidationError
 import base64
 from PIL import Image, ImageColor
-import numpy as np
-import io
 from django.core.mail import send_mail
 from .forms import *
 from .models import *
 from django.dispatch import receiver
 from django.db.models.signals import pre_delete
 import shutil
-import requests
 import json
-from django.db.models import Q
-import os
-from datetime import timezone
 from django.template.loader import render_to_string
 from io import BytesIO
-from cv2 import imencode
-from genera.tools import Timer
 import stripe
 # Create your views here.
-t = Timer()
 stripe.api_key = STRIPE_PRIVATE_KEY
 
 def main_view(request):
@@ -57,24 +40,20 @@ def upload_view(request):
     # users_imgs = UserAsset.objects.filter(user=request.user)
     context = {}
     context["ajax_url"] = reverse("main:upload")
-    def file_to_pil(file, res_x, res_y):  # take POSt.request file that user sent over the form, and convert it into a PIL object.
-        t.start()
-        PIL_image = Image.open(io.BytesIO(file.read()))
-        horo, vert = PIL_image.size
-        if horo != res_x or vert != res_y:
-            PIL_image = PIL_image.resize((res_x, res_y))
-            print("resized")
+    # def file_to_pil(file, res_x, res_y):  # take POSt.request file that user sent over the form, and convert it into a PIL object.
+    #     PIL_image = Image.open(io.BytesIO(file.read()))
+    #     horo, vert = PIL_image.size
+    #     if horo != res_x or vert != res_y:
+    #         PIL_image = PIL_image.resize((res_x, res_y))
+    #         print("resized")
         
-        t.stop()
-        return PIL_image
+    #     return PIL_image
 
     def file_to_pil_no_resize(file, res_x, res_y):
-        t.start()
-        PIL_image = Image.open(io.BytesIO(file.read()))
+        PIL_image = Image.open(BytesIO(file.read()))
         height, width = PIL_image.size
         if height != res_x or width != res_y:
             raise RawPostDataException
-        t.stop()
         return PIL_image
     
     # def file_to_pil_cv2(file, res_x, res_y):  # Use this in case we make use of numpy arrays instead of PIL objects. Return after cv2.cvtColor to get the array.
@@ -92,15 +71,18 @@ def upload_view(request):
     #     print(f"Time taken individual pil open: {timeit_end-timeit_start:.3f}s")
         
     #     return PIL_image
-    
-    def pil_to_bytes(pil_img):
-        t.start()
-        
-        cv2_img = imencode('.png', np.array(pil_img))[1].tobytes()
-        bytes = base64.b64encode(cv2_img).decode('utf-8')
 
-        t.stop()
-        return bytes
+    def pil_to_bytes(pil_img):
+        imageBytes = BytesIO()
+        pil_img.save(imageBytes, format='PNG')
+        return base64.b64encode(imageBytes.getvalue()).decode('utf-8')
+    
+    # def pil_to_bytes(pil_img):
+        
+    #     cv2_img = imencode('.png', np.array(pil_img))[1].tobytes()
+    #     bytes = base64.b64encode(cv2_img).decode('utf-8')
+
+    #     return bytes
 
     calebs_gay_dict = {}
     
@@ -226,7 +208,7 @@ def upload_view(request):
             for value in calebs_gay_dict.values():
                 if not value:
                     messages.error(request, message=f"An Error has occured - data is missing. Please try again.")
-                    return ajax_redirect(reverse("main:upload"), "An Error has occured - data is missing. Please try again.")
+                    return ajax_redirect(reverse("main:upload"))
 
             layers = {}
             if paid_generation:
@@ -236,7 +218,7 @@ def upload_view(request):
                     db_collection = db_collection[0]
                 else:
                     messages.error(request, message="A collection with that name already exists!")
-                    return ajax_redirect(reverse("main:upload"), "A collection with that name already exists!")
+                    return ajax_redirect(reverse("main:upload"))
 
                 db_collection.description = calebs_gay_dict["Description"]
                 db_collection.dimension_x = calebs_gay_dict["Resolution_x"]
@@ -249,7 +231,7 @@ def upload_view(request):
                     db_collection.save()
                 except:
                     messages.error(request, message="Critical Backend error. Please try again. No credits were deducted.")
-                    return ajax_redirect(reverse("main:upload"), "Critical Backend error. Please try again.  No credits were deducted.")
+                    return ajax_redirect(reverse("main:upload"))
             
             for filename in request.FILES.keys():
                 for file in request.FILES.getlist(filename): ##for this set of file get layer name and layer type

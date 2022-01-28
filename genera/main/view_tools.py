@@ -5,8 +5,6 @@ from genera.settings import BASE_URL
 import uuid
 from django.urls import reverse
 from genera.settings import STRIPE_PRIVATE_KEY
-from django.contrib import messages
-import json
 import stripe
 stripe.api_key = STRIPE_PRIVATE_KEY
 

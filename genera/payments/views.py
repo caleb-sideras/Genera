@@ -1,46 +1,19 @@
 from django.shortcuts import render
 import stripe
-from time import timezone
-from django.http.response import HttpResponse
-from django.shortcuts import render
-from stripe.api_resources import checkout
-from main.view_tools import generate_token,generate_stripe_products_context
+from main.view_tools import *
 from genera.settings import MEDIA_DIR, DEFAULT_FROM_EMAIL, BASE_DIR, STRIPE_PUBILC_KEY, STRIPE_PRIVATE_KEY, BASE_URL
 from main.models import User
 from main.forms import *
 from main.generator_alg import *
 from main.contract_interaction import *
-from django.templatetags.static import static
-from django.core.files.storage import FileSystemStorage
 from django.shortcuts import redirect
-from django.urls import reverse
-from django.contrib.auth import login, logout
-from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from pathlib import Path
 import json
 from django.http import JsonResponse, RawPostDataException
-from django.core.exceptions import PermissionDenied, ValidationError, BadRequest
-import base64
-from PIL import Image, ImageColor
-import numpy as np
-import io
-from django.core.mail import send_mail
+from django.core.exceptions import PermissionDenied
 from .models import *
-from django.dispatch import receiver
-from django.db.models.signals import pre_delete
-import shutil
-import requests
 import json
-from django.db.models import Q
-import os
-from datetime import timezone
-from django.template.loader import render_to_string
-from io import BytesIO
-from django.views.decorators.csrf import csrf_exempt
-from genera.tools import Timer
 from .models import *
-from django.core import serializers
 
 stripe.api_key = STRIPE_PRIVATE_KEY
 # Create your views here.
