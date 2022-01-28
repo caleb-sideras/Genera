@@ -52,7 +52,7 @@ if DEBUG:
     import mimetypes
     mimetypes.add_type("application/javascript", ".js", True)
 
-ALLOWED_HOSTS = ['localhost','genera.us-east-2.elasticbeanstalk.com']
+ALLOWED_HOSTS = ['localhost','3.14.255.107']
 
 # Application definition
 APPS = ['main', 'payments']
