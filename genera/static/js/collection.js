@@ -374,12 +374,12 @@ function download_zip() {
     for (let i = 0; i < images.length; i++) {
         // let filename = images[i].dataset.name + ".png";
         let url = images[i].dataset.fullrez
-        let metadata_name = images[i].dataset.name + ".json";
+        // let metadata_name = images[i].dataset.name + ".json";
         let json = metadata[i].dataset.metadata
         promise_list.push(
             zipFiles(
                 url,
-                metadata_name,
+                json,
                 i
             )
         )

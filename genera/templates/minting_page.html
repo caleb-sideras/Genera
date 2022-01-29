@@ -5,85 +5,256 @@
 <!-- <script type="text/javascript" src="{% static 'js/minting_page_vue.js' %}"></script> -->
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.min.js"></script>
 <script src="https://unpkg.com/vue@next"></script>
-<!-- type="text/javascript"  -->
 {% endblock %}
 
 {% block body_block %}
-<!-- <div id="components-demo">
-  <button-counter></button-counter>
-</div>
-<script>// Create a Vue application
-const app = Vue.createApp({})
 
-// Define a new global component called button-counter
-app.component('button-counter', {
-    delimiters: ["[[", "]]"],
-    data() {
-        return {
-            count: 0
-        }
-    },
-    template: `
-    <button v-on:click="count++">
-      You clicked me [[ count ]] times.
-    </button>`
-})
 
-app.mount('#components-demo')
-</script> -->
-
-<div id="add-files-component" class="">
-   
-  <!-- :key="post.id" -->
+<div id="add-files-component" class="all_collections_layout">
+  
+  <add-files></add-files>
   <file-preview
     v-for="(value, name, index) in files"
-    :value="value",
     :name="name"
+    :blob="value.blob"
+    :fullrender="value.fullrender"
   ></file-preview>
-  <add-files></add-files>
+  <template v-if:="Object.entries(active_element) != 0">
+    <carousel :activeelement="active_element" :activekey="Object.keys(active_element)[0]" @next-carousel="nextDictEntry" @prev-carousel="prevDictEntry"></carousel>
+  </template>
 </div>
-<script>
 
+<script>
   const app = Vue.createApp({
     data() {
       return {
-        files: {
-          "cocker" : 'cock',
-          'cocking' : 'cocks'
+        files: {},
+        active_element: {}
+      }
+    },
+    methods:{
+      //refactor? fuck no
+      nextDictEntry(){
+        let file_keys = Object.keys(this.files);
+        let currentKey = Object.keys(this.active_element)[0]
+        let nextIndex =  file_keys.indexOf(currentKey) + 1
+
+        if (nextIndex in file_keys) {
+          var nextItem = file_keys[nextIndex];
+        } else{
+          var nextItem = file_keys[0]
+        }
+        try {
+          let new_active = this.files[nextItem]
+          this.active_element = {}
+          this.active_element[nextItem] = new_active
+        } catch (error) {
+          console.log(error)
+        }
+      },
+      prevDictEntry(){
+        let file_keys = Object.keys(this.files);
+        let currentKey = Object.keys(this.active_element)[0]
+        let nextIndex =  file_keys.indexOf(currentKey) - 1
+
+        if (nextIndex in file_keys) {
+          var nextItem = file_keys[nextIndex];
+        } else{
+          var nextItem = file_keys[file_keys.length - 1]
+        }
+
+        try {
+          let new_active = this.files[nextItem]
+          this.active_element = {}
+          this.active_element[nextItem] = new_active
+        } catch (error) {
+          console.log(error)
         }
       }
     }
   })
 
-  app.component('file-preview', {
-  delimiters: ["[[", "]]"],
-  props: ['value'],['name'],
-  template: `
-    <div class="blog-post">
-      <h4>[[ value ]]</h4>
-    </div>
-  `
-})
-
-
   app.component('add-files', {
-    delimiters: ["[[", "]]"],
     template:
-    // `<img src="static/icons/plus.svg" class="color_image_orange" @click="onFileChange" ref="input">`,
-    `<input type="file" multiple accept="image/*" @change="onFileChange" ref="input" />`,
+    `<input type="file" multiple accept="image/png, image/jpeg, .json" @change="onFileChange" ref="input" />`,
     methods: {
       onFileChange(event) {
-        console.log(event.target.files)
-        console.log(this.files)
-        console.log(files)
         for (const file of event.target.files) {
-          this.files[file.name] = {"file": file}
+          let self = this
+          let parent = this.$root
+          let fileName = file.name.replace(/\.[^/.]+$/, "")
+
+          if (!parent.$data.files[fileName]) {
+            parent.$data.files[fileName] = {}
+          }
+
+          if (!parent.$data.files[fileName]["blob"]) {
+            const canvas = document.createElement("canvas")
+            canvas.width = 250
+            canvas.height = 250
+            parent.$data.files[fileName]["blob"] = canvas.toDataURL()
+          }
+
+          if (file.type === "application/json") {
+            function readFile(event) {
+              parent.$data.files[fileName]["metadata"] = event.target.result
+            }
+
+            let reader = new FileReader()
+            reader.addEventListener('load', readFile);
+            reader.readAsText(file);
+          }
+          else if(file.type ==="image/jpeg" || file.type ==="image/png"){
+            if (!parent.$data.files[fileName]["file"]){
+              parent.$data.files[fileName]["file"] = file
+              parent.$data.files[fileName]["fullrender"] =  URL.createObjectURL(file)
+            }
+          }    
         }
-        // this.$emit('onFileChange');
-        console.log(this.files)
+        // console.log(this.$root.$data.files)
       }
     }
   }).mount('#add-files-component')
+
+  app.component('file-preview', {
+    delimiters: ["[[", "]]"],
+    props: ['name', 'blob', 'fullrender'],
+    template: `
+      <div class="upload_card grow border rounded_container_no_padding" @click="activeElement" >
+        <img loading="lazy" :src="[[ blob ]]" :alt ="[[ fullrender ]]" class="nft_image">
+        <div class="loading_circle" style="display: none;"></div>
+        <div>
+          <p>[[ name ]]</p>  
+        </div>
+      </div>
+    `,
+    mounted() {
+      const { $el } = this
+      // console.log($el)
+      // console.log(this)
+      if (typeof(this.fullrender) !== 'undefined') {
+        const observer = new IntersectionObserver(([entry]) => {
+        const img = $el.querySelector(".nft_image")
+        const loading = $el.querySelector(".loading_circle")
+
+        if (entry.isIntersecting) {
+          // Element is in viewport
+          loading.style.display = "flex"
+          let loadingImage = new Image();
+          loadingImage.src = this.fullrender
+
+          loadingImage.onload = () =>{
+            delete loadingImage.onload
+            loading.style.opacity = "0"
+            img.src = loadingImage.src
+            img.style.opacity = "1"
+            setTimeout(() => {
+              loading.style.display = "none"
+            },100)
+          }
+          observer.disconnect()
+        }
+      })
+      observer.observe($el)
+
+      //find a way to destroy observer
+
+      // this.$once("hook:beforeDestroy", () => {
+      //   observer.disconnect()
+      // })
+      }
+  },
+    methods :{
+      activeElement(event){
+        let parent = this.$root
+        parent.$data.active_element[this.name] = parent.$data.files[this.name]
+      }
+    }
+})
+
+  app.component('carousel', {
+    emits:['next-carousel', 'prev-carousel'],
+    delimiters: ["[[", "]]"],
+    props: ['activeelement', 'activekey'],
+    template:` 
+
+    <div class="image_preview"><div class="top_row"><img src="/static/icons/remove.svg"></div><div class="rounded_container"><div class="content_wrapper">
+
+      <div class="lbutton_wrapper" @click="prevCarousel">
+        <img src="/static/icons/expand.svg" class="button left">
+      </div>
+
+    <div class="inner_content">
+
+      <img :src="[[ activeelement[activekey].fullrender ]]" class="image">
+
+    <div class="info"><div class="upper_info_wrapper">
+
+      <template v-if:=" 'metadata' in activeelement[activekey]">
+        <h2>[[ JSON.parse(activeelement[activekey].metadata).name ]]</h2>
+      </template>
+      <template v-else>
+        <h2>[[ activeelement[activekey].file.name ]]</h2>
+      </template>
+      
+      <div class="general_button_no_border main_color_background"><img src="/static/icons/edit.svg"><h4>Edit</h4></div></div><div class="info_wrapper"><div class="general_button dropdown_button white_background" style="margin: 0px 10px 10px;"><h5 style="font-weight: bold; margin: 5px; font-size: 17px;">Description</h5><div class="expand_button_container" style="justify-content: center; width: 25px;"><img src="/static/icons/expand.svg" class="expand_collapse" style="width: auto;"></div><div class="open" id="wrapper" style="padding: 15px 20px; margin-right: -20px; margin-left: -20px; width: 100%; text-align: start;">
+
+        <template v-if:=" 'metadata' in activeelement[activekey]">
+          <template v-if:=" 'description' in JSON.parse(activeelement[activekey].metadata)">
+            <p>[[ JSON.parse(activeelement[activekey].metadata).description ]]</p>
+          </template>
+          <template v-else>
+            <p></p>
+          </template>
+        </template>
+        <template v-else>
+          <p></p>
+        </template>
+
+      </div></div><div class="general_button dropdown_button white_background" style="margin: 0px 10px 10px;"><h5 style="font-weight: bold; margin: 5px; font-size: 17px;">Properties</h5><div class="expand_button_container"><h5>2</h5><img src="/static/icons/expand.svg" class="expand_collapse" style="transform: rotate(0deg);"></div><div class="open" id="wrapper" style="padding: 15px 20px; margin-right: -20px; margin-left: -20px; width: 100%; text-align: start;">
+        
+        <template v-if:=" 'metadata' in activeelement[activekey]">
+          <template v-if:=" 'attributes' in JSON.parse(activeelement[activekey].metadata)">
+            <template v-for="value in JSON.parse(activeelement[activekey].metadata).attributes">
+              <p>[[ value['trait_type'] ]]: [[ value['value'] ]]</p>
+            </template>
+          </template>
+          <template v-else>
+            <p></p>
+          </template>
+        </template>
+        <template v-else>
+          <p></p>
+        </template>
+
+      </div></div>
+
+        </div><div class="mutipurpose_button_section">
+          <div class="general_button_no_border mutipurpose_button">
+            <h4 style="color: red;">Delete</h4>
+          </div>
+        </div>
+
+      </div></div>
+
+        <div class="rbutton_wrapper" @click="nextCarousel">
+          <img src="/static/icons/expand.svg" class="button right">
+        </div>
+
+      </div></div></div>`,
+    mounted(){
+      console.log("mounted")
+    },
+    methods:{
+      nextCarousel(){
+        this.$emit('next-carousel')
+      },
+      prevCarousel(){
+        this.$emit('prev-carousel')
+      }
+    }
+  })
+ 
 </script>
 
 {% endblock %}

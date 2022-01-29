@@ -1552,6 +1552,7 @@ text-align: left;
   box-sizing: border-box;
   align-items: center;
   justify-content: center;
+  align-self: center;
 }
 
 .collection_card > div > div > p{
@@ -2736,6 +2737,8 @@ display: inline-block;
 .loading_circle {
   width: 250px;
   height: 250px;
+  position: absolute;
+  transition: opacity 100ms ease;
 }
 .loading_circle:after {
   content: " ";
@@ -2862,3 +2865,35 @@ display: inline-block;
  margin-bottom: 25px;
 }
 /* MINT PAGE */
+
+/* MINT UPLOAD PAGE */
+.upload_card{
+  height: 350px;
+  max-width: 300px;
+  background-color: var(--main-card-color);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  /* justify-content: space-between; */
+  padding-bottom: 15px;
+  cursor: pointer;
+}
+.upload_card > .nft_image {
+  height: 85%;
+  max-width: 100%;
+  align-self: center;
+  transition: opacity 200ms ease;
+  opacity: 0;
+}
+.upload_card > div {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  padding: 0 5px;
+  box-sizing: border-box;
+  align-items: center;
+  justify-content: center;
+  align-self: center;
+}
+/* MINT UPLOAD PAGE */
