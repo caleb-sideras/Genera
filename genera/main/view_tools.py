@@ -1,12 +1,11 @@
 from django.http.response import JsonResponse
 from main.models import Token
 from main.models import User
-from genera.settings import BASE_URL
+from genera.settings import BASE_URL, STATIC_DIR
 import uuid
 from django.urls import reverse
 from genera.settings import STRIPE_PRIVATE_KEY
 import stripe
-from genera.settings import STATIC_DIR
 stripe.api_key = STRIPE_PRIVATE_KEY
 
 def get_absolute_path():
@@ -65,5 +64,5 @@ def fetch_stripe_session_product_and_price(stripe_session_obbject):
     product = stripe.Product.retrieve(price["product"])
     return (product,price)
 
-staticify = lambda x: f"{BASE_URL}/{x}"
+staticify = lambda x: f"{STATIC_DIR}/{x}"
 
