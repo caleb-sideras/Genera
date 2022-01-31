@@ -54,7 +54,7 @@ if DEBUG:
 
 #'ec2-3-141-72-59.us-east-2.compute.amazonaws.com'
 #'3.141.72.59'
-ALLOWED_HOSTS = ['localhost','genera.link','www.genera.link', '3.141.72.59', 'ec2-3-141-72-59.us-east-2.compute.amazonaws.com']
+ALLOWED_HOSTS = ['localhost','genera.link','www.genera.link', '3.141.72.59', 'reveec2-3-141-72-59.us-east-2.compute.amazonaws.com']
 
 # Application definition
 APPS = ['main', 'payments']
@@ -148,7 +148,7 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
 ]
 STATIC_ROOT = 'static_root'
-MEDIA_ROOT  = os.path.join(BASE_DIR, '/media')
+MEDIA_ROOT  = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
 
 # Default primary key field type
