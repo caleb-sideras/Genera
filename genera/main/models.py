@@ -1,15 +1,8 @@
 from django.db import models
 import uuid
-import os
-from functools import partial
-
-from numpy import character
 from main.model_tools import *
-from django.contrib.auth import get_user_model  # gets the user_model django  default or your own custom
-from django.db.models import Q
 from django.utils import timezone
 from django.utils.timezone import make_aware
-from django.template.defaultfilters import default, slugify
 # from genera.settings import AUTH_USER_MODEL
 import datetime
 from django.contrib.auth.base_user import AbstractBaseUser
