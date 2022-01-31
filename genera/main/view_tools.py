@@ -6,6 +6,7 @@ import uuid
 from django.urls import reverse
 from genera.settings import STRIPE_PRIVATE_KEY
 import stripe
+from genera.settings import STATIC_DIR
 stripe.api_key = STRIPE_PRIVATE_KEY
 
 def get_absolute_path():
@@ -63,4 +64,6 @@ def fetch_stripe_session_product_and_price(stripe_session_obbject):
     price = stripe.Price.retrieve(stripe_session_obbject["metadata"]["price_id"])
     product = stripe.Product.retrieve(price["product"])
     return (product,price)
+
+staticify = lambda x: f"{BASE_URL}/{x}"
 

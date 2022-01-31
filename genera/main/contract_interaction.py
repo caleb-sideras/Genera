@@ -2,8 +2,9 @@
 import json
 from web3.main import Web3
 from genera.settings import STATIC_DIR
+from main.view_tools import staticify
 
-with open(STATIC_DIR + "/Contracts/erc721_contract.json", "r") as myfile:
+with open(staticify("Contracts/erc721_contract.json"), "r") as myfile:
         data = myfile.read()
 json_string = json.loads(data)
 

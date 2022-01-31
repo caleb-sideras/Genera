@@ -5,6 +5,7 @@ import random
 import os
 import json
 from main.models import *
+from main.view_tools import staticify
 import string
 import time
 from io import BytesIO
@@ -382,7 +383,7 @@ def create_and_save_collection_free(tempDict):
     metadata_list = []
 
     try:
-        watermark = Image.open("./static/Assets/Background/genera_watermark.png")
+        watermark = Image.open(staticify("Assets/Background/genera_watermark.png"))
     except:
         print("Could not open watermark")
         return
