@@ -163,7 +163,7 @@ def upload_view(request):
                 }
                 # could be done in js
                 try:
-                    watermark = Image.open("./static/Assets/Background/genera_watermark.png")
+                    watermark = Image.open(staticify("Assets/Background/genera_watermark.png"))
                 except:
                     print("Could not open watermark")
                     return
