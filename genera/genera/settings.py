@@ -146,7 +146,7 @@ USE_L10N = True
 
 USE_TZ = True
 
-if not 'RDS_DB_NAME' in os.environ:
+if 'RDS_DB_NAME' in os.environ:
     AUTHENTICATION_BACKENDS = ( 'django.contrib.auth.backends.ModelBackend', )
 else:
     AUTHENTICATION_BACKENDS = ('init_backend.CustomBackend', )
