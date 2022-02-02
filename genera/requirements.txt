@@ -3,3 +3,4 @@ Pillow==8.3.2
 stripe==2.64.0
 Django==3.2.8
 web3==5.25.0
+psycopg2-binary==2.9.2
