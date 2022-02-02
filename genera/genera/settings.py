@@ -103,11 +103,11 @@ WSGI_APPLICATION = 'genera.wsgi.application'
 DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.mysql',
-            'NAME': os.environ['RDS_DB_NAME'],
+            'NAME': "ebdb",
             'USER': "genera",#os.environ['RDS_USERNAME']
             'PASSWORD': "'g'9F~;<xkmr)~^Z",
-            'HOST': os.environ['RDS_HOSTNAME'],
-            'PORT': os.environ['RDS_PORT'],
+            'HOST': "aa1pitge69y69xv.cb2fcrzehayo.us-east-2.rds.amazonaws.com",
+            'PORT': "3306",
         }
     }
 
