@@ -31,6 +31,9 @@ import stripe
 stripe.api_key = STRIPE_PRIVATE_KEY
 
 def main_view(request):
+    if request.user.is_authenticated:
+        print("HELLO")
+    
     context = {}
     context['products'] = generate_stripe_products_context()
     
