@@ -146,9 +146,11 @@ USE_L10N = True
 
 USE_TZ = True
 
-AUTHENTICATION_BACKENDS = (
-    'init_backend.CustomBackend',
-)
+if 'RDS_DB_NAME' in os.environ:
+    AUTHENTICATION_BACKENDS = ('django.contrib.auth.backends.ModelBackend')
+else:
+    AUTHENTICATION_BACKENDS = ('init_backend.CustomBackend')
+
 AUTH_USER_MODEL = 'main.User'
 
 # Static files (CSS, JavaScript, Images)
