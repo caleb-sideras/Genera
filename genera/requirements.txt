@@ -3,4 +3,4 @@ Pillow==8.3.2
 stripe==2.64.0
 Django==3.2.8
 web3==5.25.0
-mysqlclient==2.1.0
+mysqlclient==2.0.3
