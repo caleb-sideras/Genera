@@ -15,7 +15,8 @@ class CustomBackend(ModelBackend):
         if username is None or password is None:
             return None
         try:
-            user = UserModel.objects.filter(Q(username__iexact=username) | Q(email__iexact=username)).first()
+            user = UserModel.objects.filter(username__iexact=username) | UserModel.objects.filter(email__iexact=username)
+            user = user.first()
         except UserModel.DoesNotExist:
             UserModel().set_password(password)
         else:
