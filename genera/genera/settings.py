@@ -28,7 +28,8 @@ TEMPLATE_DIR = os.path.join(BASE_DIR, 'templates')
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-!h$vhss##+00p6$09#!6ejcmx1+!q#x%-+#uj^@(vghcn%)-!o'
 
-BASE_URL = 'http://localhost:8000'
+# BASE_URL = 'http://localhost:8000'
+BASE_URL = 'http://genera.us-east-2.elasticbeanstalk.com'
 
 #Email Setup
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
