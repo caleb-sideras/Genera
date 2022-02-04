@@ -1,8 +1,9 @@
 {% load static %}
 
 <!DOCTYPE html>
-
 <html lang="en">
+
+{%if request.session.enter_page == True%}
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" type="text/css" href="{% static 'css/global.css' %}" />
@@ -193,4 +194,12 @@
       </div>
     </div>
   </body>
+  {%else%}
+  <form method="POST" style="display: flex; width: 100vw; height: 100vw; justify-content: center; align-items: center;">
+    {%csrf_token%}
+    <input style="min-width: 200px;" type="password" name="code" placeholder="Enter... passcode..">
+
+  </form>
+  {%endif%}
+
 </html>
