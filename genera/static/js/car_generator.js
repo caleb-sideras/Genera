@@ -1,6 +1,6 @@
 import { b as l, s as a, C as n } from "./ipfs_car.js";
-// BASE_URL = 'http://localhost:8000'
-BASE_URL = 'http://genera.us-east-2.elasticbeanstalk.com'
+//var base_url = 'http://localhost:8000'
+//var base_url = 'http://genera.us-east-2.elasticbeanstalk.com'
 
 init_buttons()
 
