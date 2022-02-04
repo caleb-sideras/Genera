@@ -1,4 +1,6 @@
 import { b as l, s as a, C as n } from "./ipfs_car.js";
+// BASE_URL = 'http://localhost:8000'
+BASE_URL = 'http://genera.us-east-2.elasticbeanstalk.com'
 
 init_buttons()
 
@@ -81,7 +83,7 @@ async function create_image_car() {
     let image_filelist = []
     for (let i = 0; i < images.length; i++) {
         try {
-            var response = await fetch(`http://localhost:8000${images[i].children[0].dataset.fullrez}`);
+            var response = await fetch(`${images[i].children[0].dataset.fullrez}`);
         } catch (error) {
             alert("Connection Error, please make sure you have a stable internet connection.")
             throw (error)
