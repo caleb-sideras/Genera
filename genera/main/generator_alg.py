@@ -2,9 +2,7 @@ import base64
 from PIL import Image, ImageColor
 import numpy as np
 import random
-import os
 import json
-from genera.settings import AWS_STORAGE_BUCKET_NAME, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY
 from main.models import *
 from main.view_tools import staticify
 import string

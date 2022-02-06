@@ -26,7 +26,6 @@ TEMPLATE_DIR = os.path.join(BASE_DIR, 'templates')
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-!h$vhss##+00p6$09#!6ejcmx1+!q#x%-+#uj^@(vghcn%)-!o'
 
-# BASE_URL = 'http://localhost:8000'
 BASE_URL = 'http://genera.us-east-2.elasticbeanstalk.com'
 
 #Email Setup
@@ -45,13 +44,12 @@ DEFAULT_FROM_EMAIL = 'artemlimo@gmail.com'
 EMAIL_USE_TLS = True
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = True #TODO: Make this FALSE when all is done..
 
 if DEBUG:
     import mimetypes
     mimetypes.add_type("application/javascript", ".js", True)
 
-#'ec2-3-141-72-59.us-east-2.compute.amazonaws.com'
 #172.31.45.134 is the EC2 instance private ip !!!!
 ALLOWED_HOSTS = ['localhost','genera.link','www.genera.link', 'genera.us-east-2.elasticbeanstalk.com', '172.31.45.134']
 
@@ -99,19 +97,6 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'genera.wsgi.application'
-
-# Database
-# # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
-# DATABASES = {
-#         'default': {
-#             'ENGINE': 'django.db.backends.mysql',
-#             'NAME': "ebdb",
-#             'USER': "genera",#os.environ['RDS_USERNAME']
-#             'PASSWORD': "'g'9F~;<xkmr)~^Z",
-#             'HOST': "aa1pitge69y69xv.cb2fcrzehayo.us-east-2.rds.amazonaws.com",
-#             'PORT': "3306",
-#         }
-#     }
 
 if 'RDS_DB_NAME' in os.environ:
     DATABASES = {
@@ -196,7 +181,6 @@ AWS_SECRET_ACCESS_KEY = 'KQTq96zQviavbhHuUsVTcEAUfSJEJzFXh7aY2JIj'
 AWS_STORAGE_BUCKET_NAME = 'genera-media'
 AWS_S3_REGION_NAME = 'us-east-2'
 AWS_S3_SIGNATURE_VERSION = 's3v4'
-
 AWS_S3_CUSTOM_DOMAIN = f'https://{AWS_STORAGE_BUCKET_NAME}.s3.{AWS_S3_REGION_NAME}.amazonaws.com/'
 
 DEFAULT_FILE_STORAGE = 'genera.s3_storage.AwsMediaStorageManipulator'
