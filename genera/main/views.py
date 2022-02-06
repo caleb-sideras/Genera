@@ -2,7 +2,7 @@ from json.decoder import JSONDecodeError
 from django.shortcuts import render
 from main.helper_functions import nft_storage_api_store
 from main.view_tools import *
-from genera.settings import MEDIA_DIR, DEFAULT_FROM_EMAIL, BASE_DIR, STRIPE_PUBILC_KEY, STRIPE_PRIVATE_KEY
+from genera.settings import MEDIA_DIR, DEFAULT_FROM_EMAIL, BASE_DIR, STRIPE_PUBILC_KEY, STRIPE_PRIVATE_KEY, MEDIA_URL, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_STORAGE_BUCKET_NAME
 from main.models import User
 from main.forms import *
 from main.generator_alg import *
@@ -27,6 +27,7 @@ import json
 from django.template.loader import render_to_string
 from io import BytesIO
 import stripe
+import boto3
 # Create your views here.
 stripe.api_key = STRIPE_PRIVATE_KEY
 
@@ -40,6 +41,13 @@ def main_view(request):
     return render(request, "home.html", context)
 
 def upload_view(request):
+
+    # print("Uploading folder to s3")
+    # s3 = boto3.client('s3', aws_access_key_id=AWS_ACCESS_KEY_ID, aws_secret_access_key= AWS_SECRET_ACCESS_KEY)
+    # folder_name = f"media/users/{request.user.username}/collections/lmao_collection"
+    # s3.put_object(Bucket=AWS_STORAGE_BUCKET_NAME, Key=(folder_name+'/'))
+    # print("Uploaded to S3")
+
     # users_imgs = UserAsset.objects.filter(user=request.user)
     context = {}
     context["ajax_url"] = reverse("main:upload")
@@ -228,7 +236,16 @@ def upload_view(request):
                 db_collection.dimension_y = calebs_gay_dict["Resolution_y"]
                 db_collection.token_name = calebs_gay_dict["TokenName"]
                 db_collection.image_name = calebs_gay_dict["ImageName"]
-                db_collection.path = f"/media/users/{request.user.username}/collections/{calebs_gay_dict['CollectionName'].strip().replace(' ', '_')}"
+                # db_collection.path = f"/media/users/{request.user.username}/collections/{calebs_gay_dict['CollectionName'].strip().replace(' ', '_')}"
+                #CREATE THE FOLDER HERE PERHAPS ?
+                try:
+                    s3 = boto3.client('s3', aws_access_key_id=AWS_ACCESS_KEY_ID, aws_secret_access_key= AWS_SECRET_ACCESS_KEY)
+                    folder_name = f"media/users/{request.user.username}/collections/{calebs_gay_dict['CollectionName'].strip().replace(' ', '_')}"
+                    s3.put_object(Bucket=AWS_STORAGE_BUCKET_NAME, Key=(folder_name+'/'))
+                    db_collection.path = folder_name.replace("media/", "")
+                except:
+                    messages.error(request, message="Critical Backend error. Unable to create folder on S3")
+                    return ajax_redirect(reverse("main:upload"))
 
                 try:
                     db_collection.save()

@@ -67,6 +67,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'storages',
+
 ] + APPS
 
 MIDDLEWARE = [
@@ -93,6 +95,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'genera.context_processors.protecc',
+                'genera.context_processors.media',
             ],
         },
     },
@@ -189,3 +192,18 @@ MAX_UPLOAD_SIZE = "5242880000"
 STRIPE_PUBILC_KEY = "pk_test_51K9ckjDlWp2mVdKSIZtZWcEmEIogg5LG2Vx9p8IjIM38bOo8CbGqddJuYeDEvbPUCdM11b7MeFD8YGC82V5m2Xqo00cHqVNc07"
 STRIPE_PRIVATE_KEY = "sk_test_51K9ckjDlWp2mVdKSxhtGeV44FHSaO7z89AYlxltSqY6hnSRHP3zhcOfWlQDqUmX8rqtHvjkEnpTconUyBS7K4H5Q00dGzl4yTg"
 STRIPE_WEBHOOK_SECRET = "cbya-zuur-cfbo-smeo-help"#maybe
+
+
+#AWS BUCKET STUFF
+AWS_ACCESS_KEY_ID = 'AKIAYWR7VJZHQI73U2X4'
+AWS_SECRET_ACCESS_KEY = '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'
+AWS_STORAGE_BUCKET_NAME = 'genera-media'
+AWS_S3_REGION_NAME = 'us-east-2'
+AWS_S3_SIGNATURE_VERSION = 's3v4'
+DEFAULT_FILE_STORAGE = 'genera.storage_backends.MediaStorage'
+MEDIA_URL = f'https://{AWS_STORAGE_BUCKET_NAME}.s3.{AWS_S3_REGION_NAME}.amazonaws.com/media/'
+
+AWS_S3_CUSTOM_DOMAIN = MEDIA_URL
+AWS_S3_OBJECT_PARAMETERS = {
+    'CacheControl': 'max-age=86400',
+}

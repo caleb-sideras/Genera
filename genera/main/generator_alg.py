@@ -4,11 +4,13 @@ import numpy as np
 import random
 import os
 import json
+from genera.settings import AWS_STORAGE_BUCKET_NAME, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY
 from main.models import *
 from main.view_tools import staticify
 import string
 import time
 from io import BytesIO
+import boto3
 # Notes
 # - the current textures Samoshin sent me are buggy, they only use A (Alpha) values in the RGBA format
 
@@ -258,16 +260,44 @@ def create_and_save_collection_paid(tempDict, db_collection, user = None):
         temp_json.update({"attributes": temp_list})
         image_to_collection_db.metadata = json.dumps(temp_json)
 
+        def pil_to_aws(pil_image, format="PNG"):
+            in_mem_file = BytesIO()
+
+            # format here would be something like "JPEG". See below link for more info.
+            pil_image.save(in_mem_file, format=format)
+            return in_mem_file.getvalue()
+
         current_image_path = f"{db_collection.path}/{alphanum_random(6)}.png"
 
         # cv2img = cvtColor(np.array(im), COLOR_RGB2BGR)
         # imwrite(current_image_path[1:], cv2img)
-        im.save(current_image_path[1:], "PNG")
 
-        compressed_image_path = current_image_path.replace(".png", "_tbl.png")
+        s3 = boto3.client('s3', aws_access_key_id=AWS_ACCESS_KEY_ID, aws_secret_access_key= AWS_SECRET_ACCESS_KEY)
+
+        s3.put_object ( #upload main image to s3
+            Body = pil_to_aws(im), 
+            Bucket = AWS_STORAGE_BUCKET_NAME,
+            Key = f"media/{current_image_path}",
+        )
 
         im.thumbnail((200,200)) #comress to thumbnail size
-        im.save(f"{compressed_image_path[1:]}", "PNG") #save thumbnail
+        compressed_image_path = current_image_path.replace(".png", "_tbl.png")
+
+        s3.put_object( #upload thumbnail to s3
+            Body = pil_to_aws(im),
+            Bucket = AWS_STORAGE_BUCKET_NAME,
+            Key = f"media/{compressed_image_path}",
+        )
+        # folder_name = f"media/users/{request.user.username}/collections/{calebs_gay_dict['CollectionName'].strip().replace(' ', '_')}"
+        # s3.put_object(Bucket=AWS_STORAGE_BUCKET_NAME, Key=(folder_name+'/'))
+        # db_collection.path = folder_name
+
+        # im.save(current_image_path[1:], "PNG")
+
+        # compressed_image_path = current_image_path.replace(".png", "_tbl.png")
+
+        # im.thumbnail((200,200)) #comress to thumbnail size
+        # im.save(f"{compressed_image_path[1:]}", "PNG") #save thumbnail
 
         # cv2img = resize(cv2img, dsize=[compressed_x, compressed_y], interpolation=INTER_AREA)
         # imwrite(compressed_image_path[1:], cv2img)

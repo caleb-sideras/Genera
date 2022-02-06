@@ -13,5 +13,5 @@ def protecc(request):
             request.session["enter_page"] = True
     return {}
 
-# def media(request):
-#     return {'media': MEDIA_URL}
+def media(request):
+    return {'media': MEDIA_URL}
