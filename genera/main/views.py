@@ -2,7 +2,7 @@ from json.decoder import JSONDecodeError
 from django.shortcuts import render
 from main.helper_functions import nft_storage_api_store
 from main.view_tools import *
-from genera.settings import MEDIA_DIR, DEFAULT_FROM_EMAIL, BASE_DIR, STRIPE_PUBILC_KEY, STRIPE_PRIVATE_KEY, MEDIA_URL, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_STORAGE_BUCKET_NAME
+from genera.settings import DEFAULT_FROM_EMAIL, STRIPE_PRIVATE_KEY
 from main.models import User
 from main.forms import *
 from main.generator_alg import *
@@ -27,7 +27,7 @@ import json
 from django.template.loader import render_to_string
 from io import BytesIO
 import stripe
-import boto3
+
 # Create your views here.
 stripe.api_key = STRIPE_PRIVATE_KEY
 
@@ -41,24 +41,8 @@ def main_view(request):
     return render(request, "home.html", context)
 
 def upload_view(request):
-
-    # print("Uploading folder to s3")
-    # s3 = boto3.client('s3', aws_access_key_id=AWS_ACCESS_KEY_ID, aws_secret_access_key= AWS_SECRET_ACCESS_KEY)
-    # folder_name = f"media/users/{request.user.username}/collections/lmao_collection"
-    # s3.put_object(Bucket=AWS_STORAGE_BUCKET_NAME, Key=(folder_name+'/'))
-    # print("Uploaded to S3")
-
-    # users_imgs = UserAsset.objects.filter(user=request.user)
     context = {}
     context["ajax_url"] = reverse("main:upload")
-    # def file_to_pil(file, res_x, res_y):  # take POSt.request file that user sent over the form, and convert it into a PIL object.
-    #     PIL_image = Image.open(io.BytesIO(file.read()))
-    #     horo, vert = PIL_image.size
-    #     if horo != res_x or vert != res_y:
-    #         PIL_image = PIL_image.resize((res_x, res_y))
-    #         print("resized")
-        
-    #     return PIL_image
 
     def file_to_pil_no_resize(file, res_x, res_y):
         PIL_image = Image.open(BytesIO(file.read()))
@@ -66,34 +50,11 @@ def upload_view(request):
         if height != res_x or width != res_y:
             raise RawPostDataException
         return PIL_image
-    
-    # def file_to_pil_cv2(file, res_x, res_y):  # Use this in case we make use of numpy arrays instead of PIL objects. Return after cv2.cvtColor to get the array.
-    #     timeit_start = time.time()
-
-    #     PIL_image = imdecode(np.fromstring(file.read(), np.uint8), IMREAD_UNCHANGED)
-    #     PIL_image = cvtColor(PIL_image, COLOR_BGRA2RGBA)
-    #     height, width, channels = PIL_image.shape
-    #     if height != res_x or width != res_y:
-    #         print("reshaping")
-    #         PIL_image = cv2.resize(PIL_image, dsize=[res_x, res_y], interpolation=cv2.INTER_CUBIC)
-
-    #     timeit_end = time.time()
-    #     PIL_image = Image.fromarray(PIL_image)
-    #     print(f"Time taken individual pil open: {timeit_end-timeit_start:.3f}s")
-        
-    #     return PIL_image
 
     def pil_to_bytes(pil_img):
         imageBytes = BytesIO()
         pil_img.save(imageBytes, format='PNG')
         return base64.b64encode(imageBytes.getvalue()).decode('utf-8')
-    
-    # def pil_to_bytes(pil_img):
-        
-    #     cv2_img = imencode('.png', np.array(pil_img))[1].tobytes()
-    #     bytes = base64.b64encode(cv2_img).decode('utf-8')
-
-    #     return bytes
 
     calebs_gay_dict = {}
     
@@ -204,8 +165,6 @@ def upload_view(request):
                     paid_generation = True
             else:
                 paid_generation = False
-                    
-            
 
             calebs_gay_dict["CollectionName"] = request.POST.get("collection_name")
             calebs_gay_dict["TokenName"] = request.POST.get("token_name") # not needed
@@ -239,11 +198,10 @@ def upload_view(request):
                 # db_collection.path = f"/media/users/{request.user.username}/collections/{calebs_gay_dict['CollectionName'].strip().replace(' ', '_')}"
                 #CREATE THE FOLDER HERE PERHAPS ?
                 try:
-                    s3 = boto3.client('s3', aws_access_key_id=AWS_ACCESS_KEY_ID, aws_secret_access_key= AWS_SECRET_ACCESS_KEY)
-                    folder_name = f"media/users/{request.user.username}/collections/{calebs_gay_dict['CollectionName'].strip().replace(' ', '_')}"
-                    s3.put_object(Bucket=AWS_STORAGE_BUCKET_NAME, Key=(folder_name+'/'))
-                    db_collection.path = folder_name.replace("media/", "")
-                except:
+                    folder_name = f"users/{request.user.username}/collections/{calebs_gay_dict['CollectionName'].strip().replace(' ', '_')}"
+                    db_collection.path = folder_name
+                except Exception as e:
+                    print(e)
                     messages.error(request, message="Critical Backend error. Unable to create folder on S3")
                     return ajax_redirect(reverse("main:upload"))
 

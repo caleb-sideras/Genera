@@ -1,6 +1,4 @@
 
-from genera.settings import MEDIA_URL
-
 def protecc(request):
     try:
         request.session["enter_page"]
@@ -12,6 +10,3 @@ def protecc(request):
         if code == "577677":
             request.session["enter_page"] = True
     return {}
-
-def media(request):
-    return {'media': MEDIA_URL}

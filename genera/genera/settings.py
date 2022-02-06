@@ -13,8 +13,6 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 from pathlib import Path
 import os
 
-from django.db.models.query import InstanceCheckMeta
-
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 STATIC_DIR = os.path.join(BASE_DIR, 'static')
@@ -95,7 +93,6 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'genera.context_processors.protecc',
-                'genera.context_processors.media',
             ],
         },
     },
@@ -193,17 +190,13 @@ STRIPE_PUBILC_KEY = "pk_test_51K9ckjDlWp2mVdKSIZtZWcEmEIogg5LG2Vx9p8IjIM38bOo8Cb
 STRIPE_PRIVATE_KEY = "sk_test_51K9ckjDlWp2mVdKSxhtGeV44FHSaO7z89AYlxltSqY6hnSRHP3zhcOfWlQDqUmX8rqtHvjkEnpTconUyBS7K4H5Q00dGzl4yTg"
 STRIPE_WEBHOOK_SECRET = "cbya-zuur-cfbo-smeo-help"#maybe
 
-
 #AWS BUCKET STUFF
 AWS_ACCESS_KEY_ID = 'AKIAYWR7VJZHQI73U2X4'
 AWS_SECRET_ACCESS_KEY = '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'
 AWS_STORAGE_BUCKET_NAME = 'genera-media'
 AWS_S3_REGION_NAME = 'us-east-2'
 AWS_S3_SIGNATURE_VERSION = 's3v4'
-DEFAULT_FILE_STORAGE = 'genera.storage_backends.MediaStorage'
-MEDIA_URL = f'https://{AWS_STORAGE_BUCKET_NAME}.s3.{AWS_S3_REGION_NAME}.amazonaws.com/media/'
 
-AWS_S3_CUSTOM_DOMAIN = MEDIA_URL
-AWS_S3_OBJECT_PARAMETERS = {
-    'CacheControl': 'max-age=86400',
-}
+AWS_S3_CUSTOM_DOMAIN = f'https://{AWS_STORAGE_BUCKET_NAME}.s3.{AWS_S3_REGION_NAME}.amazonaws.com/'
+
+DEFAULT_FILE_STORAGE = 'genera.s3_storage.AwsMediaStorageManipulator'

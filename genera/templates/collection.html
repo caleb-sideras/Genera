@@ -86,15 +86,12 @@
             <div class="all_collections_layout">
                 {% if collection_images %}
                     {% for entry in collection_images %}
-                        {{entry.path}} {{media}}
-                        {{entry.path_compressed}}
                         <div class="collection_card grow border rounded_container_no_padding" onclick="open_images(this)">
-                                
 
                             {% if entry.ipfs_bool%}
-                                <img loading="lazy" src="{{media}}{{entry.path_compressed}}" data-fullrez ="{{media}}{{entry.path}}" data-name="{{entry.name}}" data-ipfs ="{{entry.ipfs_metadata_path}}" alt="{{entry.name}} image should be here" class="nft_image">
+                                <img loading="lazy" src="{%if entry.path_compressed%} {{entry.path_compressed}} {%else%} {{entry.path}} {%endif%}" data-fullrez ="{{entry.path}}" data-name="{{entry.name}}" data-ipfs ="{{entry.ipfs_metadata_path}}" alt="{{entry.name}} image should be here" class="nft_image">
                             {% else %}
-                                <img loading="lazy" src="{{media}}{{entry.path_compressed}}" data-fullrez ="{{media}}{{entry.path}}" data-name="{{entry.name}}" alt="{{entry.name}} image should be here" class="nft_image">
+                                <img loading="lazy" src="{%if entry.path_compressed%} {{entry.path_compressed}} {%else%} {{entry.path}} {%endif%}" data-fullrez ="{{entry.path}}" data-name="{{entry.name}}" alt="{{entry.name}} image should be here" class="nft_image">
                             {% endif %}
                             <div>
                                 <input type="hidden" id="image_vars" data-name="{{entry.name}}" data-metadata="{{entry.metadata}}" data-ipfs_bool="{{entry.ipfs_bool}}" data-deployed_bool="{{entry.deployed_bool}}" data-token_uri="{{entry.ipfs_metadata_path}}" data-id="{{entry.id}}"/>

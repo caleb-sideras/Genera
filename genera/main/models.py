@@ -133,7 +133,7 @@ class CollectionImage(Model):
     name = models.CharField(max_length=50, unique=False) # not needed
 
     path = models.FilePathField()
-    path_compressed = models.FilePathField()
+    path_compressed = models.FilePathField(null=True, blank=True)
     metadata = models.TextField(null = True, blank = True)
 
     # IPFS

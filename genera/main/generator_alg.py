@@ -10,7 +10,9 @@ from main.view_tools import staticify
 import string
 import time
 from io import BytesIO
-import boto3
+from genera.s3_storage import AwsMediaStorageManipulator
+from django.core.files.base import ContentFile
+
 # Notes
 # - the current textures Samoshin sent me are buggy, they only use A (Alpha) values in the RGBA format
 
@@ -208,7 +210,7 @@ def create_and_save_collection_paid(tempDict, db_collection, user = None):
         rarityDictTexture = {}
     print("Creating/saving .png & .json")
     
-    os.makedirs(db_collection.path[1:])
+    # os.makedirs(db_collection.path[1:]) #TODO
     # print(texturedAssetDict)
     # getting longest layer
     longest_layer = 0
@@ -231,8 +233,6 @@ def create_and_save_collection_paid(tempDict, db_collection, user = None):
 
     # iterating over textured assets dictionary, and combining them
     for i in range(longest_layer):
-
-        timeit_start = time.time()
         img_name = f"{tempDict['ImageName']} {i+1}"
         image_to_collection_db = CollectionImage.objects.create(linked_collection=db_collection)
         image_to_collection_db.name = img_name
@@ -262,62 +262,30 @@ def create_and_save_collection_paid(tempDict, db_collection, user = None):
 
         def pil_to_aws(pil_image, format="PNG"):
             in_mem_file = BytesIO()
-
-            # format here would be something like "JPEG". See below link for more info.
             pil_image.save(in_mem_file, format=format)
-            return in_mem_file.getvalue()
+            return ContentFile(in_mem_file.getvalue())
+        
+        aws_media_storage_manipulator = AwsMediaStorageManipulator()
 
-        current_image_path = f"{db_collection.path}/{alphanum_random(6)}.png"
+        current_image_path = f"{db_collection.path}/{image_to_collection_db.name}.png" ##IMPORTANT FOR REVERSE
 
-        # cv2img = cvtColor(np.array(im), COLOR_RGB2BGR)
-        # imwrite(current_image_path[1:], cv2img)
+        aws_media_storage_manipulator.save(current_image_path, pil_to_aws(im)) #upload the image to S3
+        image_to_collection_db.path = aws_media_storage_manipulator.create_secure_url(path_to_object=current_image_path, expire=604800) ##generate safe url and save to db
 
-        s3 = boto3.client('s3', aws_access_key_id=AWS_ACCESS_KEY_ID, aws_secret_access_key= AWS_SECRET_ACCESS_KEY)
+        if tempDict["Resolution_x"] > 1000 and tempDict["Resolution_y"] > 1000: ##compress if image is too big
+            im.thumbnail((200,200)) #comress to thumbnail size
+            compressed_image_path = current_image_path.replace(".png", "_tbl.png")
 
-        s3.put_object ( #upload main image to s3
-            Body = pil_to_aws(im), 
-            Bucket = AWS_STORAGE_BUCKET_NAME,
-            Key = f"media/{current_image_path}",
-        )
-
-        im.thumbnail((200,200)) #comress to thumbnail size
-        compressed_image_path = current_image_path.replace(".png", "_tbl.png")
-
-        s3.put_object( #upload thumbnail to s3
-            Body = pil_to_aws(im),
-            Bucket = AWS_STORAGE_BUCKET_NAME,
-            Key = f"media/{compressed_image_path}",
-        )
-        # folder_name = f"media/users/{request.user.username}/collections/{calebs_gay_dict['CollectionName'].strip().replace(' ', '_')}"
-        # s3.put_object(Bucket=AWS_STORAGE_BUCKET_NAME, Key=(folder_name+'/'))
-        # db_collection.path = folder_name
-
-        # im.save(current_image_path[1:], "PNG")
-
-        # compressed_image_path = current_image_path.replace(".png", "_tbl.png")
-
-        # im.thumbnail((200,200)) #comress to thumbnail size
-        # im.save(f"{compressed_image_path[1:]}", "PNG") #save thumbnail
-
-        # cv2img = resize(cv2img, dsize=[compressed_x, compressed_y], interpolation=INTER_AREA)
-        # imwrite(compressed_image_path[1:], cv2img)
-
-        image_to_collection_db.path = current_image_path
-        image_to_collection_db.path_compressed = compressed_image_path #save thumbnail path
+            aws_media_storage_manipulator.save(compressed_image_path, pil_to_aws(im)) #upload the image to S3
+            image_to_collection_db.path_compressed = aws_media_storage_manipulator.create_secure_url(path_to_object=compressed_image_path, expire=604800) ##generate safe url and save to db
+            
         image_to_collection_db.save()
-        timeit_end = time.time()
+
         if user.credits <= 0:
             return
         else:
             user.credits -= 1
             user.save()
-            
-        print(f"Image {img_name} has been saved onto server (normal+compressed). Time taken: {timeit_end-timeit_start:.2f}s")
-
-        # with open(
-        #     f"{collection_path}/{tempDict['CollectionName']}#{i}.json", "w"
-        # ) as json_file:
-        #     json.dump(temp_json, json_file)
     print("Finished generation")
 
 def create_and_save_collection_free(tempDict):
