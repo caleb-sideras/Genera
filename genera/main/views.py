@@ -3,6 +3,7 @@ from django.shortcuts import render
 from main.helper_functions import nft_storage_api_store
 from main.view_tools import *
 from genera.settings import DEFAULT_FROM_EMAIL, STRIPE_PRIVATE_KEY
+from genera.s3_storage import AwsMediaStorageManipulator
 from main.models import User
 from main.forms import *
 from main.generator_alg import *
@@ -494,13 +495,13 @@ def mint_view(request, username, collection_name):
 
     return render(request, "user_mint.html", context)
 
-@receiver(pre_delete, sender=UserCollection)
-def model_delete(sender, instance, **kwargs):
-    try:
-        shutil.rmtree(instance.path[1:])
-        # print("Collection folder deleted from server succesfully")
-    except:
-        print("Deletion of files failed OR files did not exist in the first place")
+# @receiver(pre_delete, sender=UserCollection)
+# def model_delete(sender, instance, **kwargs):
+#     try:
+#         shutil.rmtree(instance.path[1:])
+#         # print("Collection folder deleted from server succesfully")
+#     except:
+#         print("Deletion of files failed OR files did not exist in the first place")
 
 def all_collections_view(request, username):
     context = {}

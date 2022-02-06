@@ -43,6 +43,8 @@ EMAIL_FROM_ADDRESS = 'artemlimo@gmail.com'
 DEFAULT_FROM_EMAIL = 'artemlimo@gmail.com'
 EMAIL_USE_TLS = True
 
+DEPLOYMENT_INSTANCE = 'RDS_DB_NAME' in os.environ
+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True #TODO: Make this FALSE when all is done..
 
@@ -98,7 +100,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'genera.wsgi.application'
 
-if 'RDS_DB_NAME' in os.environ:
+if DEPLOYMENT_INSTANCE:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.mysql',
@@ -176,11 +178,12 @@ STRIPE_PRIVATE_KEY = "sk_test_51K9ckjDlWp2mVdKSxhtGeV44FHSaO7z89AYlxltSqY6hnSRHP
 STRIPE_WEBHOOK_SECRET = "cbya-zuur-cfbo-smeo-help"#maybe
 
 #AWS BUCKET STUFF
-AWS_ACCESS_KEY_ID = 'AKIAYWR7VJZHQI73U2X4'
-AWS_SECRET_ACCESS_KEY = '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'
-AWS_STORAGE_BUCKET_NAME = 'genera-media'
-AWS_S3_REGION_NAME = 'us-east-2'
-AWS_S3_SIGNATURE_VERSION = 's3v4'
-AWS_S3_CUSTOM_DOMAIN = f'https://{AWS_STORAGE_BUCKET_NAME}.s3.{AWS_S3_REGION_NAME}.amazonaws.com/'
+if DEPLOYMENT_INSTANCE:
+    AWS_ACCESS_KEY_ID = 'AKIAYWR7VJZHQI73U2X4'
+    AWS_SECRET_ACCESS_KEY = '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'
+    AWS_STORAGE_BUCKET_NAME = 'genera-media'
+    AWS_S3_REGION_NAME = 'us-east-2'
+    AWS_S3_SIGNATURE_VERSION = 's3v4'
+    AWS_S3_CUSTOM_DOMAIN = f'https://{AWS_STORAGE_BUCKET_NAME}.s3.{AWS_S3_REGION_NAME}.amazonaws.com/'
 
-DEFAULT_FILE_STORAGE = 'genera.s3_storage.AwsMediaStorageManipulator'
+    DEFAULT_FILE_STORAGE = 'genera.s3_storage.AwsMediaStorageManipulator'

@@ -8,6 +8,7 @@ from main.view_tools import staticify
 import string
 import time
 from io import BytesIO
+from genera.settings import DEPLOYMENT_INSTANCE
 from genera.s3_storage import AwsMediaStorageManipulator
 from django.core.files.base import ContentFile
 
@@ -208,7 +209,8 @@ def create_and_save_collection_paid(tempDict, db_collection, user = None):
         rarityDictTexture = {}
     print("Creating/saving .png & .json")
     
-    # os.makedirs(db_collection.path[1:]) #TODO
+    # if not DEPLOYMENT_INSTANCE:
+    #     os.makedirs(db_collection.path[1:])
     # print(texturedAssetDict)
     # getting longest layer
     longest_layer = 0
