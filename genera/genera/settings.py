@@ -103,7 +103,7 @@ if 'RDS_DB_NAME' in os.environ:
         'default': {
             'ENGINE': 'django.db.backends.mysql',
             'NAME': os.environ['RDS_DB_NAME'],
-            'USER': "genera",#os.environ['RDS_USERNAME']
+            'USER': "generadb",#os.environ['RDS_USERNAME']
             'PASSWORD': "'g'9F~;<xkmr)~^Z",
             'HOST': os.environ['RDS_HOSTNAME'],
             'PORT': os.environ['RDS_PORT'],
