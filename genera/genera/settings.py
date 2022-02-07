@@ -53,7 +53,8 @@ if DEBUG:
     mimetypes.add_type("application/javascript", ".js", True)
 
 #172.31.24.181 is the single EC2 instance private ip !!!!
-ALLOWED_HOSTS = ['localhost','genera.link','www.genera.link', 'genera.us-east-2.elasticbeanstalk.com', '172.31.24.181']
+#ec2-3-134-42-144.us-east-2.compute.amazonaws.com
+ALLOWED_HOSTS = ['localhost','genera.link','www.genera.link', 'genera.us-east-2.elasticbeanstalk.com', '172.31.24.181', 'ec2-3-134-42-144.us-east-2.compute.amazonaws.com']
 
 # Application definition
 APPS = ['main', 'payments']
