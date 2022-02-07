@@ -212,6 +212,8 @@ def create_and_save_collection_paid(tempDict, db_collection, user = None):
     for value in texturedAssetDict:
         if len(texturedAssetDict[value]) > longest_layer:
             longest_layer = len(texturedAssetDict[value])
+    if longest_layer > tempDict['CollectionSize']:
+        return False
     db_collection.collection_size = longest_layer
     db_collection.save()
 
@@ -275,11 +277,6 @@ def create_and_save_collection_paid(tempDict, db_collection, user = None):
         image_to_collection_db.path_compressed = compressed_image_path #save thumbnail path
         image_to_collection_db.save()
         timeit_end = time.time()
-        if user.credits <= 0:
-            return
-        else:
-            user.credits -= 1
-            user.save()
             
         print(f"Image {img_name} has been saved onto server (normal+compressed). Time taken: {timeit_end-timeit_start:.2f}s")
 
@@ -288,6 +285,7 @@ def create_and_save_collection_paid(tempDict, db_collection, user = None):
         # ) as json_file:
         #     json.dump(temp_json, json_file)
     print("Finished generation")
+    return True
 
 def create_and_save_collection_free(tempDict):
     print(tempDict["CollectionName"])

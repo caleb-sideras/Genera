@@ -11,8 +11,8 @@ urlpatterns = [
     # include other apps
     path("", main_view, name="main_view"),
     path("upload", upload_view, name="upload"),
-    path("login", login_view, name="login"),
-    path("login/<path:current_extension>", login_view, name="login"),
+    path("loginweb2", login_view, name="login"),
+    path("loginweb2/<path:current_extension>", login_view, name="login"),
     path("logout", logout_view, name="logout"),
     path("logout/<path:current_extension>", logout_view, name="logout"),
     path("register", register_view, name="register"),
@@ -26,6 +26,7 @@ urlpatterns = [
     path("user/<str:username>/collections", all_collections_view, name="all_collections"),
     path("user/<str:username>/collections/<str:collection_name>", collection_view, name="collection"),
     # path("create-checkout-session", checkout_session, name="create-checkout-session")
-    path("mint", mint_view, name="mint")
+    path("mint", public_mint_view, name="mint"),
+    path("login", login_options_view, name="login_options")
 ]
  

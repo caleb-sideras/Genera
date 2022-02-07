@@ -156,7 +156,6 @@ function open_images(self){
                         console.log(response["server_message"])
                         card_element.remove()
                     })
-                    close_yes_no_popup()
                 }
                 (document.body).children[0].remove() // TODO fix
 
@@ -325,9 +324,6 @@ async function delete_duplicates(){
                         location.reload();
                     })
             }
-            close_yes_no_popup()
-            // (document.body).children[0].remove()
-
         })
 }
 
@@ -342,9 +338,6 @@ async function delete_collection(){
                         window.location = "http://localhost:8000/";
                     })
             }
-            close_yes_no_popup()
-            // (document.body).children[0].remove()
-
         })
 }
 

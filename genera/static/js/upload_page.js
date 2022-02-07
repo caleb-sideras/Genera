@@ -23,11 +23,8 @@ function main() {
     document.getElementById("upload_button_submit").addEventListener("click", () => {
         yes_no_popup('Generate Collection?', 'Yes', 'No').then((response) =>{
             if (response) {
-                close_yes_no_popup();
                 validate_and_post_ajax_form();
             }
-            else 
-                close_yes_no_popup()
         })
     })
 
@@ -1128,8 +1125,8 @@ async function validate_and_post_ajax_form() {
     ajax_post_form(form_data)
         .then(response => {
             console.log(response)
-            if (typeof response["url"] !== 'undefined'){
-                // window.location.replace(response["url"]) //redirect to the new collection
+            if (typeof response["url"] != 'undefined'){
+                window.location.replace(response["url"]) //redirect to the new collection
             }
             else if(response['images']){
                 let zip = new JSZip();

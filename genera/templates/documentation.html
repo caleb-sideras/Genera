@@ -8,7 +8,7 @@
 
 <div class="docs_row">
     <h3 class="no_margin">Docs</h3>
-    <h3 class="no_margin" style="color: grey; font-weight: normal;">Tutorials</h3>
+    <!-- <h3 class="no_margin" style="color: grey; font-weight: normal;">Tutorials</h3> -->
 </div>
 
 <div class="docs_wrapper">
@@ -38,73 +38,184 @@
     <div class="docs_content">
         <div id="smart_contract" style="display: none;">
             <h1>Smart Contract</h1>
+            <p>Genera takes a 4.9% fee for each inital mint of an NFT on your smart contract.</p>
+            <h3>ERC-1155</h3>
+            <p>The distinctive feature of ERC1155 is that it uses a single smart contract to represent multiple tokens at once. This is why its balanceOf function differs from ERC20's and ERC777's: it has an additional id argument for the identifier of the token that you want to query the balance of. 
+
+            <br><br>This is similar to how ERC721 does things, but in that standard a token id has no concept of balance: each token is non-fungible and exists or doesn't. The ERC721 balanceOf function refers to how many different tokens an account has, not how many of each. On the other hand, in ERC1155 accounts have a distinct balance for each token id, and non-fungible tokens are implemented by simply minting a single one of them.
+            
+            <br><br>This approach leads to massive gas savings for projects that require multiple tokens. Instead of deploying a new contract for each token type, a single ERC1155 token contract can hold the entire system state, reducing deployment costs and complexity.</p>
+
             <h3>Open Zeppelin</h3>
-            <p>Genera's NFT smart contract inherits from the Open-Zeppelin-ERC721-3.4.0 contract. Open Zeppelin is an audited, trusted producer of verifiably safe smart contracts. Specifically, their ERC721 contracts have been used to mint 100s of thousands of NFTs. This contract will allow your NFTs to be sold on any Ethereum NFT marketplace.</p>
+            <p>Genera's NFT smart contract inherits from ERC1155.sol, Ownable.sol and Strings.sol. <a target="_blank" style="color:var(--main-color); text-decoration: underline;" href="https://openzeppelin.com/">Open Zeppelin</a> is an audited, trusted producer of verifiably safe smart contracts. Specifically, their ERC-721 and ERC-1155 contracts have been used to mint 100s of thousands of NFTs. This contract will allow your NFTs to be sold on any Ethereum NFT marketplace.</p>
             <h3>Contract Ownership</h3>
-            <p>Only the owner (address that deployed the smart  contract) can mint NFTs on the contract. This ensures only you, the owner, can make state changes on the blockchain involving the contract. Furthermore, you will be able to add NFTs to your contract using external websites, and/or by writing your own code.</p>
-            <!-- <h3>Etherscan</h3>
-            <p>Genera has implemented the Etherscan api into the contracts, thus allowing your deployed contracts to be viewed and interacted with on Etherscan.</p> -->
-            <p class="roadmap">Roadmap: We intend to add functionality that will enable users to mint their NFT collections to more blockchains. Q1 2022 - Solana & Polygon blockchain support will be added.</p>
-            <pre>// SPDX-License-Identifier: MIT
+            <p>Only the owner (wallet that deployed the contract) can change key variables within the contract (i.e. Max NFTs per wallet, NFT costs etc). Therefore, please secure your NFT wallet. </p>
+            <h3>Etherscan</h3>
+            <p>Use the contract below, to verify your smart contract on Etherscan.</p>
+            <p class="roadmap">Roadmap: We intend to add functionality that will enable users to mint their NFT collections to more blockchains. Solana blockchain support will be added first.</p>
+            <pre>
+pragma solidity ^0.8.7;
 
-pragma solidity 0.6.6;
-
-import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/utils/Strings.sol";
 
-contract NFTGenerator is ERC721, Ownable {
-    uint256 public tokenCounter;
+contract GeneraPublicMintContract is ERC1155, Ownable {
+    string public name;
+    string public symbol;
+    string public baseUri;
 
-    constructor(string memory _name, string memory _symbol)
-        public
-        ERC721(_name, _symbol)
-    {
-        tokenCounter = 0;
+    uint256 public cost = 0.05 ether;
+    uint32 public maxPerMint = 5;
+    uint32 public maxPerWallet = 20;
+    uint32 public supply = 0;
+    uint32 public totalSupply = 0;
+    bool public open = false;
+
+    uint32 private commission = 49; // 4.9%
+    address payable commissionAddress =
+        payable(0x36aCd77CA5bF2c84C0a60786581b322546d68193);
+
+    constructor(
+        string memory _uri,
+        string memory _name,
+        string memory _symbol,
+        uint32 _totalSupply,
+        uint256 _cost,
+        bool _open
+    ) ERC1155(_uri) {
+        baseUri = _uri;
+        name = _name;
+        symbol = _symbol;
+        totalSupply = _totalSupply;
+        cost = _cost;
+        open = _open;
     }
 
-    function createNewNFT(string memory _tokenURI) public onlyOwner {
-        uint256 newTokenId = tokenCounter;
-        _safeMint(msg.sender, newTokenId); // openzeppelin safe mint
-        _setTokenURI(newTokenId, _tokenURI); // openzeppelin set token uri
-        tokenCounter = tokenCounter + 1;
+    function setURI(string memory _uri) public onlyOwner {
+        _setURI(_uri);
+    }
+
+    function setCost(uint256 _cost) public onlyOwner {
+        cost = _cost;
+    }
+
+    function setOpen(bool _open) public onlyOwner {
+        open = _open;
+    }
+
+    function setmaxPerWallet(uint32 _max) public onlyOwner {
+        maxPerWallet = _max;
+    }
+
+    function setMaxPerMint(uint32 _max) public onlyOwner {
+        maxPerMint = _max;
+    }
+
+    function _mint(address to, uint32 count) internal {
+        if (count > 1) {
+            uint256[] memory ids = new uint256[](uint256(count));
+            uint256[] memory amounts = new uint256[](uint256(count));
+
+            for (uint32 i = 0; i < count; i++) {
+                ids[i] = supply + i + 1; // Start at 1
+                amounts[i] = 1;
+            }
+
+            _mintBatch(to, ids, amounts, "");
+        } else {
+            _mint(to, supply + 1, 1, "");
+        }
+
+        supply += count;
+
+        (bool success, ) = payable(commissionAddress).call{
+            value: (msg.value * commission) / 1000
+        }("");
+        require(success);
+    }
+
+    function mint(uint32 count) external payable {
+        require(count > 0, "Mint at least one.");
+        require(count <= maxPerMint, "Max mint reached.");
+        require(msg.value >= cost * count, "Not enough fund.");
+        require(supply + count <= totalSupply, "Mint sold out");
+        require(open == true, "Mint not open");
+        require(
+            balanceOf(msg.sender) + count <= maxPerWallet,
+            "Max total mint reached"
+        );
+
+        _mint(msg.sender, count);
+    }
+
+    function balanceOf(address account) public view returns (uint256) {
+        uint256 balance = 0;
+        for (uint256 i = 0; i <= supply; i++) {
+            if (balanceOf(account, i) == 1) {
+                balance += 1;
+            }
+        }
+        return balance;
+    }
+
+    function airdrop(address[] calldata to) public onlyOwner {
+        for (uint32 i = 0; i < to.length; i++) {
+            require(1 + supply <= totalSupply, "Limit reached");
+            _mint(to[i], 1);
+        }
+    }
+
+    function withdraw() public payable onlyOwner {
+        (bool success, ) = payable(msg.sender).call{
+            value: address(this).balance
+        }("");
+        require(success);
+    }
+
+    function uri(uint256 _tokenId)
+        public
+        view
+        override
+        returns (string memory)
+    {
+        require(_tokenId <= supply, "Not minted yet");
+
+        return
+            string(
+                abi.encodePacked(baseUri, Strings.toString(_tokenId), ".json")
+            );
     }
 }
 </pre>
         </div>
         <div id="minting" style="display: none;">
             <h1>Minting</h1>
+
             <h3>Double-Mint Protection</h3>
-            <p>Our highest priority when developing the minting process, was that under no circumstances could an NFT be double minted. Specifically, the same NFT being unintentionally minted twice on the same smart contract. We have 3 major safety checks that will prevent this from happening.</p>
-            <!-- <h4>Database integration with Metamask</h4>
-            <p>Genera will save all public transaction information when you make state changes on Ethereum using your Metamask wallet; this will only be done when you explicitly deploy/mint a collection using our website. This information includes deployment addresses, contract addresses, transaction hashes, block hashes and tokenURIs. This ensures while Genera is connected to Metamask, all transactions can be verified and an NFT cannot be minted twice.</p> -->
-            <h4>Smart Contract Interaction</h4>
-            <p>In the event that your browser and/or Metamask wallet is intentionally or unintentionally closed during the minting process, Genera will use an Infura node to interact with the smart contract and verify which NFTs that have been minted. This data is then compared with our database and updates any irregularities.</p>
-            <h4>Loading screen integration with Metamask</h4>
-            <p>While a transaction is pending/processing, any interaction with Genera is prevented by using a loading screen. This prevents users from unintentionally trying to mint the same nft while it's being verified on the blockchain.</p>
-            <h4>Failed Transactions</h4>
-            <p>The only time that would constitute an NFT having more than one mint being sent to the network, would be if the initial transaction could not be verified (i.e. not enough gas, network disruption etc).</p>
+            <p>Since Genera uses an ERC-1155 contract and the CAR format for IPFS deployment, this makes different people minting the same NFT on the smart contract virtually impossible.</p>
+
             <h3>Low Gas Fees</h3>
-            <p>Since all computation involving the generation of the collection (i.e. image pasting, texture mapping, rarity generation, metadata creation, IFPS deployment etc) is done on Genera servers, the only state changes that are required on the Blockchain is the initial contract deployment and the individual mints of the NFTs. This results in comparably very low gas fees when deploying your collection.</p>
+            <p>Since all computation involving the generation/storage of the collection (i.e. texture mapping, rarity generation, metadata creation, IFPS deployment etc) is done off-chain, the only state changes that are required on the Blockchain is the initial contract deployment and the individual mints of the NFTs. Furthermore, Genera uses a ERC-1155 contract which results in comparably very low gas fees when minting an NFT from your collection.</p>
         </div>
         <div id="generation" style="display: none;">
             <h1>Generation Algorithm</h1>
-            <p>Genera uses a proprietary generative NFT generation algorithm. It makes use of various libraries including but not limited to Pillow, Numpy and Math.</p>
+            <p>Genera uses a proprietary generative NFT generation algorithm.</p>
             <h3>Rarity Control</h3>
-            <p>Users can choose exactly how many times they would like an asset/texture to appear in their collection. In addition, the user can control how NFTs they would like to be generated inside their collection. Genera’s rarity control extends to asset and texture combinations, allowing for random combinations of different assets and textures. Furthermore, if the user's rarity preferences result in a collection size that is less than the user specified amount, the algorithm will dynamically allocate the collection size based on the generated output.</p>
+            <p>Users can choose exactly how many times they would like an asset/texture to appear in their collection. In addition, the user can control how many assets they would like to be generated inside their collection. Genera's rarity control extends to asset and texture combinations, allowing for random combinations of different assets and textures. Furthermore, if the user's rarity preferences result in a collection size that is less than the user specified amount, the algorithm will dynamically allocate the collection size based on the generated output.</p>
             <h3>Texture Mapping</h3>
-            <p>Genera allows for user uploaded textures to be mapped onto plain and/or textured assets. This works by the user selecting a universal color that is present on all the assets that would be texture mapped. Then the user would upload the textures to the corresponding layers, choose the individual rarities for the textures and assets, then generate. The algorithm would then apply these textures to the assets and present them in the final collection ready for minting.</p>
+            <p>Genera allows for user uploaded textures to be mapped onto plain and/or textured assets. This works by the user selecting a universal color that is present on all the assets that would be texture mapped. Then the user would upload the textures to the corresponding layers, choose the individual rarities for the textures and assets, then generate. The algorithm would then apply these textures to the assets and present them in the final collection.</p>
             <h3>Metadata Creation</h3>
-            <p>Genera generates ERC721 compliant metadata for each NFT it produces. The metadata shows the name, description and all the unique properties of the NFT (layer names, asset names, asset/texture combinations etc). The user will be able to edit the name and description of each NFT, but not the properties. This is done for collection integration.</p>
-            <p class="roadmap">Roadmap: Q1 2022 - More complex, layer/asset/texture specific rarity controls. Multiple texture mapping colors/layers. Gif/Video support.</p>
+            <p>Genera generates EIP-721 compliant metadata for each NFT it produces. The metadata shows the name, description and all the unique properties of the NFT (layer names, asset names, asset/texture combinations etc). The user will be able to edit the name and description of each NFT, but not the properties. This is done for collection integration.</p>
+            <p class="roadmap">Roadmap: More complex asset/texture specific rarity controls. Multiple texture mapping colors/layers. Gif/Video support.</p>
         </div>
         <div id="metadata" style="display: none;">
             <h1>Metadata Storage (IPFS)</h1>
-            <p>Genera uses Pinata to safely and securely deploy your metadata to IPFS. Pinata is an industry wide recognised IFPS deployment platform. They provide secure storage of your metadata using decentralized nodes on IFPS. </p>
+            <p>Genera uses <a target="_blank" style="color:var(--main-color); text-decoration: underline;" href="https://nft.storage/">NFT Storage</a> to safely and securely store your metadata on IPFS. NFT Storage was developed by the team behind IPFS and Filecoin, to enable creators to store their NFT metadata in a decentralized manner. It is an industry wide recognized deployment platform.</p>
             <h3>API Keys</h3>
-            <p>Our Pinata API key permissions only pertain to deployment of metadata, therefore making it impossible for your data to be deleted via an API key leak.</p>
-            <h3>Recommendations</h3>
-            <p>Post Pinata deployment, we still recommend that you run a local IFPS node with all your metadata, for the sake of decentralization. All your deployed metadata information (IFPS hashes) can be found on your collection pages.</p>
-            <p class="roadmap">Roadmap: Future implementations of IPFS deployment involve Filecoin incentives, Genera node IFPS deployments, solely user node IFPS deployments, and multiple Pinata Node deployments.</p>
+            <p>All interactions with the NFT Storage API are done from Genera servers, therefore no API keys can be exposed via front-end deployment.</h3>
+            <p>Post NFT Storage deployment, we still recommend that you run a local IFPS node with all your metadata, for the sake of decentralization. All your deployed metadata information (IFPS hashes) can be found on your collection/profile pages.</p>
+            <p class="roadmap">Roadmap: Future implementations of IPFS deployment involve Genera nodes and soley user node deployments.</p>
         </div>
     </div>
 </div>

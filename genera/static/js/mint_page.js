@@ -639,6 +639,8 @@ async function main() {
 
     contract_address = js_vars.dataset.contract_address
     chain_id = js_vars.dataset.chain_id
+    is_owner = (js_vars.dataset.is_owner.toLowerCase() === 'true');
+        
     if (chain_id == "0x1") {
         var provider = "https://mainnet.infura.io/v3/d6c7a2d0b9bd40afa49d2eb06cc5baba"
         token_name = 'Ether'
@@ -647,15 +649,16 @@ async function main() {
         var provider = "https://rinkeby.infura.io/v3/d6c7a2d0b9bd40afa49d2eb06cc5baba"
         token_name = 'Ether'
     }
-    else if (chain_id == "0x89"){
+    else if (chain_id == "0x89" || chain_id == "0x137"){
+        chain_id = "0x89"
         var provider = "https://polygon-mainnet.infura.io/v3/d6c7a2d0b9bd40afa49d2eb06cc5baba"
         token_name = 'MATIC'
     }
-    else if (chain_id == "0x13881"){
+    else if (chain_id == "0x13881" || chain_id == "0x80001"){
+        chain_id = "0x13881"
         var provider = "https://polygon-mumbai.infura.io/v3/d6c7a2d0b9bd40afa49d2eb06cc5baba"
         token_name = 'MATIC'
     }
-
     active_account = null
     web3 = new Web3(Web3.givenProvider)
     web3_infura = new Web3(new Web3.providers.HttpProvider(provider));
@@ -663,6 +666,16 @@ async function main() {
     await get_all_contract_info(contract_address, abi_json)
     
     mint_cards = document.querySelectorAll(".nft_image")
+    open_status_text = document.querySelector(".open_status")
+    if (is_owner) {
+        toggle_button = document.querySelector(".switch").children[0]
+        set_open_status()
+    }
+    else{
+        set_open_status_public()
+    }
+    
+    mint_button = document.querySelector("#mint_button")
 
     let list_bool = await init_images()
     if (list_bool) {
@@ -683,6 +696,7 @@ async function get_all_contract_info(contract_address, abi_json){
     totalSupply = parseInt(_totalSupply)
     mintCostWei = await contract.methods.cost().call()
     base_uri = await contract.methods.baseUri().call()
+    open_bool = await contract.methods.open().call()
 }
 async function init_images() {
     let uri_list = []
@@ -760,6 +774,23 @@ function abi_token_uri(amount) {
     );
     return token_uri;
 }
+function set_open(status){
+    let set_open = web3.eth.abi.encodeFunctionCall({
+        "inputs": [
+            {
+                "internalType": "bool",
+                "name": "_open",
+                "type": "bool"
+            }
+        ],
+            "name": "setOpen",
+                "outputs": [],
+                    "stateMutability": "nonpayable",
+                        "type": "function"
+    }, [status]
+    );
+    return set_open;
+}
 function total_mint(){
     document.querySelector(".mint_supply").innerHTML = `${supply} of ${totalSupply} minted`
 }
@@ -787,7 +818,7 @@ async function mint(amount){
                             // gas: '0x210000',//180-200k usually
                             gasLimit: '0x21000000',
                             data: abi_token_uri(parseInt(amount)),
-                            chainId: chain_id,
+                            chainId: chain_id.toString(),
                             value: (parseFloat(mintCostWei) * parseInt(amount)).toString(16)
                         },
                     ],
@@ -846,5 +877,70 @@ async function startApp(provider) {
             });
 
     }
+}
+async function toggle_contract_status() {
+    try {
+        await metamask_check().then(async () => {
+            await get_chainid().then(async () => {
+                await ethereum
+                    .request({
+                        method: 'eth_sendTransaction',
+                        params: [
+                            {
+                                from: active_account,
+                                to: contract_address,
+                                // gas: '0x210000',//180-200k usually
+                                gasLimit: '0x21000000',
+                                data: set_open(!open_bool),
+                                chainId: chain_id.toString()
+                            },
+                        ],
+                    })
+                    .then(function (txHash) {
+                    })
+                    .catch((error) => {
+                        console.log('Failed Transaction')
+                        setButton()
+                        toggleText()
+                    });
+            })
+        })
+    } catch (error) {
+        setButton()
+        toggleText()
+    }
+    
+}
+function set_open_status(){
+    toggle_button.addEventListener('click', function () { toggle_contract_status() })
+    if (open_bool) {
+        open_status_text.innerText = "Open"
+        toggle_button.checked = true
+    }
+    else{
+        open_status_text.innerText = "Closed"
+        mint_button.disabled = true
+    }
+}
+function set_open_status_public() {
+    if (open_bool) {
+        mint_button.disabled = false
+    }
+    else {
+        mint_button.disabled = true
+    }
+}
+function toggleText(){
+    if (open_status_text.innerText == "Closed") {
+        open_status_text.innerText = "Open"
+        mint_button.disabled = false
+    }else{
+        open_status_text.innerText = "Closed"
+        mint_button.disabled = true
+    }
+    
+}
+function setButton(){
+    toggle_button.checked = open_bool
 }
 window.addEventListener('DOMContentLoaded', main)

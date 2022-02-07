@@ -8,19 +8,27 @@
 {% endblock %}
 
 {% block body_block %}
-<input type="hidden" id="js_vars" data-contract_address='{{contract_address}}' data-chain_id='{{chain_id}}'/>
+<input type="hidden" id="js_vars" data-contract_address='{{contract_address}}' data-chain_id='{{chain_id}}' data-is_owner='{{isOwner}}'/>
 <div class="mint_wrapper">
     <div class="mint_body">
-        {% if owner %}
-
-        {% else %}
-
-        {% endif %}
 
         {% if owner %}
-            <div class="mint_title center"> 
-                <h1 class="no_margin">{{collection_name}}</h1>             
-                <h2 class="no_margin">by {{owner.username}}</h2>
+            <div class="mint_title_wrapper">
+                <div class="mint_title center"> 
+                    <h1 class="no_margin">{{collection_name}}</h1>             
+                    <h2 class="no_margin">by {{owner.username}}</h2>
+                </div>
+                {% if request.user.is_authenticated %}
+                    <div>
+                        <h3 class="open_status" style="margin:0">Closed</h3>
+                        <label class="switch">
+                            <input type="checkbox" onclick="toggleText()">
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                {% else %}
+
+                {% endif %}
             </div>
         
             <div class="mint_card shadow_strong rounded_container_no_padding">
@@ -33,9 +41,9 @@
             </div>
             <div class="mint_buttons_wrapper">
                 <div class="mint_buttons center">
-                    <div class="rounded_container grow card_main_color_background shadow_strong" onclick="mint(this.nextElementSibling.value)">
+                    <button type="button" class="rounded_container grow card_main_color_background shadow_strong" id="mint_button" onclick="mint(this.nextElementSibling.value)">
                         <h2 class="no_margin">MINT</h2>
-                    </div>
+                    </button>
                     <select id="mint_select" name="select" class="card_main_color_background rounded_container shadow_strong">
                         <option value="1">1</option>
                         <option value="2">2</option>

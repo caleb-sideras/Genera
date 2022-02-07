@@ -8,7 +8,7 @@
 {% endblock %}
 
 {% block body_block %}
-<input type="hidden" id="js_vars" data-ajax_url='{{ajax_url}}'' data-user_login='{{user.is_authenticated}}'>
+<input type="hidden" id="js_vars" data-ajax_url='{{ajax_url}}' data-user_login='{{user.is_authenticated}}'>
 
 <form method="post" id="upload_form" enctype="multipart/form-data" class="upload_wrapper">
   {% csrf_token %}
@@ -153,8 +153,6 @@
       >
         <h4 class="no_margin generate">Generate</h4>
       </button>
-      <!-- button not needed below -->
-      <input type="submit" style="display:none;">
 
       <div style="display: none;" class="update_layer_parameters_menu rounded_container shadow_strong">
         <h3 class="no_margin center">Layer Properties</h3>

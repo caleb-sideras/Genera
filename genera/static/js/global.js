@@ -238,13 +238,15 @@ async function yes_no_popup(query, yes, no){
     document_body.prepend(popup_container)
     
     return new Promise((res) => {
-        yes_button.onclick = () => res(true);
-        no_button.onclick = () => res(false);
+        yes_button.onclick = () => {res(true), close_yes_no_popup()};
+        no_button.onclick = () => {res(false), close_yes_no_popup()};
     });
 }
 
 function close_yes_no_popup() {
-    document.getElementsByClassName("popup_wrapper")[0].remove()
+    if (document.getElementsByClassName("popup_wrapper")[0]){
+        document.getElementsByClassName("popup_wrapper")[0].remove()
+    }
 }
 
 function button_cooldown(){

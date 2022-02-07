@@ -71,7 +71,7 @@ class User(AbstractBaseUser, PermissionsMixin, Model):
     date_joined = models.DateTimeField(default=timezone.now)
 
     is_staff = models.BooleanField(default=False)
-    credits = models.IntegerField(default=50) # discuss
+    credits = models.IntegerField(default=0) 
 
     USERNAME_FIELD = 'username'
     EMAIL_FIELD = 'email'
@@ -108,14 +108,14 @@ class UserAsset(Model):
 class UserCollection(Model):
 
     collection_name = models.CharField(max_length=50, unique=False)
-    description = models.CharField(max_length=300, unique=False)
-    dimension_x = models.IntegerField(default=4000)
-    dimension_y = models.IntegerField(default=4000)
+    description = models.CharField(max_length=300, unique=False) # not needed?
+    dimension_x = models.IntegerField(default=4000) # not needed?
+    dimension_y = models.IntegerField(default=4000) # not needed?
     collection_size = models.IntegerField(default=10)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     path = models.CharField(max_length=250)
     token_name = models.CharField(max_length=9) # wait till deploy?
-    image_name = models.CharField(max_length=10)
+    image_name = models.CharField(max_length=10) # not needed?
     duplicates_deleted = models.BooleanField(default=False)
 
     # IFPS
@@ -134,6 +134,9 @@ class UserCollection(Model):
     
     # Smart Contract Private
     tokens_deployed = models.BooleanField(default=False)
+
+    # Public Mint
+    public_mint = models.BooleanField(default=False)
 
 class CollectionImage(Model):
     linked_collection = models.ForeignKey(UserCollection, on_delete=models.CASCADE)
