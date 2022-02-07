@@ -146,7 +146,6 @@ class CollectionImage(Model):
         return str(self.name)
 
 class Token(Model):
-
     hash = models.UUIDField(default=uuid.uuid4, editable=True) #editable since we will generate new hashes every time this is requested
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True) #can be empty - if no user is tracked by the token (AnonymousUser)
 
