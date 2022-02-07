@@ -1858,7 +1858,7 @@ text-align: left;
   height: 95vh;
   align-items: center;
   position: relative;
-  background-image: "/static/Assets/Background/websitebackground2.png";
+  background-image: "/static/Assets/Background/websitebackground.png";
 }
 
 .main_upper {
@@ -1931,7 +1931,8 @@ text-align: left;
   height: 50%;
 }
 .big_card {
-  background:  linear-gradient(110deg, rgba(209,141,214,1) 20%, rgba(204,157,164,1) 100%);
+  background: #FBB88B;
+  /* background:  linear-gradient(110deg, rgba(209,141,214,1) 20%, rgba(204,157,164,1) 100%); */
   padding: 2rem;
   display: flex;
   flex-direction: column;
@@ -1953,12 +1954,10 @@ text-align: left;
   flex-direction: column;
   -webkit-box-pack: justify;
   justify-content: space-evenly;
-  /* border: 1px solid transparent; */
   height: 50%;
 }
 
 .card{
-  /* text-align: left; */
   align-items: baseline;
   cursor: pointer;
 
@@ -1966,12 +1965,9 @@ text-align: left;
 
 .card_title >h2 {
   font-weight: bold;
-  /* font-size: 20px; */
-  color: var(--text-color);
 }
 .card_title >h3 {
   font-weight:lighter;
-  /* font-size: 20px; */
   color: var(--text-color);
 }
 
@@ -1990,7 +1986,7 @@ text-align: left;
 .cover-image {
   width: 100%;
   animation: zoominoutsinglefeatured 60s infinite;
-  background-image: url("/static/Assets/Background/websitebackgroundV2.png");
+  background-image: url("/static/Assets/Background/websitebackground.png");
   height: 100%; 
 }
 
@@ -2078,7 +2074,6 @@ text-align: left;
 .payments_wrapper{
   width: 100%;  
   text-align: center;
-  /* background-image: url("credit_background.png"); */
   padding: 0px 5px;
   margin-bottom: 50px;
 }
@@ -2591,35 +2586,26 @@ display: inline-block;
   background: var(--background-color);
 }
 .about_row{
-     display: flex;
-    /* flex: 1; */
-    flex-wrap: wrap;
-    /* width: 90vw; */
-    gap: 35px;
-    /* max-width: 1000px; */
-    margin-top: 15px;
-    justify-content: center;
-     padding: 0px 10px;
-    padding-bottom: 75px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 35px;
+  margin-top: 15px;
+  justify-content: center;
+  padding: 0px 10px;
+  padding-bottom: 75px;
 }
 
 .team_card{
-    max-width: 500px;
-    /* height: 250px; */
-    background-color: var(--white-color);
-    /* background-color: var(--border-color); */
-    display: flex;
-    padding: 24px;
-    padding-left: 0px;
-    padding-bottom: 0px;
-    border-style: solid;
-    border-width: 1px;
-    border-color: var(--border-color);
+  max-width: 500px;
+  background-color: var(--white-color);
+  display: flex;
+  padding: 24px;
+  padding-left: 0px;
+  padding-bottom: 0px;
 }
 
 .team_card_info{
   width: 60%;
-  /* background-color: var(--text-button-color-2); */
   display: block;
   text-align: center;
 }
