@@ -25,6 +25,12 @@ class UserCollection_Admin(admin.ModelAdmin):
     search_fields = []
     list_filter = []
 
+class CollectionImage_Admin(admin.ModelAdmin):
+    list_display = []
+    search_fields = []
+    list_filter = []
+
 admin.site.register(User, User_Admin)
 admin.site.register(UserAsset, UserAsset_Admin)
 admin.site.register(UserCollection, UserCollection_Admin)
+admin.site.register(CollectionImage, CollectionImage_Admin)
