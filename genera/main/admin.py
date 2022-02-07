@@ -2,6 +2,12 @@ from django.contrib import admin
 from main.models import *
 from django.contrib.auth import admin as auth_admin
 
+#MIXINS
+class AdminNotVisibleMixin():
+    def get_model_perms(self, request):
+        return {}
+#END MIXINS
+
 class User_Admin(auth_admin.UserAdmin):
     fieldsets = (
         (None, {'fields': ('username','email', 'password', 'credits')}),
@@ -18,7 +24,7 @@ class User_Admin(auth_admin.UserAdmin):
 #     search_fields = []
 #     list_filter = []
 
-class CollectionImage_Admin(admin.ModelAdmin):
+class CollectionImage_Admin(AdminNotVisibleMixin, admin.ModelAdmin):
     list_display = ['linked_collection','name', 'path', 'path_compressed', 'metadata']
     search_fields = []
     list_filter = []
