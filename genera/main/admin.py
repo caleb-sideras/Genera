@@ -26,7 +26,7 @@ class UserCollection_Admin(admin.ModelAdmin):
     list_filter = []
 
 class CollectionImage_Admin(admin.ModelAdmin):
-    list_display = []
+    list_display = ['linked_collection','name', 'path', 'path_compressed', 'metadata']
     search_fields = []
     list_filter = []
 
