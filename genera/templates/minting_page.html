@@ -503,7 +503,7 @@
     emits:['close-loading'],
     template:`
     <div class="upload_properties">
-      <div class="rounded_container shadow_strong">
+      <div class="rounded_container border">
         <div style="
         padding: 10px 15px 10px  15px;
         grid-template-columns: 1fr 2fr 1fr;
@@ -515,7 +515,7 @@
         /* justify-content: end; */
         ">
         <div></div>
-        <h3 class="no_margin center" style="/* margin-bottom: 15px; */font-size: 1.3rem;/* font-weight: bold; *//* font-size: 17px; */">Metadata</h3>
+        <h3 class="no_margin center" style="font-size: 1.3rem;">Metadata</h3>
         <img src="/static/icons/expand.svg" class="expand_collapse no_margin" style="transform: rotate(0deg);height: 20px; cursor: pointer;filter: var(--dark-grey-color-2); margin: 0px;justify-self: end;" @click="dropDown1">
         </div>
         
@@ -580,7 +580,7 @@
 
       
         
-      <div class="rounded_container shadow_strong">
+      <div class="rounded_container border">
         <div style="
         padding: 10px 15px 10px  15px;
         grid-template-columns: 1fr 2fr 1fr;
@@ -618,7 +618,7 @@
         <button
           type="button"
           id="upload_button_submit"
-          class="general_button_no_border main_color_background shadow_strong rounded_container_no_padding"
+          class="general_button_no_border main_color_background border rounded_container_no_padding"
           @click="validateFields"
         >
           <h4 class="no_margin generate">Deploy Collection</h4>
@@ -627,7 +627,7 @@
         <button
           type="button"
           id="upload_button_submit"
-          class="general_button_no_border main_color_background shadow_strong rounded_container_no_padding"
+          class="general_button_no_border main_color_background border rounded_container_no_padding"
           disabled
         >
           <h4 class="no_margin generate">Deploy Collection</h4>
@@ -1010,7 +1010,7 @@
     },
     emits:['close-loading'],
     template: `
-    <div class="deploy_collection_container shadow_strong rounded_container_no_padding" style="display: block;">
+    <div class="deploy_collection_container rounded_container_no_padding" style="display: block;">
       <img class="dc_close close_button_color" src="/static/icons/remove.svg" @click="closeLoading">
       <div class="dc_content">
           <div class="dc_status_container">

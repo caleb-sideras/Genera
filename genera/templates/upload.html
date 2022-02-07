@@ -15,7 +15,7 @@
 
   <div class="upload_main">
     <div class="upload_layers_wrapper">
-      <div class="upload_section_swap rounded_container shadow_strong">
+      <div class="upload_section_swap rounded_container border">
       <img
         src="{% static 'icons/layer2.svg' %} "
         onclick="switch_tabs('layers', this)"
@@ -29,7 +29,7 @@
         
       />
     </div>
-      <div class="upload_layers rounded_container shadow_strong">
+      <div class="upload_layers rounded_container border">
       <h3 style = "display: none;">Assets</h3>
       <h3 class="no_margin center" style="margin-bottom: 15px; font-size: 1.3rem;">Layers</h3>
       <div class="upload_layers_buttons">
@@ -40,7 +40,7 @@
       </div>
       
       </div>
-      <div class="upload_layers rounded_container shadow_strong" style="display: none">
+      <div class="upload_layers rounded_container border" style="display: none">
       <h3 class="no_margin center" style="margin-bottom: 15px; font-size: 1.3rem;">Textures</h3>
       <div class="upload_layers_buttons">
       </div>
@@ -54,7 +54,7 @@
       <ul id="scroller"></ul>
     </div>
     <div class="upload_properties">
-      <div class="rounded_container shadow_strong">
+      <div class="rounded_container border">
         <h3 class="no_margin center" style="margin-bottom: 15px; font-size: 1.3rem;">Collection Properties</h3>
         <div class="upload_page_property_fields">
           <h5 class="no_margin">Collection Name</h5>
@@ -138,7 +138,7 @@
       <button
         id="preview"
         type="button"
-        class="general_button_no_border sub_color_background shadow_strong rounded_container_no_padding"
+        class="general_button_no_border sub_color_background border rounded_container_no_padding"
         onclick="preview_button(this)"
       >
         <h4 class="no_margin">Preview</h4>
@@ -149,15 +149,15 @@
       <button
         type="button"
         id="upload_button_submit"
-        class="general_button_no_border main_color_background shadow_strong rounded_container_no_padding"
+        class="general_button_no_border main_color_background border rounded_container_no_padding"
       >
         <h4 class="no_margin generate">Generate</h4>
       </button>
 
-      <div style="display: none;" class="update_layer_parameters_menu rounded_container shadow_strong">
+      <div style="display: none;" class="update_layer_parameters_menu rounded_container border">
         <h3 class="no_margin center">Layer Properties</h3>
         <div style="height:auto; margin: 10px 0; display: flex; flex-direction: column; gap: 25px; align-items: center; justify-content: space-between;">
-          <div style="text-align: center; width: 100%;">
+          <div style="text-align: center; width: 80%;">
             <h5 style="margin: 5px 0;">Layer Name</h5>
             <input class="general_input" id="layer_name_update_field" type="text">
           </div> 

@@ -1919,7 +1919,6 @@ text-align: left;
 .main_card{
   background: var(--main-card-color);
   padding: 2rem;
-  border-radius: 20px;
   display: flex;
   flex-direction: column;
   position: relative;
@@ -1934,7 +1933,6 @@ text-align: left;
 .big_card {
   background:  linear-gradient(110deg, rgba(209,141,214,1) 20%, rgba(204,157,164,1) 100%);
   padding: 2rem;
-  border-radius: 20px;
   display: flex;
   flex-direction: column;
   position: relative;
@@ -1948,16 +1946,15 @@ text-align: left;
 }
 .small_card {
   background: linear-gradient(110deg, rgba(119,180,158,1) 20%, rgba(156,154,154,1) 100%);
-      position: relative;
-    overflow: hidden;
-    padding: 32px;
-    border-radius: 20px;
-    display: flex;
-    flex-direction: column;
-    -webkit-box-pack: justify;
-    justify-content: space-evenly;
-    /* border: 1px solid transparent; */
-    height: 50%;
+  position: relative;
+  overflow: hidden;
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  -webkit-box-pack: justify;
+  justify-content: space-evenly;
+  /* border: 1px solid transparent; */
+  height: 50%;
 }
 
 .card{
