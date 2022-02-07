@@ -132,8 +132,8 @@ class CollectionImage(Model):
     linked_collection = models.ForeignKey(UserCollection, on_delete=models.CASCADE)
     name = models.CharField(max_length=50, unique=False) # not needed
 
-    path = models.FilePathField()
-    path_compressed = models.FilePathField(null=True, blank=True)
+    path = models.TextField(null=True, blank=True)
+    path_compressed = models.TextField(null=True, blank=True)
     metadata = models.TextField(null = True, blank = True)
 
     # IPFS
