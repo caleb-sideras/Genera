@@ -142,6 +142,9 @@ class CollectionImage(Model):
     # Private Contract
     ipfs_bool = models.BooleanField(default=False)
 
+    def __str__(self):
+        return str(self.name)
+
 class Token(Model):
 
     hash = models.UUIDField(default=uuid.uuid4, editable=True) #editable since we will generate new hashes every time this is requested

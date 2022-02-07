@@ -10,10 +10,10 @@ class AwsMediaStorageManipulator(S3Boto3Storage):
         self.bucket.Object(name).delete()
     
     def create_secure_url(self, path_to_object, parameters=None, expire=None, http_method=None):
-        name = self._normalize_name(self._clean_name(path_to_object))
+        # path_to_object = self._normalize_name(self._clean_name(path_to_object))
 
         params = parameters.copy() if parameters else {}
         params['Bucket'] = self.bucket.name
-        params['Key'] = name
+        params['Key'] = path_to_object
         url = self.bucket.meta.client.generate_presigned_url('get_object', Params=params, ExpiresIn=expire, HttpMethod=http_method)
         return url
