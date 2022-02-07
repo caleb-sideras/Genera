@@ -174,32 +174,54 @@ function ajax_post_factory(post_type) { //currently supports JSON and FORM data
 ajax_post_json = ajax_post_factory("JSON")
 ajax_post_form = ajax_post_factory("FORM")
 
-function create_and_render_loading_popup(heading = "Loading") { //Not recommended to use more than 3 words - ull need to hard code edge cases for the offsets more.
+function create_and_render_loading_popup(heading = "Generating Collection", subheading = "Please don't close this window. Higher resolutions and collection sizes will result in longer generation times...") { //Not recommended to use more than 3 words - ull need to hard code edge cases for the offsets more.
     //CREATES THE LOOP ANIMATION IN THE CENTER OF THE SCREEN
     document.body.classList.add('disable_scrolling');
-    let popup_course_code = '<div id="loading_animation_wrapper"> <svg> <filter id="glowfloxs"> <feGaussianBlur in="SourceGraphic" stdDeviation="10"/> <feColorMatrix values=" 1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 20 -10"></feColorMatrix> </filter> </svg> <div class="loader"> <span style="--i:1;"></span><span style="--i:2;"></span><span style="--i:3;"></span><span style="--i:4;"></span><span style="--i:5;"></span><span style="--i:6;"></span><span style="--i:7;"></span><span style="--i:8;"></span><span style="--i:9;"></span><span style="--i:10;"></span><span class="rotate" style="--watet:0;"></span><span class="rotate" style="--watet:2;"></span><span class="rotate" style="--watet:3;"></span><span class="rotate" style="--watet:4;"></span><span class="rotate" style="--watet:5;"></span><span class="rotate" style="--watet:6;"></span><span class="rotate" style="--watet:7;"></span> </div></div>';
-    document.body.appendChild(document.createRange().createContextualFragment(popup_course_code))
-
-    //CREATES THE ANIMATED TEXT ABOVE
-    wrapper = document.createElement("div")
-    wrapper.id = "animated_loading_text_area"
-
-    var current_top_offset = 0
-    word_split = heading.split(" ")
-    
-    word_split.forEach(word => {
-        wrapper.appendChild(document.createRange().createContextualFragment(`<div class="animated_words_wrapper" style="top: ${current_top_offset}em"> <div class="animated_words"> <h2>${word}</h2> <h2>${word}</h2> </div></div>`))
-        current_top_offset += 7
-    });
-
-    document.body.appendChild(wrapper)
+    let pop_up_code = 
+    `<div id="disable_div"></div>
+    <div class="deploy_collection_container border rounded_container_no_padding" style="display: flex; z-index: 2;" id="deploy_collection_container">
+        <div class="dc_content">
+            <div class="dc_status_container">
+                <div class="dc_status_sections">
+                    <div style="text-align: left;">
+                        <div class="dc_status_dot" id="dc_status_4"></div>
+                        <p style="margin-left: -35px;">Generating Collection</p>
+                    </div>
+                    <div></div>
+                    <div></div>
+                    <div style="text-align: right;">
+                        <div class="dc_status_dot" id="dc_status_4" style="left: 83.5%;"></div>
+                        <p>Redirect to Collection</p>
+                    </div>
+                </div>
+                <div class="dc_status_bar_container sub_color_background">
+                    <div class="dc_status_bar_active main_color_background"></div>
+                </div>
+            </div>
+            <h2>${heading}</h2>
+            <h4>${subheading}</h4>
+            <div class="dc_body">
+                <div class="spinner" style="display: flex">
+                    <div class="rect1" id="spin1"></div>
+                    <div class="rect1" id="spin2"></div>
+                    <div class="rect1" id="spin3"></div>
+                    <div class="rect1" id="spin4"></div>
+                    <div class="rect1" id="spin5"></div>
+                </div>
+                <div class="input_wrapper"></div>
+            </div>
+            <div class="dc_buttons">
+            </div>
+        </div>
+    </div>`
+    document.body.appendChild(document.createRange().createContextualFragment(pop_up_code))
 }
 
 function close_loading_popup() {
-    if (document.contains(document.getElementById("loading_animation_wrapper"))) {
+    if (document.contains(document.getElementById("deploy_collection_container"))) {
         document.body.classList.remove('disable_scrolling');
-        document.getElementById("loading_animation_wrapper").remove()
-        document.getElementById("animated_loading_text_area").remove()     
+        document.getElementById("deploy_collection_container").remove()
+        document.getElementById("disable_div").remove()
     }
 }
 
