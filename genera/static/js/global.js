@@ -174,7 +174,7 @@ function ajax_post_factory(post_type) { //currently supports JSON and FORM data
 ajax_post_json = ajax_post_factory("JSON")
 ajax_post_form = ajax_post_factory("FORM")
 
-function create_and_render_loading_popup(heading = "Generating Collection", subheading = "Please don't close this window. Higher resolutions and collection sizes will result in longer generation times...") { //Not recommended to use more than 3 words - ull need to hard code edge cases for the offsets more.
+function create_and_render_loading_popup(heading = "Generating Collection", subheading = "Please don't close this window. Higher resolutions and collection sizes will result in longer loading times...") { //Not recommended to use more than 3 words - ull need to hard code edge cases for the offsets more.
     //CREATES THE LOOP ANIMATION IN THE CENTER OF THE SCREEN
     document.body.classList.add('disable_scrolling');
     let pop_up_code = 

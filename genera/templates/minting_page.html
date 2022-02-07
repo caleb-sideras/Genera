@@ -174,7 +174,7 @@
     template: `
       <div class="upload_card grow border rounded_container_no_padding" @click="activeElement" >
         <img loading="lazy" :src="" :alt ="[[ fullrender ]]" class="nft_image">
-        <div class="loading_circle" style="display: none;"></div>
+        <div class="loading_circle" style="display: none; position:absolute"></div>
         <div>
           <p>[[ imagename ]]</p>  
         </div>
@@ -238,7 +238,7 @@
     delimiters: ["[[", "]]"],
     props: ['activeelement', 'activekey'],
     template:` 
-
+    <div style="position: fixed; top: 50%; width: 100%; height: 100%; transform: translate(-50%, -50%); left: 50%; backdrop-filter: blur(5px);"></div>
     <div class="image_preview"><div class="top_row"><img src="/static/icons/remove.svg"  @click="closeCarousel"></div><div class="rounded_container"><div class="content_wrapper">
 
       <div class="lbutton_wrapper" @click="prevCarousel">
@@ -258,7 +258,7 @@
         <input required="" name="title" type="text" :value="[[ activeelement[activekey].file.name ]]" placeholder="E.g. Internal Void" maxlength="50" minlength="1"  @change="validateField" style="margin: 20px; font-size: 25px;">
       </template>
       
-      </div>
+    </div>
       <div class="info_wrapper">
         <div class="general_button dropdown_button white_background" style="margin: 0px 10px 10px;">
           <h5 style="font-weight: bold; margin: 5px; font-size: 17px;">Description</h5>

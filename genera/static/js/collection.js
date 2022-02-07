@@ -200,7 +200,11 @@ function open_images(self){
     popup_container.classList = "image_preview"
     popup_container.appendChild(top_row)
     popup_container.appendChild(preview_container)
+    background_blur = document.createElement('div')
+    background_blur.classList = 'background_blur'
+    document.body.classList.add('disable_scrolling');
     document_body.prepend(popup_container)
+    document_body.prepend(background_blur)
 
 }
 
@@ -256,7 +260,11 @@ function close_edit(){
 }
 
 function close_image_carousell(){
-    document.getElementsByClassName("image_preview")[0].remove() 
+    if (document.contains(document.getElementsByClassName("image_preview")[0])){
+        document.body.classList.remove('disable_scrolling');
+        document.getElementsByClassName("background_blur")[0].remove() 
+        document.getElementsByClassName("image_preview")[0].remove() 
+    }
 }
 
 function expand_collapse(self) {
