@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 
 from pathlib import Path
 import os
+import mimetypes
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -26,7 +27,7 @@ TEMPLATE_DIR = os.path.join(BASE_DIR, 'templates')
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-!h$vhss##+00p6$09#!6ejcmx1+!q#x%-+#uj^@(vghcn%)-!o'
 
-BASE_URL = 'http://genera.us-east-2.elasticbeanstalk.com'
+BASE_URL = 'http://localhost:8000'
 
 #Email Setup
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
@@ -43,14 +44,15 @@ EMAIL_FROM_ADDRESS = 'artemlimo@gmail.com'
 DEFAULT_FROM_EMAIL = 'artemlimo@gmail.com'
 EMAIL_USE_TLS = True
 
+DEBUG = True #TODO:
+
 DEPLOYMENT_INSTANCE = 'RDS_DB_NAME' in os.environ
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True #TODO: Make this FALSE when all is done..
+if DEPLOYMENT_INSTANCE:
+    BASE_URL = 'https://www.genera.link'
+    #DEBUG = False #TODO: Make this FALSE when all is done..
 
-if DEBUG:
-    import mimetypes
-    mimetypes.add_type("application/javascript", ".js", True)
+mimetypes.add_type("application/javascript", ".js", True) #TODO: IDK IF THIS NEEDS BE IN PROD!
 
 #172.31.24.181 is the single EC2 instance private ip !!!!
 #ec2-3-134-42-144.us-east-2.compute.amazonaws.com
@@ -179,10 +181,10 @@ STRIPE_PRIVATE_KEY = "sk_test_51K9ckjDlWp2mVdKSxhtGeV44FHSaO7z89AYlxltSqY6hnSRHP
 STRIPE_WEBHOOK_SECRET = "cbya-zuur-cfbo-smeo-help"#maybe
 
 #AWS BUCKET STUFF
+AWS_STORAGE_BUCKET_NAME = 'genera-media'
 if DEPLOYMENT_INSTANCE: #NOTE: remove this if statement if you want to test s3 locally!!!
     AWS_ACCESS_KEY_ID = 'AKIAYWR7VJZHQI73U2X4'
     AWS_SECRET_ACCESS_KEY = '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'
-    AWS_STORAGE_BUCKET_NAME = 'genera-media'
     AWS_S3_REGION_NAME = 'us-east-2'
     AWS_S3_SIGNATURE_VERSION = 's3v4'
     AWS_S3_CUSTOM_DOMAIN = f'https://{AWS_STORAGE_BUCKET_NAME}.s3.{AWS_S3_REGION_NAME}.amazonaws.com/'
