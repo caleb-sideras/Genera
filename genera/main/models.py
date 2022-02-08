@@ -67,7 +67,6 @@ class User(AbstractBaseUser, PermissionsMixin, Model):
     date_joined = models.DateTimeField(default=timezone.now)
 
     is_staff = models.BooleanField(default=False)
-    credits = models.IntegerField(default=0)
 
     USERNAME_FIELD = 'username'
     EMAIL_FIELD = 'email'
