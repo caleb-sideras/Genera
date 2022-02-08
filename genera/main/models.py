@@ -132,7 +132,7 @@ class UserCollection(Model):
     tokens_deployed = models.BooleanField(default=False)
 
     # Public Mint
-    # public_mint = models.BooleanField(default=False)
+    public_mint = models.BooleanField(default=False)
 
     def __str__(self):
         return str(self.name)
