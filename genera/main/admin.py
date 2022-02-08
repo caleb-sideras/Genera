@@ -29,17 +29,17 @@ class CollectionImage_Admin(AdminNotVisibleMixin, admin.ModelAdmin):
     search_fields = []
     list_filter = []
 
-class CollectionImage_Inline(admin.TabularInline):
-    readonly_fields = ['name', 'path', 'path_compressed', 'metadata', 'ipfs_metadata_path', 'ipfs_bool']
-    model = CollectionImage
+# class CollectionImage_Inline(admin.TabularInline):
+#     readonly_fields = ['name', 'path', 'path_compressed', 'metadata', 'ipfs_metadata_path', 'ipfs_bool']
+#     model = CollectionImage
 
-class UserCollection_Admin(admin.ModelAdmin):
-    list_display = ['collection_name', 'user']
-    search_fields = []
-    list_filter = []
-    inlines = [CollectionImage_Inline]
+# class UserCollection_Admin(admin.ModelAdmin):
+#     list_display = ['collection_name', 'user']
+#     search_fields = []
+#     list_filter = []
+#     inlines = [CollectionImage_Inline]
 
-admin.site.register(User, User_Admin)
-# admin.site.register(UserAsset, UserAsset_Admin)
-admin.site.register(UserCollection, UserCollection_Admin)
-admin.site.register(CollectionImage, CollectionImage_Admin)
+# admin.site.register(User, User_Admin)
+# # admin.site.register(UserAsset, UserAsset_Admin)
+# admin.site.register(UserCollection, UserCollection_Admin)
+# admin.site.register(CollectionImage, CollectionImage_Admin)
