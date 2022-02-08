@@ -602,8 +602,8 @@ def collection_view(request, username, collection_name):
                     context["collection_images"] = collection_images
                 
                 else:
-	                messages.error(request, "This collection does not exist.")
-	                return render(request, "collection.html", context)
+                    messages.error(request, "This collection does not exist.")
+                    return render(request, "collection.html", context)
             else:
                 messages.error(request, "This collection does not exist.")
                 return render(request, "collection.html", context)
@@ -766,23 +766,23 @@ def collection_view(request, username, collection_name):
                 elif "delete_duplicates" in received_json_data:
                     if request.user.is_authenticated:
                         if user_collection.duplicates_deleted == False:
-                        i = 0
-                        while i < len(collection_images):
-                            # print(f"{len(collection_images)} LENGTH OF QUERY")
-                            entry_metadata = json.loads(collection_images[i].metadata)
-                            # print(f"{entry_metadata} COMPARISON METADATA {i}")
-                            for j in range(len(collection_images) - 1 - i):           
-                                value_metadata = json.loads(collection_images[j + 1 + i].metadata)
-                                # print(f"{value_metadata} CURRENT METADATA {j + 1 + i}")
-                                if entry_metadata['attributes'] == value_metadata['attributes']:
+                            i = 0
+                            while i < len(collection_images):
+                                # print(f"{len(collection_images)} LENGTH OF QUERY")
+                                entry_metadata = json.loads(collection_images[i].metadata)
+                                # print(f"{entry_metadata} COMPARISON METADATA {i}")
+                                for j in range(len(collection_images) - 1 - i):           
+                                    value_metadata = json.loads(collection_images[j + 1 + i].metadata)
+                                    # print(f"{value_metadata} CURRENT METADATA {j + 1 + i}")
+                                    if entry_metadata['attributes'] == value_metadata['attributes']:
                                         print(collection_images[j + 1 + i])
-                                    collection_images[j + 1 + i].delete()
-                                    user_collection.collection_size = user_collection.collection_size - 1
+                                        collection_images[j + 1 + i].delete()
+                                        user_collection.collection_size = user_collection.collection_size - 1
                                         print(user_collection.collection_size)
-                                    # print(f"{collection_images[j + 1 + i]} deleted {j + 1 + i}")
-                                # user_collection.save()
-                                collection_images = CollectionImage.objects.filter(linked_collection__id=user_collection.id)
-                            i = i + 1
+                                        # print(f"{collection_images[j + 1 + i]} deleted {j + 1 + i}")
+                                    # user_collection.save()
+                                    collection_images = CollectionImage.objects.filter(linked_collection__id=user_collection.id)
+                                i = i + 1
 
                         user_collection.duplicates_deleted = True
                         user_collection.save()
@@ -790,10 +790,6 @@ def collection_view(request, username, collection_name):
 
                         return JsonResponse(
                             {"server_message": "Deleted duplicates"},
-                            status=200,
-                        )
-                        return JsonResponse(
-                            {"server_message": "Deleted already duplicates"},
                             status=200,
                         )
                     else:
