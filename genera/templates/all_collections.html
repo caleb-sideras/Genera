@@ -7,17 +7,23 @@
         <div class="all_collections_layout">
         {% if users_collections %}
             {% for collection in users_collections %}
-                <a href="{% url 'main:collection' user.username collection.collection_name %}" style="text-decoration: none; color: inherit;">
-                    <div class="collection_card border_1px grow rounded_container_no_padding">
-                        <img loading="lazy" src="{{collection.collectionimage_set.first.path_compressed}}" class="nft_image">
-                        <div>
-                            <div><p class="no_margin center" id="title">{{collection.collection_name}}</p></div>
-                            <div><p style="font-size: smaller;" class="no_margin center">{{collection.description}}</p></div>
-                            
-                            <button class="collection_card_button sub_color_background collection_card_button_text" >Open</button>
+                {% if not collection.public_mint %}
+                    <a href="{% url 'main:collection' user.username collection.collection_name %}" style="text-decoration: none; color: inherit;">
+                        <div class="collection_card border_1px grow rounded_container_no_padding">
+                            {% if collection.collection_ifps_bool %}
+                            <img loading="lazy" src="https://{{collection.image_uri}}.ipfs.dweb.link/0.png" class="nft_image">
+                            {% else %}
+                            <img loading="lazy" src="{{collection.collectionimage_set.first.path_compressed}}" class="nft_image">
+                            {% endif %}
+                            <div>
+                                <div><p class="no_margin center" id="title">{{collection.collection_name}}</p></div>
+                                <div><p style="font-size: smaller;" class="no_margin center">{{collection.description}}</p></div>
+                                
+                                <button class="collection_card_button sub_color_background collection_card_button_text" >Open</button>
+                            </div>
                         </div>
-                    </div>
-                </a>
+                    </a>
+                {% endif %}
             {% endfor %}
         {% endif %}
         </div>

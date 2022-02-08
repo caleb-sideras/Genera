@@ -1,5 +1,6 @@
 from json.decoder import JSONDecodeError
 from django.shortcuts import render
+from numpy import ufunc
 from main.helper_functions import nft_storage_api_store
 from main.view_tools import *
 from genera.settings import DEFAULT_FROM_EMAIL, STRIPE_PRIVATE_KEY, DEPLOYMENT_INSTANCE
@@ -32,8 +33,7 @@ import stripe
 stripe.api_key = STRIPE_PRIVATE_KEY
 
 def main_view(request):
-    if request.user.is_authenticated:
-        print("HELLO")
+
     
     context = {}
     context['products'] = generate_stripe_products_context()
@@ -41,13 +41,26 @@ def main_view(request):
     return render(request, "home.html", context)
 
 def upload_view(request):
+    
     context = {}
     context["ajax_url"] = reverse("main:upload")
+
+
+    if request.user.is_authenticated:        
+        user = User.objects.filter(username=request.user.username).first()
+        collections = []
+        if user:
+            for collection in UserCollection.objects.filter(user=user):
+                collections.append(collection.collection_name)
+            print(collections)
+            context['users_collections'] = json.dumps(collections)
+
+
 
     def file_to_pil_no_resize(file, res_x, res_y):
         PIL_image = Image.open(BytesIO(file.read()))
         height, width = PIL_image.size
-        if height != res_x or width != res_y:
+        if height != res_x or width != res_y or height > 4000 or width > 4000:
             raise RawPostDataException
         return PIL_image
 
@@ -55,6 +68,7 @@ def upload_view(request):
         imageBytes = BytesIO()
         pil_img.save(imageBytes, format='PNG')
         return base64.b64encode(imageBytes.getvalue()).decode('utf-8')
+
 
     calebs_gay_dict = {}
     
@@ -78,7 +92,8 @@ def upload_view(request):
                                 return JsonResponse({"passed": 0, "message": "You don't have enough credits to generate this collection size!"}, status=200)
                             else:
                                 return JsonResponse({"passed": 1}, status=200)
-                        elif 100 < int(received_json_data["field_content"]):
+
+                        elif int(received_json_data["field_content"]) < 100:
                                 return JsonResponse({"passed": 0, "message": "Maximum of 100 free generations allowed"}, status=200)
                         else:
                             return JsonResponse({"passed": 1}, status=200)
@@ -135,6 +150,7 @@ def upload_view(request):
                 }
                 # could be done in js
                 try:
+
                     watermark = Image.open(staticify("Assets/Background/genera_watermark.png"))
                 except:
                     print("Could not open watermark")
@@ -157,12 +173,19 @@ def upload_view(request):
 
             #Paid or Free Generation
             if request.user.is_authenticated:
-                if int(float(request.POST.get("size"))) > request.user.credits:
-                    paid_generation = False
-                    # messages.error(request, message="Not enough credits")
-                    # return ajax_redirect(reverse("main:upload"), "Not enough credits")
-                else:
+
+                if int(float(request.POST.get("size"))) <= request.user.credits:
                     paid_generation = True
+                elif int(float(request.POST.get("size"))) > request.user.credits and int(float(request.POST.get("size"))) <= 100:
+                    paid_generation = False
+
+                else:
+                   
+                    messages.error(request, message="Not enough credits.")
+                    return ajax_redirect(reverse("main:upload"))
+            elif int(float(request.POST.get("size"))) > 100:
+                messages.error(request, message="Maximum Free Generations are 100.")
+                return ajax_redirect(reverse("main:upload"))
             else:
                 paid_generation = False
 
@@ -172,6 +195,7 @@ def upload_view(request):
             calebs_gay_dict["Description"] = request.POST.get("description")
             calebs_gay_dict["Resolution_x"] = int(float(request.POST.get("resolution_x")))
             calebs_gay_dict["Resolution_y"] = int(float(request.POST.get("resolution_y")))
+
             calebs_gay_dict["CollectionSize"] = int(float(request.POST.get("size")))
             calebs_gay_dict["TextureColor"] = request.POST.get("color")
 
@@ -205,6 +229,7 @@ def upload_view(request):
 
                 try:
                     db_collection.save()
+
                 except Exception as e:
                     print(e)
                     messages.error(request, message="Critical Backend error. Unable to create collection.")
@@ -230,7 +255,8 @@ def upload_view(request):
                     
                     if layer_name in layers:
                         if layer_type == "Assets":
-                            if int(float(new_dict[layer_name]['Assets'][file_name]['Rarity']) > 0):  # if rarity > 0
+
+                            if  0 < int(float(new_dict[layer_name]['Assets'][file_name]['Rarity'])) <= calebs_gay_dict["CollectionSize"]:  # if  0 < rarity < collectionsize 
                                 layers[layer_name]["Assets"].append(
                                     {
                                         "Name": file_name_no_extension,
@@ -240,8 +266,15 @@ def upload_view(request):
                                         "Rarity": int(float(new_dict[layer_name]['Assets'][file_name]['Rarity'])),
                                     }
                                 )
+                            else:
+                                if paid_generation:
+                                    db_collection.delete()
+                                    request.user.save()
+                                messages.error(request, message="An Asset Rarity Was Greater than Collection Size")
+                                return ajax_redirect(reverse("main:upload"))
                         if layer_type == "Textures":
-                            if int(float(new_dict[layer_name]['Textures'][file_name]['Rarity']) > 0):  # if rarity > 0
+
+                            if 0 < int(float(new_dict[layer_name]['Textures'][file_name]['Rarity'])) <= calebs_gay_dict["CollectionSize"]:  # if  0 < rarity < collectionsize 
                                 layers[layer_name]["Textures"].append(
                                     {
                                         "Name": file_name_no_extension,
@@ -253,15 +286,32 @@ def upload_view(request):
                                         "Rarity": int(float(new_dict[layer_name]['Textures'][file_name]['Rarity'])),
                                     }
                                 )
+                            else:
+                                if paid_generation:
+                                    db_collection.delete()
+                                    request.user.save()
+                                messages.error(request, message="A Texture Rarity Was Greater than Collection Size")
+                                return ajax_redirect(reverse("main:upload"))
 
             calebs_gay_dict["Layers"] = layers  # calebs gay dict complete
 
             # print(calebs_gay_dict["Layers"])
             
             if paid_generation:
-                create_and_save_collection_paid(calebs_gay_dict, db_collection, request.user)
+
+                success = create_and_save_collection_paid(calebs_gay_dict, db_collection, request.user)
+
+                if success:
+                    request.user.credits -= db_collection.collection_size
+                    request.user.save()
+                else:
+                    db_collection.delete()
+                    request.user.save()
+                    messages.error(request, message="A Layer Rarity Was Greater than Collection Size")
+                    return ajax_redirect(reverse("main:upload"))
 
                 messages.success(request, message="Collection generated succesfully!")
+
                 return ajax_redirect(reverse("main:collection", args=[request.user.username, db_collection.collection_name]))
             else:
                 images_list, metadata_list = create_and_save_collection_free(calebs_gay_dict)
@@ -280,7 +330,6 @@ def upload_view(request):
             return ajax_redirect(reverse("main:upload"))
 
     return render(request, "upload.html", context)
-
 
 def login_view(request, current_extension=404):
     print("WHY ARE WE STILL HERE")
@@ -308,7 +357,8 @@ def login_view(request, current_extension=404):
                 messages.error(request, str(msg))
                 login_form.add_error(None, msg)
 
-    form_context = {"form": login_form, "button_text": "Log in", "identifier": form_id, "title": "Log in to Genera", "login_url" : current_extension}
+
+    form_context = {"form": login_form, "button_text": "Log in", "identifier": form_id, "title": "Log in to Genera", "login_url" : current_extension, "extra" : True}
 
     return render(request, 'base_form.html', form_context)
 
@@ -469,15 +519,15 @@ def mint_view(request, username, collection_name):
         user_collection = UserCollection.objects.filter(user=user, collection_name=collection_name).first()
         if user_collection:
             if user_collection.contract_bool and user_collection.contract_type == 2:
-                context["ajax_url"] = reverse("main:user_mint", 
-                        kwargs={
-                            "username": user,
-                            "collection_name": user_collection.collection_name,
-                        },)
+
                 context['contract_address'] = user_collection.contract_address
                 context['chain_id'] = user_collection.chain_id
                 context['collection_name'] = user_collection.collection_name
                 context['description'] = user_collection.description
+                if request.user.is_authenticated:
+                    context['isOwner'] = True
+                else:
+                    context['isOwner'] = False
                 # print(context['contract_address'])
                 # print( context['chain_id'])
             else:
@@ -493,6 +543,7 @@ def mint_view(request, username, collection_name):
 
     return render(request, "user_mint.html", context)
 
+    pass
 def all_collections_view(request, username):
     context = {}
     if request.user.username != username:
@@ -528,13 +579,15 @@ def collection_view(request, username, collection_name):
             user_collection = UserCollection.objects.filter(user=user, collection_name=collection_name).first()
             
             # passing context
-            if user_collection:
+
+            if user_collection or not user_collection.public_mint:
                 context["ajax_url"] = reverse("main:collection", 
                         kwargs={
                             "username": request.user.username,
                             "collection_name": user_collection.collection_name,
                         },)
                 collection_images = CollectionImage.objects.filter(linked_collection__id=user_collection.id)
+
                 if collection_images:
                     if presigned_url_is_expired(collection_images[0].path): ##check if first image url is expired - if so - renew the presigned urls for all images
                         aws_media_storage_manipulator = AwsMediaStorageManipulator()
@@ -544,16 +597,13 @@ def collection_view(request, username, collection_name):
                                 image.compressed_path = aws_media_storage_manipulator.create_secure_url(path_to_object=image.compressed_path, expire=604800)
                             image.save() #save image with new links!
 
-                    context["entry_ids"] = json.dumps([str(x) for x in collection_images.values_list('id', flat=True)])
+
                     context["collection_data"] = user_collection
                     context["collection_images"] = collection_images
-                else:
-                    print("No images in collection!")
                 
-                # if user_collection.collection_ifps_bool:
-                #     context["ipfs_links"] = json.dumps(list(collection_images.all().values_list('ipfs_metadata_path', flat=True))) 
-                # else:
-                #     context["ipfs_links"] = ""
+                else:
+	                messages.error(request, "This collection does not exist.")
+	                return render(request, "collection.html", context)
             else:
                 messages.error(request, "This collection does not exist.")
                 return render(request, "collection.html", context)
@@ -573,12 +623,7 @@ def collection_view(request, username, collection_name):
                         {"server_message": "Wrong contract type"},
                         status=202,
                     )
-                # if len(collection_images) > request.user.credits:
-                # # or user_collection.image_uri:
-                #     return JsonResponse(
-                #         {"server_message": "USER DOES NOT HAVE ENOUGH CREDITS"},
-                #         status=202,
-                #     )
+
                 if user_collection.collection_ifps_bool:
                     return JsonResponse(
                         {"server_message": "collection_deployed"},
@@ -720,6 +765,7 @@ def collection_view(request, username, collection_name):
                         )
                 elif "delete_duplicates" in received_json_data:
                     if request.user.is_authenticated:
+                        if user_collection.duplicates_deleted == False:
                         i = 0
                         while i < len(collection_images):
                             # print(f"{len(collection_images)} LENGTH OF QUERY")
@@ -729,16 +775,25 @@ def collection_view(request, username, collection_name):
                                 value_metadata = json.loads(collection_images[j + 1 + i].metadata)
                                 # print(f"{value_metadata} CURRENT METADATA {j + 1 + i}")
                                 if entry_metadata['attributes'] == value_metadata['attributes']:
+                                        print(collection_images[j + 1 + i])
                                     collection_images[j + 1 + i].delete()
                                     user_collection.collection_size = user_collection.collection_size - 1
+                                        print(user_collection.collection_size)
                                     # print(f"{collection_images[j + 1 + i]} deleted {j + 1 + i}")
+                                # user_collection.save()
+                                collection_images = CollectionImage.objects.filter(linked_collection__id=user_collection.id)
                             i = i + 1
+
                         user_collection.duplicates_deleted = True
                         user_collection.save()
 
 
                         return JsonResponse(
                             {"server_message": "Deleted duplicates"},
+                            status=200,
+                        )
+                        return JsonResponse(
+                            {"server_message": "Deleted already duplicates"},
                             status=200,
                         )
                     else:
@@ -834,12 +889,153 @@ def collection_view(request, username, collection_name):
     return render(request, "collection.html", context)
 
 def about_view(request):
-    context = {}
-
-
-    return render(request, "about.html", context)
+    return render(request, "about.html")
 
 def documentation_view(request):
+    return render(request, "documentation.html")
+
+def public_mint_view(request):
     context = {}
 
-    return render(request, "documentation.html", context)
+    if request.user:
+        if request.user.is_authenticated:
+            user = User.objects.filter(username=request.user.username).first()
+            collections = []
+            for collection in UserCollection.objects.filter(user=user):
+                collections.append(collection.collection_name)
+            context["users_collections"] = json.dumps(collections)
+            context["user"] = user
+            context["ajax_url"] = reverse("main:mint")
+        else:
+            context["users_collections"] = []
+    else:
+        context["users_collections"] = []
+    if request.method == "POST":
+        print("posted")
+        if request.user.is_authenticated:
+            if 'image_car' in request.POST:
+
+
+                user_collection = UserCollection.objects.get_or_create(user=request.user, collection_name=request.POST.get("collection_name"))
+
+
+                if user_collection[1]: #new collection created
+                    user_collection = user_collection[0]
+                else:
+                    messages.error(request, message="A collection with that name already exists!")
+                    return ajax_redirect(reverse("main:user_mint"))
+                if user_collection:
+                    if len(request.FILES) != 0:
+                        filename = list(request.FILES.keys())[0]
+                        if filename:
+                            file = list(request.FILES.getlist(filename))[0]
+                            if file:
+                                response = nft_storage_api_store(file)
+                                if not response or response['ok'] == False:
+                                    user_collection.delete()
+                                    return JsonResponse(
+                                        {"server_message": "Failed to upload to IPFS, please try again"},
+                                        status=202,
+                                    )
+                                user_collection.image_uri = response['value']['cid']
+                                user_collection.save()
+                                print(response['value']['cid'])
+                                return JsonResponse(
+                                    {
+                                        "image_uri" : response['value']['cid']
+                                    },
+                                    status=200,
+                                )
+                    user_collection.delete()
+                    return JsonResponse(
+                        {"server_message": "Failed to upload to IPFS, please try again"},
+                        status=202,
+                    )               
+            if 'base_car' in request.POST:
+
+
+                user_collection = UserCollection.objects.filter(user=request.user, collection_name=request.POST.get("collection_name")).first()
+                if user_collection:
+                    if len(request.FILES) != 0:
+                        filename = list(request.FILES.keys())[0]
+                        if filename:
+                            file = list(request.FILES.getlist(filename))[0]
+                            if file:
+                                response = nft_storage_api_store(file)
+                                if not response or response['ok'] == False:
+                                    user_collection.delete()
+                                    return JsonResponse(
+                                        {"server_message": "Failed to upload to IPFS, please try again"},
+                                        status=202,
+                                    )
+                                user_collection.base_uri = response['value']['cid']
+                                user_collection.save()
+                                print(response['value']['cid'])
+                                return JsonResponse(
+                                    {
+                                        "base_uri" :  response['value']['cid']
+                                    },
+                                    status=200,
+                                )
+                    user_collection.delete()
+                    return JsonResponse(
+                        {"server_message": "Failed to upload to IPFS, please try again"},
+                        status=202,
+                    ) 
+            ##AJAX HANDLING SECTION START
+            try:
+                received_json_data = json.loads(request.body)
+                print(received_json_data)
+                if "get_contract" in received_json_data:
+                    if received_json_data['get_contract'] == 1:
+                        with open("static/Contracts/erc1155_private_contract.json", "r") as myfile:
+                            data = myfile.read()
+                        return JsonResponse(
+                            {"contract": data},
+                            status=200,
+                        )
+                    if received_json_data['get_contract'] == 2:
+                        with open("static/Contracts/erc1155_public_contract.json", "r") as myfile:
+                            data = myfile.read()
+                        return JsonResponse(
+                            {"contract": data},
+                            status=200,
+                        )
+                    return JsonResponse(
+                        {"server_message": "Contract type not found"},
+                        status=202,
+                    )
+                if "address_set" in received_json_data:
+                    if request.user.is_authenticated:
+                        user_collection = UserCollection.objects.filter(user=request.user, collection_name=received_json_data["collection_name"]).first()
+                        if not user_collection.contract_bool:
+                            user_collection.contract_address = received_json_data["address_set"]
+                            user_collection.chain_id = received_json_data["chain_id"]
+                            user_collection.contract_type = received_json_data["contract_type"]
+                            user_collection.description = received_json_data["description"]
+                            user_collection.contract_bool = True
+                            user_collection.public_mint = True
+                            user_collection.save()
+                        return JsonResponse(
+                            {"server_message" :"Contract address set"},
+                            status = 200
+                        )
+                    else:
+                        return JsonResponse(
+                            {"server_message": "USER NOT LOGGED IN"},
+                            status=202,
+                        )
+                if "collection_redirect" in received_json_data:
+                    return ajax_redirect(reverse("main:user_mint", kwargs= {
+                        "username": user.username,
+                        "collection_name": received_json_data["collection_name"],
+                    }))
+            except RawPostDataException:  # NO AJAX DATA PROVIDED - DIFFERENT POST REQUEST INSTEAD
+                pass   
+            ##AJAX HANDLING SECTION END         
+                
+
+    return render(request, "minting_page.html", context)
+
+def login_options_view(request):
+    return render(request, "login_options.html")

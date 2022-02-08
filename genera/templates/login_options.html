@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block body_block %}
+    <div class="form_wrapper">
+        <div class="background_image_wrapper">
+            <div class="cover-image" style="position: absolute"></div>
+        </div>
+        <div class="base_form shadow_strong rounded_container_no_padding">
+            <p></p>
+            <h2>Login</h2>
+            <div style="max-width: 80%;">
+                <a href="{% url 'main:login' %}" style="text-decoration: none">
+                    <div class="login_option top_round_container border_1px login_option_enabled">
+                        <img src="/static/icons/logoV1.svg" alt="metamask icon">
+                        <div>
+                            <p class="no_margin">Regular</p>
+                            <p class="no_margin">Login using username or email</p>
+                        </div>
+                        <div style="flex-grow: 1;"></div>
+                        <img src="/static/icons/expand.svg">
+                    </div>
+                </a>
+                <div class="login_option bottom_round_container no_top_border_1px" style="cursor: default; filter: grayscale(1);">
+                    <img src="/static/icons/metamask.svg" alt="metamask icon">
+                    <div>
+                        <p class="no_margin" style="color: grey;">Metamask</p>
+                        <p class="no_margin">Login using browser wallet</p>
+                    </div>
+                    <div style="flex-grow: 1;"></div>
+                    <img src="/static/icons/expand.svg">
+                </div>
+            </div>
+            <div style="margin: 10vh 0 25px 0;"></div>
+        </div>
+    </div>
+{% endblock %}
+
+

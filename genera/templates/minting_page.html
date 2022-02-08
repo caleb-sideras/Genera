@@ -1,0 +1,1124 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block head_block %}
+<!-- <script type="text/javascript" src="{% static 'js/minting_page_vue.js' %}"></script> -->
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.min.js"></script>
+<script type="module" crossorigin="" src="{% static 'js/car_generator2.js' %}"></script>
+<link rel="modulepreload" href="{% static 'js/ipfs_car.js' %}" />
+<script src="https://unpkg.com/vue@next"></script>
+<script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
+<script src="https://unpkg.com/@metamask/detect-provider/dist/detect-provider.min.js"></script>
+{% endblock %}
+
+{% block body_block %}
+<input type="hidden" id="js_vars" data-ajax_url='{{ajax_url}}' data-user_login='{{user.is_authenticated}}' data-users_collections='{{users_collections}}'>
+
+<div id="add-files-component" class="mint_upload_main">
+  
+  <add-files></add-files>
+  <div class="view_collection_main">
+    <div class="collection_structure">
+      <div class="all_collections_layout">
+        <file-preview
+          v-for="(value, name, index) in files"
+          :name="name"
+          :imagename="JSON.parse(value.metadata).name"
+          :blob="value.blob"
+          :fullrender="value.fullrender"
+        ></file-preview>
+      </div>
+    </div>
+    <properties :collectionsize="imgCounter" :collections="collections" @close-loading="closeLoading"></properties>
+  </div>
+  <template v-if:="Object.entries(active_element) != 0">
+    <carousel :activeelement="active_element" :activekey="Object.keys(active_element)[0]" @next-carousel="nextDictEntry" @prev-carousel="prevDictEntry" @delete-active="deleteActive"></carousel>
+  </template>
+  <template v-if:="loading">
+    <deploy :loadingindex="loading_index" :loading="loading" @close-loading="closeLoading"></deploy>
+  </template>
+  <input class="dn" type="hidden" multiple="">
+  <input class="dn2" type="hidden" multiple="">
+</div>
+
+<script>
+  const app = Vue.createApp({
+    data() {
+      return {
+        files: {},
+        active_element: {},
+        imgCounter: 0,
+        loading: false,
+        loading_index: 0,
+        collections: JSON.parse(js_vars.dataset.users_collections)
+      }
+    },
+    methods:{
+      //refactor? fuck no
+      nextDictEntry(){
+        let file_keys = Object.keys(this.files);
+        let currentKey = Object.keys(this.active_element)[0]
+        let nextIndex =  file_keys.indexOf(currentKey) + 1
+
+        if (nextIndex in file_keys) {
+          var nextItem = file_keys[nextIndex];
+        } else{
+          var nextItem = file_keys[0]
+        }
+        try {
+          let new_active = this.files[nextItem]
+          this.active_element = {}
+          this.active_element[nextItem] = new_active
+        } catch (error) {
+          throw(error)
+        }
+        
+      },
+      prevDictEntry(){
+        let file_keys = Object.keys(this.files);
+        let currentKey = Object.keys(this.active_element)[0]
+        let nextIndex =  file_keys.indexOf(currentKey) - 1
+
+        if (nextIndex in file_keys) {
+          var nextItem = file_keys[nextIndex];
+        } else{
+          var nextItem = file_keys[file_keys.length - 1]
+        }
+
+        try {
+          let new_active = this.files[nextItem]
+          this.active_element = {}
+          this.active_element[nextItem] = new_active
+        } catch (error) {
+          throw(error)
+        }
+        
+      },
+      closeLoading(){
+      this.loading = false
+      this.loading_index = 0
+      },
+      deleteActive(){
+        let active_key = Object.keys(this.active_element)[0]
+        delete this.files[active_key]
+        this.active_element = {}
+      }
+    }
+  })
+  //removing attribute line without save doesnt reload, need to :model data
+  app.component('add-files', {
+    template:`
+    <div style="display: flex; align-items: center; margin-left: 25px; margin-right: 15px;gap: 10px;" class="border rounded_container sub_color_background"><input type="file" multiple accept="image/png, image/jpeg, .json" @change="onFileChange" ref="input" hidden/><img class="color_image_orange" src="/static/icons/plus.svg" @click="clickInput" id="add_layer_button" style="height: 55px;width: 55pxS;margin-top: 10px;
+    cursor: pointer;"><h1 class="no_margin">Upload Collection (Metadata supported)</h1></div>`,
+    methods: {
+      // If metadata, file name
+      onFileChange(event) {
+        let self = this
+        let imgCounter = 0
+        let parent = this.$root
+        for (const file of event.target.files) {
+          
+          let fileName = file.name.replace(/\.[^/.]+$/, "")
+
+          if (!(fileName in parent.$data.files)) {
+            parent.$data.files[fileName] = {}
+            console.log( parent.$data.files)
+          }
+
+          if (!("blob" in parent.$data.files[fileName])) {
+            // make this element a data obj?
+            console.log("make blob")
+            const canvas = document.createElement("canvas")
+            canvas.width = 250
+            canvas.height = 250
+            parent.$data.files[fileName]["blob"] = canvas.toDataURL()
+          }
+
+          if (file.type === "application/json") {
+            function readFile(event) {
+              parent.$data.files[fileName]["metadata"] = event.target.result
+            }
+
+            let reader = new FileReader()
+            reader.addEventListener('load', readFile);
+            reader.readAsText(file);
+          }
+          else if(file.type ==="image/jpeg" || file.type ==="image/png"){
+            if (!parent.$data.files[fileName]["file"]){
+
+              if ('metadata' in parent.$data.files[fileName]) {
+                let parsed_metadata = JSON.parse(parent.$data.files[fileName]["metadata"])
+                if(!('name' in parsed_metadata)){
+                  parsed_metadata['name'] = fileName
+                }
+              }
+              else{
+                parent.$data.files[fileName]['metadata'] = JSON.stringify({'name' : fileName})
+              }
+              parent.$data.files[fileName]["file"] = file
+              parent.$data.files[fileName]["fullrender"] =  URL.createObjectURL(file)
+            }
+          }    
+        }
+        parent.$data.imgCounter = Object.keys(parent.$data.files).length
+      },
+      clickInput(){
+        this.$refs["input"].click()
+      }
+    }
+  })
+
+  app.component('file-preview', {
+    delimiters: ["[[", "]]"],
+    props: ['name','imagename', 'blob', 'fullrender'],
+    template: `
+      <div class="upload_card grow border rounded_container_no_padding" @click="activeElement" >
+        <img loading="lazy" :src="" :alt ="[[ fullrender ]]" class="nft_image">
+        <div class="loading_circle" style="display: none; position:absolute"></div>
+        <div>
+          <p>[[ imagename ]]</p>  
+        </div>
+      </div>
+    `,
+    mounted() {
+      const { $el } = this
+      $el.querySelector(".nft_image").src = this.blob
+      this.setImage()
+    },
+    methods :{
+      activeElement(event){
+        let parent = this.$root
+        parent.$data.active_element[this.name] = parent.$data.files[this.name]
+      },
+      setImage(){
+        const { $el } = this
+
+        if (typeof(this.fullrender) !== 'undefined') {
+        const observer = new IntersectionObserver(([entry]) => {
+        const img = $el.querySelector(".nft_image")
+        const loading = $el.querySelector(".loading_circle")
+
+          if (entry.isIntersecting) {
+            // Element is in viewport
+            loading.style.display = "flex"
+            let loadingImage = new Image();
+            loadingImage.src = this.fullrender
+
+            loadingImage.onload = () =>{
+              delete loadingImage.onload
+              loading.style.opacity = "0"
+              img.src = loadingImage.src
+              img.style.opacity = "1"
+              setTimeout(() => {
+                loading.style.display = "none"
+              },100)
+            }
+            observer.disconnect()
+          }
+        })
+        observer.observe($el)
+
+        //find a way to destroy observer
+
+        // this.$once("hook:beforeDestroy", () => {
+        //   observer.disconnect()
+        // })
+        }
+      }
+    },
+    watch: {
+      fullrender: function(){
+        this.setImage()
+      }
+    }
+  })
+  //delete button
+  app.component('carousel', {
+    emits:['next-carousel', 'prev-carousel'],
+    delimiters: ["[[", "]]"],
+    props: ['activeelement', 'activekey'],
+    template:` 
+    <div style="position: fixed; top: 50%; width: 100%; height: 100%; transform: translate(-50%, -50%); left: 50%; backdrop-filter: blur(5px);"></div>
+    <div class="image_preview"><div class="top_row"><img src="/static/icons/remove.svg"  @click="closeCarousel"></div><div class="rounded_container"><div class="content_wrapper">
+
+      <div class="lbutton_wrapper" @click="prevCarousel">
+        <img src="/static/icons/expand.svg" class="button left">
+      </div>
+
+    <div class="inner_content">
+
+      <img :src="[[ activeelement[activekey].fullrender ]]" class="image">
+
+    <div class="info"><div class="upper_info_wrapper">
+
+      <template v-if:=" 'metadata' in activeelement[activekey]">
+        <input required="" name="title" type="text" :value="[[ JSON.parse(activeelement[activekey].metadata).name ]]" placeholder="E.g. Internal Void" maxlength="50" minlength="1"  @change="validateField" style="margin: 20px; font-size: 25px;">
+      </template>
+      <template v-else>
+        <input required="" name="title" type="text" :value="[[ activeelement[activekey].file.name ]]" placeholder="E.g. Internal Void" maxlength="50" minlength="1"  @change="validateField" style="margin: 20px; font-size: 25px;">
+      </template>
+      
+    </div>
+      <div class="info_wrapper">
+        <div class="general_button dropdown_button white_background" style="margin: 0px 10px 10px;">
+          <h5 style="font-weight: bold; margin: 5px; font-size: 17px;">Description</h5>
+
+          <img src="/static/icons/expand.svg" class="expand_collapse no_margin" style="transform: rotate(0deg); height: 20px; aspect-ratio: 1;cursor: pointer;filter: var(--dark-grey-color-2); flex:0; margin:0;" @click="dropDown1">
+      
+      
+      <div class="open" id="wrapper" style="padding: 15px 20px; margin-right: -20px; margin-left: -20px; width: 100%; text-align: start; display: flex; flex-direction: column;">
+
+        <template v-if:=" 'metadata' in activeelement[activekey]">
+          <template v-if:=" 'description' in JSON.parse(activeelement[activekey].metadata)">
+
+            <textarea style="resize: vertical; box-sizing: border-box;" required="" class="inputize" name="description" type="" placeholder="E.g. A collection that shows the emptiness of the soul." :value ="[[ JSON.parse(activeelement[activekey].metadata).description ]]" maxlength="300" minlength="1" @change="validateField"></textarea>
+
+          </template>
+          <template v-else>
+            <textarea style="resize: vertical; box-sizing: border-box;" required="" class="inputize" name="description" type="" placeholder="E.g. A collection that shows the emptiness of the soul." value="" maxlength="300" minlength="1"  @change="validateField"></textarea>
+          </template>
+        </template>
+        <template v-else>
+          <textarea style="resize: vertical; box-sizing: border-box;" required="" class="inputize" name="description" type="" placeholder="E.g. A collection that shows the emptiness of the soul." value="" maxlength="300" minlength="1"  @change="validateField"></textarea>
+        </template>
+
+      </div>
+      </div>
+      
+      <div class="general_button dropdown_button white_background" style="margin: 0px 10px 10px;">
+        <h5 style="font-weight: bold; margin: 5px; font-size: 17px;">Properties</h5>
+        <img src="/static/icons/expand.svg" class="expand_collapse no_margin" style="transform: rotate(0deg); height: 20px; aspect-ratio: 1;cursor: pointer;filter: var(--dark-grey-color-2); flex:0; margin:0;" @click="dropDown2">
+      
+      <div class="open" id="wrapper" style="padding: 15px 20px; margin-right: -20px; margin-left: -20px; width: 100%; text-align: start; display: flex; flex-direction: column;">
+
+        <div style="display:flex; flex-direction:row; justify-content: space-around; margin-bottom: 10px;">
+          <p class="no_margin">Trait Type</p>
+          <p class="no_margin">Trait</p>
+        </div>
+
+        <template v-if:=" 'metadata' in activeelement[activekey]">
+          <template v-if:=" 'attributes' in JSON.parse(activeelement[activekey].metadata)">
+
+            <template v-for="value in JSON.parse(activeelement[activekey].metadata).attributes" :key="componentKey">
+              <div style="display:flex; flex-direction:column; margin-bottom:10px;">
+                <div style="display:flex; flex-direction:row; gap: 5px; align-items: center;">
+
+                  <input required="" name="type" type="text" :value="[[ value['trait_type'] ]]" placeholder="E.g. Face" maxlength="50" minlength="1"  @change="validateField">
+
+                  <input required="" name="trait" type="text" :value="[[ value['value'] ]]" placeholder="E.g. Angry Face" maxlength="50" minlength="1"  @change="validateField">
+
+                  <img src="/static/icons/remove.svg" style="height: 15px; cursor: pointer; filter: var(--remove-button-color);" @click="removeAttribute">
+
+                </div>
+
+              </div>
+            </template>
+          </template>
+        </template>
+        <template v-for="index of inputs">
+          <div style="display:flex; flex-direction:column; margin-bottom:10px;" id="new_row">
+                
+                <div style="display:flex; flex-direction:row; gap: 5px; align-items: center;">
+
+                  <input required="" name="type" type="text" placeholder="E.g. Face" maxlength="50" minlength="1"  @change="validateField">
+
+                  <input required="" name="trait" type="text" placeholder="E.g. Angry Face" maxlength="50" minlength="1"  @change="validateField">
+
+                  <img src="/static/icons/remove.svg" style="height: 15px; cursor: pointer; filter: var(--remove-button-color);" @click="removeAttribute">
+
+                </div>
+
+              </div>
+        </template>
+
+        <img class="color_image_orange" src="/static/icons/plus.svg" id="add_layer_button" style="height: 55px; flex-grow: 1; cursor: pointer; align-self: end;" @click=newTrait>
+
+      </div>
+      
+      </div>
+      </div>
+
+      <div class="mutipurpose_button_section">
+        
+        <div class="general_button_no_border mutipurpose_button" @click=deleteActive>
+          <h4 style="color: red;">Delete</h4>
+        </div>
+
+        <div class="general_button_no_border mutipurpose_button" @click=saveData>
+          <h4 style="color: var(--main-color);">Save</h4>
+        </div>
+
+      </div>
+
+      </div></div>
+
+        <div class="rbutton_wrapper" @click="nextCarousel">
+          <img src="/static/icons/expand.svg" class="button right">
+        </div>
+
+      </div></div></div>`,
+    data() {
+      return {
+        inputs: [],
+        componentKey : 0,
+        isDropped1: false,
+        isDropped2: false,
+      }
+    },
+    mounted(){
+    },
+    //best to store state/refs in the data, and edit based on that. Not id/class/parentnode etc
+    methods:{
+      nextCarousel(event){
+        this.$emit('next-carousel')
+        this.removeInput(event)
+        // this.componentKey += 1
+      },
+      prevCarousel(event){
+        this.$emit('prev-carousel')
+        this.removeInput(event)
+        // this.componentKey += 1
+      },
+      newTrait(event){
+        this.inputs.push(this.inputs.length+1)
+      },
+      removeInput(event){
+        this.inputs = []
+      },
+      saveData(event){
+        //use refs
+        let info_section = document.querySelector(".info")
+        let fields = info_section.querySelectorAll(":scope input, :scope textarea")
+        for (var i = 0; i < fields.length; i++) {
+          if (fields[i].checkValidity() && !fields[i].classList.contains("field_error")) {
+              continue
+          } else {
+              fields[i].reportValidity()
+              return
+          }
+        }
+
+        let parent = this.$root
+        if (metadata in parent.$data.files[this.activekey]) {
+          var metadata = JSON.parse(parent.$data.files[this.activekey].metadata)
+        }
+        else{
+          var metadata = {}
+        }
+
+        metadata['name'] = fields[0].value
+        metadata['description'] = fields[1].value
+        metadata['attributes'] = []
+        for (var i = 2; i < fields.length; i+=2 ) {
+          metadata['attributes'].push({"trait_type" : fields[i].value, "value" : fields[i+1].value})
+        }
+        let metadataString = JSON.stringify(metadata)
+        var escapedMetadataString = metadataString.replace(/\\n/g, "\\n")
+                                      .replace(/\\'/g, "\\'")
+                                      .replace(/\\"/g, '\\"')
+                                      .replace(/\\&/g, "\\&")
+                                      .replace(/\\r/g, "\\r")
+                                      .replace(/\\t/g, "\\t")
+                                      .replace(/\\b/g, "\\b")
+                                      .replace(/\\f/g, "\\f");
+        parent.$data.files[this.activekey]['metadata'] = escapedMetadataString
+        this.removeInput(event)
+        // renders list, not best way but works
+        this.componentKey += 1;  
+      },
+      validateField(event){
+        if (event.target.checkValidity()) {
+          event.target.classList.add("field_success")
+          event.target.classList.remove("field_error")
+        } else {
+          event.target.classList.remove("field_success")
+          event.target.classList.add("field_error")
+        }
+      },
+      validateFields(){
+        let info_section = document.querySelector(".info")
+
+        if (info_section) {
+          let fields = info_section.querySelectorAll(":scope input, :scope textarea")
+          for (var i = 0; i < fields.length; i++) {
+            fields[i].dispatchEvent(new Event('change'));
+          }
+        }  
+      },
+      closeCarousel(event){
+        this.$root.$data.active_element = {}
+      },
+      async deleteActive(){
+        await yes_no_popup("Delete Image and Metadata?", "Yes", "No").then((response)=>{
+          if (response) {
+            this.$emit('delete-active')
+          }
+        })
+        
+      },
+      removeAttribute(event){
+        event.srcElement.parentElement.parentElement.remove()
+      },
+      // would be soo much easier doing it wrong way, with class open/close smh
+      // or have css animation on open for wrapper...
+      toggleDropDown(event, bool_check){
+        if (!bool_check){
+          event.srcElement.style.transform = "rotate(180deg)"
+          event.srcElement.nextSibling.style.height = "0"
+          event.srcElement.nextSibling.style.padding = "0 20px"
+        }
+        else{
+          event.srcElement.style.transform = "rotate(0deg)"
+          event.srcElement.nextSibling.style.height = "auto"
+          event.srcElement.nextSibling.style.padding = "15px 20px"
+        }
+      },
+      dropDown1(event){
+        this.toggleDropDown(event, this.isDropped1)
+        this.isDropped1 = !this.isDropped1
+      },
+      dropDown2(event){
+        this.toggleDropDown(event, this.isDropped2)
+        this.isDropped2 = !this.isDropped2
+      },
+    },
+    watch:{
+      $props:{
+        handler(){
+          // such a scuffed way, waiting for dom to update from state
+          // best way to do this is, new input fields fill up a structure then this triggers validations. don't have to use these values rn, but this way makes sure dom and state are matching
+          setTimeout(() => {
+            this.validateFields()
+          },50)
+        },
+        deep: true,
+        immediate: true,
+      }
+    }
+  })
+
+  app.component('properties', {
+    delimiters: ["[[", "]]"],
+    props: ['collectionsize', 'collections'],
+    emits:['close-loading'],
+    template:`
+    <div class="upload_properties">
+      <div class="rounded_container border">
+        <div style="
+        padding: 10px 15px 10px  15px;
+        grid-template-columns: 1fr 2fr 1fr;
+        -webkit-box-pack: justify;
+        justify-content: space-between;
+        gap: 10px;
+        display: grid;
+        /* align-items: end; */
+        /* justify-content: end; */
+        ">
+        <div></div>
+        <h3 class="no_margin center" style="font-size: 1.3rem;">Metadata</h3>
+        <img src="/static/icons/expand.svg" class="expand_collapse no_margin" style="transform: rotate(0deg);height: 20px; cursor: pointer;filter: var(--dark-grey-color-2); margin: 0px;justify-self: end;" @click="dropDown1">
+        </div>
+        
+        <div class="upload_page_property_fields">
+          
+          <h5 class="no_margin">Collection Name</h5>
+          <input
+            required
+            name="collection_name"
+            v-model="collection_name"
+            type="text"
+            placeholder="E.g. Void Chans"
+            @change = "validateFieldCollection"
+            maxlength="50"
+          />
+          <h5 class="no_margin">Description</h5>
+          <textarea 
+          style="resize: vertical" 
+          required 
+          name="description" 
+          v-model="description"
+          type="" placeholder="E.g. A collection that shows the emptiness of the soul." 
+          @change = "validateField"
+          maxlength="300">
+          </textarea>
+          <h5 class="no_margin">Collection URL (optional)</h5>
+          <input
+            name="collection_url"
+            v-model="collection_url"
+            type="text"
+            placeholder="E.g. www.genera.com/..."
+            @change = "validateField"
+            maxlength="50"
+          />
+          <h5 class="no_margin">Royalty Percentage (optional)</h5>
+          <input
+            name="royalty_percentage"
+            v-model="royalty_percentage"
+            type="number"
+            placeholder="E.g. 5%"
+            @change = "validateField"
+            min="0"
+            max="100"
+          />
+          <h5 class="no_margin">Royalty Wallet (optional)</h5>
+          <input
+            name="royalty_wallet"
+            type="text"
+            v-model="royalty_wallet"
+            placeholder="E.g. 0x36aC..."
+            @change = "validateField"
+            maxlength="50"
+          />
+          <div style="width: 100%; text-align: center;">
+            <h5 class="no_margin">Size</h5>
+            <h5 class="collection_properties">
+                [[ collectionsize ]]
+            </h5>
+          </div>  
+        </div>
+      </div>
+
+      
+        
+      <div class="rounded_container border">
+        <div style="
+        padding: 10px 15px 10px  15px;
+        grid-template-columns: 1fr 2fr 1fr;
+        -webkit-box-pack: justify;
+        justify-content: space-between;
+        gap: 10px;
+        display: grid;
+        /* align-items: end; */
+        /* justify-content: end; */
+        ">
+          <div></div>
+          <h3 class="no_margin center" style="font-size: 1.3rem;">Smart Contract</h3>
+          <img src="/static/icons/expand.svg" class="expand_collapse no_margin" style="transform: rotate(0deg);height: 20px; cursor: pointer;filter: var(--dark-grey-color-2); margin: 0px;justify-self: end;" @click="dropDown2">
+        </div>
+
+        <div class="upload_page_property_fields">
+
+          <h5 class="no_margin">Token Name</h5>
+          <input name="token_name" type="text" v-model="token_name" placeholder="E.g. VDE" @change = "validateField" maxlength="10" />
+
+          <h5 class="no_margin">Network</h5>
+          <select id="select" name="select" v-model="network" style="font-size: 1rem;"><option :value="0x1">Ethereum</option><option :value="0x4">Rinkeby Testnet</option><option :value="0x89">Polygon</option><option :value="0x13881">Mumbai Testnet</option></select>
+
+          <h5 class="no_margin">Minting Cost</h5>
+          <input name="Minting Cost" type="number" placeholder="E.g. 1 MATIC or 0.01 ETH" step="0.000000001" min="0" v-model="minting_cost" @change = "validateField" required>
+
+          <h5 class="no_margin">Mint Type</h5>
+          <select id="select" name="select" v-model="mint_type" style="font-size: 1rem;"><option :value="2" >Public</option></select>
+
+          <h5 class="no_margin">Allow Mint on Deploy?</h5>
+          <select id="select" name="select" v-model="allow_mint" style="font-size: 1rem;"><option :value="true">Yes</option><option :value="false">No</option></select>
+        </div>
+      </div>
+      {% if user.is_authenticated %}
+        <button
+          type="button"
+          id="upload_button_submit"
+          class="general_button_no_border main_color_background border rounded_container_no_padding"
+          @click="validateFields"
+        >
+          <h4 class="no_margin generate">Deploy Collection</h4>
+        </button>
+      {% else %}
+        <button
+          type="button"
+          id="upload_button_submit"
+          class="general_button_no_border main_color_background border rounded_container_no_padding"
+          disabled
+        >
+          <h4 class="no_margin generate">Deploy Collection</h4>
+        </button>
+      {% endif %}
+    </div>`, 
+    data() {
+      return {
+        description: null,
+        royalty_wallet: null,
+        royalty_percentage: null,
+        collection_url: null,
+        collection_name: null,
+        network: null,
+        minting_cost:null,
+        mint_type: null,
+        allow_mint: null,
+        token_name: null,
+        description: null,
+        isDropped1: false,
+        isDropped2: false,
+        contract: null,
+        active_account: null,
+        web3: null,
+        web3_infura:null,
+        contract_address:null,
+        componentKey : 0,
+      }
+    },
+    methods:{
+      validateFieldCollection(event){
+        if (event.target.checkValidity()) {
+          for (const collection of this.collections) {
+            if (this.collection_name == collection){
+              event.target.classList.add("field_error")
+              event.target.classList.remove("field_success")
+              // not worke!!!
+              // event.target.validity.badInput = true
+              // field_object.setCustomValidity("A collection with that name already exists")
+              event.target.title = "A collection with that name already exists"
+              return
+            }
+          }
+          event.target.classList.add("field_success")
+          event.target.classList.remove("field_error") 
+        }else {
+          event.target.classList.remove("field_success")
+          event.target.classList.add("field_error")
+        }
+      },
+      validateField(event){
+        if (event.target.checkValidity()) {
+          event.target.classList.add("field_success")
+          event.target.classList.remove("field_error")
+        } else {
+          event.target.classList.remove("field_success")
+          event.target.classList.add("field_error")
+        }
+      },
+      validateFields(){
+        let info_section = document.querySelector(".upload_properties")
+        let fields = info_section.querySelectorAll(":scope input, :scope textarea")
+        for (var i = 0; i < fields.length; i++) {
+          if (fields[i].checkValidity() && !fields[i].classList.contains("field_error")) {
+            continue
+          } else {
+              fields[i].reportValidity()
+            return
+          }
+        }
+        if (this.network==null) {
+          alert("Please Select a Network")
+          return
+        }
+        if (this.mint_type==null) {
+          alert("Please Select a Mint Type")
+          return
+        }
+        if (this.allow_mint==null) {
+          alert("Please Select a 'Mint on Deploy' option")
+          return
+        }
+        if (this.$root.$data.imgCounter<=0){
+          alert("Please Add Images")
+          return
+        }
+        if (this.$root.$data.imgCounter>10000){
+          alert("The Maximum Mint Amount is 10,000. Please Remove Some Images")
+          return
+        }
+
+        this.deployIFPS()
+      },
+      async deployIFPS(){
+        this.toggleLoading()
+        this.changeLoading(0)
+
+        let additional_metadata = {}
+        if (this.collection_url) {
+          additional_metadata['external_url'] = this.collection_url
+        }
+        if (this.royalty_percentage) {
+          additional_metadata['seller_fee_basis'] = parseInt(this.royalty_percentage)*100
+          if (this.royalty_wallet){
+            additional_metadata['fee_recipeint'] = this.royalty_wallet
+          } 
+        }
+
+        let fileList = []
+        for (const [key, value] of Object.entries(this.$root.$data.files)) {
+          fileList.push(value.file)
+        }
+
+        let imageCarBlob = await this.imageCar(fileList)
+
+        let metadataList = []
+        for (const [index, [, value]] of Object.entries(Object.entries(this.$root.$data.files))) {
+          let parsed_json = JSON.parse(value.metadata)
+          parsed_json['image'] = `https://${imageCarBlob}.ipfs.dweb.link/${index}.png`
+          for (const [key, value] of Object.entries(additional_metadata)) {
+            parsed_json[key] = value
+          }
+          metadataList.push(parsed_json)
+        }
+
+        let baseURI = await this.baseCar(metadataList)
+        this.changeLoading(1)
+        await this.metamask_check()
+        await this.changeNetworkProvider()
+        await this.get_chainid()
+        let mintingCost = this.web3.utils.toWei(String(this.minting_cost), 'ether')
+        let constructor_params = this.create_constructor_string(`https://${baseURI}.ipfs.dweb.link/`, this.collection_name, this.token_name, this.$root.$data.imgCounter, mintingCost, this.allow_mint)
+        let contract = await this.get_contract(this.mint_type)
+        let gasEstimate = await this.gasEstimate(contract, constructor_params)
+        let txHash = await this.mintContract(this.network, constructor_params, contract['bytecode'], gasEstimate, this.active_account)
+        this.contract_address = await this.waitForTxToBeMined(txHash)
+        this.save_contract_address(this.contract_address, this.network, this.mint_type, this.collection_name, this.description)
+        this.changeLoading(1)
+        this.redirect()
+      },
+      async imageCar(fileList){
+        var input_field = document.getElementsByClassName("dn")
+        input_field.value = fileList
+        const event = new Event('change')
+        input_field[0].dispatchEvent(event)
+
+        return new Promise((res) => {
+          input_field[0].onchange = function () {
+            console.log('1')
+            console.log(this)
+            console.log(input_field[0])
+            var file_data = new FormData()
+            file_data.append("image_car", "")
+            file_data.append("collection_name", this.collection_name)
+            file_data.append('car_blob', input_field.value)
+            ajax_post_form(file_data)
+              .then(response => {
+                res(response["image_uri"])
+                console.log(this)
+              })
+          }.bind(this)
+        })
+
+      },
+      async imageCarListener(){
+        return new Promise((res) => {
+          var input_field = document.getElementsByClassName("dn")
+          console.log('1')
+          console.log(this.collection_name)
+          console.log(input_field.value)
+          var file_data = new FormData()
+          file_data.append("image_car", "")
+          file_data.append("collection_name", this.collection_name)
+          file_data.append('car_blob', input_field.value)
+          ajax_post_form(file_data)
+            .then(function (response) {
+              console.log("HELLO")
+              res(response["image_uri"])
+              input_field[0].removeEventListener('change', this.imageCarListener())
+            }.bind(this))
+        })
+      },
+      async baseCar(metadataList){
+        var input_field = document.getElementsByClassName("dn2")
+        input_field.value = metadataList
+        const event = new Event('change');
+        input_field[0].dispatchEvent(event)
+
+        return new Promise((res) => {
+          input_field[0].onchange = function () {
+            console.log('2')
+            console.log(this)
+            console.log(input_field[0])
+            var file_data = new FormData();
+            file_data.append("base_car", "")
+            file_data.append("collection_name", this.collection_name)
+            file_data.append('car_blob', input_field.value);
+            ajax_post_form(file_data)
+              .then(response => {
+                res(response["base_uri"])
+              })
+          }.bind(this)
+        })
+      },
+      changeNetworkProvider(){
+        if (this.network == "1") {
+          token_name = 'Ether' // needed?
+        }
+        else if (this.network == "4") {
+          token_name = 'Ether'
+        }
+        else if (this.network == "89"){
+          token_name = 'MATIC'
+        }
+        else if (this.network == "13881"){
+          token_name = 'MATIC'
+        }
+        this.web3 = new Web3(Web3.givenProvider)
+      },
+      async get_chainid() {
+        let active_chain_id = await ethereum.request({ method: 'eth_chainId' });
+        if (active_chain_id != this.network) {
+          try {
+            await ethereum.request({
+              method: 'wallet_switchEthereumChain',
+              params: [{ chainId: '0x' + this.network }],
+            });
+          } catch (error) {
+            alert("Please Connect your Metmask Wallet")
+            this.closeLoading()
+            throw(error)
+          }
+        }
+      },
+      async metamask_check(){
+          const provider = await detectEthereumProvider();
+          if (provider) {
+            this.active_account = await this.startApp(provider)
+          } else {
+            alert('Please install MetaMask!');
+            this.closeLoading()
+            throw('error')
+          }     
+      },
+      async startApp(provider) {
+        if (provider !== window.ethereum) {
+          alert('Could not connect to Metamask, do you have multiple wallets installed?')
+        } else {
+          let account = await ethereum
+            .request({ method: 'eth_requestAccounts' })
+            .then((response) =>{
+              return response[0]
+              // ethereum.on('accountsChanged', handleAccountsChanged),
+              // ethereum.on('chainChanged', handleChainChanged)
+            })
+            .catch((err) => {
+              if (err.code === 4001) {
+                alert('Please connect to MetaMask.')
+                this.closeLoading()
+                throw(err)
+                
+              } else {
+                this.closeLoading()
+                throw (err)
+              }
+            });
+            return account
+        }
+      },
+      async mintContract(chain_id, constructor_parameters, contract, gasEstimate,active_account){
+        console.log(chain_id)
+        console.log('0x'+chain_id)
+        let txHash =  await ethereum
+          .request({
+            method: 'eth_sendTransaction',
+            params: [
+              {
+                from: active_account,
+                gas: gasEstimate,
+                gasLimit: parseInt(10000000).toString(16),
+                data: contract + constructor_parameters,
+                chainId: '0x'+chain_id,
+              },
+            ],
+          })
+          .catch(error => {
+            alert("An error occured while deploying your contract. Please try again.")
+            this.closeLoading()
+            throw (error)
+          })
+          .then(async function (txHash) {
+            return txHash
+          })
+        return txHash
+      },
+      async waitForTxToBeMined(txHash) {
+        let txReceipt
+        while (!txReceipt) {
+          try {
+            txReceipt = await this.web3.eth.getTransactionReceipt(txHash)
+          } catch (err) {
+            alert("An error occured while deploying your contract. Please try again.")
+            this.closeLoading()
+            throw(err)
+          }
+        }
+        console.log("Transaction received " + txReceipt)
+        return txReceipt['contractAddress']
+      },
+      async gasEstimate(contract, constructor_parameters){
+        let gas_estimate = await this.web3.eth.estimateGas({
+          data: contract['bytecode'] + constructor_parameters
+        });
+      },
+      async get_contract(type){
+        return new Promise((res) =>{
+          ajax_post_json({ 'get_contract': type })
+            .then(function (response) {
+              res(JSON.parse(response["contract"]))
+            })
+      })
+      },
+      save_contract_address(contract_address, active_chain_id, contract_type, collection_name, description) {
+        ajax_post_json({ 'address_set': contract_address, 'chain_id': '0x' + active_chain_id, 'contract_type': contract_type, 'collection_name': collection_name, 'description': description })
+          .then(function (response) {
+            console.log("Contract adress stored in db " + response["server_message"])
+          })
+      },
+      create_constructor_string(baseuri, name, symbol, totalSupply, cost, open_bool) {
+        temp_constructor_params = this.web3.eth.abi.encodeParameters(
+            ['string', 'string', 'string', 'uint32', 'uint256', 'bool'], 
+            [baseuri, name, symbol, totalSupply, cost, open_bool]
+        );
+        constructor_params = temp_constructor_params.replace('0x', '', '', '', '', '');
+        return constructor_params;
+      },
+      redirect(){
+        ajax_post_json({ 'collection_name': this.collection_name, 'collection_redirect': ''})
+          .then(function (response) {
+          })
+      },
+      toggleDropDown(event, bool_check){
+        if (!bool_check){
+          event.srcElement.style.transform = "rotate(180deg)"
+          event.srcElement.parentElement.nextSibling.style.height = "0"
+          event.srcElement.parentElement.nextSibling.style.padding = "0 20px"
+        }
+        else{
+          event.srcElement.style.transform = "rotate(0deg)"
+          event.srcElement.parentElement.nextSibling.style.height = "auto"
+          event.srcElement.parentElement.nextSibling.style.padding = "15px 20px"
+        }
+      },
+      dropDown1(event){
+        this.toggleDropDown(event, this.isDropped1)
+        this.isDropped1 = !this.isDropped1
+      },
+      dropDown2(event){
+        this.toggleDropDown(event, this.isDropped2)
+        this.isDropped2 = !this.isDropped2
+      },
+      changeLoading(index){
+        this.$root.$data.loading_index = index
+        this.componentKey += 1
+      },
+      toggleLoading(){
+        this.$root.$data.loading = !this.$root.$data.loading
+      },
+      closeLoading(){
+        this.$emit('close-loading')
+      }
+    }
+  })
+
+  app.component('deploy',{
+    delimiters: ["[[", "]]"],
+    props: {
+      'loading':Boolean, 
+      'loadingindex':Number
+    },
+    emits:['close-loading'],
+    template: `
+    <div class="deploy_collection_container rounded_container_no_padding" style="display: block;">
+      <img class="dc_close close_button_color" src="/static/icons/remove.svg" @click="closeLoading">
+      <div class="dc_content">
+          <div class="dc_status_container">
+              <div class="dc_status_sections" style="grid-template-columns: repeat(3, 1fr);">
+
+                  <div style="text-align: left;">
+                    <template v-if:="[[loadingindex]] <= 0" >
+                      <div class="dc_status_dot" id="dc_status_4"></div>
+                    </template>
+                    <template v-else>
+                      <div class="dc_status_dot" id="dc_status_4" style="background: var(--main-color);"></div>
+                    </template>
+                    <p style="margin-left: -35px;">Deploy to IPFS</p>
+                  </div>
+                  <div>
+                    <template v-if:="[[loadingindex]] <= 1" >
+                      <div class="dc_status_dot" id="dc_status_4" style="left: 49%;"></div>
+                    </template>
+                    <template v-else>
+                      <div class="dc_status_dot" id="dc_status_4" style="background: var(--main-color); left: 49%;"></div>
+                    </template>
+                    <p>Deploy Contract</p>
+                  </div>
+                  <div style="text-align: right;">
+                    <template v-if:="[[loadingindex]] <= 2" >
+                      <div class="dc_status_dot" id="dc_status_4" style="left: 83.5%;"></div>
+                    </template>
+                    <template v-else>
+                      <div class="dc_status_dot" id="dc_status_4" style="background: var(--main-color); left: 83.5%;"></div>
+                    </template>
+                    <p>Mint</p>
+                  </div>
+              </div>
+              
+              <div class="dc_status_bar_container sub_color_background">
+                <template v-if:="[[loadingindex]] == 0" >
+                  <div class="dc_status_bar_active main_color_background" style="width: 0%"></div>
+                </template>
+                <template v-else-if:="[[loadingindex]] == 1" >
+                  <div class="dc_status_bar_active main_color_background" style="width: 50%"></div>
+                </template>
+                <template v-else-if:="[[loadingindex]] == 2" >
+                  <div class="dc_status_bar_active main_color_background" style="width: 100%"></div>
+                </template>
+              </div>
+
+          </div>
+          <h2>[[ this.title[  loadingindex  ] ]]</h2>
+          <h4>[[ this.subtitle[  loadingindex  ] ]]</h4>
+          <div class="dc_body">
+            <template v-if:="[[this.spinner[ loadingindex ] ]] == 1" >
+              <div class="spinner" style="display: flex;">
+                <div class="rect1" id="spin1"></div>
+                <div class="rect1" id="spin2"></div>
+                <div class="rect1" id="spin3"></div>
+                <div class="rect1" id="spin4"></div>
+                <div class="rect1" id="spin5"></div>
+              </div>
+            </template>
+              <div class="input_wrapper"></div>
+          </div>
+          <div class="dc_buttons">
+          </div>
+      </div>
+    </div>  `,
+    data() {
+      return {
+        title:[
+          'Deploying to IPFS',
+          'Deploying the Smart Contract',
+          'Deployed!'
+        ],
+        subtitle:[
+          'Your collection is currently being deployed to IPFS, this may take a while...',
+          'Please confirm with your Metamask Wallet',
+          'Public Mint Page Available!'
+        ],
+        spinner:[
+          1,
+          1,
+          0,
+        ],
+        progress_bar:[
+          '0%',
+          '50%',
+          '100%',
+        ],
+        button:[
+          false,
+          false,
+          true,
+        ],
+        width: '100%'
+      }
+    },
+    methods :{
+      async closeLoading(){
+        await yes_no_popup("Cancel deployment?", "Yes", "No").then((response)=>{
+          if (response) {
+            this.$emit('close-loading')
+          }
+        })
+        
+      }
+    }
+  })
+
+  app.mount('#add-files-component')
+</script>
+
+{% endblock %}

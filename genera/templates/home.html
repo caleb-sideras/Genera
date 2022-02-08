@@ -10,8 +10,8 @@
   
   <div class="main_section no_margin">
     <div class="main_upper">
-      <h1>Connecting Artists to Ethereum</h1>
-      <h4>Create and mint NFTs directly to Ethereum using your Metamask wallet! Using IFPS, your NFT metadata will be safely stored on the decentralized web!</h4>
+      <h1>Connecting Artists to Web3</h1>
+      <h4>Create and deploy NFT collections to Ethereum or Polygon using your Metamask wallet! Using IPFS, your NFT metadata will be safely stored on the decentralized web!</h4>
     </div>
     
     <div class="sub_section">
@@ -19,16 +19,18 @@
         <a href="{% url 'main:upload' %}">
           <div class="card grow main_card card_title rounded_container">
             <h2 class="no_margin card">Generative NFT Maker/Minter</h2>
-            <h3 class="no_margin card">Create and mint generative NFT collections with custom rarities, texture mapping and metadata</h3>
+            <h3 class="no_margin card">Create and deploy generative NFT collections with custom rarities, texture mapping and metadata</h3>
           </div>
         </a>
       </div>
       
       <div class="row1">
-        <div class="card disabled_button big_card card_title rounded_container">
-          <h2 class="no_margin card">NFT Minter</h2>
-          <h3 class="no_margin card">Upload and mint NFT collections (metadata optional)</h3>
-        </div>
+        <a href="{% url 'main:mint' %}">
+          <div class="card grow big_card card_title rounded_container">
+            <h2 class="no_margin card">NFT Minter</h2>
+            <h3 class="no_margin card">Upload and mint NFT collections (metadata optional)</h3>
+          </div>
+        </a>
         <div class="card disabled_button small_card card_title rounded_container main_color_background">
           <h2 class="no_margin card">Texture Mapping</h2>
           <h3 class="no_margin card">Map mutiple textures onto a various assets</h3>
@@ -40,67 +42,81 @@
   <div class="features_wrapper">
     <h2 style="text-align: center; position: relative; font-size: 2rem; margin-top: 0; margin-bottom: 50px;">Features</h2>
       <div class="features_card">
-        <div class="info_card rounded_container_no_padding shadow_strong ">
+        <div class="info_card rounded_container_no_padding">
           <img src="/static/Assets/Images/html_icon.png" class="nft_image">
           <div>
             <p class="no_margin center">No Coding Required</p>
-            <div><p class="no_margin center">Add assets/textures to your layers and generate!</p></div>                      
+            <div><p class="no_margin center">Add assets/textures to your layers and generate</p></div>                      
           </div>
         </div>
-        <div class="info_card rounded_container_no_padding shadow_strong ">
+        <div class="info_card rounded_container_no_padding">
           <img src="/static/Assets/Images/slider_icon.png" class="nft_image">
           <div>
             <p class="no_margin center">Asset/Texture Rarity</p>
-            <div><p class="no_margin center">Choose exactly the amount of times you want an asset/texture to appear in your collection</p></div>                      
+            <div><p class="no_margin center">Choose the amount of times you want an asset/texture to appear in your collection</p></div>                      
           </div>
         </div>
-        <div class="info_card rounded_container_no_padding shadow_strong ">
+        <div class="info_card rounded_container_no_padding">
           <img src="/static/Assets/Images/texturemapping_icon.png" class="nft_image">
           <div>
             <p class="no_margin center">Texture Mapping</p>
             <div><p class="no_margin center">Upload plain assets and map multiple textures onto them, with full rarity control</p></div>                      
           </div>
         </div>
-        <div class="info_card rounded_container_no_padding shadow_strong ">
+        <div class="info_card rounded_container_no_padding">
+          <img src="/static/Assets/Images/contract_icon.png" class="nft_image">
+          <div>
+            <p class="no_margin center">Smart Contract</p>
+            <div><p class="no_margin center">Deploy a customizable Smart Contract to Ethereum or Polygon</p></div>            
+          </div>
+        </div>
+        <div class="info_card rounded_container_no_padding">
+          <img src="/static/Assets/Images/hosted_icon.png" class="nft_image">
+          <div>
+            <p class="no_margin center">Hosted Minting Pages</p>
+            <div><p class="no_margin center">Hosted minting pages anyone can access through your pofile or a link</p></div>            
+          </div>
+        </div>
+        <div class="info_card rounded_container_no_padding">
           <img src="/static/Assets/Images/minting_icon.png" class="nft_image">
           <div>
             <p class="no_margin center">Minting</p>
-            <div><p class="no_margin center">Using your Metamask wallet, mint your NFTs directly to Ethereum</p></div>                      
+            <div><p class="no_margin center">Mint NFTs using your Metamask wallet</p></div>                      
           </div>
         </div>
-        <div class="info_card rounded_container_no_padding shadow_strong ">
+        <div class="info_card rounded_container_no_padding">
           <img src="/static/Assets/Images/metadata_icon.png" class="nft_image">
           <div>
             <p class="no_margin center">Metadata</p>
-            <div><p class="no_margin center">Generates ERC721 compliant metadata, that uniquely identifies each NFT</p></div>                      
+            <div><p class="no_margin center">Generates EIP-721 compliant metadata, that uniquely identifies each NFT</p></div>                      
           </div>
         </div>
-        <div class="info_card rounded_container_no_padding shadow_strong ">
+        <div class="info_card rounded_container_no_padding">
           <img src="/static/Assets/Images/size_icon.png" class="nft_image">
           <div>
             <p class="no_margin center">Collection Size</p>
-            <div><p class="no_margin center">Generate up to 10,000 NFTs in your collection!</p></div>                      
+            <div><p class="no_margin center">Generate up to 10,000 NFTs in your collection</p></div>                      
           </div>
         </div>
-        <div class="info_card rounded_container_no_padding shadow_strong ">
+        <div class="info_card rounded_container_no_padding">
           <img src="/static/Assets/Images/ifps_icon.png" class="nft_image">
           <div>
             <p class="no_margin center">IFPS Storage</p>
-            <div><p class="no_margin center">Using Pinata, all your NFT metadata will be safely stored on the decentralized web!</p></div>                      
+            <div><p class="no_margin center">All your NFT metadata will be safely stored on the decentralized web!</p></div>                      
           </div>
         </div>
-        <div class="info_card rounded_container_no_padding shadow_strong ">
+        <div class="info_card rounded_container_no_padding">
           <img src="/static/Assets/Images/download_icon.png" class="nft_image">
           <div>
             <p class="no_margin center">Download</p>
             <div><p class="no_margin center">Download all your generated assets with their metadata</p></div>                      
           </div>
         </div>
-        <div class="info_card rounded_container_no_padding shadow_strong ">
+        <div class="info_card rounded_container_no_padding">
           <img src="/static/Assets/Images/edit_metdata_icon.png" class="nft_image">
           <div>
             <p class="no_margin center">Edit Metadata</p>
-            <div><p class="no_margin center">Edit your NFT metadata post generation **Name & Description</p></div>            
+            <div><p class="no_margin center">Edit your NFT metadata</p></div>            
           </div>
         </div>
       </div>

@@ -156,9 +156,8 @@ function open_images(self){
                         console.log(response["server_message"])
                         card_element.remove()
                     })
-                    close_yes_no_popup()
                 }
-                (document.body).children[0].remove() // TODO fix
+                close_image_carousell()
 
             })
         })
@@ -201,7 +200,11 @@ function open_images(self){
     popup_container.classList = "image_preview"
     popup_container.appendChild(top_row)
     popup_container.appendChild(preview_container)
+    background_blur = document.createElement('div')
+    background_blur.classList = 'background_blur'
+    document.body.classList.add('disable_scrolling');
     document_body.prepend(popup_container)
+    document_body.prepend(background_blur)
 
 }
 
@@ -257,7 +260,11 @@ function close_edit(){
 }
 
 function close_image_carousell(){
-    document.getElementsByClassName("image_preview")[0].remove() 
+    if (document.contains(document.getElementsByClassName("image_preview")[0])){
+        document.body.classList.remove('disable_scrolling');
+        document.getElementsByClassName("background_blur")[0].remove() 
+        document.getElementsByClassName("image_preview")[0].remove() 
+    }
 }
 
 function expand_collapse(self) {
@@ -325,9 +332,6 @@ async function delete_duplicates(){
                         location.reload();
                     })
             }
-            close_yes_no_popup()
-            // (document.body).children[0].remove()
-
         })
 }
 
@@ -342,9 +346,6 @@ async function delete_collection(){
                         window.location = "http://localhost:8000/";
                     })
             }
-            close_yes_no_popup()
-            // (document.body).children[0].remove()
-
         })
 }
 
@@ -374,12 +375,12 @@ function download_zip() {
     for (let i = 0; i < images.length; i++) {
         // let filename = images[i].dataset.name + ".png";
         let url = images[i].dataset.fullrez
-        let metadata_name = images[i].dataset.name + ".json";
+        // let metadata_name = images[i].dataset.name + ".json";
         let json = metadata[i].dataset.metadata
         promise_list.push(
             zipFiles(
                 url,
-                metadata_name,
+                json,
                 i
             )
         )

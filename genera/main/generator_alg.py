@@ -222,9 +222,8 @@ def create_and_save_collection_paid(tempDict, db_collection, user = None):
     for value in texturedAssetDict:
         if len(texturedAssetDict[value]) > longest_layer:
             longest_layer = len(texturedAssetDict[value])
-    # if longest_layer > tempDict['CollectionSize']: #NOTE: Ask caleb if this is needed
-    #     return False
-
+    if longest_layer > tempDict['CollectionSize']:
+        return False
     db_collection.collection_size = longest_layer
     db_collection.save()
 
@@ -236,11 +235,13 @@ def create_and_save_collection_paid(tempDict, db_collection, user = None):
         compressed_x = int((tempDict["Resolution_x"] * 200) / tempDict["Resolution_y"])
         compressed_y = 200
     
+
     # print(compressed_y)
     # print(compressed_x)
 
     # iterating over textured assets dictionary, and combining them
     for i in range(longest_layer):
+        
         img_name = f"{tempDict['ImageName']} {i+1}"
         image_to_collection_db = CollectionImage.objects.create(linked_collection=db_collection)
         image_to_collection_db.name = img_name
@@ -280,21 +281,20 @@ def create_and_save_collection_paid(tempDict, db_collection, user = None):
                 image_to_collection_db.path_compressed = aws_media_storage_manipulator.create_secure_url(path_to_object=compressed_image_path, expire=604800) ##generate safe url and save to db
         else:
             current_image_path = f"{db_collection.path}/{alphanum_random(6)}.png"
+ 
             im.save(current_image_path[1:], "PNG")
             compressed_image_path = current_image_path.replace(".png", "_tbl.png")
             im.thumbnail((200,200)) #comress to thumbnail size
             im.save(f"{compressed_image_path[1:]}", "PNG") #save thumbnail
+
             image_to_collection_db.path = current_image_path
             image_to_collection_db.path_compressed = compressed_image_path #save thumbnail path
 
         image_to_collection_db.save()
-
-        if user.credits <= 0:
-            return
-        else:
-            user.credits -= 1
-            user.save()
+        
+        
     print("Finished generation")
+    return True
 
 def create_and_save_collection_free(tempDict):
     print(tempDict["CollectionName"])
@@ -389,6 +389,7 @@ def create_and_save_collection_free(tempDict):
     metadata_list = []
 
     try:
+        
         watermark = Image.open(staticify("Assets/Background/genera_watermark.png"))
     except:
         print("Could not open watermark")

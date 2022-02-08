@@ -211,10 +211,10 @@ deploy_collection_data_public = {
                             'name':'Public',
                             'value' : 2,
                         },
-                        {
-                            'name': 'Private',
-                            'value' : 1,
-                        }
+                        // {
+                        //     'name': 'Private',
+                        //     'value' : 1,
+                        // }
                     ],
                     'name': 'Mint Type',
                     'type': 'dropdown',
