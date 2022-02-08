@@ -67,7 +67,7 @@ class User(AbstractBaseUser, PermissionsMixin, Model):
     date_joined = models.DateTimeField(default=timezone.now)
 
     is_staff = models.BooleanField(default=False)
-
+    credits = models.IntegerField(default=0)
 
     USERNAME_FIELD = 'username'
     EMAIL_FIELD = 'email'
@@ -102,32 +102,31 @@ class UserAsset(Model):
         return str(self.name)
 
 class UserCollection(Model):
-    collection_name = models.CharField(max_length=50, unique=False)
-    
+    collection_name = models.CharField(max_length=50, unique=False) 
     description = models.CharField(max_length=300, unique=False) # not needed?
-    dimension_x = models.IntegerField(default=4000) # not needed?
-    dimension_y = models.IntegerField(default=4000) # not needed?
-    collection_size = models.IntegerField(default=10)
+    dimension_x = models.IntegerField() # not needed?
+    dimension_y = models.IntegerField() # not needed?
+    collection_size = models.IntegerField(default=0)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     path = models.CharField(max_length=250)
     token_name = models.CharField(max_length=9) # wait till deploy?
-    
     image_name = models.CharField(max_length=10) # not needed?
+
     duplicates_deleted = models.BooleanField(default=False)
 
     # IFPS
     collection_ifps_bool = models.BooleanField(default=False)
-    image_uri = models.CharField(max_length=100, unique=False)
+    image_uri = models.CharField(max_length=100, unique=False, null=True, blank=True)
 
     # Smart Contract Universal
-    contract_address = models.CharField(max_length=50, unique=False, blank = True, null = True)
+    contract_address = models.CharField(max_length=50, unique=False, blank=True, null=True)
     contract_bool =  models.BooleanField(default=False) # probs not needed
-    chain_id = models.CharField(max_length=10, unique=False)
+    chain_id = models.CharField(max_length=10, unique=False, blank=True, null=True)
     contract_type = models.IntegerField(default=0) # 0 = nothing, 1 = privateV1, 2 = publicV1
     
     # Smart Contract Public
-    base_uri = models.CharField(max_length=100, unique=False)
-    minting_cost = models.CharField(max_length=50, unique=False)
+    base_uri = models.CharField(max_length=100, unique=False, null=True, blank=True)
+    minting_cost = models.CharField(max_length=50, unique=False, null=True, blank=True)
     
     # Smart Contract Private
     tokens_deployed = models.BooleanField(default=False)
@@ -141,7 +140,6 @@ class UserCollection(Model):
 class CollectionImage(Model):
     linked_collection = models.ForeignKey(UserCollection, on_delete=models.CASCADE)
     name = models.CharField(max_length=50, unique=False) # not needed
-
 
     path = models.TextField(null = True, blank = True, max_length=500)
     path_compressed = models.TextField(null = True, blank = True, max_length=500)
