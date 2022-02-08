@@ -126,8 +126,13 @@ def rarityAppend2(json_object, json_name, rarity_list, asset_dict):
 
 
 def create_and_save_collection_paid(tempDict, db_collection, user = None):
-    print(tempDict["CollectionName"])
-    print(tempDict["Description"])
+    def pil_to_aws(pil_image, format="PNG"):
+        in_mem_file = BytesIO()
+        pil_image.save(in_mem_file, format=format)
+        return ContentFile(in_mem_file.getvalue())
+
+    # print(tempDict["CollectionName"])
+    # print(tempDict["Description"])
 
     rarityArrayAsset = []
     rarityArrayTexture = []
@@ -139,11 +144,11 @@ def create_and_save_collection_paid(tempDict, db_collection, user = None):
     metadataDict = {}
 
     texture_map_color = ImageColor.getcolor(tempDict['TextureColor'], "RGB")
-    print(tempDict['TextureColor'])
-    print(texture_map_color)
+    # print(tempDict['TextureColor'])
+    # print(texture_map_color)
     for key, value in tempDict["Layers"].items():
         texturedAsset = 0
-        print(f"Generating {key} layer")
+        # print(f"Generating {key} layer")
 
         if value["Assets"] and value["Textures"]:
 
@@ -207,16 +212,19 @@ def create_and_save_collection_paid(tempDict, db_collection, user = None):
         metadataArray = []
         rarityDictAsset = {}
         rarityDictTexture = {}
-    print("Creating/saving .png & .json")
+    # print("Creating/saving .png & .json")
     
-    # if not DEPLOYMENT_INSTANCE:
-    #     os.makedirs(db_collection.path[1:])
-    # print(texturedAssetDict)
+    if not DEPLOYMENT_INSTANCE:
+        os.makedirs(db_collection.path[1:])
+
     # getting longest layer
     longest_layer = 0
     for value in texturedAssetDict:
         if len(texturedAssetDict[value]) > longest_layer:
             longest_layer = len(texturedAssetDict[value])
+    # if longest_layer > tempDict['CollectionSize']: #NOTE: Ask caleb if this is needed
+    #     return False
+
     db_collection.collection_size = longest_layer
     db_collection.save()
 
@@ -228,8 +236,8 @@ def create_and_save_collection_paid(tempDict, db_collection, user = None):
         compressed_x = int((tempDict["Resolution_x"] * 200) / tempDict["Resolution_y"])
         compressed_y = 200
     
-    print(compressed_y)
-    print(compressed_x)
+    # print(compressed_y)
+    # print(compressed_x)
 
     # iterating over textured assets dictionary, and combining them
     for i in range(longest_layer):
@@ -260,25 +268,25 @@ def create_and_save_collection_paid(tempDict, db_collection, user = None):
         temp_json.update({"attributes": temp_list})
         image_to_collection_db.metadata = json.dumps(temp_json)
 
-        def pil_to_aws(pil_image, format="PNG"):
-            in_mem_file = BytesIO()
-            pil_image.save(in_mem_file, format=format)
-            return ContentFile(in_mem_file.getvalue())
-        
-        aws_media_storage_manipulator = AwsMediaStorageManipulator()
-
-        current_image_path = f"{db_collection.path}/{image_to_collection_db.name}.png" ##IMPORTANT FOR REVERSE
-
-        aws_media_storage_manipulator.save(current_image_path, pil_to_aws(im)) #upload the image to S3
-        image_to_collection_db.path = aws_media_storage_manipulator.create_secure_url(path_to_object=current_image_path, expire=604800) ##generate safe url and save to db
-
-        if tempDict["Resolution_x"] > 1000 and tempDict["Resolution_y"] > 1000: ##compress if image is too big
-            im.thumbnail((200,200)) #comress to thumbnail size
+        if DEPLOYMENT_INSTANCE:
+            aws_media_storage_manipulator = AwsMediaStorageManipulator()
+            current_image_path = f"{db_collection.path}/{image_to_collection_db.name}.png" ##IMPORTANT FOR REVERSE
+            aws_media_storage_manipulator.save(current_image_path, pil_to_aws(im)) #upload the image to S3
+            image_to_collection_db.path = aws_media_storage_manipulator.create_secure_url(path_to_object=current_image_path, expire=604800) ##generate safe url and save to db
+            if tempDict["Resolution_x"] > 1000 and tempDict["Resolution_y"] > 1000: ##compress if image is too big
+                im.thumbnail((200,200)) #comress to thumbnail size
+                compressed_image_path = current_image_path.replace(".png", "_tbl.png")
+                aws_media_storage_manipulator.save(compressed_image_path, pil_to_aws(im)) #upload the image to S3
+                image_to_collection_db.path_compressed = aws_media_storage_manipulator.create_secure_url(path_to_object=compressed_image_path, expire=604800) ##generate safe url and save to db
+        else:
+            current_image_path = f"{db_collection.path}/{alphanum_random(6)}.png"
+            im.save(current_image_path[1:], "PNG")
             compressed_image_path = current_image_path.replace(".png", "_tbl.png")
+            im.thumbnail((200,200)) #comress to thumbnail size
+            im.save(f"{compressed_image_path[1:]}", "PNG") #save thumbnail
+            image_to_collection_db.path = current_image_path
+            image_to_collection_db.path_compressed = compressed_image_path #save thumbnail path
 
-            aws_media_storage_manipulator.save(compressed_image_path, pil_to_aws(im)) #upload the image to S3
-            image_to_collection_db.path_compressed = aws_media_storage_manipulator.create_secure_url(path_to_object=compressed_image_path, expire=604800) ##generate safe url and save to db
-            
         image_to_collection_db.save()
 
         if user.credits <= 0:

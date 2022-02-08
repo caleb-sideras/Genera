@@ -2,7 +2,7 @@ from json.decoder import JSONDecodeError
 from django.shortcuts import render
 from main.helper_functions import nft_storage_api_store
 from main.view_tools import *
-from genera.settings import DEFAULT_FROM_EMAIL, STRIPE_PRIVATE_KEY
+from genera.settings import DEFAULT_FROM_EMAIL, STRIPE_PRIVATE_KEY, DEPLOYMENT_INSTANCE
 from genera.s3_storage import AwsMediaStorageManipulator
 from main.models import User
 from main.forms import *
@@ -173,8 +173,9 @@ def upload_view(request):
             calebs_gay_dict["Description"] = request.POST.get("description")
             calebs_gay_dict["Resolution_x"] = int(float(request.POST.get("resolution_x")))
             calebs_gay_dict["Resolution_y"] = int(float(request.POST.get("resolution_y")))
-            # calebs_gay_dict["CollectionSize"] = int(float(request.POST.get("size")))
+            calebs_gay_dict["CollectionSize"] = int(float(request.POST.get("size")))
             calebs_gay_dict["TextureColor"] = request.POST.get("color")
+
             new_dict = json.loads(request.POST.get("image_dict"))
             for value in calebs_gay_dict.values():
                 if not value:
@@ -196,20 +197,18 @@ def upload_view(request):
                 db_collection.dimension_y = calebs_gay_dict["Resolution_y"]
                 db_collection.token_name = calebs_gay_dict["TokenName"]
                 db_collection.image_name = calebs_gay_dict["ImageName"]
-                # db_collection.path = f"/media/users/{request.user.username}/collections/{calebs_gay_dict['CollectionName'].strip().replace(' ', '_')}"
+
                 #CREATE THE FOLDER HERE PERHAPS ?
-                try:
-                    folder_name = f"users/{request.user.username}/collections/{calebs_gay_dict['CollectionName'].strip().replace(' ', '_')}"
-                    db_collection.path = folder_name
-                except Exception as e:
-                    print(e)
-                    messages.error(request, message="Critical Backend error. Unable to create folder on S3")
-                    return ajax_redirect(reverse("main:upload"))
+                if DEPLOYMENT_INSTANCE:
+                    db_collection.path = f"users/{request.user.username}/collections/{calebs_gay_dict['CollectionName'].strip().replace(' ', '_')}" #TODO: make sure the the 2 parameters a filepath safe
+                else:
+                    db_collection.path = f"/media/users/{request.user.username}/collections/{calebs_gay_dict['CollectionName'].strip().replace(' ', '_')}"
 
                 try:
                     db_collection.save()
-                except:
-                    messages.error(request, message="Critical Backend error. Please try again. No credits were deducted.")
+                except Exception as e:
+                    print(e)
+                    messages.error(request, message="Critical Backend error. Unable to create collection.")
                     return ajax_redirect(reverse("main:upload"))
             
             for filename in request.FILES.keys():
@@ -494,14 +493,6 @@ def mint_view(request, username, collection_name):
     
 
     return render(request, "user_mint.html", context)
-
-# @receiver(pre_delete, sender=UserCollection)
-# def model_delete(sender, instance, **kwargs):
-#     try:
-#         shutil.rmtree(instance.path[1:])
-#         # print("Collection folder deleted from server succesfully")
-#     except:
-#         print("Deletion of files failed OR files did not exist in the first place")
 
 def all_collections_view(request, username):
     context = {}
