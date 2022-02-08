@@ -1,6 +1,5 @@
 from json.decoder import JSONDecodeError
 from django.shortcuts import render
-from numpy import ufunc
 from main.helper_functions import nft_storage_api_store
 from main.view_tools import *
 from genera.settings import DEFAULT_FROM_EMAIL, STRIPE_PRIVATE_KEY, DEPLOYMENT_INSTANCE
@@ -45,7 +44,6 @@ def upload_view(request):
     context = {}
     context["ajax_url"] = reverse("main:upload")
 
-
     if request.user.is_authenticated:        
         user = User.objects.filter(username=request.user.username).first()
         collections = []
@@ -54,8 +52,6 @@ def upload_view(request):
                 collections.append(collection.collection_name)
             print(collections)
             context['users_collections'] = json.dumps(collections)
-
-
 
     def file_to_pil_no_resize(file, res_x, res_y):
         PIL_image = Image.open(BytesIO(file.read()))
@@ -68,7 +64,6 @@ def upload_view(request):
         imageBytes = BytesIO()
         pil_img.save(imageBytes, format='PNG')
         return base64.b64encode(imageBytes.getvalue()).decode('utf-8')
-
 
     calebs_gay_dict = {}
     
