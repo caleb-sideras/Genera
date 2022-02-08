@@ -28,7 +28,6 @@ import json
 from django.template.loader import render_to_string
 from io import BytesIO
 import stripe
-
 # Create your views here.
 stripe.api_key = STRIPE_PRIVATE_KEY
 
@@ -536,9 +535,20 @@ def collection_view(request, username, collection_name):
                             "collection_name": user_collection.collection_name,
                         },)
                 collection_images = CollectionImage.objects.filter(linked_collection__id=user_collection.id)
-                context["entry_ids"] = json.dumps([str(x) for x in CollectionImage.objects.filter(linked_collection__id=user_collection.id).values_list('id', flat=True)])
-                context["collection_data"] = user_collection
-                context["collection_images"] = collection_images
+                if collection_images:
+                    if presigned_url_is_expired(collection_images[0].path): ##check if first image url is expired - if so - renew the presigned urls for all images
+                        aws_media_storage_manipulator = AwsMediaStorageManipulator()
+                        for image in collection_images:
+                            image.path = aws_media_storage_manipulator.create_secure_url(path_to_object=image.path, expire=604800)
+                            if image.compressed_path:
+                                image.compressed_path = aws_media_storage_manipulator.create_secure_url(path_to_object=image.compressed_path, expire=604800)
+                            image.save() #save image with new links!
+
+                    context["entry_ids"] = json.dumps([str(x) for x in collection_images.values_list('id', flat=True)])
+                    context["collection_data"] = user_collection
+                    context["collection_images"] = collection_images
+                else:
+                    print("No images in collection!")
                 
                 # if user_collection.collection_ifps_bool:
                 #     context["ipfs_links"] = json.dumps(list(collection_images.all().values_list('ipfs_metadata_path', flat=True))) 

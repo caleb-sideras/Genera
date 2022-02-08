@@ -7,6 +7,8 @@ from django.urls import reverse
 from genera.settings import STRIPE_PRIVATE_KEY
 import stripe
 stripe.api_key = STRIPE_PRIVATE_KEY
+import re
+from datetime import datetime, timedelta
 
 def get_absolute_path():
     return BASE_URL
@@ -65,4 +67,29 @@ def fetch_stripe_session_product_and_price(stripe_session_obbject):
     return (product,price)
 
 staticify = lambda x: f"{STATIC_DIR}/{x}"
+
+
+def presigned_url_is_expired(url, days_to_expire=7):
+    url_created = re.findall(r"(?<=Date=).+(?=Z)", url)
+    if url_created:
+        url_created = url_created[0]
+    else:
+        return False #if no url date is found - return false, meaning its either LOCALHOST path or we parsed wrong url, in which case its best to return False to avoid infinite loops.
+    date_time_obj = datetime.strptime(url_created, '%Y%m%dT%H%M%S')
+
+    if days_to_expire==7: ##hardcoded if we know the number of days to expire.
+        expiry = date_time_obj + timedelta(days=days_to_expire)
+    else: #otherwise, extract that from the url.
+        url_expires = re.findall(r"(?<=Expires=).+(?=&X-Amz-SignedHeaders)", url)
+        if url_expires:
+            expiry_seconds = url_expires[0]
+        else:
+            return False
+        expiry = date_time_obj + timedelta(seconds=int(expiry_seconds))
+        print(expiry)
+
+    if datetime.today() > expiry:
+        return True
+    else:
+        return False
 

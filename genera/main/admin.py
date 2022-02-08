@@ -34,7 +34,7 @@ class CollectionImage_Inline(admin.TabularInline):
     model = CollectionImage
 
 class UserCollection_Admin(admin.ModelAdmin):
-    list_display = ['collection_name']
+    list_display = ['collection_name', 'user']
     search_fields = []
     list_filter = []
     inlines = [CollectionImage_Inline]
