@@ -67,6 +67,7 @@ class User(AbstractBaseUser, PermissionsMixin, Model):
     date_joined = models.DateTimeField(default=timezone.now)
 
     is_staff = models.BooleanField(default=False)
+    credits = models.IntegerField(default=0)
 
     USERNAME_FIELD = 'username'
     EMAIL_FIELD = 'email'
@@ -131,7 +132,7 @@ class UserCollection(Model):
     tokens_deployed = models.BooleanField(default=False)
 
     # Public Mint
-    public_mint = models.BooleanField(default=False)
+    publicmint = models.BooleanField(default=False)
 
     def __str__(self):
         return str(self.name)

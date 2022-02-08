@@ -7,7 +7,7 @@
         <div class="all_collections_layout">
         {% if users_collections %}
             {% for collection in users_collections %}
-                {% if not collection.public_mint %}
+                {% if not collection.publicmint %}
                     <a href="{% url 'main:collection' user.username collection.collection_name %}" style="text-decoration: none; color: inherit;">
                         <div class="collection_card border_1px grow rounded_container_no_padding">
                             {% if collection.collection_ifps_bool %}

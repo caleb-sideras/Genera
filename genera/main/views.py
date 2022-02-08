@@ -575,7 +575,7 @@ def collection_view(request, username, collection_name):
             
             # passing context
 
-            if user_collection or not user_collection.public_mint:
+            if user_collection or not user_collection.publicmint:
                 context["ajax_url"] = reverse("main:collection", 
                         kwargs={
                             "username": request.user.username,
@@ -1005,7 +1005,7 @@ def public_mint_view(request):
                             user_collection.contract_type = received_json_data["contract_type"]
                             user_collection.description = received_json_data["description"]
                             user_collection.contract_bool = True
-                            user_collection.public_mint = True
+                            user_collection.publicmint = True
                             user_collection.save()
                         return JsonResponse(
                             {"server_message" :"Contract address set"},
