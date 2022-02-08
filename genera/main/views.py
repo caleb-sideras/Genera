@@ -202,19 +202,20 @@ def upload_view(request):
 
             layers = {}
             if paid_generation:
-
-                db_collection = UserCollection.objects.get_or_create(user=request.user, collection_name=calebs_gay_dict["CollectionName"])
-                if db_collection[1]: #new collection created
-                    db_collection = db_collection[0]
+                db_collection = UserCollection.objects.filter(user=request.user, collection_name=calebs_gay_dict["CollectionName"]).first()
+                if not db_collection: #new collection created
+                    db_collection = UserCollection.objects.create(
+                        user=request.user,
+                        collection_name=calebs_gay_dict["CollectionName"],
+                        description = calebs_gay_dict["Description"],
+                        dimension_x = calebs_gay_dict["Resolution_x"],
+                        dimension_y = calebs_gay_dict["Resolution_y"],
+                        token_name = calebs_gay_dict["TokenName"],
+                        image_name = calebs_gay_dict["ImageName"]
+                    )
                 else:
                     messages.error(request, message="A collection with that name already exists!")
                     return ajax_redirect(reverse("main:upload"))
-
-                db_collection.description = calebs_gay_dict["Description"]
-                db_collection.dimension_x = calebs_gay_dict["Resolution_x"]
-                db_collection.dimension_y = calebs_gay_dict["Resolution_y"]
-                db_collection.token_name = calebs_gay_dict["TokenName"]
-                db_collection.image_name = calebs_gay_dict["ImageName"]
 
                 #CREATE THE FOLDER HERE PERHAPS ?
                 if DEPLOYMENT_INSTANCE:
