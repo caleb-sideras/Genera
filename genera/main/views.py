@@ -41,8 +41,17 @@ def upload_view(request):
     # users_imgs = UserAsset.objects.filter(user=request.user)
     context = {}
     context["ajax_url"] = reverse("main:upload")
-    # def file_to_pil(file, res_x, res_y):  # take POSt.request file that user sent over the form, and convert it into a PIL object.
-    #     PIL_image = Image.open(io.BytesIO(file.read()))
+
+    if request.user.is_authenticated:        
+        user = User.objects.filter(username=request.user.username).first()
+        collections = []
+        if user:
+            for collection in UserCollection.objects.filter(user=user):
+                collections.append(collection.collection_name)
+            print(collections)
+            context['users_collections'] = json.dumps(collections)
+    # def file_to_pil(file, res_x, res_y):
+    #     PIL_image = Image.open(BytesIO(file.read()))
     #     horo, vert = PIL_image.size
     #     if horo != res_x or vert != res_y:
     #         PIL_image = PIL_image.resize((res_x, res_y))
@@ -56,7 +65,7 @@ def upload_view(request):
         if height != res_x or width != res_y or height > 4000 or width > 4000:
             raise RawPostDataException
         return PIL_image
-    
+        
     # def file_to_pil_cv2(file, res_x, res_y):  # Use this in case we make use of numpy arrays instead of PIL objects. Return after cv2.cvtColor to get the array.
     #     timeit_start = time.time()
 
@@ -333,7 +342,6 @@ def upload_view(request):
             return ajax_redirect(reverse("main:upload"))
 
     return render(request, "upload.html", context)
-
 
 def login_view(request, current_extension=404):
     print("WHY ARE WE STILL HERE")

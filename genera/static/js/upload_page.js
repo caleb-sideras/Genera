@@ -13,6 +13,14 @@ function main() {
     layer_update_mode = false
     user_login = (js_vars.dataset.user_login.toLowerCase() === 'true');
 
+    if (js_vars.dataset.users_collections){
+        user_collections = JSON.parse(js_vars.dataset.users_collections)
+    }
+
+    if (js_vars.dataset.user_credits && user_login) {
+        user_credits = JSON.parse(js_vars.dataset.user_credits)
+    }
+
     initialize_dynamic_form_validation()
     
     document.getElementById("add_layer_input").addEventListener("keyup", ({key}) =>  {
@@ -1207,5 +1215,45 @@ async function generate_form_data_for_ajax_post_generate() {
         }
     }
     return file_data
+}
+
+function validate_collection(field_object){
+    if (field_object.value == "") {
+        field_object.classList = "field_error"
+        field_object.title = "Field is empty"
+        return
+    }
+    if (user_login){
+        if(user_collections.includes(field_object.value)){
+            custom_validation_false(field_object, "A collection with that name already exists!")
+        } else {
+            custom_validation_true(field_object)
+        }
+    }
+    else{
+        custom_validation_true(field_object)
+    }
+}
+
+function validate_size(field_object) {
+    if (field_object.value == "") {
+        field_object.classList = "field_error"
+        field_object.title = "Field is empty"
+        return
+    }
+    if (user_login) {
+        if (field_object.value > user_credits) {
+            custom_validation_false(field_object, "You don't have enough credits to generate this collection size!")
+        } else {
+            custom_validation_true(field_object)
+        }
+    }
+    else{
+        if (field_object.value > 100) {
+            custom_validation_false(field_object, "Maximum of 100 free generations allowed!")
+        } else {
+            custom_validation_true(field_object)
+        }
+    }
 }
 window.addEventListener("load", main);

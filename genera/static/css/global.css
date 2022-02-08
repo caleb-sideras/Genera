@@ -1760,72 +1760,29 @@ text-align: left;
 }
 
 .image_edit_wrapper{
-  /* align-items: center;
-  position: fixed;
-  width: 100%;
-  height: 100%;
   display: flex;
-  backdrop-filter: blur(10px);
-  z-index: 2; */
   position: fixed;
-	/* display: flex; */
-  flex-direction: column;
-	justify-content: center;
-	align-items: center;
-	height: 100vh;
-  width: 100vw;
-	/* background: transparent; */
+  max-width: 500px;
+  justify-content: space-around;
+  z-index: 5;
   left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  /* filter: contrast(120%); */
-  backdrop-filter: blur(30px) brightness(50%);
-  z-index: 1;
-
-   
+  transform: translateX(-50%);
 }
-.image_edit{   
-  display: block;
-    /* display: flex; */
-    margin-left: auto;
-    margin-right: auto;
-    margin-top: auto;
-    margin-bottom: auto;
-    /* padding-top: 0; */
-    width: 500px;
-    /* height: 400px; */
-    /* vertical-align: middle; */
-    justify-content: space-around;
-    background-color: var(--main-card-color);
-    padding: 30px;
-  }
-
-.image_edit > h3{
-     text-align: center;
-    font-weight: bold;
-    color: var(--text-color);
-    margin: 10px;
+.image_edit_wrapper > div{
+  background-color: var(--main-card-color);
+}
+.image_edit_wrapper input,
+.image_edit_wrapper textarea{   
+  box-sizing: border-box;
+  resize: vertical
 }
 
-.image_edit > input{
-  width: 80%;
-  /* align-items: center; */
+.image_edit_wrapper h3{
+  text-align: center;
+  font-weight: bold;
   margin: 10px;
-  margin-left: 40px;
-  background-color: var(--white-color);
-  
 }
-.image_edit > textarea {
-  width: 83%;
-  height: 200px;
-  resize: none;
-  margin-left: 40px;
-  background-color: var(--white-color);
-  border-radius: 5px;
-  color: var(--text-color);
-  font-size: 14px;
 
-}
 .image_edit_button_wrapper{
   display: flex;
   margin-top: 20px;

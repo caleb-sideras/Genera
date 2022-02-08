@@ -157,7 +157,7 @@ function open_images(self){
                         card_element.remove()
                     })
                 }
-                (document.body).children[0].remove() // TODO fix
+                close_image_carousell()
 
             })
         })

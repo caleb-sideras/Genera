@@ -8,7 +8,7 @@
 {% endblock %}
 
 {% block body_block %}
-<input type="hidden" id="js_vars" data-ajax_url='{{ajax_url}}' data-user_login='{{user.is_authenticated}}'>
+<input type="hidden" id="js_vars" data-ajax_url='{{ajax_url}}' data-user_login='{{user.is_authenticated}}' data-users_collections='{{users_collections}}' data-user_credits='{{request.user.credits}}'>
 
 <form method="post" id="upload_form" enctype="multipart/form-data" class="upload_wrapper">
   {% csrf_token %}
@@ -63,7 +63,7 @@
             name="collection_name"
             type="text"
             placeholder="E.g. Void Chans"
-            onchange = ajax_validate_field(this)
+            onchange = validate_collection(this)
             maxlength="50"
           />
           <h5 class="no_margin">Image Name</h5>
@@ -100,7 +100,7 @@
             max="1000"
             name="size"
             type="number"
-            onchange = ajax_validate_field(this)
+            onchange = validate_size(this)
             placeholder="E.g. 150"
           />
           <h5 class="no_margin">Resolution</h5>

@@ -106,6 +106,20 @@ function ajax_validate_field(field_object) {
     })
 }
 
+function custom_validation_true(field_object){
+    field_object.classList.add("field_success")
+    field_object.classList.remove("field_error")
+    field_object.setCustomValidity("")
+    field_object.removeAttribute("title")
+}
+
+function custom_validation_false(field_object, text) {
+    field_object.classList.add("field_error")
+    field_object.classList.remove("field_success")
+    field_object.setCustomValidity(text)
+    field_object.title = text
+}
+
 function ajax_post_factory(post_type) { //currently supports JSON and FORM data
 
     var generated_post_function = (payload) => {
