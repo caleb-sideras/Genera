@@ -1,0 +1,1052 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block head_block %}
+<script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
+<script src="https://unpkg.com/@metamask/detect-provider/dist/detect-provider.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.min.js"></script>
+<script src="https://unpkg.com/vue@next"></script>
+{% endblock %}
+
+{% block body_block %}
+<input type="hidden" id="js_vars" data-contract_address='{{contract_address}}' data-chain_id='{{chain_id}}' data-is_owner='{{isOwner}}'/>
+<div id="mint-wrapper" class="mint_wrapper">
+    <!-- <div class="mint_body">
+
+        {% if owner %}
+            <div class="mint_title_wrapper">
+                <div class="mint_title center"> 
+                    <h1 class="no_margin">{{collection_name}}</h1>             
+                    <h2 class="no_margin">by {{owner.username}}</h2>
+                </div>
+                {% if isOwner %}
+                    <div>
+                        <h3 class="open_status" style="margin:0">Closed</h3>
+                        <label class="switch">
+                            <input type="checkbox" onclick="toggleText()">
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                {% else %}
+
+                {% endif %}
+            </div>
+        
+            <div class="mint_card shadow_strong rounded_container_no_padding">
+                <div class="loading_circle"></div>
+                <img src="" class="nft_image" style="display: none;">
+                <img src="" class="nft_image" style="display: none;">
+                <img src="" class="nft_image" style="display: none;">
+                <img src="" class="nft_image" style="display: none;">
+                <img src="" class="nft_image" style="display: none;"> 
+            </div>
+            <div class="mint_buttons_wrapper">
+                <div class="mint_buttons center">
+                    <button type="button" class="rounded_container grow card_main_color_background shadow_strong" id="mint_button" onclick="mint(this.nextElementSibling.value)">
+                        <h2 class="no_margin">MINT</h2>
+                    </button>
+                    <select id="mint_select" name="select" class="card_main_color_background rounded_container shadow_strong grow">
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                    </select>
+                </div>
+                <div class="mint_buttons center">
+                    <p class="mint_supply no_margin">
+                    </p>
+                    <p class="mint_supply no_margin" id="mint_cost">
+                    </p>
+                </div>
+            </div>
+    </div>
+    <div class="mint_description center card_main_color_background">
+        <h1>Description</h1>
+        <p>{{description}}</p>
+    </div>
+        {% endif %} -->
+
+    <!-- <h3>Private Profile? {{user.userprofile.private}}</h3> -->
+    <div class="mint_body">
+        <section-toggle @collection-section="openCollection" @admin-section="openAdmin" :collection="collection_section" :admin="admin_section"></section-toggle>
+        <nft-title></nft-title>
+        <nft-images :baseuri="base_uri" :totalsupply="totalSupply"></nft-images>
+        <nft-mint :web3="web3" :totalsupply="totalSupply" :supply="supply" :mintcostwei="mintCostWei" :tokenname="token_name" :chainid="chain_id" :contractaddress="contract_address"></nft-mint>
+        
+    </div>
+    <nft-description></nft-description>
+
+</div>
+
+
+<script>
+    const app = Vue.createApp({
+        data() {
+        return {
+            contract_address: js_vars.dataset.contract_address,
+            chain_id: js_vars.dataset.chain_id,
+            is_owner: (js_vars.dataset.is_owner.toLowerCase() === 'true'),
+            active_account: null,
+            web3: null,
+            web3_infura: null,
+            open_properties: false,
+            supply: null,
+            totalSupply: null,
+            mintCostWei: null,
+            base_uri: null,
+            open_bool: null,
+            web3: null,
+            web3_infura: null,
+            token_name: null,
+            collection_section: true,
+            admin_section: false,
+            abi_json: {
+            "abi": [
+                {
+                    "inputs": [
+                        {
+                            "internalType": "string",
+                            "name": "_uri",
+                            "type": "string"
+                        },
+                        {
+                            "internalType": "string",
+                            "name": "_name",
+                            "type": "string"
+                        },
+                        {
+                            "internalType": "string",
+                            "name": "_symbol",
+                            "type": "string"
+                        },
+                        {
+                            "internalType": "uint32",
+                            "name": "_totalSupply",
+                            "type": "uint32"
+                        },
+                        {
+                            "internalType": "uint256",
+                            "name": "_cost",
+                            "type": "uint256"
+                        },
+                        {
+                            "internalType": "bool",
+                            "name": "_open",
+                            "type": "bool"
+                        }
+                    ],
+                    "stateMutability": "nonpayable",
+                    "type": "constructor"
+                },
+                {
+                    "anonymous": false,
+                    "inputs": [
+                        {
+                            "indexed": true,
+                            "internalType": "address",
+                            "name": "account",
+                            "type": "address"
+                        },
+                        {
+                            "indexed": true,
+                            "internalType": "address",
+                            "name": "operator",
+                            "type": "address"
+                        },
+                        {
+                            "indexed": false,
+                            "internalType": "bool",
+                            "name": "approved",
+                            "type": "bool"
+                        }
+                    ],
+                    "name": "ApprovalForAll",
+                    "type": "event"
+                },
+                {
+                    "anonymous": false,
+                    "inputs": [
+                        {
+                            "indexed": true,
+                            "internalType": "address",
+                            "name": "previousOwner",
+                            "type": "address"
+                        },
+                        {
+                            "indexed": true,
+                            "internalType": "address",
+                            "name": "newOwner",
+                            "type": "address"
+                        }
+                    ],
+                    "name": "OwnershipTransferred",
+                    "type": "event"
+                },
+                {
+                    "anonymous": false,
+                    "inputs": [
+                        {
+                            "indexed": true,
+                            "internalType": "address",
+                            "name": "operator",
+                            "type": "address"
+                        },
+                        {
+                            "indexed": true,
+                            "internalType": "address",
+                            "name": "from",
+                            "type": "address"
+                        },
+                        {
+                            "indexed": true,
+                            "internalType": "address",
+                            "name": "to",
+                            "type": "address"
+                        },
+                        {
+                            "indexed": false,
+                            "internalType": "uint256[]",
+                            "name": "ids",
+                            "type": "uint256[]"
+                        },
+                        {
+                            "indexed": false,
+                            "internalType": "uint256[]",
+                            "name": "values",
+                            "type": "uint256[]"
+                        }
+                    ],
+                    "name": "TransferBatch",
+                    "type": "event"
+                },
+                {
+                    "anonymous": false,
+                    "inputs": [
+                        {
+                            "indexed": true,
+                            "internalType": "address",
+                            "name": "operator",
+                            "type": "address"
+                        },
+                        {
+                            "indexed": true,
+                            "internalType": "address",
+                            "name": "from",
+                            "type": "address"
+                        },
+                        {
+                            "indexed": true,
+                            "internalType": "address",
+                            "name": "to",
+                            "type": "address"
+                        },
+                        {
+                            "indexed": false,
+                            "internalType": "uint256",
+                            "name": "id",
+                            "type": "uint256"
+                        },
+                        {
+                            "indexed": false,
+                            "internalType": "uint256",
+                            "name": "value",
+                            "type": "uint256"
+                        }
+                    ],
+                    "name": "TransferSingle",
+                    "type": "event"
+                },
+                {
+                    "anonymous": false,
+                    "inputs": [
+                        {
+                            "indexed": false,
+                            "internalType": "string",
+                            "name": "value",
+                            "type": "string"
+                        },
+                        {
+                            "indexed": true,
+                            "internalType": "uint256",
+                            "name": "id",
+                            "type": "uint256"
+                        }
+                    ],
+                    "name": "URI",
+                    "type": "event"
+                },
+                {
+                    "inputs": [
+                        {
+                            "internalType": "address[]",
+                            "name": "to",
+                            "type": "address[]"
+                        }
+                    ],
+                    "name": "airdrop",
+                    "outputs": [],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        {
+                            "internalType": "address",
+                            "name": "account",
+                            "type": "address"
+                        },
+                        {
+                            "internalType": "uint256",
+                            "name": "id",
+                            "type": "uint256"
+                        }
+                    ],
+                    "name": "balanceOf",
+                    "outputs": [
+                        {
+                            "internalType": "uint256",
+                            "name": "",
+                            "type": "uint256"
+                        }
+                    ],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        {
+                            "internalType": "address",
+                            "name": "account",
+                            "type": "address"
+                        }
+                    ],
+                    "name": "balanceOf",
+                    "outputs": [
+                        {
+                            "internalType": "uint256",
+                            "name": "",
+                            "type": "uint256"
+                        }
+                    ],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        {
+                            "internalType": "address[]",
+                            "name": "accounts",
+                            "type": "address[]"
+                        },
+                        {
+                            "internalType": "uint256[]",
+                            "name": "ids",
+                            "type": "uint256[]"
+                        }
+                    ],
+                    "name": "balanceOfBatch",
+                    "outputs": [
+                        {
+                            "internalType": "uint256[]",
+                            "name": "",
+                            "type": "uint256[]"
+                        }
+                    ],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [],
+                    "name": "baseUri",
+                    "outputs": [
+                        {
+                            "internalType": "string",
+                            "name": "",
+                            "type": "string"
+                        }
+                    ],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [],
+                    "name": "cost",
+                    "outputs": [
+                        {
+                            "internalType": "uint256",
+                            "name": "",
+                            "type": "uint256"
+                        }
+                    ],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        {
+                            "internalType": "address",
+                            "name": "account",
+                            "type": "address"
+                        },
+                        {
+                            "internalType": "address",
+                            "name": "operator",
+                            "type": "address"
+                        }
+                    ],
+                    "name": "isApprovedForAll",
+                    "outputs": [
+                        {
+                            "internalType": "bool",
+                            "name": "",
+                            "type": "bool"
+                        }
+                    ],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [],
+                    "name": "maxPerMint",
+                    "outputs": [
+                        {
+                            "internalType": "uint32",
+                            "name": "",
+                            "type": "uint32"
+                        }
+                    ],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [],
+                    "name": "maxPerWallet",
+                    "outputs": [
+                        {
+                            "internalType": "uint32",
+                            "name": "",
+                            "type": "uint32"
+                        }
+                    ],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        {
+                            "internalType": "uint32",
+                            "name": "count",
+                            "type": "uint32"
+                        }
+                    ],
+                    "name": "mint",
+                    "outputs": [],
+                    "stateMutability": "payable",
+                    "type": "function"
+                },
+                {
+                    "inputs": [],
+                    "name": "name",
+                    "outputs": [
+                        {
+                            "internalType": "string",
+                            "name": "",
+                            "type": "string"
+                        }
+                    ],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [],
+                    "name": "open",
+                    "outputs": [
+                        {
+                            "internalType": "bool",
+                            "name": "",
+                            "type": "bool"
+                        }
+                    ],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [],
+                    "name": "owner",
+                    "outputs": [
+                        {
+                            "internalType": "address",
+                            "name": "",
+                            "type": "address"
+                        }
+                    ],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [],
+                    "name": "renounceOwnership",
+                    "outputs": [],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        {
+                            "internalType": "address",
+                            "name": "from",
+                            "type": "address"
+                        },
+                        {
+                            "internalType": "address",
+                            "name": "to",
+                            "type": "address"
+                        },
+                        {
+                            "internalType": "uint256[]",
+                            "name": "ids",
+                            "type": "uint256[]"
+                        },
+                        {
+                            "internalType": "uint256[]",
+                            "name": "amounts",
+                            "type": "uint256[]"
+                        },
+                        {
+                            "internalType": "bytes",
+                            "name": "data",
+                            "type": "bytes"
+                        }
+                    ],
+                    "name": "safeBatchTransferFrom",
+                    "outputs": [],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        {
+                            "internalType": "address",
+                            "name": "from",
+                            "type": "address"
+                        },
+                        {
+                            "internalType": "address",
+                            "name": "to",
+                            "type": "address"
+                        },
+                        {
+                            "internalType": "uint256",
+                            "name": "id",
+                            "type": "uint256"
+                        },
+                        {
+                            "internalType": "uint256",
+                            "name": "amount",
+                            "type": "uint256"
+                        },
+                        {
+                            "internalType": "bytes",
+                            "name": "data",
+                            "type": "bytes"
+                        }
+                    ],
+                    "name": "safeTransferFrom",
+                    "outputs": [],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        {
+                            "internalType": "address",
+                            "name": "operator",
+                            "type": "address"
+                        },
+                        {
+                            "internalType": "bool",
+                            "name": "approved",
+                            "type": "bool"
+                        }
+                    ],
+                    "name": "setApprovalForAll",
+                    "outputs": [],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        {
+                            "internalType": "uint256",
+                            "name": "_cost",
+                            "type": "uint256"
+                        }
+                    ],
+                    "name": "setCost",
+                    "outputs": [],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        {
+                            "internalType": "uint32",
+                            "name": "_max",
+                            "type": "uint32"
+                        }
+                    ],
+                    "name": "setMaxPerMint",
+                    "outputs": [],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        {
+                            "internalType": "bool",
+                            "name": "_open",
+                            "type": "bool"
+                        }
+                    ],
+                    "name": "setOpen",
+                    "outputs": [],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        {
+                            "internalType": "string",
+                            "name": "_uri",
+                            "type": "string"
+                        }
+                    ],
+                    "name": "setURI",
+                    "outputs": [],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        {
+                            "internalType": "uint32",
+                            "name": "_max",
+                            "type": "uint32"
+                        }
+                    ],
+                    "name": "setmaxPerWallet",
+                    "outputs": [],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                },
+                {
+                    "inputs": [],
+                    "name": "supply",
+                    "outputs": [
+                        {
+                            "internalType": "uint32",
+                            "name": "",
+                            "type": "uint32"
+                        }
+                    ],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        {
+                            "internalType": "bytes4",
+                            "name": "interfaceId",
+                            "type": "bytes4"
+                        }
+                    ],
+                    "name": "supportsInterface",
+                    "outputs": [
+                        {
+                            "internalType": "bool",
+                            "name": "",
+                            "type": "bool"
+                        }
+                    ],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [],
+                    "name": "symbol",
+                    "outputs": [
+                        {
+                            "internalType": "string",
+                            "name": "",
+                            "type": "string"
+                        }
+                    ],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [],
+                    "name": "totalSupply",
+                    "outputs": [
+                        {
+                            "internalType": "uint32",
+                            "name": "",
+                            "type": "uint32"
+                        }
+                    ],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        {
+                            "internalType": "address",
+                            "name": "newOwner",
+                            "type": "address"
+                        }
+                    ],
+                    "name": "transferOwnership",
+                    "outputs": [],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                },
+                {
+                    "inputs": [
+                        {
+                            "internalType": "uint256",
+                            "name": "_tokenId",
+                            "type": "uint256"
+                        }
+                    ],
+                    "name": "uri",
+                    "outputs": [
+                        {
+                            "internalType": "string",
+                            "name": "",
+                            "type": "string"
+                        }
+                    ],
+                    "stateMutability": "view",
+                    "type": "function"
+                },
+                {
+                    "inputs": [],
+                    "name": "withdraw",
+                    "outputs": [],
+                    "stateMutability": "payable",
+                    "type": "function"
+                }
+            ]}
+        }
+        },
+        async mounted(){
+            if (this.chain_id == "0x1") {
+                var provider = "https://mainnet.infura.io/v3/d6c7a2d0b9bd40afa49d2eb06cc5baba"
+                this.token_name = 'ETH'
+            }
+            else if (this.chain_id  == "0x4") {
+                var provider = "https://rinkeby.infura.io/v3/d6c7a2d0b9bd40afa49d2eb06cc5baba"
+                this.token_name = 'ETH'
+            }
+            else if (this.chain_id  == "0x89" || this.chain_id  == "0x137"){
+                chain_id = "0x89"
+                var provider = "https://polygon-mainnet.infura.io/v3/d6c7a2d0b9bd40afa49d2eb06cc5baba"
+                this.token_name = 'MATIC'
+            }
+            else if (this.chain_id  == "0x13881" || this.chain_id  == "0x80001"){
+                chain_id = "0x13881"
+                var provider = "https://polygon-mumbai.infura.io/v3/d6c7a2d0b9bd40afa49d2eb06cc5baba"
+                this.token_name = 'MATIC'
+            }
+            this.web3 = new Web3(Web3.givenProvider)
+            this.web3_infura = new Web3(new Web3.providers.HttpProvider(provider))
+            await this.get_all_contract_info(this.contract_address, this.abi_json)
+
+            ethereum.on('chainChanged', (_chainId) => window.location.reload());
+            ethereum.on('disconnect', (ProviderRpcError) => window.location.reload());
+            ethereum.on('accountsChanged', (ProviderRpcError) => window.location.reload());
+        },
+        methods:{
+            async get_all_contract_info(contract_address, abi_json){
+                contract = new this.web3_infura.eth.Contract(abi_json['abi'], contract_address)
+                let _supply = await contract.methods.supply().call()
+                this.supply = parseInt(_supply)
+                let _totalSupply = await contract.methods.totalSupply().call()
+                this.totalSupply = parseInt(_totalSupply)
+                this.mintCostWei = await contract.methods.cost().call()
+                this.base_uri = await contract.methods.baseUri().call()
+                this.open_bool = await contract.methods.open().call()
+            },
+             openCollection(){
+                this.admin_section = false
+                this.collection_section = true
+            },
+            openAdmin(){
+                this.collection_section = false
+                this.admin_section = true 
+            },
+        }
+    })
+
+    app.component('nft-title',{
+        delimiters: ["[[", "]]"],
+        template:`
+        <div class="mint_title center"> 
+                <h1 class="no_margin">{{collection_name}}</h1>             
+                <h2 class="no_margin">by {{owner.username}}</h2>
+        </div>
+        `
+    })
+    
+    app.component('nft-images',{
+        delimiters: ["[[", "]]"],
+        props: ['baseuri','totalsupply'],
+        data(){
+            return{
+                uri_list: []
+            }
+        },
+        template:`
+            <div class="mint_card shadow_strong rounded_container_no_padding">
+                <div class="loading_circle"></div>
+                <img src="" class="nft_image" style="display: none;">
+                <img src="" class="nft_image" style="display: none;">
+                <img src="" class="nft_image" style="display: none;">
+                <img src="" class="nft_image" style="display: none;">
+                <img src="" class="nft_image" style="display: none;"> 
+            </div>
+        `,
+        methods:{
+            async fetchImages(){
+                for (let i = 0; i < 5; i++) {
+                    let rand = getRandomInt(0, this.totalsupply)
+                    await fetch(`${this.baseuri}${rand}.json`)
+                        .then(res => res.json()) // how to fix? new event listener?
+                        .then((out) => {
+                            this.uri_list.push(out['image'])
+                        })
+                        .catch((err) => {
+                            console.log(err)
+                        });
+                }
+                this.populateImages()
+            },
+            populateImages(){
+                nft_images = document.querySelectorAll('.nft_image')
+                for (let i = 0; i < nft_images.length; i++) {
+                    nft_images[i].src = this.uri_list[i]
+                }
+
+                nft_images[0].onload = function () {
+                    document.querySelector(".loading_circle").style.display = 'none'
+                }
+                var active_img = nft_images[0]
+                active_img.style.display='flex'
+                var i = 1;
+                var timer = setInterval(function () {
+                    // If we've reached the end of the array...
+                    if (i >= 5) {
+                        i = 0;
+                    }
+                    active_img.style.display = 'none'
+                    nft_images[i].style.display = 'flex'
+                    active_img = nft_images[i]
+                    i++
+                }, 2000);
+            },
+        },
+        watch:{
+            $props:{
+                handler(){
+                    this.fetchImages()
+                },
+                deep: true,
+                immediate: true,
+            }
+        }
+    })
+
+    app.component('nft-mint',{
+        delimiters: ["[[", "]]"],
+        props: ['totalsupply','supply','web3','mintcostwei', 'tokenname', 'chainid', 'contractaddress'],
+        data(){
+            return{
+                mint_number: 1,
+                mint_cost: 0,
+                active_account:null
+            }
+        },
+        template:`
+        <div class="mint_buttons_wrapper">
+            <div class="mint_buttons center">
+                <button type="button" class="rounded_container grow card_main_color_background shadow_strong" id="mint_button" @click="mintNFT">
+                    <h2 class="no_margin">MINT</h2>
+                </button>
+                <select v-model="mint_number" id="mint_select" name="select" class="card_main_color_background rounded_container shadow_strong grow" @change="mintCost">
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                </select>
+            </div>
+            <div class="mint_buttons center">
+                <p class="mint_supply no_margin">
+                   [[supply]] of [[totalsupply]] minted
+                </p>
+                <p ref="mint_cost" class="mint_supply no_margin" id="mint_cost">
+                    [[mint_cost]] [[tokenname]]
+                </p>
+            </div>
+        </div>
+        `, 
+        methods:{
+            async mintNFT(){
+                await this.metamask_check().then(async () =>{
+                    await this.get_chainid().then(async ()=>{
+                        await ethereum
+                            .request({
+                                method: 'eth_sendTransaction',
+                                params: [
+                                    {
+                                        from: this.active_account,
+                                        to: this.contractaddress,
+                                        // gas: '0x210000',//180-200k usually
+                                        gasLimit: '0x21000000',
+                                        data: this.abi_token_uri(parseInt(this.mint_number)),
+                                        chainId: this.chainid.toString(),
+                                        value: (parseFloat(this.mintcostwei) * parseInt(this.mint_number)).toString(16)
+                                    },
+                                ],
+                            })
+                            .then(function (txHash) {
+                                console.log('Transaction sent')
+                            })
+                            .catch((error) => {
+                                throw (error)
+                            });
+                    })
+                 })
+            },
+            abi_token_uri(amount) {
+                let token_uri = this.web3.eth.abi.encodeFunctionCall({
+                    "inputs": [
+                        {
+                            "internalType": "uint32",
+                            "name": "count",
+                            "type": "uint32"
+                        }
+                    ],
+                    "name": "mint",
+                    "outputs": [],
+                    "stateMutability": "payable",
+                    "type": "function"
+                }, [amount]
+                );
+            return token_uri;
+            },
+            mintCost(){
+                mintCostEther = parseFloat(this.web3.utils.fromWei(this.mintcostwei, 'ether'))
+                this.mint_cost = this.mint_number * mintCostEther
+            },
+            async metamask_check() {
+                const provider = await detectEthereumProvider();
+
+                if (provider) {
+                    await this.startApp(provider)
+                } else {
+                    alert('Please install MetaMask!');
+                }
+            },
+            async startApp(provider) {
+                if (provider !== window.ethereum) {
+                    console.error('Do you have multiple wallets installed?');
+                    alert('Could not connect to Metamask, do you have multiple wallets installed?')
+                } else {
+                    await ethereum
+                        .request({ method: 'eth_requestAccounts' })
+                        .then((response) => {
+                            this.active_account = response[0]
+                        })
+                        .catch((err) => {
+                            if (err.code === 4001) {
+                                console.log('Please connect to MetaMask.')
+                                alert('Please connect to MetaMask.');
+                                throw (err)
+                            } else {
+                                throw (err)
+                            }
+                        });
+
+                }
+            },
+            async get_chainid(chainid) {
+                active_chain_id = await ethereum.request({ method: 'eth_chainId' });
+                if (active_chain_id != this.chainid) {
+                    try {
+                        await ethereum.request({
+                            method: 'wallet_switchEthereumChain',
+                            params: [{ chainId: this.chainid }],
+                        });
+                    } catch (error) {
+                        alert("You do not have this network installed on your Metamask account")
+                        throw(error)
+                    }
+                    
+                }
+            }
+        },
+        watch: { 
+            mintcostwei: function() {
+                this.mintCost()
+            }
+        }
+    })
+    
+    app.component('nft-description',{
+        delimiters: ["[[", "]]"],
+        template:`
+            <div class="mint_description center card_main_color_background">
+                <h1>Description</h1>
+                <p>{{description}}</p>
+            </div>
+        `
+    })
+    
+    app.component('section-toggle',{
+        delimiters: ["[[", "]]"],
+        emits:['admin-section', 'collection-section'],
+        props: ['admin', 'collection'],
+        template:`
+        <div style="justify-content: center; display: flex; width: 100%;">
+            <div class="upload_section_swap rounded_container border" style="width: 400px;">
+            <template v-if:="collection">
+            <h2 class="rounded_container" @click="collectionSection" style="background: var( --border-color);">Collection</h2> 
+            </template> 
+            <template v-else>
+                <h2 class="rounded_container" @click="collectionSection">Collection</h2>  
+            </template>
+
+            <template v-if:="admin">
+            <h2 class="rounded_container" @click="adminSection" style="background: var( --border-color);">Admin</h2>
+            </template>
+            <template v-else>
+                <h2 class="rounded_container" @click="adminSection">Admin</h2>
+            </template>
+            
+        </div>
+        `,
+        methods :{
+            collectionSection(){
+                this.$emit('collection-section')
+            },
+            adminSection(){
+                this.$emit('admin-section')
+            }
+        }
+    })
+
+    app.mount('#mint-wrapper')
+</script>
+{% endblock %}

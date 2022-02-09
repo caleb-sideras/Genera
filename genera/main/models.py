@@ -131,11 +131,26 @@ class UserCollection(Model):
     # Smart Contract Private
     tokens_deployed = models.BooleanField(default=False)
 
-    # Public Mint
-    public_mint = models.BooleanField(default=False)
-
     def __str__(self):
         return str(self.name)
+
+class UserCollectionMint(Model):
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    
+    #IPFS
+    image_uri = models.CharField(max_length=100, unique=False)
+    base_uri = models.CharField(max_length=100, unique=False)
+
+    #Smart Contract
+    contract_address = models.CharField(max_length=50, unique=True)
+    chain_id = models.CharField(max_length=10, unique=False)
+
+    #Collection Info
+    collection_name = models.CharField(max_length=50, unique=False) 
+    description = models.CharField(max_length=300, unique=False)
+    contract_type = models.IntegerField(default=0) # 0 = nothing, 1 = privateV1, 2 = publicV1
+
 
 class CollectionImage(Model):
     linked_collection = models.ForeignKey(UserCollection, on_delete=models.CASCADE)

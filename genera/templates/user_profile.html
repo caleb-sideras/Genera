@@ -19,7 +19,7 @@
     <div class="all_collections_layout profile_layout">
         {% if users_collections %}
             {% for collection in users_collections %}
-                {% if collection.contract_bool and collection.contract_type == 2 %}
+                {% if collection.contract_type == 2 %}
 
                 <input type="hidden" value="https://{{collection.base_uri}}.ipfs.dweb.link/0.json">
                 <div class="collection_card grow border_1px rounded_container_no_padding" style="cursor: pointer;" onclick="lol = () => {this.nextElementSibling.click()}
@@ -33,7 +33,7 @@
  
                     </div>
                 </div>
-                <a href="{% url 'main:user_mint' user.username  collection.collection_name%}"style="text-decoration: none;"></a>
+                <a href="{% url 'main:user_mint' user.username  collection.contract_address%}"style="text-decoration: none;"></a>
                 {% endif %}
             {% endfor %}
         {% endif %}

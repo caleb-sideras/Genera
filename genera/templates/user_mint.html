@@ -5,6 +5,8 @@
 <script type="text/javascript" src="{% static 'js/mint_page.js' %}"></script>
 <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
 <script src="https://unpkg.com/@metamask/detect-provider/dist/detect-provider.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.min.js"></script>
+<script src="https://unpkg.com/vue@next"></script>
 {% endblock %}
 
 {% block body_block %}
@@ -18,7 +20,7 @@
                     <h1 class="no_margin">{{collection_name}}</h1>             
                     <h2 class="no_margin">by {{owner.username}}</h2>
                 </div>
-                {% if request.user.is_authenticated %}
+                {% if isOwner %}
                     <div>
                         <h3 class="open_status" style="margin:0">Closed</h3>
                         <label class="switch">

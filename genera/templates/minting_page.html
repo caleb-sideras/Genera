@@ -14,13 +14,15 @@
 {% block body_block %}
 <input type="hidden" id="js_vars" data-ajax_url='{{ajax_url}}' data-user_login='{{user.is_authenticated}}' data-users_collections='{{users_collections}}'>
 
-<div id="add-files-component" class="mint_upload_main">
+<div id="add-files-component" class="view_collection_main" style="display: block;">
+  <section-toggle @open-upload="openUpload" @open-properties="openProperties" :openupload="open_upload" :openproperties="open_properties"></section-toggle>
   
-  <add-files></add-files>
-  <div class="view_collection_main">
-    <div class="collection_structure">
-      <div class="all_collections_layout">
+    <div class="collection_structure"> 
+
+      <add-files v-if:="open_upload"></add-files>
+      <div v-show="open_upload" class="all_collections_layout" style="justify-content: center;"> 
         <file-preview
+          v-if:="open_upload"
           v-for="(value, name, index) in files"
           :name="name"
           :imagename="JSON.parse(value.metadata).name"
@@ -28,9 +30,11 @@
           :fullrender="value.fullrender"
         ></file-preview>
       </div>
+
+      <div v-show="open_properties" class="all_collections_layout" style="justify-content: center;">
+        <properties :collectionsize="imgCounter" @close-loading="closeLoading"></properties>
+      </div>  
     </div>
-    <properties :collectionsize="imgCounter" :collections="collections" @close-loading="closeLoading"></properties>
-  </div>
   <template v-if:="Object.entries(active_element) != 0">
     <carousel :activeelement="active_element" :activekey="Object.keys(active_element)[0]" @next-carousel="nextDictEntry" @prev-carousel="prevDictEntry" @delete-active="deleteActive"></carousel>
   </template>
@@ -50,7 +54,8 @@
         imgCounter: 0,
         loading: false,
         loading_index: 0,
-        collections: JSON.parse(js_vars.dataset.users_collections)
+        open_upload: true,
+        open_properties: false
       }
     },
     methods:{
@@ -102,14 +107,27 @@
         let active_key = Object.keys(this.active_element)[0]
         delete this.files[active_key]
         this.active_element = {}
-      }
+      },
+      openUpload(){
+        this.open_properties = false
+        this.open_upload = true
+      },
+      openProperties(){
+        this.open_upload = false
+        this.open_properties = true 
+      },
     }
   })
   //removing attribute line without save doesnt reload, need to :model data
   app.component('add-files', {
     template:`
-    <div style="display: flex; align-items: center; margin-left: 25px; margin-right: 15px;gap: 10px;" class="border rounded_container sub_color_background"><input type="file" multiple accept="image/png, image/jpeg, .json" @change="onFileChange" ref="input" hidden/><img class="color_image_orange" src="/static/icons/plus.svg" @click="clickInput" id="add_layer_button" style="height: 55px;width: 55pxS;margin-top: 10px;
-    cursor: pointer;"><h1 class="no_margin">Upload Collection (Metadata supported)</h1></div>`,
+    <div style="gap: 10px;margin-left: auto;margin-right: auto; text-align: center; display:flex; max-width: 200px; height: 50px; align-items: center; margin-bottom: 15px;" class="border rounded_container card_main_color_background">
+            
+      <input type="file" multiple accept="image/png, image/jpeg, .json" @change="onFileChange" ref="input" hidden/>
+      <img class="color_image_orange" src="/static/icons/plus.svg" @click="clickInput" id="add_layer_button" style="width: 50px; margin-top: 10px; cursor:pointer">
+
+      <h3 class="no_margin">Metadata supported</h3>
+    </div>`,
     methods: {
       // If metadata, file name
       onFileChange(event) {
@@ -499,11 +517,11 @@
 
   app.component('properties', {
     delimiters: ["[[", "]]"],
-    props: ['collectionsize', 'collections'],
+    props: ['collectionsize'],
     emits:['close-loading'],
     template:`
-    <div class="upload_properties">
-      <div class="rounded_container border">
+    
+      <div class="rounded_container border upload_properties">
         <div style="
         padding: 10px 15px 10px  15px;
         grid-template-columns: 1fr 2fr 1fr;
@@ -516,7 +534,6 @@
         ">
         <div></div>
         <h3 class="no_margin center" style="font-size: 1.3rem;">Metadata</h3>
-        <img src="/static/icons/expand.svg" class="expand_collapse no_margin" style="transform: rotate(0deg);height: 20px; cursor: pointer;filter: var(--dark-grey-color-2); margin: 0px;justify-self: end;" @click="dropDown1">
         </div>
         
         <div class="upload_page_property_fields">
@@ -528,8 +545,9 @@
             v-model="collection_name"
             type="text"
             placeholder="E.g. Void Chans"
-            @change = "validateFieldCollection"
+            @change = "validateField"
             maxlength="50"
+            ref="collection_name"
           />
           <h5 class="no_margin">Description</h5>
           <textarea 
@@ -580,7 +598,7 @@
 
       
         
-      <div class="rounded_container border">
+      <div class="rounded_container border upload_properties">
         <div style="
         padding: 10px 15px 10px  15px;
         grid-template-columns: 1fr 2fr 1fr;
@@ -593,19 +611,18 @@
         ">
           <div></div>
           <h3 class="no_margin center" style="font-size: 1.3rem;">Smart Contract</h3>
-          <img src="/static/icons/expand.svg" class="expand_collapse no_margin" style="transform: rotate(0deg);height: 20px; cursor: pointer;filter: var(--dark-grey-color-2); margin: 0px;justify-self: end;" @click="dropDown2">
         </div>
 
         <div class="upload_page_property_fields">
 
           <h5 class="no_margin">Token Name</h5>
-          <input name="token_name" type="text" v-model="token_name" placeholder="E.g. VDE" @change = "validateField" maxlength="10" />
+          <input name="token_name" type="text" v-model="token_name" placeholder="E.g. VDE" @change = "validateField" maxlength="10" required/>
 
           <h5 class="no_margin">Network</h5>
           <select id="select" name="select" v-model="network" style="font-size: 1rem;"><option :value="0x1">Ethereum</option><option :value="0x4">Rinkeby Testnet</option><option :value="0x89">Polygon</option><option :value="0x13881">Mumbai Testnet</option></select>
 
           <h5 class="no_margin">Minting Cost</h5>
-          <input name="Minting Cost" type="number" placeholder="E.g. 1 MATIC or 0.01 ETH" step="0.000000001" min="0" v-model="minting_cost" @change = "validateField" required>
+          <input name="Minting Cost" type="number" placeholder="E.g. 1 MATIC or 0.01 ETH" step="0.000000001" minlength="0" v-model="minting_cost" @change = "validateField" required>
 
           <h5 class="no_margin">Mint Type</h5>
           <select id="select" name="select" v-model="mint_type" style="font-size: 1rem;"><option :value="2" >Public</option></select>
@@ -615,25 +632,29 @@
         </div>
       </div>
       {% if user.is_authenticated %}
+      <div style="width:100%; display: flex;">
         <button
           type="button"
           id="upload_button_submit"
           class="general_button_no_border main_color_background border rounded_container_no_padding"
           @click="validateFields"
         >
-          <h4 class="no_margin generate">Deploy Collection</h4>
+          <h3 class="no_margin generate">Deploy Collection</h3>
         </button>
+      
       {% else %}
+      <div style="width:100%; display: flex;">
         <button
           type="button"
           id="upload_button_submit"
           class="general_button_no_border main_color_background border rounded_container_no_padding"
           disabled
         >
-          <h4 class="no_margin generate">Deploy Collection</h4>
+          <h3 class="no_margin generate">Deploy Collection</h3>
         </button>
+      </div>
       {% endif %}
-    </div>`, 
+    `, 
     data() {
       return {
         description: null,
@@ -647,8 +668,6 @@
         allow_mint: null,
         token_name: null,
         description: null,
-        isDropped1: false,
-        isDropped2: false,
         contract: null,
         active_account: null,
         web3: null,
@@ -657,27 +676,16 @@
         componentKey : 0,
       }
     },
+    mounted(){
+      console.log(this.collection_name)
+      console.log("WHAT")
+      if (this.collection_name){
+        this.$refs.collection_name.value = this.collection_name
+        console.log(this.collection_name)
+        console.log(this.$refs.collection_name)
+      }
+    },
     methods:{
-      validateFieldCollection(event){
-        if (event.target.checkValidity()) {
-          for (const collection of this.collections) {
-            if (this.collection_name == collection){
-              event.target.classList.add("field_error")
-              event.target.classList.remove("field_success")
-              // not worke!!!
-              // event.target.validity.badInput = true
-              // field_object.setCustomValidity("A collection with that name already exists")
-              event.target.title = "A collection with that name already exists"
-              return
-            }
-          }
-          event.target.classList.add("field_success")
-          event.target.classList.remove("field_error") 
-        }else {
-          event.target.classList.remove("field_success")
-          event.target.classList.add("field_error")
-        }
-      },
       validateField(event){
         if (event.target.checkValidity()) {
           event.target.classList.add("field_success")
@@ -688,8 +696,7 @@
         }
       },
       validateFields(){
-        let info_section = document.querySelector(".upload_properties")
-        let fields = info_section.querySelectorAll(":scope input, :scope textarea")
+        let fields = document.querySelectorAll(":scope input, :scope textarea")
         for (var i = 0; i < fields.length; i++) {
           if (fields[i].checkValidity() && !fields[i].classList.contains("field_error")) {
             continue
@@ -741,12 +748,12 @@
           fileList.push(value.file)
         }
 
-        let imageCarBlob = await this.imageCar(fileList)
+        let imageURI = await this.imageCar(fileList)
 
         let metadataList = []
         for (const [index, [, value]] of Object.entries(Object.entries(this.$root.$data.files))) {
           let parsed_json = JSON.parse(value.metadata)
-          parsed_json['image'] = `https://${imageCarBlob}.ipfs.dweb.link/${index}.png`
+          parsed_json['image'] = `https://${imageURI}.ipfs.dweb.link/${index}.png`
           for (const [key, value] of Object.entries(additional_metadata)) {
             parsed_json[key] = value
           }
@@ -764,7 +771,7 @@
         let gasEstimate = await this.gasEstimate(contract, constructor_params)
         let txHash = await this.mintContract(this.network, constructor_params, contract['bytecode'], gasEstimate, this.active_account)
         this.contract_address = await this.waitForTxToBeMined(txHash)
-        this.save_contract_address(this.contract_address, this.network, this.mint_type, this.collection_name, this.description)
+        this.save_contract_address(this.contract_address, this.network, this.mint_type, this.collection_name, this.description,imageURI, baseURI)
         this.changeLoading(1)
         this.redirect()
       },
@@ -950,8 +957,8 @@
             })
       })
       },
-      save_contract_address(contract_address, active_chain_id, contract_type, collection_name, description) {
-        ajax_post_json({ 'address_set': contract_address, 'chain_id': '0x' + active_chain_id, 'contract_type': contract_type, 'collection_name': collection_name, 'description': description })
+      save_contract_address(contract_address, active_chain_id, contract_type, collection_name, description, imageURI, baseURI) {
+        ajax_post_json({ 'address_set': contract_address, 'chain_id': '0x' + active_chain_id, 'contract_type': contract_type, 'collection_name': collection_name, 'description': description, 'image_uri' : imageURI, 'base_uri' : baseURI})
           .then(function (response) {
             console.log("Contract adress stored in db " + response["server_message"])
           })
@@ -965,29 +972,9 @@
         return constructor_params;
       },
       redirect(){
-        ajax_post_json({ 'collection_name': this.collection_name, 'collection_redirect': ''})
+        ajax_post_json({ 'contract_address': this.contract_address, 'collection_redirect': ''})
           .then(function (response) {
           })
-      },
-      toggleDropDown(event, bool_check){
-        if (!bool_check){
-          event.srcElement.style.transform = "rotate(180deg)"
-          event.srcElement.parentElement.nextSibling.style.height = "0"
-          event.srcElement.parentElement.nextSibling.style.padding = "0 20px"
-        }
-        else{
-          event.srcElement.style.transform = "rotate(0deg)"
-          event.srcElement.parentElement.nextSibling.style.height = "auto"
-          event.srcElement.parentElement.nextSibling.style.padding = "15px 20px"
-        }
-      },
-      dropDown1(event){
-        this.toggleDropDown(event, this.isDropped1)
-        this.isDropped1 = !this.isDropped1
-      },
-      dropDown2(event){
-        this.toggleDropDown(event, this.isDropped2)
-        this.isDropped2 = !this.isDropped2
       },
       changeLoading(index){
         this.$root.$data.loading_index = index
@@ -1118,7 +1105,42 @@
     }
   })
 
-  app.mount('#add-files-component')
+  app.component('section-toggle',{
+    delimiters: ["[[", "]]"],
+    emits:['open-upload','open-properties'],
+    props: [ 'openupload', 'openproperties'],
+    template:`
+      <div style="justify-content: center; display: flex; width: 100%;">
+        <div class="upload_section_swap rounded_container border" style="width: 400px;">
+          <template v-if:="openupload">
+           <h2 class="rounded_container" @click="upload" style="background: var( --border-color);">Upload</h2> 
+          </template> 
+          <template v-else>
+             <h2 class="rounded_container" @click="upload">Upload</h2>  
+          </template>
+
+          <template v-if:="openproperties">
+           <h2 class="rounded_container" @click="properties" style="background: var( --border-color);">Properties</h2>
+          </template>
+          <template v-else>
+             <h2 class="rounded_container" @click="properties">Properties</h2>
+          </template>
+          
+      </div>
+      `,
+    methods :{
+      upload(){
+        console.log("1")
+        this.$emit('open-upload')
+      },
+      properties(){
+        console.log("2")
+        this.$emit('open-properties')
+      }
+    }
+  })
+ 
+ app.mount('#add-files-component')
 </script>
 
 {% endblock %}

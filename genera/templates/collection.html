@@ -16,45 +16,46 @@
     <!-- data-contract_type='{{collection_data.contract_type}}' -->
     <a href="{% url 'main:user_mint' user.username  collection_data.collection_name%}" id="redirect" style="display: none;"></a>
 
-
-    <img class="dc_close close_button_color" src="/static/icons/remove.svg" onclick="close_deploy_collection()">
-    <div class="dc_content">
-        <div class="dc_status_container">
-            <div class="dc_status_sections">
-                <div style="text-align: left;">
-                    <div class="dc_status_dot" id="dc_status_4"></div>
-                    <p style="margin-left: -35px;">Deploy to IPFS</p>
+    <div class="deploy_collection_container border rounded_container_no_padding">
+        <img class="dc_close close_button_color" src="/static/icons/remove.svg" onclick="close_deploy_collection()">
+        <div class="dc_content">
+            <div class="dc_status_container">
+                <div class="dc_status_sections">
+                    <div style="text-align: left;">
+                        <div class="dc_status_dot" id="dc_status_4"></div>
+                        <p style="margin-left: -35px;">Deploy to IPFS</p>
+                    </div>
+                    <div>
+                        <div class="dc_status_dot" id="dc_status_4" style="left: 39%;"></div>
+                        <p>Choose Network</p>
+                    </div>
+                    <div>
+                        <div class="dc_status_dot" id="dc_status_4" style="left: 58%;"></div>
+                        <p>Deploy Contract</p>
+                    </div>
+                    <div style="text-align: right;">
+                        <div class="dc_status_dot" id="dc_status_4" style="left: 83.5%;"></div>
+                        <p>Mint</p>
+                    </div>
                 </div>
-                <div>
-                    <div class="dc_status_dot" id="dc_status_4" style="left: 39%;"></div>
-                    <p>Choose Network</p>
-                </div>
-                <div>
-                    <div class="dc_status_dot" id="dc_status_4" style="left: 58%;"></div>
-                    <p>Deploy Contract</p>
-                </div>
-                <div style="text-align: right;">
-                    <div class="dc_status_dot" id="dc_status_4" style="left: 83.5%;"></div>
-                    <p>Mint</p>
+                <div class="dc_status_bar_container sub_color_background">
+                    <div class="dc_status_bar_active main_color_background"></div>
                 </div>
             </div>
-            <div class="dc_status_bar_container sub_color_background">
-                <div class="dc_status_bar_active main_color_background"></div>
+            <h2></h2>
+            <h4></h4>
+            <div class="dc_body">
+                <div class="spinner">
+                    <div class="rect1" id="spin1"></div>
+                    <div class="rect1" id="spin2"></div>
+                    <div class="rect1" id="spin3"></div>
+                    <div class="rect1" id="spin4"></div>
+                    <div class="rect1" id="spin5"></div>
+                </div>
+                <div class="input_wrapper"></div>
             </div>
-        </div>
-        <h2></h2>
-        <h4></h4>
-        <div class="dc_body">
-            <div class="spinner">
-                <div class="rect1" id="spin1"></div>
-                <div class="rect1" id="spin2"></div>
-                <div class="rect1" id="spin3"></div>
-                <div class="rect1" id="spin4"></div>
-                <div class="rect1" id="spin5"></div>
+            <div class="dc_buttons">
             </div>
-            <div class="input_wrapper"></div>
-        </div>
-        <div class="dc_buttons">
         </div>
     </div>
 </div>    

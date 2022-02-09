@@ -846,26 +846,33 @@ body {
 .upload_section_swap {
   background-color: var(--main-card-color);
   height: 50px;
-  /* width: min(30vw, 400px);
-  min-width: 400px; */
   display: flex;
   justify-content: space-evenly;
   align-items: center;
   gap: 25px;
-  /* float: left; */
   margin-bottom: 20px;
 }
 
 .upload_section_swap > img {
   height: 35px;
   aspect-ratio: 1;
-  /* padding-top: 10px; */
   cursor: pointer;
   border-radius: 5px;
   width: 33%;
   filter:var(--tab-img-color)
 }
-.upload_section_swap > img:hover {
+.upload_section_swap > h2{
+  color: var(--sub-color);
+  border-radius: 5px;
+  width: 33%;
+  text-align: center;
+  font-weight: normal;
+  cursor: pointer;
+}
+.upload_section_swap > h2:hover{
+  background-color: var( --border-color);
+}
+.upload_section_swap > img:hover{
   background-color: var( --off-white-color);
 }
 .upload_main {
@@ -1100,15 +1107,9 @@ body {
   font-size: 1.5rem;
 }
 
-.upload_properties {
-  text-overflow: ellipsis;
-  /* flex: 1 0; */
-  min-width: 300px;
-  width: 400px;
-}
-
 /* :first-child */
-.upload_properties > div  {
+.upload_properties  {
+  max-width: 400px;
   box-sizing: border-box;
   /* min-height: 350px; */
   width: 100%;
@@ -1117,18 +1118,18 @@ body {
   /* margin-top: -75px; */
 }
 
-.upload_properties > button {
+.upload_properties + div > button {
   margin: 5px auto;
-  width: 100%;
+  max-width: 200px;
 }
 
-.upload_properties > div > h4 {
+.upload_properties > h4 {
   margin-top: 5px;
   margin-bottom: 5px;
 }
 
 
-.upload_properties >div >div > input {
+.upload_properties >div > input {
   align-items: center;
   /* margin-left: 1.5vw; */
 }

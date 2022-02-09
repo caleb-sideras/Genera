@@ -494,38 +494,36 @@ def password_reset_handler_view(request, token_url):
 
 def profile_view(request, username):
     user = User.objects.filter(username=username).first()
+    print(user)
     owner = (request.user == user)
 
     if not user:
         error_params = {"title": "Profile", "description": "Profile does not exist", "code": "313XD"}
         raise PermissionDenied(json.dumps(error_params))
     
-    users_collections = UserCollection.objects.filter(user=user)
-    
+    users_collections = UserCollectionMint.objects.filter(user=user)
+    print("hello")
+    print(users_collections)
 
     return render(request, 'user_profile.html', context={"owner":owner, "user":user, "users_collections":users_collections})
 
-def mint_view(request, username, collection_name):
+def mint_view(request, username, contract_address):
     user = User.objects.filter(username=username).first()
     # owner = (request.user == user)
 
     if user:
         context ={}
         context["owner"] = user
-        user_collection = UserCollection.objects.filter(user=user, collection_name=collection_name).first()
+        context["isOwner"] = (request.user == user)
+        user_collection = UserCollectionMint.objects.filter(user=user, contract_address=contract_address).first()
         if user_collection:
-            if user_collection.contract_bool and user_collection.contract_type == 2:
+            if user_collection.contract_type == 2:
 
                 context['contract_address'] = user_collection.contract_address
                 context['chain_id'] = user_collection.chain_id
-                context['collection_name'] = user_collection.collection_name
                 context['description'] = user_collection.description
-                if request.user.is_authenticated:
-                    context['isOwner'] = True
-                else:
-                    context['isOwner'] = False
-                # print(context['contract_address'])
-                # print( context['chain_id'])
+                context['collection_name'] = user_collection.collection_name
+
             else:
                 error_params = {"title": "Collection", "description": "Permission Error", "code": "313XD"}
                 raise PermissionDenied(json.dumps(error_params))
@@ -539,7 +537,36 @@ def mint_view(request, username, collection_name):
 
     return render(request, "user_mint.html", context)
 
-    pass
+def mint_view2(request, username, contract_address):
+    user = User.objects.filter(username=username).first()
+    # owner = (request.user == user)
+
+    if user:
+        context ={}
+        context["owner"] = user
+        context["isOwner"] = (request.user == user)
+        user_collection = UserCollectionMint.objects.filter(user=user, contract_address=contract_address).first()
+        if user_collection:
+            if user_collection.contract_type == 2:
+
+                context['contract_address'] = user_collection.contract_address
+                context['chain_id'] = user_collection.chain_id
+                context['description'] = user_collection.description
+                context['collection_name'] = user_collection.collection_name
+
+            else:
+                error_params = {"title": "Collection", "description": "Permission Error", "code": "313XD"}
+                raise PermissionDenied(json.dumps(error_params))
+        else:
+            error_params = {"title": "Collection", "description": "This Collection does not exist", "code": "313XD"}
+            raise PermissionDenied(json.dumps(error_params))
+    elif not user:
+        error_params = {"title": "Profile", "description": "Profile does not exist", "code": "313XD"}
+        raise PermissionDenied(json.dumps(error_params))
+    
+
+    return render(request, "user_mint2.html", context)
+
 def all_collections_view(request, username):
     context = {}
     if request.user.username != username:
@@ -723,16 +750,14 @@ def collection_view(request, username, collection_name):
 
                 if "address_set" in received_json_data:
                     if request.user.is_authenticated:
-                        if not user_collection.contract_bool:
-                            user_collection.contract_address = received_json_data["address_set"]
-                            user_collection.chain_id = received_json_data["chain_id"]
-                            if received_json_data["contract_type"] == 'Private':
-                                user_collection.contract_type = 1
-                            else:
-                                user_collection.contract_type = 2
+                        user_collection.contract_address = received_json_data["address_set"]
+                        user_collection.chain_id = received_json_data["chain_id"]
+                        if received_json_data["contract_type"] == 'Private':
+                            user_collection.contract_type = 1
+                        else:
+                            user_collection.contract_type = 2
 
-                            user_collection.contract_bool = True
-                            user_collection.save()
+                        user_collection.save()
                         return JsonResponse(
                             {"server_message" :"Contract address set"},
                             status = 200
@@ -889,87 +914,60 @@ def documentation_view(request):
 def public_mint_view(request):
     context = {}
 
-    if request.user:
-        if request.user.is_authenticated:
-            user = User.objects.filter(username=request.user.username).first()
-            collections = []
-            for collection in UserCollection.objects.filter(user=user):
-                collections.append(collection.collection_name)
-            context["users_collections"] = json.dumps(collections)
-            context["user"] = user
-            context["ajax_url"] = reverse("main:mint")
-        else:
-            context["users_collections"] = []
-    else:
-        context["users_collections"] = []
+    if request.user.is_authenticated:
+        user = User.objects.filter(username=request.user.username).first()
+        context["user"] = user
+        context["ajax_url"] = reverse("main:mint")
+    user_collection =''
+
     if request.method == "POST":
-        print("posted")
         if request.user.is_authenticated:
             if 'image_car' in request.POST:
-
-
-                user_collection = UserCollection.objects.get_or_create(user=request.user, collection_name=request.POST.get("collection_name"))
-
-
-                if user_collection[1]: #new collection created
-                    user_collection = user_collection[0]
-                else:
-                    messages.error(request, message="A collection with that name already exists!")
-                    return ajax_redirect(reverse("main:user_mint"))
-                if user_collection:
-                    if len(request.FILES) != 0:
-                        filename = list(request.FILES.keys())[0]
-                        if filename:
-                            file = list(request.FILES.getlist(filename))[0]
-                            if file:
-                                response = nft_storage_api_store(file)
-                                if not response or response['ok'] == False:
-                                    user_collection.delete()
-                                    return JsonResponse(
-                                        {"server_message": "Failed to upload to IPFS, please try again"},
-                                        status=202,
-                                    )
-                                user_collection.image_uri = response['value']['cid']
-                                user_collection.save()
-                                print(response['value']['cid'])
+                if len(request.FILES) != 0:
+                    filename = list(request.FILES.keys())[0]
+                    if filename:
+                        file = list(request.FILES.getlist(filename))[0]
+                        if file:
+                            response = nft_storage_api_store(file)
+                            if not response or response['ok'] == False:
+                                user_collection.delete()
                                 return JsonResponse(
-                                    {
-                                        "image_uri" : response['value']['cid']
-                                    },
-                                    status=200,
+                                    {"server_message": "Failed to upload to IPFS, please try again"},
+                                    status=202,
                                 )
-                    user_collection.delete()
+                            print(response['value']['cid'])
+                            return JsonResponse(
+                                {
+                                    "image_uri" : response['value']['cid']
+                                },
+                                status=200,
+                            )
+                    # user_collection.delete()
                     return JsonResponse(
                         {"server_message": "Failed to upload to IPFS, please try again"},
                         status=202,
                     )               
             if 'base_car' in request.POST:
-
-
-                user_collection = UserCollection.objects.filter(user=request.user, collection_name=request.POST.get("collection_name")).first()
-                if user_collection:
-                    if len(request.FILES) != 0:
-                        filename = list(request.FILES.keys())[0]
-                        if filename:
-                            file = list(request.FILES.getlist(filename))[0]
-                            if file:
-                                response = nft_storage_api_store(file)
-                                if not response or response['ok'] == False:
-                                    user_collection.delete()
-                                    return JsonResponse(
-                                        {"server_message": "Failed to upload to IPFS, please try again"},
-                                        status=202,
-                                    )
-                                user_collection.base_uri = response['value']['cid']
-                                user_collection.save()
-                                print(response['value']['cid'])
+                if len(request.FILES) != 0:
+                    filename = list(request.FILES.keys())[0]
+                    if filename:
+                        file = list(request.FILES.getlist(filename))[0]
+                        if file:
+                            response = nft_storage_api_store(file)
+                            if not response or response['ok'] == False:
+                                user_collection.delete()
                                 return JsonResponse(
-                                    {
-                                        "base_uri" :  response['value']['cid']
-                                    },
-                                    status=200,
+                                    {"server_message": "Failed to upload to IPFS, please try again"},
+                                    status=202,
                                 )
-                    user_collection.delete()
+                            print(response['value']['cid'])
+                            return JsonResponse(
+                                {
+                                    "base_uri" :  response['value']['cid']
+                                },
+                                status=200,
+                            )
+                    # user_collection.delete()
                     return JsonResponse(
                         {"server_message": "Failed to upload to IPFS, please try again"},
                         status=202,
@@ -998,29 +996,32 @@ def public_mint_view(request):
                         status=202,
                     )
                 if "address_set" in received_json_data:
-                    if request.user.is_authenticated:
-                        user_collection = UserCollection.objects.filter(user=request.user, collection_name=received_json_data["collection_name"]).first()
-                        if not user_collection.contract_bool:
-                            user_collection.contract_address = received_json_data["address_set"]
-                            user_collection.chain_id = received_json_data["chain_id"]
-                            user_collection.contract_type = received_json_data["contract_type"]
-                            user_collection.description = received_json_data["description"]
-                            user_collection.contract_bool = True
-                            user_collection.public_mint = True
-                            user_collection.save()
+
+                    try:
+                        user_collection = UserCollectionMint.objects.create(
+                        user = request.user, 
+                        collection_name = received_json_data['collection_name'],
+                        contract_address = received_json_data["address_set"],
+                        chain_id = received_json_data["chain_id"],
+                        contract_type = received_json_data["contract_type"],
+                        description = received_json_data["description"],
+                        image_uri = received_json_data["image_uri"],
+                        base_uri = received_json_data["base_uri"]
+                        )
                         return JsonResponse(
                             {"server_message" :"Contract address set"},
                             status = 200
                         )
-                    else:
+                    except:
                         return JsonResponse(
-                            {"server_message": "USER NOT LOGGED IN"},
-                            status=202,
-                        )
+                        {"server_message" :"Database error, please try again"},
+                        status = 202
+                    )
+                    
                 if "collection_redirect" in received_json_data:
                     return ajax_redirect(reverse("main:user_mint", kwargs= {
                         "username": user.username,
-                        "collection_name": received_json_data["collection_name"],
+                        "contract_address": received_json_data["contract_address"],
                     }))
             except RawPostDataException:  # NO AJAX DATA PROVIDED - DIFFERENT POST REQUEST INSTEAD
                 pass   
