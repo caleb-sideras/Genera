@@ -1106,32 +1106,55 @@ body {
   margin-bottom: 45px;
   font-size: 1.5rem;
 }
+.upload_properties {
+  text-overflow: ellipsis;
+  min-width: 300px;
+  width: 400px;
+}
 
-/* :first-child */
-.upload_properties  {
-  max-width: 400px;
+.upload_properties > div  {
   box-sizing: border-box;
-  /* min-height: 350px; */
   width: 100%;
   background-color: var(--main-card-color);
   margin-bottom: 5px;
-  /* margin-top: -75px; */
 }
 
-.upload_properties + div > button {
+.upload_properties > button {
   margin: 5px auto;
-  max-width: 200px;
+  width: 100%;
 }
 
-.upload_properties > h4 {
+.upload_properties > div > h4 {
   margin-top: 5px;
   margin-bottom: 5px;
 }
 
 
-.upload_properties >div > input {
+.upload_properties >div >div > input {
   align-items: center;
-  /* margin-left: 1.5vw; */
+}
+
+.upload_properties2  {
+  max-width: 400px;
+  box-sizing: border-box;
+  width: 100%;
+  background-color: var(--main-card-color);
+  margin-bottom: 5px;
+}
+
+.upload_properties2 + div > button {
+  margin: 5px auto;
+  max-width: 200px;
+}
+
+.upload_properties2 > h4 {
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
+
+
+.upload_properties2 >div > input {
+  align-items: center;
 }
 
 .update_layer_parameters_menu {
