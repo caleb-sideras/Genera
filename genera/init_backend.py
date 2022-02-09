@@ -5,13 +5,18 @@ from django.contrib.auth.backends import ModelBackend
 from django.core.exceptions import ValidationError
 
 class CustomBackend(ModelBackend):
-    def authenticate(self, request, username=None, password=None, **kwargs):
+    def authenticate(self, request, username=None, password=None, metamask_user=None, **kwargs):
         UserModel = get_user_model()
+
+        if metamask_user and getattr(metamask_user, "metamask_id"): #metamask user edge case
+            return metamask_user
 
         if username is None:
             username = kwargs.get(UserModel.USERNAME_FIELD)
+
         if username is None or password is None:
             return None
+
         try:
             user = UserModel.objects.filter(username__iexact=username) | UserModel.objects.filter(email__iexact=username)
             user = user.first()

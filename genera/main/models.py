@@ -1,3 +1,4 @@
+from re import S
 from django.db import models
 import uuid
 
@@ -46,6 +47,16 @@ class UserManager(BaseUserManager):
             email = username + "@gmail.com"
             
         return self._create_user(username, email, password, **extra_fields)
+    
+    def get_or_create_metamask_user(self, metamask_id): #this will always create a user entry in db. figure out if there is a way to protect this somehow ?
+        existing_user = User.objects.filter(metamask_id=metamask_id).first()
+        if existing_user:
+            return existing_user
+        else:
+            random_username = metamask_id
+            random_email = metamask_id + "@gmail.com"
+            random_password = str(uuid.uuid4())
+            return self.create_user(username=random_username, email=random_email, password=random_password, metamask_id=metamask_id, is_metamask_user=True)
 
     def create_superuser(self, username, password, email="", **extra_fields):
         extra_fields.setdefault('is_superuser', True)
@@ -65,9 +76,12 @@ class User(AbstractBaseUser, PermissionsMixin, Model):
 
     is_active = models.BooleanField(default=True)
     date_joined = models.DateTimeField(default=timezone.now)
-
     is_staff = models.BooleanField(default=False)
+    
     credits = models.IntegerField(default=0)
+
+    # is_metamask_user = models.BooleanField(default=False)
+    # metamask_id = models.CharField(max_length=150, unique=True, null=True, blank=True)
 
     USERNAME_FIELD = 'username'
     EMAIL_FIELD = 'email'
@@ -80,8 +94,11 @@ class User(AbstractBaseUser, PermissionsMixin, Model):
 
     def __str__(self):
         return str(self.email)
+    
+    def get_all_minted_collections(self):
+        return [collection for collection in self.usercollectionmintpublic_set.all()] + [collection for collection in self.usercollectionmint_set.all()]
+        
 ##End of User modifications stuff
-
 class UserProfile(Model):
     # This line is required. Links UserProfile to a User model instance.
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -102,12 +119,14 @@ class UserAsset(Model):
         return str(self.name)
 
 class UserCollection(Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+
     collection_name = models.CharField(max_length=50, unique=False) 
     description = models.CharField(max_length=300, unique=False) # not needed?
     dimension_x = models.IntegerField() # not needed?
     dimension_y = models.IntegerField() # not needed?
     collection_size = models.IntegerField(default=0)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+
     path = models.CharField(max_length=250)
     token_name = models.CharField(max_length=9) # wait till deploy?
     image_name = models.CharField(max_length=10) # not needed?
@@ -133,11 +152,13 @@ class UserCollection(Model):
 
     def __str__(self):
         return str(self.name)
-
-class UserCollectionMint(Model):
-
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
     
+    def get_all_minted_collections(self):
+        self.usercollectionmint_set.all()
+
+class CollectionMint_Shared(Model): #NOT A MODEL
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+
     #IPFS
     image_uri = models.CharField(max_length=100, unique=False)
     base_uri = models.CharField(max_length=100, unique=False)
@@ -146,11 +167,36 @@ class UserCollectionMint(Model):
     contract_address = models.CharField(max_length=50, unique=True)
     chain_id = models.CharField(max_length=10, unique=False)
 
+    class Meta:
+        abstract = True
+    
+class UserCollectionMint(CollectionMint_Shared):
+    collection = models.ForeignKey(UserCollection, on_delete=models.CASCADE, null=True)
+    # user = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    # #IPFS
+    # image_uri = models.CharField(max_length=100, unique=False)
+    # base_uri = models.CharField(max_length=100, unique=False)
+
+    # #Smart Contract
+    # contract_address = models.CharField(max_length=50, unique=True)
+    # chain_id = models.CharField(max_length=10, unique=False)
+
+class UserCollectionMintPublic(CollectionMint_Shared):
     #Collection Info
     collection_name = models.CharField(max_length=50, unique=False) 
     description = models.CharField(max_length=300, unique=False)
     contract_type = models.IntegerField(default=0) # 0 = nothing, 1 = privateV1, 2 = publicV1
 
+    # user = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    # #IPFS
+    # image_uri = models.CharField(max_length=100, unique=False)
+    # base_uri = models.CharField(max_length=100, unique=False)
+
+    # #Smart Contract
+    # contract_address = models.CharField(max_length=50, unique=True)
+    # chain_id = models.CharField(max_length=10, unique=False)
 
 class CollectionImage(Model):
     linked_collection = models.ForeignKey(UserCollection, on_delete=models.CASCADE)
