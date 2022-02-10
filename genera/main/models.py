@@ -166,6 +166,11 @@ class UserCollection(Model):
     #custom functions
     def get_all_minted_collections(self):
         self.usercollectionmint_set.all()
+    
+    def wipe_linked_aws_images(self):
+        if self.collection_ifps_bool:
+            for image in self.collectionimage_set.all():
+                image.delete()
 
 class CollectionMint_Shared(Model): #NOT A TABLE IN THE DATABASE - is abstract class
     user = models.ForeignKey(User, on_delete=models.CASCADE)
