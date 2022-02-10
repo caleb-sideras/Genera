@@ -215,7 +215,7 @@ def upload_view(request):
                     )
                 else:
                     messages.error(request, message="A collection with that name already exists!")
-                    return ajax_redirect(reverse("main:upload"))
+                    return ajax_cancel_generation(reverse("main:upload"))
 
                 #CREATE THE FOLDER HERE PERHAPS ?
                 if DEPLOYMENT_INSTANCE:
@@ -294,7 +294,6 @@ def upload_view(request):
             # print(calebs_gay_dict["Layers"])
             
             if paid_generation:
-
                 success = create_and_save_collection_paid(calebs_gay_dict, db_collection, request.user)
 
                 if success:
@@ -307,7 +306,7 @@ def upload_view(request):
                     return ajax_redirect(reverse("main:upload"))
 
                 messages.success(request, message="Collection generated succesfully!")
-                return ajax_redirect(reverse("main:collection", args=[request.user.username, db_collection.collection_name]))
+                return ajax_redirect(reverse("main:collection", args=[request.user.username_slug, db_collection.collection_name_slug]))
             else:
                 images_list, metadata_list = create_and_save_collection_free(calebs_gay_dict)
                 print("Free collection")
@@ -602,11 +601,7 @@ def collection_view(request, username_slug, collection_name_slug):
             user_collection = UserCollection.objects.filter(user=user, collection_name_slug=collection_name_slug).first()
             
             if user_collection or not user_collection.public_mint:
-                context["ajax_url"] = reverse("main:collection", 
-                        kwargs={
-                            "username": request.user.username,
-                            "collection_name": user_collection.collection_name,
-                        },)
+                context["ajax_url"] = reverse("main:collection", args=[username_slug, collection_name_slug])
                 collection_images = CollectionImage.objects.filter(linked_collection__id=user_collection.id)
 
                 if collection_images:
@@ -734,10 +729,7 @@ def collection_view(request, username_slug, collection_name_slug):
                     collection_image.metadata = json.dumps(collection_image_description)
                     collection_image.save()
 
-                    return redirect(reverse("main:collection", kwargs= {
-                        "username": username,
-                        "collection_name": collection_name,
-                    }))
+                    return redirect(reverse("main:collection", args=[username_slug, collection_name_slug]))
             ##AJAX HANDLING SECTION START
             try:
                 received_json_data = json.loads(request.body)
@@ -994,14 +986,14 @@ def public_mint_view(request):
 
                     try:
                         user_collection = UserCollectionMintPublic.objects.create(
-                        user = request.user, 
-                        collection_name = received_json_data['collection_name'],
-                        contract_address = received_json_data["address_set"],
-                        chain_id = received_json_data["chain_id"],
-                        contract_type = received_json_data["contract_type"],
-                        description = received_json_data["description"],
-                        image_uri = received_json_data["image_uri"],
-                        base_uri = received_json_data["base_uri"]
+                            user = request.user, 
+                            collection_name = received_json_data['collection_name'],
+                            contract_address = received_json_data["address_set"],
+                            chain_id = received_json_data["chain_id"],
+                            contract_type = received_json_data["contract_type"],
+                            description = received_json_data["description"],
+                            image_uri = received_json_data["image_uri"],
+                            base_uri = received_json_data["base_uri"]
                         )
                         return JsonResponse(
                             {"server_message" :"Contract address set"},
@@ -1014,10 +1006,7 @@ def public_mint_view(request):
                     )
                     
                 if "collection_redirect" in received_json_data:
-                    return ajax_redirect(reverse("main:user_mint", kwargs= {
-                        "username": user.username,
-                        "contract_address": received_json_data["contract_address"],
-                    }))
+                    return ajax_redirect(reverse("main:user_mint", args=[user.username_slug, received_json_data["contract_address"]]))
             except RawPostDataException:  # NO AJAX DATA PROVIDED - DIFFERENT POST REQUEST INSTEAD
                 pass   
             ##AJAX HANDLING SECTION END         

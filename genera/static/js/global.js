@@ -8,7 +8,7 @@ function create_server_notification() { // success, info, warning, error, and no
     //if server message exists, create notification
     if (typeof(document.getElementById("server_message")) != 'undefined' && document.getElementById("server_message") != null) {
         var [server_message, message_type] = document.getElementById("server_message").value.split("$") 
-        create_notification("Server message", server_message, duration=100000, theme=message_type)
+        create_notification("Server message", server_message, duration=1000, theme=message_type)
     }
 }
 

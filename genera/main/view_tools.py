@@ -38,6 +38,9 @@ def generate_token(request, type="A", user=None):
 def ajax_redirect(url = ""):
     return JsonResponse({"url": url}, status=201)
 
+def ajax_cancel_generation(url = ""):
+    return JsonResponse({"url_cancel": url}, status=201)
+
 #STRIPE HELPER FUNCTIONS
 def generate_stripe_products_context():
     products =  []
