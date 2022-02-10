@@ -36,12 +36,12 @@ EMAIL_PORT = 587
 EMAIL_ACTIVE_FIELD = 'is_active'
 EMAIL_SERVER = 'smtp.gmail.com'
 EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PASSWORD = 'yycgppubwhmfqgcx'
-EMAIL_HOST_USER = "artemlimo@gmail.com"
-EMAIL_HOST_PASSWORD = 'yycgppubwhmfqgcx'
-EMAIL_ADDRESS = 'artemlimo@gmail.com'
-EMAIL_FROM_ADDRESS = 'artemlimo@gmail.com'
-DEFAULT_FROM_EMAIL = 'artemlimo@gmail.com'
+EMAIL_PASSWORD = 'xlstriwxtynxjftg'
+EMAIL_HOST_USER = "generanft@gmail.com"
+EMAIL_HOST_PASSWORD = 'xlstriwxtynxjftg'
+EMAIL_ADDRESS = 'generanft@gmail.com'
+EMAIL_FROM_ADDRESS = 'generanft@gmail.com'
+DEFAULT_FROM_EMAIL = 'generanft@gmail.com'
 EMAIL_USE_TLS = True
 
 DEBUG = True #TODO:
@@ -50,6 +50,7 @@ DEPLOYMENT_INSTANCE = 'RDS_DB_NAME' in os.environ
 
 if DEPLOYMENT_INSTANCE:
     BASE_URL = 'https://www.genera.link'
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
     #DEBUG = False #TODO: Make this FALSE when all is done..
 
 mimetypes.add_type("application/javascript", ".js", True) #TODO: IDK IF THIS NEEDS BE IN PROD!

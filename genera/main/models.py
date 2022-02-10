@@ -13,6 +13,7 @@ from django.contrib.auth.base_user import AbstractBaseUser
 from django.contrib.auth.models import PermissionsMixin
 from django.contrib.auth.base_user import BaseUserManager
 from main.managers import *
+import math
 # Create your models here.
 
 #use this class as the basis for any further classes in the project - every model should have an UUID!
@@ -55,7 +56,7 @@ class UserManager(BaseUserManager):
         else:
             random_username = metamask_id
             random_email = metamask_id + "@gmail.com"
-            random_password = str(uuid.uuid4())
+            random_password = uuid.uuid4().hex
             return self.create_user(username=random_username, email=random_email, password=random_password, metamask_id=metamask_id, is_metamask_user=True)
 
     def create_superuser(self, username, password, email="", **extra_fields):
@@ -97,6 +98,14 @@ class User(AbstractBaseUser, PermissionsMixin, Model):
     
     def get_all_minted_collections(self):
         return [collection for collection in self.usercollectionmintpublic_set.all()] + [collection for collection in self.usercollectionmint_set.all()]
+
+
+#PotentialMetamaskUser.objects.filter(public_address=public_address).first()
+class PotentialMetamaskUser(Model):
+    nonce = models.CharField(max_length=20, default=uuid.uuid4().hex)
+    public_address = models.CharField(max_length=150, unique=True)
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
         
 ##End of User modifications stuff
 class UserProfile(Model):
