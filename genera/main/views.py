@@ -598,15 +598,9 @@ def collection_view(request, username_slug, collection_name_slug):
         if request.user.is_authenticated:
             if 'image_car' in request.POST:
 
-                if user_collection.contract_type == 1:
-                    return JsonResponse(
-                        {"server_message": "Wrong contract type"},
-                        status=202,
-                    )
-
                 if user_collection.collection_ifps_bool:
                     return JsonResponse(
-                        {"server_message": "collection_deployed"},
+                        {"server_message": "Collection already upladed to IPFS"},
                         status=202,
                     )
 
@@ -628,9 +622,9 @@ def collection_view(request, username_slug, collection_name_slug):
                                 {"server_message": "Failed to upload to IPFS, please try again"},
                                 status=202,
                             )
-                        print(response['value']['cid'])
+                        # print(response['value']['cid'])
                         user_collection.image_uri = response['value']['cid']
-
+                        user_collection.save()
                         metadata_list = []    
                         for count, entry in enumerate(collection_images):
                             metadata = json.loads(entry.metadata)
@@ -638,8 +632,7 @@ def collection_view(request, username_slug, collection_name_slug):
                             metadata_list.append(metadata)
                             entry.metadata = json.dumps(metadata)
                             entry.save()
-                user_collection.contract_type = 2
-                user_collection.save()
+                
                 return JsonResponse(
                     {
                         "image_uri" : json.dumps(metadata_list)
@@ -647,12 +640,6 @@ def collection_view(request, username_slug, collection_name_slug):
                     status=200,
                 )
             if 'base_car' in request.POST:
-                print("base_car")
-                if user_collection.contract_type == 1:
-                    return JsonResponse(
-                        {"server_message": "Wrong contract type"},
-                        status=202,
-                    )
 
                 if not user_collection.image_uri:
                     return JsonResponse(
@@ -661,7 +648,7 @@ def collection_view(request, username_slug, collection_name_slug):
                     )
                 if user_collection.collection_ifps_bool:
                     return JsonResponse(
-                        {"server_message": "collection_deployed"},
+                        {"server_message": "Collection already upladed to IPFS"},
                         status=202,
                     )
 
@@ -675,7 +662,7 @@ def collection_view(request, username_slug, collection_name_slug):
                                 status=202,
                             )
 
-                        print(response['value']['cid'])
+                        # print(response['value']['cid'])
                         user_collection.base_uri = response['value']['cid']
                         user_collection.collection_ifps_bool = True
                         user_collection.save()
@@ -706,13 +693,13 @@ def collection_view(request, username_slug, collection_name_slug):
 
                 if "address_set" in received_json_data:
                     if request.user.is_authenticated:
-                        user_collection.contract_address = received_json_data["address_set"]
-                        user_collection.chain_id = received_json_data["chain_id"]
-                        if received_json_data["contract_type"] == 'Private':
-                            user_collection.contract_type = 1
-                        else:
-                            user_collection.contract_type = 2
-
+                        user_collection = UserCollectionMint.objects.create(
+                            user = request.user, 
+                            contract_address = received_json_data["address_set"],
+                            chain_id = received_json_data["chain_id"],
+                            contract_type = received_json_data["contract_type"],
+                            contract_type = 2
+                        )
                         user_collection.save()
                         return JsonResponse(
                             {"server_message" :"Contract address set"},
