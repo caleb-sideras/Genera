@@ -11,9 +11,9 @@ from django.contrib import messages
 import json
 from django.http import JsonResponse, RawPostDataException
 from django.core.exceptions import PermissionDenied
-from .models import *
+# from .models import *
 import json
-from .models import *
+# from .models import *
 
 stripe.api_key = STRIPE_PRIVATE_KEY
 # Create your views here.

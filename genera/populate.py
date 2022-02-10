@@ -4,10 +4,11 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'genera.settings')
 import django
 import stripe
 import json
+import payments
 django.setup()
 
 from main.models import *
-from payments.models import *
+# from payments.models import *
 from genera.settings import STRIPE_PRIVATE_KEY
 stripe.api_key = STRIPE_PRIVATE_KEY
 

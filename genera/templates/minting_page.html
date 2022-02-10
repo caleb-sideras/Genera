@@ -619,7 +619,7 @@
           <input name="token_name" type="text" v-model="token_name" placeholder="E.g. VDE" @change = "validateField" maxlength="10" required/>
 
           <h5 class="no_margin">Network</h5>
-          <select id="select" name="select" v-model="network" style="font-size: 1rem;"><option :value="0x1">Ethereum</option><option :value="0x4">Rinkeby Testnet</option><option :value="0x89">Polygon</option><option :value="0x13881">Mumbai Testnet</option></select>
+          <select id="select" name="select" v-model="network" style="font-size: 1rem;"><option :value="1">Ethereum</option><option :value="4">Rinkeby Testnet</option><option :value="89">Polygon</option><option :value="13881">Mumbai Testnet</option></select>
 
           <h5 class="no_margin">Minting Cost</h5>
           <input name="Minting Cost" type="number" placeholder="E.g. 1 MATIC or 0.01 ETH" step="0.000000001" minlength="0" v-model="minting_cost" @change = "validateField" required>
@@ -674,15 +674,6 @@
         web3_infura:null,
         contract_address:null,
         componentKey : 0,
-      }
-    },
-    mounted(){
-      console.log(this.collection_name)
-      console.log("WHAT")
-      if (this.collection_name){
-        this.$refs.collection_name.value = this.collection_name
-        console.log(this.collection_name)
-        console.log(this.$refs.collection_name)
       }
     },
     methods:{
@@ -860,7 +851,7 @@
           try {
             await ethereum.request({
               method: 'wallet_switchEthereumChain',
-              params: [{ chainId: '0x' + this.network }],
+              params: [{ chainId: `0x${this.network}`}],
             });
           } catch (error) {
             alert("Please Connect your Metmask Wallet")

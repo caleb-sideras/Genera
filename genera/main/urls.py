@@ -23,7 +23,6 @@ urlpatterns = [
     path("documentation", documentation_view, name="documentation"),
     path("user/<str:username>/profile", profile_view, name="profile"),
     path("user/<str:username>/profile/<str:contract_address>", mint_view, name="user_mint"),
-    path("user/<str:username>/profile/mint2/<str:contract_address>", mint_view2, name="user_mint2"),
     path("user/<str:username>/collections", all_collections_view, name="all_collections"),
     path("user/<str:username>/collections/<str:collection_name>", collection_view, name="collection"),
     # path("create-checkout-session", checkout_session, name="create-checkout-session")

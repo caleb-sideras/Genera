@@ -205,11 +205,22 @@ input[type="email"]:focus::placeholder,
   opacity: 40%;
 }
 
-button:disabled{
+button:disabled,
+select:disabled{
   background-color: var(--disabled-background-color)!important;
   cursor: default !important;
+  color: var(--disabled-text-color)!important;
 }
-button:disabled > h2{
+button:disabled:hover,
+select:disabled:hover{
+  transform: none !important;
+  color: none !important;
+  box-shadow: none !important;
+  border-color: none !important;
+}
+
+button:disabled > h2,
+select:disabled{
   color: var(--disabled-text-color)!important;
 }
 
@@ -640,7 +651,6 @@ body {
   padding: 10px 20px;
   border-radius: 15px;
   cursor: pointer;
-  /* border: none; */
   border-style: solid;
   border-width: 1px;
   border-color: var(--border-color);
@@ -771,6 +781,14 @@ body {
 
 .bottom_round_container {
   border-radius: 0px 0px 10px 10px;
+}
+
+.right_round_container_5px {
+  border-radius: 0px 5px 5px 0px;
+}
+
+.left_round_container_5px {
+  border-radius: 5px 0px 0px 5px;
 }
 
 .rounded_container_no_padding {
@@ -2983,11 +3001,55 @@ input:checked + .slider:before {
 }
 .mint_description{
   padding: 15px;
+  width: 100%;
 }
 .mint_description h1, .mint_description p{
  max-width: 550px;
  margin: auto;
  margin-bottom: 25px;
+}
+
+.admin_body{
+  padding: 25px;
+  margin: 25px;
+}
+.admin_column{
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+.admin_column > div{
+  flex-direction: row;
+  display: flex;
+  align-items: center;
+}
+
+.admin_column input{
+  border-radius: 0px !important;
+  width: 200px;
+}
+
+.admin_column #no_edit{
+  pointer-events: none;
+}
+
+.admin_column > div > div{
+  margin: 0px;
+  height: 100%;
+  display: flex;
+  width: 125px;
+  background-color: var(--border-color);
+  justify-content: center;
+}
+
+.admin_column > div > div>  h4{
+  margin-top: auto;
+  margin-bottom: auto;
+}
+
+.admin_column > div >  h3{
+  margin-right: 25px !important;
 }
 /* MINT PAGE */
 
