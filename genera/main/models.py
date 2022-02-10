@@ -1,9 +1,10 @@
 from re import S
 from django.db import models
 import uuid
+from genera.settings import DEPLOYMENT_INSTANCE
 
 from main.model_tools import *
-
+from genera.s3_storage import AwsMediaStorageManipulator
 from django.utils import timezone
 from django.utils.timezone import make_aware
 from django.template.defaultfilters import slugify
@@ -54,16 +55,12 @@ class UserManager(BaseUserManager):
             return existing_user
         else:
             random_username = metamask_public_address[:8]
-            random_email = random_username + "@gmail.com"
             random_password = str(uuid.uuid4())
-            return self.create_user(username=random_username, email=random_email, password=random_password, metamask_public_address=metamask_public_address, is_metamask_user=True)
+            return self.create_user(username=random_username, email=random_username + "@genera-temp.com", password=random_password, metamask_public_address=metamask_public_address, is_metamask_user=True)
 
     def create_superuser(self, username, password, email="", **extra_fields):
         extra_fields.setdefault('is_superuser', True)
         extra_fields.setdefault('is_staff', True)
-
-        if extra_fields.get('is_superuser') is not True:
-            raise ValueError('Superuser must have type="S"')
 
         if email == "":
             email = username + "@gmail.com"
@@ -105,7 +102,7 @@ class User(AbstractBaseUser, PermissionsMixin, Model):
     def get_all_minted_collections(self):
         return [collection for collection in self.usercollectionmintpublic_set.all()] + [collection for collection in self.usercollectionmint_set.all()]
 
-class PotentialMetamaskUser(Model):
+class MetamaskUserAuth(Model):
     public_address = models.CharField(max_length=150, unique=True)
 
     nonce = models.CharField(max_length=32, null=True, blank=True)
@@ -172,6 +169,14 @@ class UserCollection(Model):
     def save(self, *args, **kwargs):
         self.collection_name_slug = slugify(self.collection_name)
         super(UserCollection, self).save(*args, **kwargs)
+    
+    def delete(self):
+        for image in self.collectionimage_set.all(): #explicitly call delete() since ONCASCADE delete does not do that..
+            image.delete()
+        super(UserCollection, self).delete()
+        if DEPLOYMENT_INSTANCE: #delete the collection folder after all else is gone
+            storage_manipulator = AwsMediaStorageManipulator()
+            storage_manipulator.delete_object_from_bucket(self.path)
 
     #custom functions
     def get_all_minted_collections(self):
@@ -179,6 +184,11 @@ class UserCollection(Model):
 
 class CollectionMint_Shared(Model): #NOT A TABLE IN THE DATABASE - is abstract class
     user = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    #collection info
+    collection_name = models.CharField(max_length=50, unique=False) 
+    description = models.CharField(max_length=300, unique=False)
+    contract_type = models.IntegerField(default=0) # 0 = nothing, 1 = privateV1, 2 = publicV1
 
     #IPFS
     image_uri = models.CharField(max_length=100, unique=False)
@@ -192,8 +202,12 @@ class CollectionMint_Shared(Model): #NOT A TABLE IN THE DATABASE - is abstract c
         abstract = True
     
 class UserCollectionMint(CollectionMint_Shared):
-    collection = models.ForeignKey(UserCollection, on_delete=models.CASCADE, null=True)
+    collection = models.ForeignKey(UserCollection, on_delete=models.SET_NULL, null=True) #store reference to collection. if collection deleted, this will be set to NULL.
     # user = models.ForeignKey(User, on_delete=models.CASCADE)
+    #Collection Info
+    # collection_name = models.CharField(max_length=50, unique=False) 
+    # description = models.CharField(max_length=300, unique=False)
+    # contract_type = models.IntegerField(default=0) # 0 = nothing, 1 = privateV1, 2 = publicV1
 
     # #IPFS
     # image_uri = models.CharField(max_length=100, unique=False)
@@ -203,11 +217,19 @@ class UserCollectionMint(CollectionMint_Shared):
     # contract_address = models.CharField(max_length=50, unique=True)
     # chain_id = models.CharField(max_length=10, unique=False)
 
+    def save(self, *args, **kwargs): #update the collection field names when saving, if a collection is referenced
+        if self.collection:
+            self.collection_name = self.collection.collection_name
+            self.description = self.collection.description
+            self.contract_type = self.collection.contract_type
+        super(UserCollectionMint, self).save(*args, **kwargs)
+
 class UserCollectionMintPublic(CollectionMint_Shared):
+    pass
     #Collection Info
-    collection_name = models.CharField(max_length=50, unique=False) 
-    description = models.CharField(max_length=300, unique=False)
-    contract_type = models.IntegerField(default=0) # 0 = nothing, 1 = privateV1, 2 = publicV1
+    # collection_name = models.CharField(max_length=50, unique=False) 
+    # description = models.CharField(max_length=300, unique=False)
+    # contract_type = models.IntegerField(default=0) # 0 = nothing, 1 = privateV1, 2 = publicV1
 
     # user = models.ForeignKey(User, on_delete=models.CASCADE)
 
@@ -232,6 +254,14 @@ class CollectionImage(Model):
 
     # Private Contract
     ipfs_bool = models.BooleanField(default=False)
+
+    def delete(self):
+        if DEPLOYMENT_INSTANCE:
+            storage_manipulator = AwsMediaStorageManipulator()
+            storage_manipulator.delete_object_from_bucket(self.path)
+            if self.path_compressed:
+                storage_manipulator.delete_object_from_bucket(self.path_compressed)
+        super(CollectionImage, self).delete()
 
     def __str__(self):
         return str(self.name)
