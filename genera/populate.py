@@ -13,7 +13,7 @@ from genera.settings import STRIPE_PRIVATE_KEY
 stripe.api_key = STRIPE_PRIVATE_KEY
 
 def populate():
-    print('starting expy population script')
+    print('starting Genera population script')
 
     #generate superuser for testing
     if not User.objects.filter(username="artem").exists():
