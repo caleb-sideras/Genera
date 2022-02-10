@@ -1139,6 +1139,7 @@ async function validate_and_post_ajax_form() {
             }
             else if (typeof response["url_cancel"] != 'undefined') { //IF WE WANT TO CANCEL GENERATION WITHOUT RESET - close loading popup and show error (from server)
                 close_loading_popup()
+                create_notification("Generation cancelled", response["message"], duration = 1000, "warning")
             }
             else if(response['images']){
                 let zip = new JSZip();

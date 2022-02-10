@@ -38,8 +38,8 @@ def generate_token(request, type="A", user=None):
 def ajax_redirect(url = ""):
     return JsonResponse({"url": url}, status=201)
 
-def ajax_cancel_generation(url = ""):
-    return JsonResponse({"url_cancel": url}, status=201)
+def ajax_cancel_generation(server_message, url = ""):
+    return JsonResponse({"url_cancel": url, "message": server_message}, status=201)
 
 #STRIPE HELPER FUNCTIONS
 def generate_stripe_products_context():
@@ -70,7 +70,6 @@ stripe_user_session_history_expired = fetch_stripe_session_history_for_user("exp
 stripe_user_session_history_complete = fetch_stripe_session_history_for_user("complete")
 
 def fetch_stripe_session_product_and_price(stripe_session_obbject):
-    
     price = stripe.Price.retrieve(stripe_session_obbject["metadata"]["price_id"])
     product = stripe.Product.retrieve(price["product"])
     return (product,price)

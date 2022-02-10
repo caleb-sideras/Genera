@@ -214,8 +214,7 @@ def upload_view(request):
                         image_name = calebs_gay_dict["ImageName"]
                     )
                 else:
-                    messages.error(request, message="A collection with that name already exists!")
-                    return ajax_cancel_generation(reverse("main:upload"))
+                    return ajax_cancel_generation("A collection with that name already exists!", reverse("main:upload"))
 
                 #CREATE THE FOLDER HERE PERHAPS ?
                 if DEPLOYMENT_INSTANCE:
@@ -362,6 +361,7 @@ def metamask_login_handler_view(request):
                         found_user.user = metamask_user #attach the user reference to the metamask user object
                         found_user.save()
                     login(request, metamask_user)
+                    messages.success(request, "Succesfully logged in with metamask!")
                     return ajax_redirect(reverse("main:main_view")) #redirect home page - make sure to catch this in frontend. NOTE: perhaps redirect to profile edit page - to change username/email..
                 else: #if signature verification fails - delete the PotentialMetamaskUser object. User needs to do the whole process again.
                     found_user.delete()
@@ -371,6 +371,8 @@ def metamask_login_handler_view(request):
             return Http404()
         except JSONDecodeError:
             return Http404()
+    else:
+        return Http404()
 
 def login_view(request, current_extension=404):
     print("WHY ARE WE STILL HERE")
@@ -822,7 +824,6 @@ def collection_view(request, username_slug, collection_name_slug):
                 elif "get_contract" in received_json_data:
                     if request.user.is_authenticated:
                         if not user_collection.contract_bool:
-                            # print("hello")
                             # assign name to variable
                             if received_json_data['get_contract'] == '1':
                                 with open("static/Contracts/erc1155_private_contract.json", "r") as myfile:
@@ -1015,4 +1016,4 @@ def public_mint_view(request):
     return render(request, "minting_page.html", context)
 
 def login_options_view(request):
-    return render(request, "login_options.html")
+    return render(request, "login_options.html", {"ajax_url": reverse("main:login_metamask_handler")})
