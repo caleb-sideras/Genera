@@ -69,35 +69,6 @@ def upload_view(request):
     calebs_gay_dict = {}
     
     if request.method == "POST":
-        
-        # Ajax feild validation
-        try:
-            received_json_data = json.loads(request.body)
-            if "field_name" in received_json_data:
-                    if received_json_data["field_name"] == "collection_name":
-                        if request.user.is_authenticated:
-                            if UserCollection.objects.filter(user=request.user, collection_name=received_json_data["field_content"]).exists():
-                                return JsonResponse({"passed": 0, "message": "A collection with that name already exists!"}, status=200)
-                            else:
-                                return JsonResponse({"passed": 1}, status=200)
-                        else:
-                            return JsonResponse({"passed": 1}, status=200)
-                    elif received_json_data["field_name"] == "size":
-                        if request.user.is_authenticated:
-                            if request.user.credits < int(received_json_data["field_content"]):
-                                return JsonResponse({"passed": 0, "message": "You don't have enough credits to generate this collection size!"}, status=200)
-                            else:
-                                return JsonResponse({"passed": 1}, status=200)
-
-                        elif int(received_json_data["field_content"]) < 100:
-                                return JsonResponse({"passed": 0, "message": "Maximum of 100 free generations allowed"}, status=200)
-                        else:
-                            return JsonResponse({"passed": 1}, status=200)
-                
-        except RawPostDataException:
-            pass
-        except JSONDecodeError:
-            pass
    
         if len(request.FILES) != 0:
 
@@ -317,7 +288,6 @@ def upload_view(request):
                     status=200,
                 )
             
-                
         else:  # no files submitted
             messages.error(request, message="No files recieved by the server")
             return ajax_redirect(reverse("main:upload"))
