@@ -1134,8 +1134,12 @@ async function validate_and_post_ajax_form() {
 
     ajax_post_form(form_data)
         .then(response => {
-            if (typeof response["url"] != 'undefined') {                 
+            if (typeof response["url"] != 'undefined') { //PROPER ISSUE WHERE REDIRECT IS NECCESARY            
                 window.location.replace(response["url"]) //redirect to the new collection
+            }
+            else if (typeof response["url_cancel"] != 'undefined') { //IF WE WANT TO CANCEL GENERATION WITHOUT RESET - close loading popup and show error (from server)
+                close_loading_popup()
+                create_notification("Generation cancelled", response["message"], duration = 1000, "warning")
             }
             else if(response['images']){
                 let zip = new JSZip();

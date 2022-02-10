@@ -10,10 +10,11 @@ class AdminNotVisibleMixin():
 
 class User_Admin(auth_admin.UserAdmin):
     fieldsets = (
-        (None, {'fields': ('username','email', 'password', 'credits')}),
+        (None, {'fields': ('username','email', 'password', 'credits', 'is_active', 'is_superuser', 'is_metamask_user',)}),
     )
 
     list_display = ['username', 'email']
+    readonly_fields = ['is_metamask_user', 'is_active', 'is_superuser']
     search_fields = []
     list_filter = []
     exclude = ["groups", "user_permissions"]

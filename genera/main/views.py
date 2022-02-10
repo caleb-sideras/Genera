@@ -14,8 +14,8 @@ from django.contrib.auth import login, logout
 from django.contrib import messages
 from django.http import HttpResponseRedirect
 import json
-from django.http import JsonResponse, RawPostDataException
-from django.core.exceptions import PermissionDenied, ValidationError
+from django.http import JsonResponse, RawPostDataException, HttpResponse, Http404
+from django.core.exceptions import ValidationError
 import base64
 from PIL import Image, ImageColor
 from django.core.mail import send_mail
@@ -28,6 +28,7 @@ import json
 from django.template.loader import render_to_string
 from io import BytesIO
 import stripe
+from web3 import Web3
 # Create your views here.
 stripe.api_key = STRIPE_PRIVATE_KEY
 
@@ -68,35 +69,6 @@ def upload_view(request):
     calebs_gay_dict = {}
     
     if request.method == "POST":
-        
-        # Ajax feild validation
-        try:
-            received_json_data = json.loads(request.body)
-            if "field_name" in received_json_data:
-                    if received_json_data["field_name"] == "collection_name":
-                        if request.user.is_authenticated:
-                            if UserCollection.objects.filter(user=request.user, collection_name=received_json_data["field_content"]).exists():
-                                return JsonResponse({"passed": 0, "message": "A collection with that name already exists!"}, status=200)
-                            else:
-                                return JsonResponse({"passed": 1}, status=200)
-                        else:
-                            return JsonResponse({"passed": 1}, status=200)
-                    elif received_json_data["field_name"] == "size":
-                        if request.user.is_authenticated:
-                            if request.user.credits < int(received_json_data["field_content"]):
-                                return JsonResponse({"passed": 0, "message": "You don't have enough credits to generate this collection size!"}, status=200)
-                            else:
-                                return JsonResponse({"passed": 1}, status=200)
-
-                        elif int(received_json_data["field_content"]) < 100:
-                                return JsonResponse({"passed": 0, "message": "Maximum of 100 free generations allowed"}, status=200)
-                        else:
-                            return JsonResponse({"passed": 1}, status=200)
-                
-        except RawPostDataException:
-            pass
-        except JSONDecodeError:
-            pass
    
         if len(request.FILES) != 0:
 
@@ -175,7 +147,6 @@ def upload_view(request):
                     paid_generation = False
 
                 else:
-                   
                     messages.error(request, message="Not enough credits.")
                     return ajax_redirect(reverse("main:upload"))
             elif int(float(request.POST.get("size"))) > 100:
@@ -214,8 +185,7 @@ def upload_view(request):
                         image_name = calebs_gay_dict["ImageName"]
                     )
                 else:
-                    messages.error(request, message="A collection with that name already exists!")
-                    return ajax_redirect(reverse("main:upload"))
+                    return ajax_cancel_generation("A collection with that name already exists!", reverse("main:upload"))
 
                 #CREATE THE FOLDER HERE PERHAPS ?
                 if DEPLOYMENT_INSTANCE:
@@ -294,7 +264,6 @@ def upload_view(request):
             # print(calebs_gay_dict["Layers"])
             
             if paid_generation:
-
                 success = create_and_save_collection_paid(calebs_gay_dict, db_collection, request.user)
 
                 if success:
@@ -307,8 +276,7 @@ def upload_view(request):
                     return ajax_redirect(reverse("main:upload"))
 
                 messages.success(request, message="Collection generated succesfully!")
-
-                return ajax_redirect(reverse("main:collection", args=[request.user.username, db_collection.collection_name]))
+                return ajax_redirect(reverse("main:collection", args=[request.user.username_slug, db_collection.collection_name_slug]))
             else:
                 images_list, metadata_list = create_and_save_collection_free(calebs_gay_dict)
                 print("Free collection")
@@ -320,20 +288,68 @@ def upload_view(request):
                     status=200,
                 )
             
-                
         else:  # no files submitted
             messages.error(request, message="No files recieved by the server")
             return ajax_redirect(reverse("main:upload"))
 
     return render(request, "upload.html", context)
 
+def metamask_login_handler_view(request):
+    #consider storing the IP for the request in each PotentialMetamaskUser object. Track if an IP is ajaxing the login button with different public_addresses. Each time a unique public address is passed - a small table is created in a database.
+    if request.method == "POST":
+        try:
+            received_json_data = json.loads(request.body)
+
+            #Add 'metamask_request_nonce': '' to the json data in frontend pls - empty key but so we can distinguish here in the backend
+            if "metamask_request_nonce" and "public_address" in received_json_data: #WHEN USER FIRST CLICKS LOGIN WITH METAMASK - shoot a request here and handle the response
+                if not Web3.isAddress(received_json_data["public_address"]): #to prevent spamming the server with requests that create a model. consider isChecksumAddress idk?
+                    return JsonResponse({"error": "Invalid address"}, status=400)
+                created_temp_user = PotentialMetamaskUser.objects.get_or_create(public_address=received_json_data["public_address"])[0] #create the temporary user here.
+                created_temp_user.nonce = str(uuid.uuid4())
+                created_temp_user.save()
+                return JsonResponse({"nonce": created_temp_user.nonce}, status=200) #Catch this in frontned - and sign web3.personal.sign(nonce, public_address) please
+            
+            #Add 'metamask_auth_user': '' to the json data in frontend pls - empty key but so we can distinguish here in the backend
+            elif "metamask_auth_user" and "public_address" and "signature" in received_json_data:  #After u generate the signatre in frontend, shoot the request here. Pass the public_address and signature to the server.
+                def verify_signature_ecRecover(nonce, signature, public_address):
+                    w3 = Web3(Web3.HTTPProvider("infura/alchemy URL")) #TODO: Plug the URL here @Caleb
+                    decrypted_public_address = w3.geth.personal.ecRecover(nonce, signature)
+                    # decrypted_public_address = w3.eth.account.recover_message(nonce, signature)
+                    if public_address.lower() == decrypted_public_address.lower():
+                        return True
+                    return False
+
+                found_user = PotentialMetamaskUser.objects.filter(public_address=received_json_data["public_address"]).first()
+                if not found_user: # user not found - shouldnt happen ever xd
+                    return Http404()
+                #ec2 recover reverse here...
+                if verify_signature_ecRecover(found_user.nonce, received_json_data["signature"], found_user.public_address):
+                    if found_user.user: #if the PotentialMetamaskUser object is ALREADY linked to a user - fetch user from it. otherwise get_or_create a new one!
+                        metamask_user = found_user.user
+                    else:
+                        metamask_user = User.objects.get_or_create_metamask_user(metamask_public_address=found_user.public_address)
+                        found_user.user = metamask_user #attach the user reference to the metamask user object
+                        found_user.save()
+                    login(request, metamask_user)
+                    messages.success(request, "Succesfully logged in with metamask!")
+                    return ajax_redirect(reverse("main:main_view")) #redirect home page - make sure to catch this in frontend. NOTE: perhaps redirect to profile edit page - to change username/email..
+                else: #if signature verification fails - delete the PotentialMetamaskUser object. User needs to do the whole process again.
+                    found_user.delete()
+                    return JsonResponse({"error": "Metamask Validation failed."}, status=400)
+                
+        except RawPostDataException:
+            return Http404()
+        except JSONDecodeError:
+            return Http404()
+    else:
+        return Http404()
+
 def login_view(request, current_extension=404):
     print("WHY ARE WE STILL HERE")
     form_id = "login_form"
 
     if request.user.is_authenticated:
-        error_params = {"title": "Login", "description": "Attempt to Log in when already logged in.", "code": "321XD"}
-        raise PermissionDenied(json.dumps(error_params))
+        raise_permission_denied("Login", "Attempt to Log in when already logged in.")
 
     login_form = LoginForm(label_suffix="")
 
@@ -353,15 +369,13 @@ def login_view(request, current_extension=404):
                 messages.error(request, str(msg))
                 login_form.add_error(None, msg)
 
-
     form_context = {"form": login_form, "button_text": "Log in", "identifier": form_id, "title": "Log in to Genera", "login_url" : current_extension, "extra" : True}
 
     return render(request, 'base_form.html', form_context)
 
 def logout_view(request, current_extension=None):
     if not request.user.is_authenticated:
-        error_params = {"title": "Logout", "description": "Attempt to logout when not logged in.", "code": "320XD"}
-        raise PermissionDenied(json.dumps(error_params))
+        raise_permission_denied("Logout", "Attempt to Log out when not logged in.")
 
     logout(request)
     messages.success(request, 'Logged out Succesfully!')
@@ -371,8 +385,7 @@ def logout_view(request, current_extension=None):
 
 def register_view(request):
     if request.user.is_authenticated:
-        error_params = {"title": "Registration", "description": "Attempt to register when already logged in.", "code": "322XD"}
-        raise PermissionDenied(json.dumps(error_params))
+        clientside_success_with_redirect(request, "Already logged in! Redirecting to home page.")
 
     registration_form = UserRegisterForm(label_suffix="")
     form_id = "register_form"
@@ -399,8 +412,7 @@ def register_view(request):
             )
 
             UserProfile.objects.create(user=user).save()
-            messages.success(request, 'Registration Succesful! Please check your email to verify your account.')
-            return redirect(reverse('main:main_view'))
+            return clientside_success_with_redirect(request, "Registration Succesful! Please check your email to verify your account.")
 
     form_context = {"form": registration_form, "button_text": "Register", "identifier": form_id, "title": "Register for Genera"}
     
@@ -415,21 +427,17 @@ def account_activation_view(request, token_url):
         #if the time difference is more than one week, then delete this token.
         if time_difference.days > 7:
             token_instance.delete()
-            messages.error(request, 'It has been more than one week, so the activation link has expired - please register again')
-            return redirect(reverse('main:register'))
+            return clientside_error_with_redirect(request, "It has been more than one week, so the activation link has expired - please register again", 'main:register')
 
         #if the time difference is less than one week, then activate the user.
         token_instance.user.is_active = True
         token_instance.user.save()
         token_instance.delete()
-        messages.success(request, 'Account activated! Please log in.')
         login(request, token_instance.user)
-        print(f"{token_instance.user.username} has been activated")
-        return redirect(reverse('main:main_view'))
+        # print(f"{token_instance.user.username} has been activated")
+        return clientside_success_with_redirect(request, "Account activated! Please log in.")
     else:
-        error_params = {"title": "Account activation", "description": "Invalid URL accessed. Please try again or reregister", "code": "323XD"}
-        print("Invalid URL accessed")
-        raise PermissionDenied(json.dumps(error_params))
+        raise_permission_denied("Account activation", "Invalid URL accessed. Please try again or reregister")
 
 def password_reset_view(request):
     password_reset_request_form = Password_Reset_Request_Form(label_suffix="")
@@ -441,15 +449,16 @@ def password_reset_view(request):
             user = password_reset_request_form.extract_user()
             password_reset_token = generate_token(request, type="P", user=user)
             msg_html = render_to_string('email/mail_body_reset.html', {'reset_link': password_reset_token["token_url"], 'date': user.date_joined, 'user': user})
-            send_mail(
+            
+            send_mail (
                 subject='Genera Password Reset',
                 message='Genera Password Reset',
                 from_email=DEFAULT_FROM_EMAIL,
                 recipient_list=[user.email],
                 html_message=msg_html,
             )
-            messages.success(request, 'Password reset email sent!')
-            return redirect(reverse('main:main_view'))
+
+            return clientside_success_with_redirect(request, "Password reset link sent to your email.")
 
     form_context = {"form": password_reset_request_form, "button_text": "Request a password reset link!", "identifier": form_id, "title": "Password Reset Request"}
 
@@ -466,8 +475,7 @@ def password_reset_handler_view(request, token_url):
         #if the time difference is more than one week, then delete this token.
         if time_difference.days > 7:
             token.delete()
-            messages.error(request, 'It has been more than one week, so the activation link has expired - please request a new password reset referral')
-            return redirect(reverse('main:password_reset'))
+            return clientside_error_with_redirect(request, "It has been more than one week, so the activation link has expired - please request a new password reset referral", 'main:password_reset')
             
         identified_user = token.user
 
@@ -478,9 +486,8 @@ def password_reset_handler_view(request, token_url):
 
             if password_reset_form.is_valid():
                 password_reset_form.update_user_password(identified_user)
-                messages.success(request, 'Password Reset Succesful. You may now log in with your new password.')
                 token.delete()
-                return redirect(reverse('main:login'))
+                clientside_success_with_redirect(request, "Password Reset Succesful. You may now log in with your new password.", 'main:login')
             else:
                 print(password_reset_form.errors)
 
@@ -489,17 +496,15 @@ def password_reset_handler_view(request, token_url):
         return render(request, 'base_form.html', form_context)
 
     else:
-        error_params = {"title": "Credentials change", "description": "Invalid URL accessed. Consider requesting a new link if issue persists", "code": "323XD"}
-        raise PermissionDenied(json.dumps(error_params))
+        raise_permission_denied("Password reset", "Invalid URL accessed. Consider requesting a new link if issue persists")
 
-def profile_view(request, username):
-    user = User.objects.filter(username=username).first()
-    print(user)
+@requires_user_logged_in
+def profile_view(request, username_slug):
+    user = User.objects.filter(username_slug=username_slug).first()
     owner = (request.user == user)
 
     if not user:
-        error_params = {"title": "Profile", "description": "Profile does not exist", "code": "313XD"}
-        raise PermissionDenied(json.dumps(error_params))
+        raise_permission_denied("Profile", "Profile does not exist")
     
     users_collections = UserCollectionMintPublic.objects.filter(user=user)
     print("hello")
@@ -507,17 +512,14 @@ def profile_view(request, username):
 
     return render(request, 'user_profile.html', context={"owner":owner, "user":user, "users_collections":users_collections})
 
-def mint_view(request, username, contract_address):
-    user = User.objects.filter(username=username).first()
+def mint_view(request, username_slug, contract_address):
+    user = User.objects.filter(username_slug=username_slug).first()
     # owner = (request.user == user)
-    print("CONTRACT ADDRESS" + contract_address)
     if user:
         context ={}
         context["owner"] = user
         context["isOwner"] = (request.user == user)
         user_collection = UserCollectionMintPublic.objects.filter(user=user, contract_address=contract_address).first()
-        print(user_collection)
-        print(contract_address)
         if user_collection:
             if user_collection.contract_type == 2:
                 context['contract_address'] = user_collection.contract_address
@@ -525,25 +527,22 @@ def mint_view(request, username, contract_address):
                 context['description'] = user_collection.description
                 context['collection_name'] = user_collection.collection_name
             else:
-                error_params = {"title": "Collection", "description": "Permission Error", "code": "313XD"}
-                raise PermissionDenied(json.dumps(error_params))
+                raise_permission_denied("Collection", "Permission Error")
         else:
-            error_params = {"title": "Collection", "description": "This Collection does not exist", "code": "313XD"}
-            raise PermissionDenied(json.dumps(error_params))
+            raise_permission_denied("Collection", "This Collection does not exist")
     elif not user:
-        error_params = {"title": "Profile", "description": "Profile does not exist", "code": "313XD"}
-        raise PermissionDenied(json.dumps(error_params))
-    
+        raise_permission_denied("Profile", "Profile does not exist")
 
     return render(request, "user_mint.html", context)
 
-def all_collections_view(request, username):
+@requires_user_logged_in
+def all_collections_view(request, username_slug):
     context = {}
-    if request.user.username != username:
-        error_params = {"title": "Collections", "description": "You are not authorised to view this page. (If you just logged out then we're sorry, the quality of life feature of logging out and remaining on the page you were on comes at a price... ;d)", "code": "313XD"}
-        raise PermissionDenied(json.dumps(error_params))
 
-    user = User.objects.filter(username=username).first()
+    if request.user.is_authenticated and request.user.username_slug != username_slug: #if logged in but trying to view someone elses collection..
+        raise_permission_denied("Collections", "You are not authorised to view this collection.")
+        
+    user = User.objects.filter(username_slug=username_slug).first()
     context["user"] = user
 
     if user: ##user exists and is the owner of the profile
@@ -553,32 +552,28 @@ def all_collections_view(request, username):
             context["users_collections"] = users_collections
         else:
             # print("User has no collections.")
-            messages.error(request, "You have no collections!")
-            return render(request, "all_collections.html", context)
+            return clientside_error_with_redirect(request, "You have no collections!", 'main:all_collections')
     else:
-        error_params = {"title": "Collections", "description": "User does not exist", "code": "313XD"}
-        raise PermissionDenied(json.dumps(error_params))
+        raise_permission_denied("Collections", "User does not exist")
 
     return render(request, "all_collections.html", context)
 
-def collection_view(request, username, collection_name):
+
+def collection_view(request, username_slug, collection_name_slug):
     context = {}
 
-    user = User.objects.filter(username=username).first()
+    user = User.objects.filter(username_slug=username_slug).first()
     context["user"] = user
     
     if user:
         if request.user.is_authenticated:
-            user_collection = UserCollection.objects.filter(user=user, collection_name=collection_name).first()
-            
-            # passing context
+            if request.user != user: #if non owner tries to view collection
+                raise_permission_denied("Collection", "You are not authorised to view this collection.")
 
+            user_collection = UserCollection.objects.filter(user=user, collection_name_slug=collection_name_slug).first()
+            
             if user_collection or not user_collection.public_mint:
-                context["ajax_url"] = reverse("main:collection", 
-                        kwargs={
-                            "username": request.user.username,
-                            "collection_name": user_collection.collection_name,
-                        },)
+                context["ajax_url"] = reverse("main:collection", args=[username_slug, collection_name_slug])
                 collection_images = CollectionImage.objects.filter(linked_collection__id=user_collection.id)
 
                 if collection_images:
@@ -595,17 +590,14 @@ def collection_view(request, username, collection_name):
                     context["collection_images"] = collection_images
                 
                 else:
-                    messages.error(request, "This collection does not exist.")
+                    messages.error(request, "Warning - this collection does not have any images!")
                     return render(request, "collection.html", context)
             else:
-                messages.error(request, "This collection does not exist.")
-                return render(request, "collection.html", context)
+                raise_permission_denied("Collection", "This collection does not exist.")
         else:
-            messages.error(request, "Not Logged in!")
-            return render(request, "home.html")
+            raise_permission_denied("User not authenticated", "You are not logged in. Please log in to be able to view this page.")
     else:
-        messages.error(request, "User does not exist.")
-        return render(request, "home.html")
+        raise_permission_denied("Collection", "Error - collection does not exist.")
 
     if request.method == "POST":
         if request.user.is_authenticated:
@@ -709,10 +701,7 @@ def collection_view(request, username, collection_name):
                     collection_image.metadata = json.dumps(collection_image_description)
                     collection_image.save()
 
-                    return redirect(reverse("main:collection", kwargs= {
-                        "username": username,
-                        "collection_name": collection_name,
-                    }))
+                    return redirect(reverse("main:collection", args=[username_slug, collection_name_slug]))
             ##AJAX HANDLING SECTION START
             try:
                 received_json_data = json.loads(request.body)
@@ -805,7 +794,6 @@ def collection_view(request, username, collection_name):
                 elif "get_contract" in received_json_data:
                     if request.user.is_authenticated:
                         if not user_collection.contract_bool:
-                            # print("hello")
                             # assign name to variable
                             if received_json_data['get_contract'] == '1':
                                 with open("static/Contracts/erc1155_private_contract.json", "r") as myfile:
@@ -969,14 +957,14 @@ def public_mint_view(request):
 
                     try:
                         user_collection = UserCollectionMintPublic.objects.create(
-                        user = request.user, 
-                        collection_name = received_json_data['collection_name'],
-                        contract_address = received_json_data["address_set"],
-                        chain_id = received_json_data["chain_id"],
-                        contract_type = received_json_data["contract_type"],
-                        description = received_json_data["description"],
-                        image_uri = received_json_data["image_uri"],
-                        base_uri = received_json_data["base_uri"]
+                            user = request.user, 
+                            collection_name = received_json_data['collection_name'],
+                            contract_address = received_json_data["address_set"],
+                            chain_id = received_json_data["chain_id"],
+                            contract_type = received_json_data["contract_type"],
+                            description = received_json_data["description"],
+                            image_uri = received_json_data["image_uri"],
+                            base_uri = received_json_data["base_uri"]
                         )
                         return JsonResponse(
                             {"server_message" :"Contract address set"},
@@ -989,10 +977,7 @@ def public_mint_view(request):
                     )
                     
                 if "collection_redirect" in received_json_data:
-                    return ajax_redirect(reverse("main:user_mint", kwargs= {
-                        "username": user.username,
-                        "contract_address": received_json_data["contract_address"],
-                    }))
+                    return ajax_redirect(reverse("main:user_mint", args=[user.username_slug, received_json_data["contract_address"]]))
             except RawPostDataException:  # NO AJAX DATA PROVIDED - DIFFERENT POST REQUEST INSTEAD
                 pass   
             ##AJAX HANDLING SECTION END         
@@ -1001,4 +986,4 @@ def public_mint_view(request):
     return render(request, "minting_page.html", context)
 
 def login_options_view(request):
-    return render(request, "login_options.html")
+    return render(request, "login_options.html", {"ajax_url": reverse("main:login_metamask_handler")})
