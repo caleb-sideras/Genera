@@ -31,7 +31,9 @@ urlpatterns = [
     path("about", about_view, name="about"),
     path("documentation", documentation_view, name="documentation"),
     path("user/<slug:username_slug>/profile", profile_view, name="profile"),
+    
     path("user/<slug:username_slug>/profile/<str:contract_address>", mint_view, name="user_mint"),
+
     path("user/<slug:username_slug>/collections", all_collections_view, name="all_collections"),
     path("user/<slug:username_slug>/collections/<slug:collection_name_slug>", collection_view, name="collection"),
     # path("create-checkout-session", checkout_session, name="create-checkout-session")

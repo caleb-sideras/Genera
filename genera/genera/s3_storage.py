@@ -5,8 +5,8 @@ class AwsMediaStorageManipulator(S3Boto3Storage):
     bucket_name = AWS_STORAGE_BUCKET_NAME
     location = 'media'
     
-    def delete_folder_with_contents(self, folder_path):
-        name = self._normalize_name(self._clean_name(folder_path))
+    def delete_object_from_bucket(self, path): #can be used to delete a file or folder from the bucket
+        name = self._normalize_name(self._clean_name(path))
         self.bucket.Object(name).delete()
     
     def create_secure_url(self, path_to_object, parameters=None, expire=None, http_method=None):

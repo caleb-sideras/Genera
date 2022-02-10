@@ -22,7 +22,7 @@ from django.core.mail import send_mail
 from .forms import *
 from .models import *
 from django.dispatch import receiver
-from django.db.models.signals import pre_delete
+from django.db.models.signals import pre_delete, post_delete
 import shutil
 import json
 from django.template.loader import render_to_string
@@ -295,7 +295,7 @@ def upload_view(request):
     return render(request, "upload.html", context)
 
 def metamask_login_handler_view(request):
-    #consider storing the IP for the request in each PotentialMetamaskUser object. Track if an IP is ajaxing the login button with different public_addresses. Each time a unique public address is passed - a small table is created in a database.
+    #consider storing the IP for the request in each MetamaskUserAuth object. Track if an IP is ajaxing the login button with different public_addresses. Each time a unique public address is passed - a small table is created in a database.
     if request.method == "POST":
         try:
             received_json_data = json.loads(request.body)
@@ -304,7 +304,7 @@ def metamask_login_handler_view(request):
             if "metamask_request_nonce" and "public_address" in received_json_data: #WHEN USER FIRST CLICKS LOGIN WITH METAMASK - shoot a request here and handle the response
                 if not Web3.isAddress(received_json_data["public_address"]): #to prevent spamming the server with requests that create a model. consider isChecksumAddress idk?
                     return JsonResponse({"error": "Invalid address"}, status=400)
-                created_temp_user = PotentialMetamaskUser.objects.get_or_create(public_address=received_json_data["public_address"])[0] #create the temporary user here.
+                created_temp_user = MetamaskUserAuth.objects.get_or_create(public_address=received_json_data["public_address"])[0] #create the temporary user here.
                 created_temp_user.nonce = str(uuid.uuid4())
                 created_temp_user.save()
                 return JsonResponse({"nonce": created_temp_user.nonce}, status=200) #Catch this in frontned - and sign web3.personal.sign(nonce, public_address) please
@@ -319,12 +319,12 @@ def metamask_login_handler_view(request):
                         return True
                     return False
 
-                found_user = PotentialMetamaskUser.objects.filter(public_address=received_json_data["public_address"]).first()
+                found_user = MetamaskUserAuth.objects.filter(public_address=received_json_data["public_address"]).first()
                 if not found_user: # user not found - shouldnt happen ever xd
                     return Http404()
                 #ec2 recover reverse here...
                 if verify_signature_ecRecover(found_user.nonce, received_json_data["signature"], found_user.public_address):
-                    if found_user.user: #if the PotentialMetamaskUser object is ALREADY linked to a user - fetch user from it. otherwise get_or_create a new one!
+                    if found_user.user: #if the MetamaskUserAuth object is ALREADY linked to a user - fetch user from it. otherwise get_or_create a new one!
                         metamask_user = found_user.user
                     else:
                         metamask_user = User.objects.get_or_create_metamask_user(metamask_public_address=found_user.public_address)
@@ -333,7 +333,7 @@ def metamask_login_handler_view(request):
                     login(request, metamask_user)
                     messages.success(request, "Succesfully logged in with metamask!")
                     return ajax_redirect(reverse("main:main_view")) #redirect home page - make sure to catch this in frontend. NOTE: perhaps redirect to profile edit page - to change username/email..
-                else: #if signature verification fails - delete the PotentialMetamaskUser object. User needs to do the whole process again.
+                else: #if signature verification fails - delete the MetamaskUserAuth object. User needs to do the whole process again.
                     found_user.delete()
                     return JsonResponse({"error": "Metamask Validation failed."}, status=400)
                 
@@ -557,7 +557,6 @@ def all_collections_view(request, username_slug):
         raise_permission_denied("Collections", "User does not exist")
 
     return render(request, "all_collections.html", context)
-
 
 def collection_view(request, username_slug, collection_name_slug):
     context = {}
