@@ -199,7 +199,7 @@ deploy_collection_data_public = {
                     'button': 'button',
                     'name': 'Minting Cost',
                     'type': 'number',
-                    'step': '0.000000001',
+                    'step': '0.000000000000000001',
                     'text': 'E.g. 1 MATIC or 0.01 ETH',
                     'info': 'Cost of minting an NFT',
                     'status': 'active'

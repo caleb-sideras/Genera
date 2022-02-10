@@ -501,7 +501,7 @@ def profile_view(request, username):
         error_params = {"title": "Profile", "description": "Profile does not exist", "code": "313XD"}
         raise PermissionDenied(json.dumps(error_params))
     
-    users_collections = UserCollectionMint.objects.filter(user=user)
+    users_collections = UserCollectionMintPublic.objects.filter(user=user)
     print("hello")
     print(users_collections)
 
@@ -515,15 +515,13 @@ def mint_view(request, username, contract_address):
         context ={}
         context["owner"] = user
         context["isOwner"] = (request.user == user)
-        user_collection = UserCollectionMint.objects.filter(user=user, contract_address=contract_address).first()
+        user_collection = UserCollectionMintPublic.objects.filter(user=user, contract_address=contract_address).first()
         if user_collection:
             if user_collection.contract_type == 2:
-
                 context['contract_address'] = user_collection.contract_address
                 context['chain_id'] = user_collection.chain_id
                 context['description'] = user_collection.description
                 context['collection_name'] = user_collection.collection_name
-
             else:
                 error_params = {"title": "Collection", "description": "Permission Error", "code": "313XD"}
                 raise PermissionDenied(json.dumps(error_params))
@@ -536,36 +534,6 @@ def mint_view(request, username, contract_address):
     
 
     return render(request, "user_mint.html", context)
-
-def mint_view2(request, username, contract_address):
-    user = User.objects.filter(username=username).first()
-    # owner = (request.user == user)
-
-    if user:
-        context ={}
-        context["owner"] = user
-        context["isOwner"] = (request.user == user)
-        user_collection = UserCollectionMint.objects.filter(user=user, contract_address=contract_address).first()
-        if user_collection:
-            if user_collection.contract_type == 2:
-
-                context['contract_address'] = user_collection.contract_address
-                context['chain_id'] = user_collection.chain_id
-                context['description'] = user_collection.description
-                context['collection_name'] = user_collection.collection_name
-
-            else:
-                error_params = {"title": "Collection", "description": "Permission Error", "code": "313XD"}
-                raise PermissionDenied(json.dumps(error_params))
-        else:
-            error_params = {"title": "Collection", "description": "This Collection does not exist", "code": "313XD"}
-            raise PermissionDenied(json.dumps(error_params))
-    elif not user:
-        error_params = {"title": "Profile", "description": "Profile does not exist", "code": "313XD"}
-        raise PermissionDenied(json.dumps(error_params))
-    
-
-    return render(request, "user_mint2.html", context)
 
 def all_collections_view(request, username):
     context = {}
@@ -998,7 +966,7 @@ def public_mint_view(request):
                 if "address_set" in received_json_data:
 
                     try:
-                        user_collection = UserCollectionMint.objects.create(
+                        user_collection = UserCollectionMintPublic.objects.create(
                         user = request.user, 
                         collection_name = received_json_data['collection_name'],
                         contract_address = received_json_data["address_set"],

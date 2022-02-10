@@ -137,27 +137,27 @@ class UserCollection(Model):
     collection_size = models.IntegerField(default=0)
 
     path = models.CharField(max_length=250)
-    token_name = models.CharField(max_length=9) # wait till deploy?
-    image_name = models.CharField(max_length=10) # not needed?
+    # token_name = models.CharField(max_length=9) # wait till deploy?
+    # image_name = models.CharField(max_length=10) # not needed?
 
     duplicates_deleted = models.BooleanField(default=False)
 
     # IFPS
     collection_ifps_bool = models.BooleanField(default=False)
-    image_uri = models.CharField(max_length=100, unique=False, null=True, blank=True)
+    # image_uri = models.CharField(max_length=100, unique=False, null=True, blank=True)
 
     # Smart Contract Universal
-    contract_address = models.CharField(max_length=50, unique=False, blank=True, null=True)
-    contract_bool =  models.BooleanField(default=False) # probs not needed
-    chain_id = models.CharField(max_length=10, unique=False, blank=True, null=True)
-    contract_type = models.IntegerField(default=0) # 0 = nothing, 1 = privateV1, 2 = publicV1
+    # contract_address = models.CharField(max_length=50, unique=False, blank=True, null=True)
+    # contract_bool =  models.BooleanField(default=False) # probs not needed
+    # chain_id = models.CharField(max_length=10, unique=False, blank=True, null=True)
+    # contract_type = models.IntegerField(default=0) # 0 = nothing, 1 = privateV1, 2 = publicV1
     
     # Smart Contract Public
-    base_uri = models.CharField(max_length=100, unique=False, null=True, blank=True)
-    minting_cost = models.CharField(max_length=50, unique=False, null=True, blank=True)
+    # base_uri = models.CharField(max_length=100, unique=False, null=True, blank=True)
+    # minting_cost = models.CharField(max_length=50, unique=False, null=True, blank=True)
     
     # Smart Contract Private
-    tokens_deployed = models.BooleanField(default=False)
+    # tokens_deployed = models.BooleanField(default=False)
 
     def __str__(self):
         return str(self.name)
