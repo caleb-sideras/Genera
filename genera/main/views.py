@@ -510,12 +510,14 @@ def profile_view(request, username):
 def mint_view(request, username, contract_address):
     user = User.objects.filter(username=username).first()
     # owner = (request.user == user)
-
+    print("CONTRACT ADDRESS" + contract_address)
     if user:
         context ={}
         context["owner"] = user
         context["isOwner"] = (request.user == user)
         user_collection = UserCollectionMintPublic.objects.filter(user=user, contract_address=contract_address).first()
+        print(user_collection)
+        print(contract_address)
         if user_collection:
             if user_collection.contract_type == 2:
                 context['contract_address'] = user_collection.contract_address

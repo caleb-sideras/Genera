@@ -25,8 +25,7 @@
     <div v-if="is_owner" class="all_collections_layout">
         <admin-properties v-show="admin_section" :totalsupply="totalSupply" :supply="supply" :mintcostether="mint_cost_ether" :web3="web3" :balance="balance" :maxperwallet="max_per_wallet" :maxpermint="max_per_mint" :chainid="chain_id" :activeaccount="active_account" :contractaddress="contract_address" :openbool="open_bool"></admin-properties>
     </div>
-    {% endif %}
-    
+    {% endif %}  
 
 </div>
 
@@ -756,8 +755,8 @@
         delimiters: ["[[", "]]"],
         template:`
         <div class="mint_title center"> 
-                <h1 class="no_margin">{{collection_name}}</h1>             
-                <h2 class="no_margin">by {{owner.username}}</h2>
+            <h1 class="no_margin">{{collection_name}}</h1>             
+            <h2 class="no_margin">by {{owner.username}}</h2>
         </div>
         `
     })
@@ -782,9 +781,10 @@
         `,
         methods:{
             async fetchImages(){
-                for (let i = 0; i < 5; i++) {
+                if (this.baseuri!=null && typeof(this.baseuri)!='undefined') {
+                for (let i = 0; i < 5; i++) { 
                     let rand = getRandomInt(0, this.totalsupply)
-                    await fetch(`${this.baseuri}${rand}.json`)
+                        await fetch(`${this.baseuri}${rand}.json`)
                         .then(res => res.json()) // how to fix? new event listener?
                         .then((out) => {
                             this.uri_list.push(out['image'])
@@ -794,6 +794,7 @@
                         });
                 }
                 this.populateImages()
+                }
             },
             populateImages(){
                 nft_images = document.querySelectorAll('.nft_image')
@@ -822,7 +823,8 @@
         watch:{
             $props:{
                 handler(){
-                    this.fetchImages()
+                     this.$nextTick(()=>{this.fetchImages()})
+                    
                 },
                 deep: true,
                 immediate: true,
