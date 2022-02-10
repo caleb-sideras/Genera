@@ -14,7 +14,7 @@
 {% block body_block %}
     <input type="hidden" id="js_vars" data-collection_name='{{collection_data.collection_name}}' data-ajax_url='{{ajax_url}}' data-contract_address='{{collection_data.contract_address}}' data-ipfs_links='{{ipfs_links}}' data-entry_ids ='{{entry_ids}}' data-token_name='{{collection_data.token_name}}' data-image_name='{{collection_data.image_name}}' data-ipfs_bool='{{collection_data.collection_ifps_bool}}' data-contract_bool='{{collection_data.contract_bool}}' data-tokens_minted_bool='{{collection_data.tokens_deployed}}' data-collection_size='{{collection_data.collection_size}}' data-chain_id='{{collection_data.chain_id}}' data-base_uri='{{collection_data.base_uri}}'/> 
     <!-- data-contract_type='{{collection_data.contract_type}}' -->
-    <a href="{% url 'main:user_mint' user.username  collection_data.collection_name%}" id="redirect" style="display: none;"></a>
+    <a href="{% url 'main:user_mint' user.username_slug  collection_data.collection_name%}" id="redirect" style="display: none;"></a>
 
     <div class="deploy_collection_container border rounded_container_no_padding">
         <img class="dc_close close_button_color" src="/static/icons/remove.svg" onclick="close_deploy_collection()">
@@ -159,12 +159,6 @@
                         <h5>Contract Deployed <a href="https://rinkeby.etherscan.io/address/{{collection_data.contract_address}}" style="text-decoration: underline;" target="_blank">{{collection_data.contract_address}}</a></h5>
                     </div>
                     {% endif %}
-                    {% if collection_data.tokens_deployed %}
-                    <div class="properties_container">
-                        <img src="/static/icons/check.svg" alt="check">
-                        <h5>Collection Minted</h5>
-                    </div>
-                    {% endif %} 
                 {% endif %}
             </div>
             {% if not collection_data.collection_ifps_bool %}
@@ -180,11 +174,10 @@
             <button name="download_collection" onclick="download_zip()" class="general_button_no_border sub_color_background shadow_strong rounded_container_no_padding" type="button">
                 <h4 class="no_margin generate">Download collection</h4>
             </button>
-            {% if not collection_data.tokens_deployed %}
-                <button class="general_button_no_border main_color_background shadow_strong rounded_container_no_padding" onclick="init_deploy_collection_public()" type="button">
-                    <h4 class="no_margin generate">Deploy collection</h4>
-                </button>
-            {% endif %}
+            <button class="general_button_no_border main_color_background shadow_strong rounded_container_no_padding" onclick="init_deploy_collection_public()" type="button">
+                <h4 class="no_margin generate">Deploy collection</h4>
+            </button>
+
 
                 
 

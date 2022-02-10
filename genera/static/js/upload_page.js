@@ -901,7 +901,7 @@ async function preview_button(self){
     properties_list = [] // collection properites (metadata)
     properties_list.push(collection_properties[0].value)
     properties_list.push(collection_properties[1].value)
-    properties_list.push(collection_properties[3].value)
+    properties_list.push(collection_properties[2].value)
 
     // make modular kings!!!
     if (!collection_properties[0].value) {
@@ -914,25 +914,25 @@ async function preview_button(self){
         close_loading_popup()
         return
     }
-    if (!collection_properties[3].value) {
+    if (!collection_properties[2].value) {
         alert("Please enter Description")
         close_loading_popup()
         return
     }
-    if (!collection_properties[5].value || !collection_properties[6].value) {
+    if (!collection_properties[4].value || !collection_properties[4].value) {
         alert("Please enter your resolution")
         close_loading_popup() 
         return
-    } else if (collection_properties[5].value > 4000 || collection_properties[6].value > 4000) {
+    } else if (collection_properties[4].value > 4000 || collection_properties[5].value > 4000) {
         alert("Please make sure your resolution is lower than 4000")
         close_loading_popup() 
         return
     }
 
-    [res_x, res_y] = preview_image_size(collection_properties[5].value, collection_properties[6].value)
+    [res_x, res_y] = preview_image_size(collection_properties[4].value, collection_properties[5].value)
     properties_list.push(res_x)
     properties_list.push(res_y)
-    properties_list.push(collection_properties[7].value)
+    properties_list.push(collection_properties[6].value)
     
     // console.log(properties_list)
 
@@ -1192,13 +1192,13 @@ async function generate_form_data_for_ajax_post_generate() {
     });
 
     if (user_login) {
-        res_x = collection_properties[5].value
-        res_y = collection_properties[6].value
+        res_x = collection_properties[4].value
+        res_y = collection_properties[5].value
     }
     else{
-        [res_x, res_y] = preview_image_size(collection_properties[5].value, collection_properties[6].value)
-        collection_properties[5].value = res_y
-        collection_properties[6].value = res_x
+        [res_x, res_y] = preview_image_size(collection_properties[4].value, collection_properties[5].value)
+        collection_properties[4].value = res_y
+        collection_properties[5].value = res_x
     }
 
     var upload_form = document.getElementById('upload_form');
@@ -1261,4 +1261,5 @@ function validate_size(field_object) {
         }
     }
 }
+
 window.addEventListener("load", main);

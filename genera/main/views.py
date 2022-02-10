@@ -156,12 +156,10 @@ def upload_view(request):
                 paid_generation = False
 
             calebs_gay_dict["CollectionName"] = request.POST.get("collection_name")
-            calebs_gay_dict["TokenName"] = request.POST.get("token_name") # not needed
             calebs_gay_dict["ImageName"]= request.POST.get("image_name")
             calebs_gay_dict["Description"] = request.POST.get("description")
             calebs_gay_dict["Resolution_x"] = int(float(request.POST.get("resolution_x")))
             calebs_gay_dict["Resolution_y"] = int(float(request.POST.get("resolution_y")))
-
             calebs_gay_dict["CollectionSize"] = int(float(request.POST.get("size")))
             calebs_gay_dict["TextureColor"] = request.POST.get("color")
 
@@ -180,9 +178,7 @@ def upload_view(request):
                         collection_name=calebs_gay_dict["CollectionName"],
                         description = calebs_gay_dict["Description"],
                         dimension_x = calebs_gay_dict["Resolution_x"],
-                        dimension_y = calebs_gay_dict["Resolution_y"],
-                        token_name = calebs_gay_dict["TokenName"],
-                        image_name = calebs_gay_dict["ImageName"]
+                        dimension_y = calebs_gay_dict["Resolution_y"]
                     )
                 else:
                     return ajax_cancel_generation("A collection with that name already exists!", reverse("main:upload"))
@@ -547,17 +543,16 @@ def all_collections_view(request, username_slug):
 
     if user: ##user exists and is the owner of the profile
         users_collections = UserCollection.objects.filter(user=user)
-        # print(users_collections)
+        print(users_collections)
         if users_collections:
             context["users_collections"] = users_collections
-        else:
-            # print("User has no collections.")
-            return clientside_error_with_redirect(request, "You have no collections!", 'main:all_collections')
+        # else:
+        #     # print("User has no collections.")
+        #     return clientside_error_with_redirect(request, "You have no collections!", 'main:all_collections')
     else:
         raise_permission_denied("Collections", "User does not exist")
 
     return render(request, "all_collections.html", context)
-
 
 def collection_view(request, username_slug, collection_name_slug):
     context = {}
@@ -612,8 +607,9 @@ def collection_view(request, username_slug, collection_name_slug):
                 if user_collection.collection_ifps_bool:
                     return JsonResponse(
                         {"server_message": "collection_deployed"},
-                        status=200,
+                        status=202,
                     )
+
                 if user_collection.image_uri and not user_collection.base_uri:
                     metadata_list = []
                     for entry in collection_images:
@@ -657,14 +653,15 @@ def collection_view(request, username_slug, collection_name_slug):
                         {"server_message": "Wrong contract type"},
                         status=202,
                     )
-                # if len(collection_images) > request.user.credits:
-                #     return JsonResponse(
-                #         {"server_message": "USER DOES NOT HAVE ENOUGH CREDITS"},
-                #         status=202,
-                #     )
+
                 if not user_collection.image_uri:
                     return JsonResponse(
                         {"server_message": "Images not deployed"},
+                        status=202,
+                    )
+                if user_collection.collection_ifps_bool:
+                    return JsonResponse(
+                        {"server_message": "collection_deployed"},
                         status=202,
                     )
 
@@ -873,7 +870,7 @@ def public_mint_view(request):
     context = {}
 
     if request.user.is_authenticated:
-        user = User.objects.filter(username=request.user.username).first()
+        user = User.objects.filter(username=request.user.username_slug).first()
         context["user"] = user
         context["ajax_url"] = reverse("main:mint")
     user_collection =''

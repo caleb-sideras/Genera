@@ -15,6 +15,7 @@ contract_chainid = null
 token_counter = 0
 // contract_type = null
 base_uri = null
+image_uri = null
 minting_cost = null
 
 deploy_collection_data ={
@@ -665,6 +666,7 @@ async function create_image_car() {
             file_data.append('car_blob', input_field.value);
             ajax_post_form(file_data)
                 .then(response => {
+                    image_uri = response["image_uri"]
                     res(JSON.parse(response["image_uri"]))
                 })
         }
