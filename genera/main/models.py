@@ -165,7 +165,7 @@ class UserCollection(Model):
 
     #custom functions
     def get_all_minted_collections(self):
-        self.usercollectionmint_set.all()
+        return self.usercollectionmint_set.all()
     
     def wipe_linked_aws_images(self):
         if self.collection_ifps_bool:
