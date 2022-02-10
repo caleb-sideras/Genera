@@ -6,8 +6,7 @@ from main.model_tools import *
 
 from django.utils import timezone
 from django.utils.timezone import make_aware
-
-# from genera.settings import AUTH_USER_MODEL
+from django.template.defaultfilters import slugify
 import datetime
 from django.contrib.auth.base_user import AbstractBaseUser
 from django.contrib.auth.models import PermissionsMixin
@@ -49,15 +48,15 @@ class UserManager(BaseUserManager):
             
         return self._create_user(username, email, password, **extra_fields)
     
-    def get_or_create_metamask_user(self, metamask_id): #this will always create a user entry in db. figure out if there is a way to protect this somehow ?
-        existing_user = User.objects.filter(metamask_id=metamask_id).first()
+    def get_or_create_metamask_user(self, metamask_public_address): #this will always create a user entry in db. figure out if there is a way to protect this somehow ?
+        existing_user = User.objects.filter(metamask_public_address=metamask_public_address).first()
         if existing_user:
             return existing_user
         else:
-            random_username = metamask_id
-            random_email = metamask_id + "@gmail.com"
-            random_password = uuid.uuid4().hex
-            return self.create_user(username=random_username, email=random_email, password=random_password, metamask_id=metamask_id, is_metamask_user=True)
+            random_username = metamask_public_address[:8]
+            random_email = random_username + "@gmail.com"
+            random_password = str(uuid.uuid4())
+            return self.create_user(username=random_username, email=random_email, password=random_password, metamask_public_address=metamask_public_address, is_metamask_user=True)
 
     def create_superuser(self, username, password, email="", **extra_fields):
         extra_fields.setdefault('is_superuser', True)
@@ -81,31 +80,37 @@ class User(AbstractBaseUser, PermissionsMixin, Model):
     
     credits = models.IntegerField(default=0)
 
-    # is_metamask_user = models.BooleanField(default=False)
-    # metamask_id = models.CharField(max_length=150, unique=True, null=True, blank=True)
+    is_metamask_user = models.BooleanField(default=False)
+    metamask_public_address = models.CharField(max_length=150, unique=True, null=True, blank=True)
 
-    USERNAME_FIELD = 'username'
-    EMAIL_FIELD = 'email'
+    username_slug = models.SlugField(unique=True) #Username slug
 
     class Admin:
         in_admin = True
         id_fields = ['username', 'email', 'date_joined', 'last_login']
+    
+    USERNAME_FIELD = 'username'
+    EMAIL_FIELD = 'email'
 
     objects = UserManager()
 
     def __str__(self):
         return str(self.email)
     
+    def save(self, *args, **kwargs):
+        self.username_slug = slugify(self.username)
+        super(User, self).save(*args, **kwargs)
+    
+    #Custom functions
     def get_all_minted_collections(self):
         return [collection for collection in self.usercollectionmintpublic_set.all()] + [collection for collection in self.usercollectionmint_set.all()]
 
-
-#PotentialMetamaskUser.objects.filter(public_address=public_address).first()
 class PotentialMetamaskUser(Model):
-    nonce = models.CharField(max_length=20, default=uuid.uuid4().hex)
     public_address = models.CharField(max_length=150, unique=True)
 
-    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
+    nonce = models.CharField(max_length=32, null=True, blank=True)
+
+    user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True) #store reference to the user, if already created. results in faster lookup.
         
 ##End of User modifications stuff
 class UserProfile(Model):
@@ -131,6 +136,8 @@ class UserCollection(Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
 
     collection_name = models.CharField(max_length=50, unique=False) 
+    collection_name_slug = models.SlugField(unique=False)
+
     description = models.CharField(max_length=300, unique=False) # not needed?
     dimension_x = models.IntegerField() # not needed?
     dimension_y = models.IntegerField() # not needed?
@@ -161,11 +168,16 @@ class UserCollection(Model):
 
     def __str__(self):
         return str(self.name)
-    
+
+    def save(self, *args, **kwargs):
+        self.collection_name_slug = slugify(self.collection_name)
+        super(UserCollection, self).save(*args, **kwargs)
+
+    #custom functions
     def get_all_minted_collections(self):
         self.usercollectionmint_set.all()
 
-class CollectionMint_Shared(Model): #NOT A MODEL
+class CollectionMint_Shared(Model): #NOT A TABLE IN THE DATABASE - is abstract class
     user = models.ForeignKey(User, on_delete=models.CASCADE)
 
     #IPFS

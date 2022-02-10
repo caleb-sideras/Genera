@@ -5,11 +5,8 @@ from django.contrib.auth.backends import ModelBackend
 from django.core.exceptions import ValidationError
 
 class CustomBackend(ModelBackend):
-    def authenticate(self, request, username=None, password=None, metamask_user=None, **kwargs):
+    def authenticate(self, request, username=None, password=None, **kwargs):
         UserModel = get_user_model()
-
-        if metamask_user and getattr(metamask_user, "metamask_id"): #metamask user edge case
-            return metamask_user
 
         if username is None:
             username = kwargs.get(UserModel.USERNAME_FIELD)
@@ -24,7 +21,7 @@ class CustomBackend(ModelBackend):
             UserModel().set_password(password)
         else:
             if user:
-                if user.check_password(password):
+                if user.check_password(password) and not user.is_metamask_user: #Make sure the password is correct AND the user is not a metamask user (who somehow guessed the uuid password lmao)
                     if self.user_can_authenticate(user):
                         return user
                     else:

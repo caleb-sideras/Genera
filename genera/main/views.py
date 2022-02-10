@@ -14,7 +14,7 @@ from django.contrib.auth import login, logout
 from django.contrib import messages
 from django.http import HttpResponseRedirect
 import json
-from django.http import JsonResponse, RawPostDataException
+from django.http import JsonResponse, RawPostDataException, HttpResponse, Http404
 from django.core.exceptions import PermissionDenied, ValidationError
 import base64
 from PIL import Image, ImageColor
@@ -28,6 +28,7 @@ import json
 from django.template.loader import render_to_string
 from io import BytesIO
 import stripe
+from web3 import Web3
 # Create your views here.
 stripe.api_key = STRIPE_PRIVATE_KEY
 
@@ -327,6 +328,53 @@ def upload_view(request):
 
     return render(request, "upload.html", context)
 
+def metamask_login_handler_view(request):
+    #consider storing the IP for the request in each PotentialMetamaskUser object. Track if an IP is ajaxing the login button with different public_addresses. Each time a unique public address is passed - a small table is created in a database.
+    if request.method == "POST":
+        try:
+            received_json_data = json.loads(request.body)
+
+            #Add 'metamask_request_nonce': '' to the json data in frontend pls - empty key but so we can distinguish here in the backend
+            if "metamask_request_nonce" and "public_address" in received_json_data: #WHEN USER FIRST CLICKS LOGIN WITH METAMASK - shoot a request here and handle the response
+                if not Web3.isAddress(received_json_data["public_address"]): #to prevent spamming the server with requests that create a model. consider isChecksumAddress idk?
+                    return JsonResponse({"error": "Invalid address"}, status=400)
+                created_temp_user = PotentialMetamaskUser.objects.get_or_create(public_address=received_json_data["public_address"])[0] #create the temporary user here.
+                created_temp_user.nonce = str(uuid.uuid4())
+                created_temp_user.save()
+                return JsonResponse({"nonce": created_temp_user.nonce}, status=200) #Catch this in frontned - and sign web3.personal.sign(nonce, public_address) please
+            
+            #Add 'metamask_auth_user': '' to the json data in frontend pls - empty key but so we can distinguish here in the backend
+            elif "metamask_auth_user" and "public_address" and "signature" in received_json_data:  #After u generate the signatre in frontend, shoot the request here. Pass the public_address and signature to the server.
+                def verify_signature_ecRecover(nonce, signature, public_address):
+                    w3 = Web3(Web3.HTTPProvider("infura/alchemy URL")) #TODO: Plug the URL here @Caleb
+                    decrypted_public_address = w3.geth.personal.ecRecover(nonce, signature)
+                    # decrypted_public_address = w3.eth.account.recover_message(nonce, signature)
+                    if public_address.lower() == decrypted_public_address.lower():
+                        return True
+                    return False
+
+                found_user = PotentialMetamaskUser.objects.filter(public_address=received_json_data["public_address"]).first()
+                if not found_user: # user not found - shouldnt happen ever xd
+                    return Http404()
+                #ec2 recover reverse here...
+                if verify_signature_ecRecover(found_user.nonce, received_json_data["signature"], found_user.public_address):
+                    if found_user.user: #if the PotentialMetamaskUser object is ALREADY linked to a user - fetch user from it. otherwise get_or_create a new one!
+                        metamask_user = found_user.user
+                    else:
+                        metamask_user = User.objects.get_or_create_metamask_user(metamask_public_address=found_user.public_address)
+                        found_user.user = metamask_user #attach the user reference to the metamask user object
+                        found_user.save()
+                    login(request, metamask_user)
+                    return ajax_redirect(reverse("main:main_view")) #redirect home page - make sure to catch this in frontend. NOTE: perhaps redirect to profile edit page - to change username/email..
+                else: #if signature verification fails - delete the PotentialMetamaskUser object. User needs to do the whole process again.
+                    found_user.delete()
+                    return JsonResponse({"error": "Metamask Validation failed."}, status=400)
+                
+        except RawPostDataException:
+            return Http404()
+        except JSONDecodeError:
+            return Http404()
+
 def login_view(request, current_extension=404):
     print("WHY ARE WE STILL HERE")
     form_id = "login_form"
@@ -352,7 +400,6 @@ def login_view(request, current_extension=404):
                 msg = msg.args[0]
                 messages.error(request, str(msg))
                 login_form.add_error(None, msg)
-
 
     form_context = {"form": login_form, "button_text": "Log in", "identifier": form_id, "title": "Log in to Genera", "login_url" : current_extension, "extra" : True}
 
@@ -492,8 +539,8 @@ def password_reset_handler_view(request, token_url):
         error_params = {"title": "Credentials change", "description": "Invalid URL accessed. Consider requesting a new link if issue persists", "code": "323XD"}
         raise PermissionDenied(json.dumps(error_params))
 
-def profile_view(request, username):
-    user = User.objects.filter(username=username).first()
+def profile_view(request, username_slug):
+    user = User.objects.filter(username_slug=username_slug).first()
     print(user)
     owner = (request.user == user)
 
@@ -507,8 +554,8 @@ def profile_view(request, username):
 
     return render(request, 'user_profile.html', context={"owner":owner, "user":user, "users_collections":users_collections})
 
-def mint_view(request, username, contract_address):
-    user = User.objects.filter(username=username).first()
+def mint_view(request, username_slug, contract_address):
+    user = User.objects.filter(username_slug=username_slug).first()
     # owner = (request.user == user)
 
     if user:
@@ -535,13 +582,17 @@ def mint_view(request, username, contract_address):
 
     return render(request, "user_mint.html", context)
 
-def all_collections_view(request, username):
+def all_collections_view(request, username_slug):
     context = {}
-    if request.user.username != username:
+    if not request.user.is_authenticated:
+        error_params = {"title": "Collections", "description": "You are not logged in..", "code": "313XD"}
+        raise PermissionDenied(json.dumps(error_params))
+
+    if request.user.is_authenticated and request.user.username_slug != username_slug:
         error_params = {"title": "Collections", "description": "You are not authorised to view this page. (If you just logged out then we're sorry, the quality of life feature of logging out and remaining on the page you were on comes at a price... ;d)", "code": "313XD"}
         raise PermissionDenied(json.dumps(error_params))
 
-    user = User.objects.filter(username=username).first()
+    user = User.objects.filter(username_slug=username_slug).first()
     context["user"] = user
 
     if user: ##user exists and is the owner of the profile
@@ -559,18 +610,19 @@ def all_collections_view(request, username):
 
     return render(request, "all_collections.html", context)
 
-def collection_view(request, username, collection_name):
+def collection_view(request, username_slug, collection_name_slug):
     context = {}
+    if not request.user.is_authenticated:
+        error_params = {"title": "Collection", "description": "You are not logged in..", "code": "313XD"}
+        raise PermissionDenied(json.dumps(error_params))
 
-    user = User.objects.filter(username=username).first()
+    user = User.objects.filter(username_slug=username_slug).first()
     context["user"] = user
     
     if user:
         if request.user.is_authenticated:
-            user_collection = UserCollection.objects.filter(user=user, collection_name=collection_name).first()
+            user_collection = UserCollection.objects.filter(user=user, collection_name_slug=collection_name_slug).first()
             
-            # passing context
-
             if user_collection or not user_collection.public_mint:
                 context["ajax_url"] = reverse("main:collection", 
                         kwargs={
@@ -999,4 +1051,6 @@ def public_mint_view(request):
     return render(request, "minting_page.html", context)
 
 def login_options_view(request):
-    return render(request, "login_options.html")
+    context = {"metamask_handler_url": reverse("main:login_metamask")}
+
+    return render(request, "login_options.html", context)
