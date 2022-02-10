@@ -3,12 +3,18 @@ from main.models import Token
 from main.models import User
 from genera.settings import BASE_URL, STATIC_DIR
 import uuid
+from django.shortcuts import redirect
 from django.urls import reverse
+from django.contrib import messages
 from genera.settings import STRIPE_PRIVATE_KEY
 import stripe
 stripe.api_key = STRIPE_PRIVATE_KEY
 import re
 from datetime import datetime, timedelta
+from functools import wraps
+from django.http import HttpResponseRedirect
+import json
+from django.core.exceptions import PermissionDenied
 
 def get_absolute_path():
     return BASE_URL
@@ -92,4 +98,24 @@ def presigned_url_is_expired(url, days_to_expire=7):
         return True
     else:
         return False
+
+def raise_permission_denied(title, description, code="404"):
+    error_params = {"title": title, "description": description, "code": code}
+    raise PermissionDenied(json.dumps(error_params))
+
+def clientside_error_with_redirect(request, message, redirect_url="main:main_view"):
+    messages.error(request, message)
+    return redirect(reverse(redirect_url))
+    
+def clientside_success_with_redirect(request, message, redirect_url):
+    messages.success(request, message)
+    return redirect(reverse(redirect_url))
+    
+def requires_user_logged_in(function):
+    @wraps(function)
+    def wrap(request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            raise_permission_denied("User not authenticated", "You are not logged in. Please log in to be able to view this page.")
+        return function(request, *args, **kwargs)
+    return wrap
 

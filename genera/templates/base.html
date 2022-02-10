@@ -22,7 +22,7 @@
 
     {% if messages %}
         {% for message in messages %}
-          <input type="hidden" id="server_message" value="{{message}}${{message.level_tags}}">
+          <input type="hidden" id="server_message" value="{{message}}${{message.level_tag}}">
         {% endfor %}
     {% endif %}
 
