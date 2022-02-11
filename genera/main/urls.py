@@ -36,6 +36,7 @@ urlpatterns = [
 
     path("user/<slug:username_slug>/collections", all_collections_view, name="all_collections"),
     path("user/<slug:username_slug>/collections/<slug:collection_name_slug>", collection_view, name="collection"),
+    path("user/<slug:username_slug>/collections/<slug:collection_name_slug>/request_status", collection_view_loaded_handler, name="collection_loaded_handler"),
     # path("create-checkout-session", checkout_session, name="create-checkout-session")
     path("mint", public_mint_view, name="mint"),
 ]

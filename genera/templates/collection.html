@@ -60,7 +60,6 @@
 <div class="filter">
     <form type="hidden" method="post" style="display: none;" enctype="multipart/form-data" class="image_edit_wrapper">
         {% csrf_token %}
-
         <div class="rounded_container">
             <h3 class="no_margin">Name</h3>
             <input required class="image_edit_input" name="image_name" type="text" value="" placeholder="Image Name"/>
@@ -87,11 +86,10 @@
                 {% if collection_images %}
                     {% for entry in collection_images %}
                         <div class="collection_card grow border rounded_container_no_padding" onclick="open_images(this)">
-                           
+                        
                             {% if collection_data.collection_ifps_bool%}
-                            <img loading="lazy" src="https://{{collection_data.image_uri}}.ipfs.dweb.link/{{forloop.counter0}}.png" data-fullrez ="https://{{collection_data.image_uri}}.ipfs.dweb.link/{{forloop.counter0}}.png" data-name="{{entry.name}}" alt="{{entry.name}} image should be here" class="nft_image">
+                                <img loading="lazy" src="https://{{collection_data.image_uri}}.ipfs.dweb.link/{{forloop.counter0}}.png" data-fullrez ="https://{{collection_data.image_uri}}.ipfs.dweb.link/{{forloop.counter0}}.png" data-name="{{entry.name}}" alt="{{entry.name}} image should be here" class="nft_image">
                             {% else %}
-                           
                                 <img crossorigin="anonymous" loading="lazy" src="{%if entry.path_compressed%}{{entry.path_compressed}}{%else%}{{entry.path}}{%endif%}" data-fullrez ="{{entry.path}}" data-name="{{entry.name}}" alt="{{entry.name}} image should be here" class="nft_image">
                             {% endif %}
                             <div>
@@ -175,11 +173,6 @@
             <button class="general_button_no_border main_color_background shadow_strong rounded_container_no_padding" onclick="init_deploy_collection_public()" type="button">
                 <h4 class="no_margin generate">Deploy collection</h4>
             </button>
-
-
-                
-
-                
         </div>
     </div>
 </div>

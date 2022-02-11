@@ -176,6 +176,20 @@ class UserCollection(Model):
         if DEPLOYMENT_INSTANCE:
             storage_manipulator = AwsMediaStorageManipulator()
             storage_manipulator.delete_object_from_bucket(self.path)
+    
+    @property
+    def thumbnail(self): #call this on a collection object to get the appropriate thumbnail link :)
+        if self.collection_ifps_bool: #IPFS img link returned
+            return f"https://{self.image_uri}.ipfs.dweb.link/0.png"
+
+        if not self.generation_complete: #Loading image returned
+            return "/static/Assets/Images/loading.gif"
+
+        first = self.collectionimage_set.first()
+        if first:
+            if not first.path_compressed:
+                return first.path
+            return first.path_compressed
 
 class FailedUserCollection_Tracker(Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -240,7 +254,6 @@ class CollectionImage(Model):
     path = models.TextField(null = True, blank = True, max_length=500)
     path_compressed = models.TextField(null = True, blank = True, max_length=500)
     metadata = models.TextField(null = True, blank = True, max_length=2048)
-
 
     def delete(self):
         if DEPLOYMENT_INSTANCE:
