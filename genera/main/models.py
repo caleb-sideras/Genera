@@ -167,6 +167,11 @@ class UserCollection(Model):
     def get_all_minted_collections(self):
         return self.usercollectionmint_set.all()
 
+    def wipe_linked_aws_images(self):
+        if DEPLOYMENT_INSTANCE:
+            storage_manipulator = AwsMediaStorageManipulator()
+            storage_manipulator.delete_object_from_bucket(self.path)
+
 class CollectionMint_Shared(Model): #NOT A TABLE IN THE DATABASE - is abstract class
     user = models.ForeignKey(User, on_delete=models.CASCADE)
 
@@ -207,6 +212,7 @@ class CollectionImage(Model):
     path = models.TextField(null = True, blank = True, max_length=500)
     path_compressed = models.TextField(null = True, blank = True, max_length=500)
     metadata = models.TextField(null = True, blank = True, max_length=2048)
+
 
     def delete(self):
         if DEPLOYMENT_INSTANCE:
