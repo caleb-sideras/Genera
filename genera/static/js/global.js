@@ -166,7 +166,7 @@ function ajax_post_factory(post_type) { //currently supports JSON and FORM data
                 // Process the server response here (Sent from Django view inside JsonResponse)
                 if (http_request.readyState === XMLHttpRequest.DONE) {
                     if (http_request.status === 200) { //ifstatus is 200 - assume PROPER RESPONSE
-                        console.log(JSON.parse(http_request.responseText))
+                        // console.log(JSON.parse(http_request.responseText))
                         resolve(JSON.parse(http_request.responseText))
                     }
                     else if (http_request.status === 201) { //handled response from Django view
