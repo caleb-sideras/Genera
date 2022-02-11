@@ -259,21 +259,33 @@ def upload_view(request):
             # print(calebs_gay_dict["Layers"])
             
             if paid_generation:
+                try:
+                    required_dicts = instantiate_collection(calebs_gay_dict, db_collection) ##this updates collection size and stuff.
+                except Exception as msg:
+                    FailedUserCollection_Tracker.objects.create(user=user, collection=db_collection, error_message=str(msg))
+                    db_collection.delete()
+                    messages.error(request, message="Something went wrong. Generation failed. Sorry! Your credits have not been deducted.")
+                    return ajax_redirect(reverse("main:main_view"))
+                
                 user.credits -= db_collection.collection_size
                 user.save()
-                if db_collection.collection_size > 50: #put on a thread if > 50, else we can handle normally
-                    create_and_save_collection_paid_thread(calebs_gay_dict, db_collection, request.user) #starts the thread
-                    messages.success(request, message="Your collection is quite large and is being generated. You've been redirected to your collections page! Thank you for your patience.")
-                    return ajax_redirect(reverse("main:all_collections", args=[request.user.username]))
-                else:
-                    success = create_and_save_collection_paid(calebs_gay_dict, db_collection, request.user)
-                
-                if success == True:
-                    messages.success(request, message="Collection generated. Redirected to collection page!")
-                    ajax_redirect(reverse("main:collection", args=[request.user.username_slug, db_collection.collection_name_slug]))
-                else:
-                    messages.error(request, message="Something went wrong. Generation failed. Sorry! Your credits have been refunded.")
-                    return ajax_redirect(reverse("main:main_view"))
+
+                print(db_collection.collection_size)
+                if db_collection.collection_size > 20: #put on a thread if > 20, else we can handle normally
+                    print("COLLECTION SIZE MASSIVE")
+                    if create_and_save_collection_paid_thread(calebs_gay_dict, db_collection, required_dicts[0], required_dicts[1], request.user): #checks if thread has started! if so - redirect to all collections page!
+                        messages.success(request, message="Your collection is quite large and is being generated. You've been redirected to your collections page! Thank you for your patience.")
+                        return ajax_redirect(reverse("main:all_collections", args=[request.user.username_slug]))
+                    else:
+                        messages.error(request, message="Something went wrong. Generation failed. Sorry! Your credits have been refunded.")
+                        return ajax_redirect(reverse("main:main_view"))
+                else:       
+                    if create_and_save_collection_paid(calebs_gay_dict, db_collection, required_dicts[0], required_dicts[1], request.user):
+                        messages.success(request, message="Collection generated. Redirected to collection page!")
+                        return ajax_redirect(reverse("main:collection", args=[user.username_slug, db_collection.collection_name_slug]))
+                    else:
+                        messages.error(request, message="Something went wrong. Generation failed. Sorry! Your credits have been refunded.")
+                        return ajax_redirect(reverse("main:main_view"))
             else:
                 images_list, metadata_list = create_and_save_collection_free(calebs_gay_dict)
                 print("Free collection")
