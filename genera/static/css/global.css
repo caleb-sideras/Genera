@@ -3012,11 +3012,14 @@ input:checked + .slider:before {
 .admin_body{
   padding: 25px;
   margin: 25px;
+  justify-content: space-around;
+  max-width: 1000px;
 }
 .admin_column{
   display: flex;
   flex-direction: column;
   gap: 25px;
+  max-width: 450px;
 }
 
 .admin_column > div{

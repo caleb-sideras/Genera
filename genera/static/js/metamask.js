@@ -533,7 +533,6 @@ async function startApp(provider) {
             .request({ method: 'eth_requestAccounts' })
             .then((response) =>{
                 active_account = response[0],
-                ethereum.on('accountsChanged', handleAccountsChanged),
                 ethereum.on('chainChanged', handleChainChanged)
             }   
             )

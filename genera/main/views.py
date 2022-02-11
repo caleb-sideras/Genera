@@ -331,7 +331,6 @@ def metamask_login_handler_view(request):
                     if public_address.lower() == decrypted_public_address.lower():
                         return True
                     return False
-                print('metamask_auth_user')
                 found_user = MetamaskUserAuth.objects.filter(public_address=received_json_data["public_address"]).first()
                 if not found_user: # user not found - shouldnt happen ever xd
                     return Http404()
