@@ -1,9 +1,12 @@
 collection_main = null
 card_element = null
 
+ipfs_bool
+
 function main() {
     preview_wrapper = document.getElementsByClassName("image_preview")[0]
     document_body = document.body
+    ipfs_bool = (js_vars.dataset.ipfs_bool.toLowerCase() === 'true');
 }
 
 function open_images(self){
@@ -65,14 +68,9 @@ function open_images(self){
     image_data_elements = document.querySelectorAll('.all_collections_layout > div > div>input')
     temp2 = (self.children[1]).children[0].dataset.metadata // metadata
     temp3 = (self.children[1]).children[1].innerHTML // title
-    temp4 = (self.children[1]).children[0].dataset.ipfs_bool // ifps_bool
     temp5 = (self.children[1]).children[2].children[0].style.display//deployed_bool
-    if (card_element.children[0].dataset.ipfs) {
-        token_uri = card_element.children[0].dataset.ipfs
-    }
     parsed = JSON.parse(temp2)
 
-    // console.log(temp4)
     // console.log(temp5)
 
     preview_container = document.createElement('div')
@@ -115,7 +113,7 @@ function open_images(self){
     title.innerHTML = temp3
     upper_info_wrapper.appendChild(title)
 
-    if (temp4!='True') {
+    if (!ipfs_bool) {
         edit_wrapper = document.createElement('div')
         edit_wrapper.classList = "general_button_no_border main_color_background"
         edit_button = document.createElement('img')
@@ -142,9 +140,8 @@ function open_images(self){
     mutipurpose_button_section.classList = 'mutipurpose_button_section'
     mutipurpose_button = document.createElement('div')
     mutipurpose_button.classList = 'general_button_no_border mutipurpose_button'
-    console.log(temp4)
     // ipfs, make ifps deletable
-    if (temp4 == 'False') {
+    if (!ipfs_bool) {
         temp_button = mutipurpose_button.cloneNode(true)
         temp_button.appendChild(Object.assign(document.createElement('h4'), { textContent: 'Delete', style: 'color: red'}))
         temp_button.addEventListener("click", async function () {
@@ -163,15 +160,16 @@ function open_images(self){
         })
         mutipurpose_button_section.appendChild(temp_button)
     }
-    if (temp4 == 'True') {
+    if (ipfs_bool) {
         temp_button = mutipurpose_button.cloneNode(true)
         temp_button.appendChild(Object.assign(document.createElement('h4'), { textContent: 'TokenURI', style: 'color: red' }))
         button_link = document.createElement('a')
-        button_link.href = token_uri
+        button_link.href = temp
         button_link.target = "_blank"
         button_link.appendChild(temp_button)
         mutipurpose_button_section.appendChild(button_link)
     }
+
     if (temp5 =='flex') {
         temp_button = mutipurpose_button.cloneNode(true)
         temp_button.appendChild(Object.assign(document.createElement('h4'), { textContent: 'OpenSea', style: 'color: dodgerblue' }))
@@ -243,10 +241,10 @@ function next_element(self, bool){
         parent2 = parent.children[1].children[1]
         parent2.children[0].children[0].innerHTML = temp3
         parent2.children[1].children[0].children[2].children[0].innerHTML = parsed['description']
-        if (card_element.children[0].dataset.ipfs) {
-            token_uri = card_element.children[0].dataset.ipfs
-            parent2.children[2].children[0].href = token_uri
-        }
+        // if (card_element.children[0].dataset.ipfs) {
+        //     token_uri = card_element.children[0].dataset.ipfs
+        //     parent2.children[2].children[0].href = token_uri
+        // }
         properties = parent2.children[1].children[1].children[2]
         button_number = parent2.children[1].children[1].children[1].children[0]
         properties.innerHTML = ''

@@ -17,6 +17,7 @@ token_counter = 0
 base_uri = null
 image_uri = null
 minting_cost = null
+ipfs_bool = null
 
 deploy_collection_data ={
     'IPFS' : [
@@ -134,7 +135,7 @@ deploy_collection_data_public = {
                     'button': 'button',
                     'name': 'Website URL',
                     'type': 'text',
-                    'text': 'E.g. https://genera...',
+                    'text': 'E.g. www.genera.link',
                     'info': '',
                     'status': 'active'
                 },
@@ -240,6 +241,14 @@ deploy_collection_data_public = {
                     'text': '',
                     'info': 'This can be changed later',
                     'status': 'active'
+                },
+                {
+                    'button': 'button',
+                    'name': 'Token Name',
+                    'type': 'text',
+                    'text': 'E.g. VDE',
+                    'info': 'Contract token name',
+                    'status': 'active'
                 }
             ],
             'buttons': [
@@ -285,8 +294,6 @@ function main() {
     // entries = []
     // uri_list = []
 
-    contract_address = js_vars.dataset.contract_address
-    contract_bool = (js_vars.dataset.contract_bool.toLowerCase() === 'true')
     // if (contract_bool) {
     //     var temp = async function () {
     //         await check_mint_status()
@@ -294,8 +301,6 @@ function main() {
     //     temp()
     // }
     contract_chainid = js_vars.dataset.chain_id
-    token_name = js_vars.dataset.token_name
-    image_name = js_vars.dataset.image_name
     base_uri = js_vars.dataset.base_uri
     // entries = JSON.parse(js_vars.dataset.entry_ids)
     collection_name = js_vars.dataset.collection_name
@@ -304,7 +309,6 @@ function main() {
     //     ipfs_links = JSON.parse(js_vars.dataset.ipfs_links)
     // }
     ipfs_bool = (js_vars.dataset.ipfs_bool.toLowerCase() === 'true');
-    tokens_minted_bool = (js_vars.dataset.tokens_minted_bool.toLowerCase() === 'true');
     collection_size = parseInt(js_vars.dataset.collection_size)
     deploy_collection_container = document.querySelector(".deploy_collection_container")
 
@@ -358,7 +362,6 @@ async function deploy_contract_private(){
             .then(async function (txHash) {
                 contract_address = await waitForTxToBeMined(txHash)
                 contract_chainid = active_chain_id
-                contract_bool = true
                 console.log("Contract mined, address:" + contract_address)
                 save_contract_address()
             })
@@ -475,7 +478,7 @@ async function get_contract_tokenURIs(contract_address) {
     console.log("finished get_contract_tokenURIs")
     return
 }
-//refactor
+// not needed?
 async function check_mint_status() {
     await get_contract_tokenURIs(contract_address)
     if (uri_list) {
@@ -606,11 +609,12 @@ async function init_deploy_collection_public() {
     contract_type = 2
     if (!ipfs_bool) {
         populate_deploy_collection(deploy_collection_data_public['IPFS'][0])
-    } else if (!contract_bool) {
+    } else {
         populate_deploy_collection(deploy_collection_data_public['Network'][0])
-    } else if (!tokens_minted_bool) {
-        populate_deploy_collection(deploy_collection_data_public['Mint'][0])
-    }
+    } 
+    // else {
+    //     populate_deploy_collection(deploy_collection_data_public['Mint'][0])
+    // }
 }
 // INITIALIZE DEPLOY COLLECTION
 
@@ -722,7 +726,7 @@ async function choose_network(self) {
 // CONTRACT DEPLOY //
 async function deploy_contract_request_public(){
     let contract_inputs = deploy_collection_container.querySelectorAll(':scope input, :scope select')
-   
+
     if (!contract_inputs[0].value) {
         alert('Please input a Minting Cost')
         return
@@ -730,6 +734,7 @@ async function deploy_contract_request_public(){
     minting_cost = web3.utils.toWei(String(contract_inputs[0].value), 'ether')
     contract_type = contract_inputs[1].value
     deploy_bool = contract_inputs[2].value
+    token_name = contract_inputs[3].value
 
     loading_deploy_collection(deploy_collection_data_public['Contract'][1])
     try {
@@ -768,7 +773,6 @@ async function deploy_contract_public(constructor_parameters, gas_estimate, cont
         .then(async function (txHash) {
             contract_address = await waitForTxToBeMined(txHash)
             contract_chainid = active_chain_id
-            contract_bool = true
             console.log("Contract mined, address:" + contract_address)
             save_contract_address()
         })
