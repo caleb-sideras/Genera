@@ -22,8 +22,6 @@ def populate():
         print("USER ALREADY EXISTS - MAKE SURE TO WIPE DB!!!!")
     if not User.objects.filter(username="caleb").exists():
         UserProfile.objects.create(user=User.objects.create_superuser(username="caleb", password="1234", credits=1000))
-    
-
 
     else:
         print("USER ALREADY EXISTS - MAKE SURE TO WIPE DB!!!!")

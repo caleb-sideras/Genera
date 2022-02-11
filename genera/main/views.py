@@ -52,10 +52,13 @@ def upload_view(request):
         user = User.objects.filter(username=request.user.username).first()
         collections = []
         if user:
+            collection_names = UserCollection.objects.filter(user=user).values_list('collection_name', flat=True)
             for collection in UserCollection.objects.filter(user=user):
                 collections.append(collection.collection_name)
             print(collections)
+            context["collection_names"] = collection_names
             context['users_collections'] = json.dumps(collections)
+            context['collections_generating'] = user.number_of_collections_currently_generating()
 
     def file_to_pil_no_resize(file, res_x, res_y):
         PIL_image = Image.open(BytesIO(file.read()))
@@ -157,6 +160,8 @@ def upload_view(request):
                 return ajax_redirect(reverse("main:upload"))
             else:
                 paid_generation = False
+            
+            #request.user.number_of_collections_currently_generating() TODO: AJAX CHECK THIS BEFORE GENERATION - JUST IN CASE - NOTIFY USER HOW MANY ARE GENERATING RN IN CASE THEY DONT WANNA CONTINUE.
 
             calebs_gay_dict["CollectionName"] = request.POST.get("collection_name")
             calebs_gay_dict["ImageName"]= request.POST.get("image_name")
@@ -234,7 +239,6 @@ def upload_view(request):
                             else:
                                 if paid_generation:
                                     db_collection.delete()
-                                    request.user.save()
                                 messages.error(request, message="An Asset Rarity Was Greater than Collection Size")
                                 return ajax_redirect(reverse("main:upload"))
                         if layer_type == "Textures":
@@ -254,7 +258,6 @@ def upload_view(request):
                             else:
                                 if paid_generation:
                                     db_collection.delete()
-                                    request.user.save()
                                 messages.error(request, message="A Texture Rarity Was Greater than Collection Size")
                                 return ajax_redirect(reverse("main:upload"))
 
@@ -263,19 +266,21 @@ def upload_view(request):
             # print(calebs_gay_dict["Layers"])
             
             if paid_generation:
-                success = create_and_save_collection_paid(calebs_gay_dict, db_collection, request.user)
-
-                if success:
-                    request.user.credits -= db_collection.collection_size
-                    request.user.save()
+                user.credits -= db_collection.collection_size
+                user.save()
+                if db_collection.collection_size > 20:
+                    success = create_and_save_collection_paid_thread(calebs_gay_dict, db_collection, request.user)
+                    messages.success(request, message="Your collection is quite large and is being generated. You've been redirected to your collections page! ")
+                    return ajax_redirect(reverse("main:all_collections", args=[request.user.username]))
                 else:
-                    db_collection.delete()
-                    request.user.save()
-                    messages.error(request, message="A Layer Rarity Was Greater than Collection Size")
-                    return ajax_redirect(reverse("main:upload"))
-
-                messages.success(request, message="Collection generated succesfully!")
-                return ajax_redirect(reverse("main:collection", args=[request.user.username_slug, db_collection.collection_name_slug]))
+                    success = create_and_save_collection_paid(calebs_gay_dict, db_collection, request.user)
+                
+                if success == True:
+                    messages.success(request, message="Collection generated. Redirected to collection page!")
+                    ajax_redirect(reverse("main:collection", args=[request.user.username_slug, db_collection.collection_name_slug]))
+                else:
+                    messages.error(request, message="Something went wrong. Generation failed. Sorry! Your credits have been refunded.")
+                    return ajax_redirect(reverse("main:main_view"))
             else:
                 images_list, metadata_list = create_and_save_collection_free(calebs_gay_dict)
                 print("Free collection")

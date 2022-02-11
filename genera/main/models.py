@@ -101,6 +101,9 @@ class User(AbstractBaseUser, PermissionsMixin, Model):
     #Custom functions
     def get_all_minted_collections(self):
         return [collection for collection in self.usercollectionmintpublic_set.all()] + [collection for collection in self.usercollectionmint_set.all()]
+    
+    def number_of_collections_currently_generating(self):
+        return self.usercollection_set.filter(generation_complete=False).count()
 
 class MetamaskUserAuth(Model):
     public_address = models.CharField(max_length=150, unique=True)
@@ -148,6 +151,8 @@ class UserCollection(Model):
     image_uri = models.CharField(max_length=100, unique=False, blank=True, null=True)
     base_uri = models.CharField(max_length=100, unique=False, blank=True, null=True)
 
+    generation_complete = models.BooleanField(default=False)
+
     def __str__(self):
         return str(self.collection_name)
 
@@ -171,6 +176,29 @@ class UserCollection(Model):
         if DEPLOYMENT_INSTANCE:
             storage_manipulator = AwsMediaStorageManipulator()
             storage_manipulator.delete_object_from_bucket(self.path)
+
+class FailedUserCollection_Tracker(Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    collection = models.ForeignKey(UserCollection, on_delete=models.SET_NULL, null=True)
+
+    collection_name = models.CharField(max_length=50, unique=False)
+    description = models.CharField(max_length=300, unique=False)
+    dimension_x = models.IntegerField()
+    dimension_y = models.IntegerField()
+    collection_size = models.IntegerField()
+
+    credits_refunded = models.IntegerField()
+
+    error_message = models.CharField(max_length=500, unique=False, blank=True, null=True)
+
+    def save(self, *args, **kwargs):
+        self.collection_name = self.collection.collection_name
+        self.description = self.collection.description
+        self.dimension_x = self.collection.dimension_x
+        self.dimension_y = self.collection.dimension_y
+        self.collection_size = self.collection.collection_size
+        self.credits_refunded = self.collection.collection_size
+        super(FailedUserCollection_Tracker, self).save(*args, **kwargs)
 
 class CollectionMint_Shared(Model): #NOT A TABLE IN THE DATABASE - is abstract class
     user = models.ForeignKey(User, on_delete=models.CASCADE)

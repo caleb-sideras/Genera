@@ -1235,7 +1235,7 @@ function validate_collection(field_object){
             custom_validation_true(field_object)
         }
     }
-    else{
+    else {
         custom_validation_true(field_object)
     }
 }
