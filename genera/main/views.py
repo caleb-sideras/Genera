@@ -49,11 +49,11 @@ def upload_view(request):
     context["ajax_url"] = reverse("main:upload")
 
     if request.user.is_authenticated:        
-        user = User.objects.filter(username=request.user.username).first()
+        user = request.user
         if user:
             collection_names = list(UserCollection.objects.filter(user=user).values_list('collection_name', flat=True))
             context['collection_names'] = json.dumps(collection_names)
-            context['collections_generating'] = user.number_of_collections_currently_generating()
+            context['collections_generating'] = user.has_collections_currently_generating
 
     def file_to_pil_no_resize(file, res_x, res_y):
         PIL_image = Image.open(BytesIO(file.read()))
@@ -156,8 +156,6 @@ def upload_view(request):
             else:
                 paid_generation = False
             
-            #request.user.number_of_collections_currently_generating() TODO: AJAX CHECK THIS BEFORE GENERATION - JUST IN CASE - NOTIFY USER HOW MANY ARE GENERATING RN IN CASE THEY DONT WANNA CONTINUE.
-
             calebs_gay_dict["CollectionName"] = request.POST.get("collection_name")
             calebs_gay_dict["ImageName"]= request.POST.get("image_name")
             calebs_gay_dict["Description"] = request.POST.get("description")

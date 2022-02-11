@@ -14,7 +14,7 @@ function main() {
     user_login = (js_vars.dataset.user_login.toLowerCase() === 'true');
 
     collection_names = JSON.parse(js_vars.dataset.collection_names)
-    users_collections_generating = js_vars.dataset.users_collections_generating
+    has_collections_generating = js_vars.dataset.has_collections_generating
 
     if (js_vars.dataset.user_credits && user_login) {
         user_credits = JSON.parse(js_vars.dataset.user_credits)
@@ -28,9 +28,9 @@ function main() {
     })
 
     document.getElementById("upload_button_submit").addEventListener("click", () => {
-        if (users_collections_generating > 0) {
+        if (has_collections_generating == "True") {
             if (confirm("You already have a collection being generated. Are you sure you want to start generating another one? Note that our website does support such action, and it is encouraged, but we are just giving you a heads up in case you were not aware :)")) {
-                //pass
+                has_collections_generating = false //if user agrees, then dont show this popup again!
             } else {
                 create_notification("Generation Cancelled", "You have cancelled the generation of this collection.", duration = 10000, "warning")
                 return

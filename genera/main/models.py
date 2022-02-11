@@ -102,8 +102,9 @@ class User(AbstractBaseUser, PermissionsMixin, Model):
     def get_all_minted_collections(self):
         return [collection for collection in self.usercollectionmintpublic_set.all()] + [collection for collection in self.usercollectionmint_set.all()]
     
-    def number_of_collections_currently_generating(self):
-        return self.usercollection_set.filter(generation_complete=False).count()
+    @property
+    def has_collections_currently_generating(self):
+        return self.usercollection_set.filter(generation_complete=False).exists() #much faster than count
 
 class MetamaskUserAuth(Model):
     public_address = models.CharField(max_length=150, unique=True)
