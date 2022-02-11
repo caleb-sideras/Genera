@@ -50,14 +50,9 @@ def upload_view(request):
 
     if request.user.is_authenticated:        
         user = User.objects.filter(username=request.user.username).first()
-        collections = []
         if user:
-            collection_names = UserCollection.objects.filter(user=user).values_list('collection_name', flat=True)
-            for collection in UserCollection.objects.filter(user=user):
-                collections.append(collection.collection_name)
-            print(collections)
-            context["collection_names"] = collection_names
-            context['users_collections'] = json.dumps(collections)
+            collection_names = list(UserCollection.objects.filter(user=user).values_list('collection_name', flat=True))
+            context['collection_names'] = json.dumps(collection_names)
             context['collections_generating'] = user.number_of_collections_currently_generating()
 
     def file_to_pil_no_resize(file, res_x, res_y):
@@ -270,7 +265,7 @@ def upload_view(request):
                 user.save()
                 if db_collection.collection_size > 50: #put on a thread if > 50, else we can handle normally
                     create_and_save_collection_paid_thread(calebs_gay_dict, db_collection, request.user) #starts the thread
-                    messages.success(request, message="Your collection is quite large and is being generated. You've been redirected to your collections page! ")
+                    messages.success(request, message="Your collection is quite large and is being generated. You've been redirected to your collections page! Thank you for your patience.")
                     return ajax_redirect(reverse("main:all_collections", args=[request.user.username]))
                 else:
                     success = create_and_save_collection_paid(calebs_gay_dict, db_collection, request.user)
