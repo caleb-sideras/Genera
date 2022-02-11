@@ -168,7 +168,7 @@ def create_and_save_collection_paid(tempDict, db_collection, user = None):
                         tempTexture = random.choice(rarityArrayTexture)
                             
                         # mapping texture to asset
-                        texturedAsset = textureMapping(
+                        texturedAsset = textureMapping (
                             rarityDictAsset[tempAsset], rarityDictTexture[tempTexture], texture_map_color
                         )
 
@@ -237,7 +237,6 @@ def create_and_save_collection_paid(tempDict, db_collection, user = None):
             compressed_x = int((tempDict["Resolution_x"] * 200) / tempDict["Resolution_y"])
             compressed_y = 200
         
-
         # print(compressed_y)
         # print(compressed_x)
 
@@ -297,13 +296,13 @@ def create_and_save_collection_paid(tempDict, db_collection, user = None):
         print("Finished generation")
         db_collection.generation_complete = True
         db_collection.save()
-        user.credits -= db_collection.collection_size
-        user.save()
         return True
 
     except Exception as e:
         FailedUserCollection_Tracker.objects.create(user=user, collection=db_collection, error_message=e.args[0])
         db_collection.wipe_linked_aws_images()
+        user.credits += db_collection.collection_size
+        user.save()
         db_collection.delete()
         return e.args[0]
 

@@ -102,8 +102,8 @@ class User(AbstractBaseUser, PermissionsMixin, Model):
     def get_all_minted_collections(self):
         return [collection for collection in self.usercollectionmintpublic_set.all()] + [collection for collection in self.usercollectionmint_set.all()]
     
-    def has_collection_still_generating(self):
-        return self.usercollection_set.filter(generation_complete=False).exists()
+    def number_of_collections_currently_generating(self):
+        return self.usercollection_set.filter(generation_complete=False).count()
 
 class MetamaskUserAuth(Model):
     public_address = models.CharField(max_length=150, unique=True)
@@ -187,6 +187,8 @@ class FailedUserCollection_Tracker(Model):
     dimension_y = models.IntegerField()
     collection_size = models.IntegerField()
 
+    credits_refunded = models.IntegerField()
+
     error_message = models.CharField(max_length=500, unique=False, blank=True, null=True)
 
     def save(self, *args, **kwargs):
@@ -195,8 +197,8 @@ class FailedUserCollection_Tracker(Model):
         self.dimension_x = self.collection.dimension_x
         self.dimension_y = self.collection.dimension_y
         self.collection_size = self.collection.collection_size
+        self.credits_refunded = self.collection.collection_size
         super(FailedUserCollection_Tracker, self).save(*args, **kwargs)
-
 
 class CollectionMint_Shared(Model): #NOT A TABLE IN THE DATABASE - is abstract class
     user = models.ForeignKey(User, on_delete=models.CASCADE)
