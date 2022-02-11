@@ -154,6 +154,10 @@ def upload_view(request):
                 return ajax_redirect(reverse("main:upload"))
             else:
                 paid_generation = False
+            
+            if request.user.has_collection_still_generating():
+                messages.error(request, message="You have a collection still generating. Please wait for that to finish!")
+                return ajax_redirect(reverse("main:upload"))
 
             calebs_gay_dict["CollectionName"] = request.POST.get("collection_name")
             calebs_gay_dict["ImageName"]= request.POST.get("image_name")
@@ -231,7 +235,6 @@ def upload_view(request):
                             else:
                                 if paid_generation:
                                     db_collection.delete()
-                                    request.user.save()
                                 messages.error(request, message="An Asset Rarity Was Greater than Collection Size")
                                 return ajax_redirect(reverse("main:upload"))
                         if layer_type == "Textures":
@@ -251,7 +254,6 @@ def upload_view(request):
                             else:
                                 if paid_generation:
                                     db_collection.delete()
-                                    request.user.save()
                                 messages.error(request, message="A Texture Rarity Was Greater than Collection Size")
                                 return ajax_redirect(reverse("main:upload"))
 
@@ -260,19 +262,18 @@ def upload_view(request):
             # print(calebs_gay_dict["Layers"])
             
             if paid_generation:
-                success = create_and_save_collection_paid(calebs_gay_dict, db_collection, request.user)
-
-                if success:
-                    request.user.credits -= db_collection.collection_size
-                    request.user.save()
+                if db_collection.collection_size > 20:
+                    success = create_and_save_collection_paid_thread(calebs_gay_dict, db_collection, request.user)
+                    messages.success(request, message="Your collection is quite large and is being generated. You can refresh the page to see the images added as they are being generated!")
+                    return ajax_redirect(reverse("main:collection", args=[request.user.username, db_collection.collection_name]))
                 else:
-                    db_collection.delete()
-                    request.user.save()
-                    messages.error(request, message="A Layer Rarity Was Greater than Collection Size")
-                    return ajax_redirect(reverse("main:upload"))
-
-                messages.success(request, message="Collection generated succesfully!")
-                return ajax_redirect(reverse("main:collection", args=[request.user.username_slug, db_collection.collection_name_slug]))
+                    success = create_and_save_collection_paid(calebs_gay_dict, db_collection, request.user)
+                
+                if success == True:
+                    ajax_redirect(reverse("main:collection", args=[request.user.username_slug, db_collection.collection_name_slug]))
+                else:
+                    messages.error(request, message="Something went wrong. Generation failed. Sorry!")
+                    return ajax_redirect(reverse("main:main_view"))
             else:
                 images_list, metadata_list = create_and_save_collection_free(calebs_gay_dict)
                 print("Free collection")

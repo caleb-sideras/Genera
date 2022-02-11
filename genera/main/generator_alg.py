@@ -11,6 +11,7 @@ from io import BytesIO
 from genera.settings import DEPLOYMENT_INSTANCE
 from genera.s3_storage import AwsMediaStorageManipulator
 from django.core.files.base import ContentFile
+import threading
 
 # Notes
 # - the current textures Samoshin sent me are buggy, they only use A (Alpha) values in the RGBA format
@@ -143,158 +144,173 @@ def create_and_save_collection_paid(tempDict, db_collection, user = None):
     metadataArray = []
     metadataDict = {}
 
-    texture_map_color = ImageColor.getcolor(tempDict['TextureColor'], "RGB")
-    # print(tempDict['TextureColor'])
-    # print(texture_map_color)
-    for key, value in tempDict["Layers"].items():
-        texturedAsset = 0
-        # print(f"Generating {key} layer")
+    try:
+        texture_map_color = ImageColor.getcolor(tempDict['TextureColor'], "RGB")
+        # print(tempDict['TextureColor'])
+        # print(texture_map_color)
+        for key, value in tempDict["Layers"].items():
+            texturedAsset = 0
+            # print(f"Generating {key} layer")
 
-        if value["Assets"] and value["Textures"]:
+            if value["Assets"] and value["Textures"]:
 
-            # adding assets/textures to individual arrays
-            rarityAppend(value, "Assets", rarityArrayAsset, rarityDictAsset)
-            rarityAppend(value, "Textures", rarityArrayTexture, rarityDictTexture)
+                # adding assets/textures to individual arrays
+                rarityAppend(value, "Assets", rarityArrayAsset, rarityDictAsset)
+                rarityAppend(value, "Textures", rarityArrayTexture, rarityDictTexture)
 
-            while rarityArrayAsset:
-                # randomly choosing assets/textures
-                tempAsset = random.choice(rarityArrayAsset)
-                texturedAsset = rarityDictAsset[tempAsset]
-                tempMetadata = tempAsset
-                if rarityArrayTexture:
-                    
-                    tempTexture = random.choice(rarityArrayTexture)
-                        
-                    # mapping texture to asset
-                    texturedAsset = textureMapping(
-                        rarityDictAsset[tempAsset], rarityDictTexture[tempTexture], texture_map_color
-                    )
-
-                    # metadata variable
-                    tempMetadata = f"{tempAsset} ({tempTexture})"
-                    
-                    # removing used texture
-                    rarityArrayTexture.remove(tempTexture)
-
-                # adding final asset
-                texturedAssetArray.append(texturedAsset)
-
-                # adding metadata
-                metadataArray.append(tempMetadata)
-
-                # removing used asset
-                rarityArrayAsset.remove(tempAsset)
-
-        else:
-
-            if value["Assets"]:
-
-                rarityAppend2(value, "Assets", rarityArrayAsset, rarityDictAsset)
-                arrayRange = len(rarityArrayAsset)
-                # adding just assets to an individual array
-                for _ in range(arrayRange):
-
-                    # randomly choosing assets
+                while rarityArrayAsset:
+                    # randomly choosing assets/textures
                     tempAsset = random.choice(rarityArrayAsset)
-                    
+                    texturedAsset = rarityDictAsset[tempAsset]
+                    tempMetadata = tempAsset
+                    if rarityArrayTexture:
+                        
+                        tempTexture = random.choice(rarityArrayTexture)
+                            
+                        # mapping texture to asset
+                        texturedAsset = textureMapping(
+                            rarityDictAsset[tempAsset], rarityDictTexture[tempTexture], texture_map_color
+                        )
+
+                        # metadata variable
+                        tempMetadata = f"{tempAsset} ({tempTexture})"
+                        
+                        # removing used texture
+                        rarityArrayTexture.remove(tempTexture)
+
                     # adding final asset
-                    texturedAssetArray.append(rarityDictAsset[tempAsset])
+                    texturedAssetArray.append(texturedAsset)
+
                     # adding metadata
-                    metadataArray.append(f"{tempAsset}")
+                    metadataArray.append(tempMetadata)
+
                     # removing used asset
                     rarityArrayAsset.remove(tempAsset)
 
+            else:
 
-        name = key
-        texturedAssetDict.update({name: texturedAssetArray})
-        metadataDict.update({name: metadataArray})
-        texturedAssetArray = []
-        metadataArray = []
-        rarityDictAsset = {}
-        rarityDictTexture = {}
-    # print("Creating/saving .png & .json")
-    
-    if not DEPLOYMENT_INSTANCE:
-        os.makedirs(db_collection.path[1:])
+                if value["Assets"]:
 
-    # getting longest layer
-    longest_layer = 0
-    for value in texturedAssetDict:
-        if len(texturedAssetDict[value]) > longest_layer:
-            longest_layer = len(texturedAssetDict[value])
-    if longest_layer > tempDict['CollectionSize']:
-        return False
-    db_collection.collection_size = longest_layer
-    db_collection.save()
+                    rarityAppend2(value, "Assets", rarityArrayAsset, rarityDictAsset)
+                    arrayRange = len(rarityArrayAsset)
+                    # adding just assets to an individual array
+                    for _ in range(arrayRange):
 
-    # could save extra computation if image < 200 and change css on front end
-    if tempDict["Resolution_x"] > tempDict["Resolution_y"]:
-        compressed_y = int((tempDict["Resolution_y"] * 200) / tempDict["Resolution_x"])
-        compressed_x = 200
-    else:
-        compressed_x = int((tempDict["Resolution_x"] * 200) / tempDict["Resolution_y"])
-        compressed_y = 200
-    
+                        # randomly choosing assets
+                        tempAsset = random.choice(rarityArrayAsset)
+                        
+                        # adding final asset
+                        texturedAssetArray.append(rarityDictAsset[tempAsset])
+                        # adding metadata
+                        metadataArray.append(f"{tempAsset}")
+                        # removing used asset
+                        rarityArrayAsset.remove(tempAsset)
 
-    # print(compressed_y)
-    # print(compressed_x)
 
-    # iterating over textured assets dictionary, and combining them
-    for i in range(longest_layer):
+            name = key
+            texturedAssetDict.update({name: texturedAssetArray})
+            metadataDict.update({name: metadataArray})
+            texturedAssetArray = []
+            metadataArray = []
+            rarityDictAsset = {}
+            rarityDictTexture = {}
+        # print("Creating/saving .png & .json")
         
-        img_name = f"{tempDict['ImageName']} {i+1}"
-        image_to_collection_db = CollectionImage.objects.create(linked_collection=db_collection)
-        image_to_collection_db.name = img_name
+        if not DEPLOYMENT_INSTANCE:
+            os.makedirs(db_collection.path[1:])
 
-        im = Image.new(
-            "RGBA", (tempDict["Resolution_x"], tempDict["Resolution_y"]), (0, 0, 0, 0)
-        )
-        # creating json template
-        temp_json = {
-            "name": f"{tempDict['ImageName']}#{i}",
-            "description": tempDict["Description"],
-            "image": "",
-        }
-        temp_list = []
-        
+        # getting longest layer
+        longest_layer = 0
         for value in texturedAssetDict:
-            # print(texturedAssetDict[value])
-            if len(texturedAssetDict[value]) > i: # we already iterate over texturedAssetDict, save len values in array and use them # also, lots of double checks happening, find a way using len values for this not to happen
-                temp_asset = texturedAssetDict[value][i]
-                # creating attributes in metadata
-                im.paste(temp_asset, (0, 0), temp_asset)
-                temp_list.append(
-                    {"trait_type": value, "value": metadataDict[value][i]}
-                )
-        temp_json.update({"attributes": temp_list})
-        image_to_collection_db.metadata = json.dumps(temp_json)
+            if len(texturedAssetDict[value]) > longest_layer:
+                longest_layer = len(texturedAssetDict[value])
+        if longest_layer > tempDict['CollectionSize']:
+            return False
+        db_collection.collection_size = longest_layer
+        db_collection.save()
 
-        if DEPLOYMENT_INSTANCE:
-            aws_media_storage_manipulator = AwsMediaStorageManipulator()
-            current_image_path = f"{db_collection.path}/{image_to_collection_db.name}.png" ##IMPORTANT FOR REVERSE
-            aws_media_storage_manipulator.save(current_image_path, pil_to_aws(im)) #upload the image to S3
-            image_to_collection_db.path = aws_media_storage_manipulator.create_secure_url(path_to_object=current_image_path, expire=604800) ##generate safe url and save to db
-            if tempDict["Resolution_x"] > 1000 and tempDict["Resolution_y"] > 1000: ##compress if image is too big
-                im.thumbnail((200,200)) #comress to thumbnail size
-                compressed_image_path = current_image_path.replace(".png", "_tbl.png")
-                aws_media_storage_manipulator.save(compressed_image_path, pil_to_aws(im)) #upload the image to S3
-                image_to_collection_db.path_compressed = aws_media_storage_manipulator.create_secure_url(path_to_object=compressed_image_path, expire=604800) ##generate safe url and save to db
+        # could save extra computation if image < 200 and change css on front end
+        if tempDict["Resolution_x"] > tempDict["Resolution_y"]:
+            compressed_y = int((tempDict["Resolution_y"] * 200) / tempDict["Resolution_x"])
+            compressed_x = 200
         else:
-            current_image_path = f"{db_collection.path}/{alphanum_random(6)}.png"
- 
-            im.save(current_image_path[1:], "PNG")
-            compressed_image_path = current_image_path.replace(".png", "_tbl.png")
-            im.thumbnail((200,200)) #comress to thumbnail size
-            im.save(f"{compressed_image_path[1:]}", "PNG") #save thumbnail
-
-            image_to_collection_db.path = current_image_path
-            image_to_collection_db.path_compressed = compressed_image_path #save thumbnail path
-
-        image_to_collection_db.save()
+            compressed_x = int((tempDict["Resolution_x"] * 200) / tempDict["Resolution_y"])
+            compressed_y = 200
         
+
+        # print(compressed_y)
+        # print(compressed_x)
+
+        # iterating over textured assets dictionary, and combining them
+        for i in range(longest_layer):
+            
+            img_name = f"{tempDict['ImageName']} {i+1}"
+            image_to_collection_db = CollectionImage.objects.create(linked_collection=db_collection)
+            image_to_collection_db.name = img_name
+
+            im = Image.new(
+                "RGBA", (tempDict["Resolution_x"], tempDict["Resolution_y"]), (0, 0, 0, 0)
+            )
+            # creating json template
+            temp_json = {
+                "name": f"{tempDict['ImageName']}#{i}",
+                "description": tempDict["Description"],
+                "image": "",
+            }
+            temp_list = []
+            
+            for value in texturedAssetDict:
+                # print(texturedAssetDict[value])
+                if len(texturedAssetDict[value]) > i: # we already iterate over texturedAssetDict, save len values in array and use them # also, lots of double checks happening, find a way using len values for this not to happen
+                    temp_asset = texturedAssetDict[value][i]
+                    # creating attributes in metadata
+                    im.paste(temp_asset, (0, 0), temp_asset)
+                    temp_list.append(
+                        {"trait_type": value, "value": metadataDict[value][i]}
+                    )
+            temp_json.update({"attributes": temp_list})
+            image_to_collection_db.metadata = json.dumps(temp_json)
+
+            if DEPLOYMENT_INSTANCE:
+                aws_media_storage_manipulator = AwsMediaStorageManipulator()
+                current_image_path = f"{db_collection.path}/{image_to_collection_db.name}.png" ##IMPORTANT FOR REVERSE
+                aws_media_storage_manipulator.save(current_image_path, pil_to_aws(im)) #upload the image to S3
+                image_to_collection_db.path = aws_media_storage_manipulator.create_secure_url(path_to_object=current_image_path, expire=604800) ##generate safe url and save to db
+                if tempDict["Resolution_x"] > 1000 and tempDict["Resolution_y"] > 1000: ##compress if image is too big
+                    im.thumbnail((200,200)) #comress to thumbnail size
+                    compressed_image_path = current_image_path.replace(".png", "_tbl.png")
+                    aws_media_storage_manipulator.save(compressed_image_path, pil_to_aws(im)) #upload the image to S3
+                    image_to_collection_db.path_compressed = aws_media_storage_manipulator.create_secure_url(path_to_object=compressed_image_path, expire=604800) ##generate safe url and save to db
+            else:
+                current_image_path = f"{db_collection.path}/{alphanum_random(6)}.png"
+    
+                im.save(current_image_path[1:], "PNG")
+                compressed_image_path = current_image_path.replace(".png", "_tbl.png")
+                im.thumbnail((200,200)) #comress to thumbnail size
+                im.save(f"{compressed_image_path[1:]}", "PNG") #save thumbnail
+
+                image_to_collection_db.path = current_image_path
+                image_to_collection_db.path_compressed = compressed_image_path #save thumbnail path
+
+            image_to_collection_db.save()
         
-    print("Finished generation")
-    return True
+        print("Finished generation")
+        db_collection.generation_complete = True
+        db_collection.save()
+        user.credits -= db_collection.collection_size
+        user.save()
+        return True
+
+    except Exception as e:
+        FailedUserCollection_Tracker.objects.create(user=user, collection=db_collection, error_message=e.args[0])
+        db_collection.wipe_linked_aws_images()
+        db_collection.delete()
+        return e.args[0]
+
+def create_and_save_collection_paid_thread(*args, **kwargs):
+    thread = threading.Thread(target=create_and_save_collection_paid, args=args, kwargs=kwargs)
+    thread.setDaemon(True)
+    thread.start()
 
 def create_and_save_collection_free(tempDict):
     print(tempDict["CollectionName"])
