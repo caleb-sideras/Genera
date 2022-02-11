@@ -7,7 +7,7 @@
 {% endblock %}
 
 {% block body_block %}
-<input type="hidden" id="js_vars" data-ajax_url='{{ajax_url}}' data-user_login='{{user.is_authenticated}}' data-users_collections='{{users_collections}}' data-collection_names="{{collection_names}}" data-user_credits='{{request.user.credits}}' data-users_collections_generating="{{collections_generating}}">
+<input type="hidden" id="js_vars" data-ajax_url='{{ajax_url}}' data-user_login='{{user.is_authenticated}}' data-collection_names="{{collection_names}}" data-user_credits='{{request.user.credits}}' data-has_collections_generating="{{collections_generating}}">
 
 <form method="post" id="upload_form" enctype="multipart/form-data" class="upload_wrapper">
   {% csrf_token %}

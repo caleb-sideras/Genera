@@ -107,11 +107,15 @@ def raise_permission_denied(title, description, code="404"):
 
 def clientside_error_with_redirect(request, message, redirect_url="main:main_view"):
     messages.error(request, message)
-    return redirect(reverse(redirect_url))
+    if redirect_url == "main:main_view":
+        return redirect(reverse(redirect_url))
+    return redirect(redirect_url)
     
-def clientside_success_with_redirect(request, message, redirect_url):
+def clientside_success_with_redirect(request, message, redirect_url="main:main_view"):
     messages.success(request, message)
-    return redirect(reverse(redirect_url))
+    if redirect_url == "main:main_view":
+        return redirect(reverse(redirect_url))
+    return redirect(redirect_url)
     
 def requires_user_logged_in(function):
     @wraps(function)

@@ -1,6 +1,6 @@
 from json.decoder import JSONDecodeError
 from django.shortcuts import render
-from matplotlib.text import Text
+# from matplotlib.text import Text
 from main.helper_functions import nft_storage_api_store
 from main.view_tools import *
 from genera.settings import DEFAULT_FROM_EMAIL, STRIPE_PRIVATE_KEY, DEPLOYMENT_INSTANCE
@@ -49,16 +49,11 @@ def upload_view(request):
     context["ajax_url"] = reverse("main:upload")
 
     if request.user.is_authenticated:        
-        user = User.objects.filter(username=request.user.username).first()
-        collections = []
+        user = request.user
         if user:
-            collection_names = UserCollection.objects.filter(user=user).values_list('collection_name', flat=True)
-            for collection in UserCollection.objects.filter(user=user):
-                collections.append(collection.collection_name)
-            print(collections)
-            context["collection_names"] = collection_names
-            context['users_collections'] = json.dumps(collections)
-            context['collections_generating'] = user.number_of_collections_currently_generating()
+            collection_names = list(UserCollection.objects.filter(user=user).values_list('collection_name', flat=True))
+            context['collection_names'] = json.dumps(collection_names)
+            context['collections_generating'] = user.has_collections_currently_generating
 
     def file_to_pil_no_resize(file, res_x, res_y):
         PIL_image = Image.open(BytesIO(file.read()))
@@ -161,8 +156,6 @@ def upload_view(request):
             else:
                 paid_generation = False
             
-            #request.user.number_of_collections_currently_generating() TODO: AJAX CHECK THIS BEFORE GENERATION - JUST IN CASE - NOTIFY USER HOW MANY ARE GENERATING RN IN CASE THEY DONT WANNA CONTINUE.
-
             calebs_gay_dict["CollectionName"] = request.POST.get("collection_name")
             calebs_gay_dict["ImageName"]= request.POST.get("image_name")
             calebs_gay_dict["Description"] = request.POST.get("description")
@@ -268,9 +261,9 @@ def upload_view(request):
             if paid_generation:
                 user.credits -= db_collection.collection_size
                 user.save()
-                if db_collection.collection_size > 20:
-                    success = create_and_save_collection_paid_thread(calebs_gay_dict, db_collection, request.user)
-                    messages.success(request, message="Your collection is quite large and is being generated. You've been redirected to your collections page! ")
+                if db_collection.collection_size > 50: #put on a thread if > 50, else we can handle normally
+                    create_and_save_collection_paid_thread(calebs_gay_dict, db_collection, request.user) #starts the thread
+                    messages.success(request, message="Your collection is quite large and is being generated. You've been redirected to your collections page! Thank you for your patience.")
                     return ajax_redirect(reverse("main:all_collections", args=[request.user.username]))
                 else:
                     success = create_and_save_collection_paid(calebs_gay_dict, db_collection, request.user)
@@ -441,7 +434,7 @@ def account_activation_view(request, token_url):
         #if the time difference is more than one week, then delete this token.
         if time_difference.days > 7:
             token_instance.delete()
-            return clientside_error_with_redirect(request, "It has been more than one week, so the activation link has expired - please register again", 'main:register')
+            return clientside_error_with_redirect(request, "It has been more than one week, so the activation link has expired - please register again", reverse('main:register'))
 
         #if the time difference is less than one week, then activate the user.
         token_instance.user.is_active = True
@@ -449,7 +442,7 @@ def account_activation_view(request, token_url):
         token_instance.delete()
         login(request, token_instance.user)
         # print(f"{token_instance.user.username} has been activated")
-        return clientside_success_with_redirect(request, "Account activated! Please log in.")
+        return clientside_success_with_redirect(request, "Account activated! You have been logged in automatially!")
     else:
         raise_permission_denied("Account activation", "Invalid URL accessed. Please try again or reregister")
 
@@ -489,7 +482,7 @@ def password_reset_handler_view(request, token_url):
         #if the time difference is more than one week, then delete this token.
         if time_difference.days > 7:
             token.delete()
-            return clientside_error_with_redirect(request, "It has been more than one week, so the activation link has expired - please request a new password reset referral", 'main:password_reset')
+            return clientside_error_with_redirect(request, "It has been more than one week, so the activation link has expired - please request a new password reset referral", reverse('main:password_reset'))
             
         identified_user = token.user
 
@@ -501,7 +494,7 @@ def password_reset_handler_view(request, token_url):
             if password_reset_form.is_valid():
                 password_reset_form.update_user_password(identified_user)
                 token.delete()
-                clientside_success_with_redirect(request, "Password Reset Succesful. You may now log in with your new password.", 'main:login')
+                clientside_success_with_redirect(request, "Password Reset Succesful. You may now log in with your new password.", reverse('main:login'))
             else:
                 print(password_reset_form.errors)
 
@@ -568,7 +561,6 @@ def all_collections_view(request, username_slug):
 
     if user: ##user exists and is the owner of the profile
         users_collections = UserCollection.objects.filter(user=user)
-        print(users_collections)
         if users_collections:
             context["users_collections"] = users_collections
         # else:
@@ -579,18 +571,30 @@ def all_collections_view(request, username_slug):
 
     return render(request, "all_collections.html", context)
 
-def collection_view(request, username_slug, collection_name_slug):
-    context = {}
+def collection_view_loaded_handler(request, username_slug, collection_name_slug):
+    if request.method == "GET":
+        if request.user.is_authenticated and request.user.username_slug == username_slug: #request from collection owner user
+            fetched_collection = UserCollection.objects.filter(user=request.user, collection_name_slug=collection_name_slug).first()
+            if fetched_collection and fetched_collection.generation_complete:
+                return JsonResponse({"complete": True}, status=200)
+            return JsonResponse({"complete": False}, status=200)
+    return Http404()
 
-    user = User.objects.filter(username_slug=username_slug).first()
+def collection_view(request, username_slug, collection_name_slug):
+    context = {"collection_data": None, "collection_images": None}
+
+    user = request.user
     context["user"] = user
     
     if user:
-        if request.user.is_authenticated:
-            if request.user != user: #if non owner tries to view collection
+        if user.is_authenticated:
+            if user.username_slug != username_slug: #if non owner tries to view collection
                 raise_permission_denied("Collection", "You are not authorised to view this collection.")
 
             user_collection = UserCollection.objects.filter(user=user, collection_name_slug=collection_name_slug).first()
+            if not user_collection.generation_complete:
+                print(f"REDIRECTING to {reverse('main:all_collections', args=[username_slug])}")
+                return clientside_error_with_redirect(request, "This collection is still being generated. Please wait a few minutes and try again.", reverse('main:all_collections', args=[username_slug]))
             
             if user_collection or not user_collection.public_mint:
                 context["ajax_url"] = reverse("main:collection", args=[username_slug, collection_name_slug])

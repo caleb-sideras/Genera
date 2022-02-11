@@ -13,9 +13,8 @@ function main() {
     layer_update_mode = false
     user_login = (js_vars.dataset.user_login.toLowerCase() === 'true');
 
-    if (js_vars.dataset.users_collections){
-        user_collections = JSON.parse(js_vars.dataset.users_collections)
-    }
+    collection_names = JSON.parse(js_vars.dataset.collection_names)
+    has_collections_generating = js_vars.dataset.has_collections_generating
 
     if (js_vars.dataset.user_credits && user_login) {
         user_credits = JSON.parse(js_vars.dataset.user_credits)
@@ -29,9 +28,16 @@ function main() {
     })
 
     document.getElementById("upload_button_submit").addEventListener("click", () => {
+        if (has_collections_generating == "True") {
+            if (confirm("You already have a collection being generated. Are you sure you want to start generating another one? Note that our website does support such action, and it is encouraged, but we are just giving you a heads up in case you were not aware :)")) {
+                has_collections_generating = false //if user agrees, then dont show this popup again!
+            } else {
+                create_notification("Generation Cancelled", "You have cancelled the generation of this collection.", duration = 10000, "warning")
+                return
+            }
+        }
         yes_no_popup('Generate Collection?', 'Yes', 'No').then((response) =>{
             if (response) {
-
                 validate_and_post_ajax_form();
             }
 
@@ -1228,8 +1234,8 @@ function validate_collection(field_object){
         field_object.title = "Field is empty"
         return
     }
-    if (user_login){
-        if(user_collections.includes(field_object.value)){
+    if (user_login) {
+        if(collection_names.includes(field_object.value)){
             custom_validation_false(field_object, "A collection with that name already exists!")
         } else {
             custom_validation_true(field_object)
