@@ -495,7 +495,6 @@ def password_reset_handler_view(request, token_url):
     else:
         raise_permission_denied("Password reset", "Invalid URL accessed. Consider requesting a new link if issue persists")
 
-@requires_user_logged_in
 def profile_view(request, username_slug):
     user = User.objects.filter(username_slug=username_slug).first()
     owner = (request.user == user)
@@ -503,9 +502,8 @@ def profile_view(request, username_slug):
     if not user:
         raise_permission_denied("Profile", "Profile does not exist")
     
-    users_collections = UserCollectionMintPublic.objects.filter(user=user)
-    print("hello")
-    print(users_collections)
+    users_collections = user.get_all_minted_collections()
+
 
     return render(request, 'user_profile.html', context={"owner":owner, "user":user, "users_collections":users_collections})
 
@@ -516,13 +514,22 @@ def mint_view(request, username_slug, contract_address):
         context ={}
         context["owner"] = user
         context["isOwner"] = (request.user == user)
-        user_collection = UserCollectionMintPublic.objects.filter(user=user, contract_address=contract_address).first()
+        # ask artem if better way to do this
+        user_collection = UserCollectionMint.objects.filter(user=user, contract_address=contract_address).first()
+        user_collection_public = UserCollectionMintPublic.objects.filter(user=user, contract_address=contract_address).first()
         if user_collection:
             if user_collection.contract_type == 2:
                 context['contract_address'] = user_collection.contract_address
                 context['chain_id'] = user_collection.chain_id
                 context['description'] = user_collection.description
                 context['collection_name'] = user_collection.collection_name
+                
+        elif user_collection_public:
+            if user_collection_public.contract_type == 2:
+                context['contract_address'] = user_collection_public.contract_address
+                context['chain_id'] = user_collection_public.chain_id
+                context['description'] = user_collection_public.description
+                context['collection_name'] = user_collection_public.collection_name
             else:
                 raise_permission_denied("Collection", "Permission Error")
         else:
@@ -667,6 +674,8 @@ def collection_view(request, username_slug, collection_name_slug):
                         user_collection.base_uri = response['value']['cid']
                         user_collection.collection_ifps_bool = True
                         user_collection.save()
+                        if DEPLOYMENT_INSTANCE:
+                            user_collection.wipe_linked_aws_images()
                     
 
                 return JsonResponse(
@@ -694,14 +703,15 @@ def collection_view(request, username_slug, collection_name_slug):
 
                 if "address_set" in received_json_data:
                     if request.user.is_authenticated:
-                        user_collection = UserCollectionMint.objects.create(
+                        cocker = UserCollectionMint.objects.create(
+                            collection = user_collection,
                             user = request.user, 
                             contract_address = received_json_data["address_set"],
                             chain_id = received_json_data["chain_id"],
-                            contract_type = received_json_data["contract_type"],
                             contract_type = 2
                         )
-                        user_collection.save()
+                        print("KINERMAN")
+                        print(cocker.collection)
                         return JsonResponse(
                             {"server_message" :"Contract address set"},
                             status = 200
@@ -778,32 +788,26 @@ def collection_view(request, username_slug, collection_name_slug):
                         )
                 elif "get_contract" in received_json_data:
                     if request.user.is_authenticated:
-                        if not user_collection.contract_bool:
-                            # assign name to variable
-                            if received_json_data['get_contract'] == '1':
-                                with open("static/Contracts/erc1155_private_contract.json", "r") as myfile:
-                                    data = myfile.read()
-                                return JsonResponse(
-                                    {"contract": data},
-                                    status=200,
-                                )
-                            if received_json_data['get_contract'] == '2':
-                                with open("static/Contracts/erc1155_public_contract.json", "r") as myfile:
-                                    data = myfile.read()
-                                    print(data)
-                                return JsonResponse(
-                                    {"contract": data},
-                                    status=200,
-                                )
+                        # assign name to variable
+                        if received_json_data['get_contract'] == '1':
+                            with open("static/Contracts/erc1155_private_contract.json", "r") as myfile:
+                                data = myfile.read()
                             return JsonResponse(
-                                {"server_message": "Contract type not found"},
-                                status=202,
+                                {"contract": data},
+                                status=200,
                             )
-                        else:
+                        if received_json_data['get_contract'] == '2':
+                            with open("static/Contracts/erc1155_public_contract.json", "r") as myfile:
+                                data = myfile.read()
+                                print(data)
                             return JsonResponse(
-                                {"server_message": "Contract already deploy!"},
-                                status=202,
+                                {"contract": data},
+                                status=200,
                             )
+                        return JsonResponse(
+                            {"server_message": "Contract type not found"},
+                            status=202,
+                        )
 
                     else:
                         return JsonResponse(

@@ -12,9 +12,9 @@
 {% endblock %}
 
 {% block body_block %}
-    <input type="hidden" id="js_vars" data-collection_name='{{collection_data.collection_name}}' data-ajax_url='{{ajax_url}}' data-contract_address='{{collection_data.contract_address}}' data-ipfs_links='{{ipfs_links}}' data-entry_ids ='{{entry_ids}}' data-token_name='{{collection_data.token_name}}' data-image_name='{{collection_data.image_name}}' data-ipfs_bool='{{collection_data.collection_ifps_bool}}' data-contract_bool='{{collection_data.contract_bool}}' data-tokens_minted_bool='{{collection_data.tokens_deployed}}' data-collection_size='{{collection_data.collection_size}}' data-chain_id='{{collection_data.chain_id}}' data-base_uri='{{collection_data.base_uri}}'/> 
+    <input type="hidden" id="js_vars" data-collection_name='{{collection_data.collection_name}}' data-ajax_url='{{ajax_url}}' data-ipfs_bool='{{collection_data.collection_ifps_bool}}' data-collection_size='{{collection_data.collection_size}}' data-base_uri='{{collection_data.base_uri}}'/> 
     <!-- data-contract_type='{{collection_data.contract_type}}' -->
-    <a href="{% url 'main:user_mint' user.username_slug  collection_data.collection_name%}" id="redirect" style="display: none;"></a>
+    <a href="{% url 'main:user_mint' user.username_slug  collection_data.collection_name %}" id="redirect" style="display: none;"></a>
 
     <div class="deploy_collection_container border rounded_container_no_padding">
         <img class="dc_close close_button_color" src="/static/icons/remove.svg" onclick="close_deploy_collection()">
@@ -91,13 +91,13 @@
                         <div class="collection_card grow border rounded_container_no_padding" onclick="open_images(this)">
                            
                             {% if collection_data.collection_ifps_bool%}
-                            <img loading="lazy" src="https://{{collection_data.image_uri}}.ipfs.dweb.link/{{forloop.counter0}}.png" data-fullrez ="https://{{collection_data.image_uri}}.ipfs.dweb.link/{{forloop.counter0}}.png" data-name="{{entry.name}}" data-ipfs ="{{entry.ipfs_metadata_path}}" alt="{{entry.name}} image should be here" class="nft_image">
+                            <img loading="lazy" src="https://{{collection_data.image_uri}}.ipfs.dweb.link/{{forloop.counter0}}.png" data-fullrez ="https://{{collection_data.image_uri}}.ipfs.dweb.link/{{forloop.counter0}}.png" data-name="{{entry.name}}" alt="{{entry.name}} image should be here" class="nft_image">
                             {% else %}
                            
                                 <img crossorigin="anonymous" loading="lazy" src="{%if entry.path_compressed%}{{entry.path_compressed}}{%else%}{{entry.path}}{%endif%}" data-fullrez ="{{entry.path}}" data-name="{{entry.name}}" alt="{{entry.name}} image should be here" class="nft_image">
                             {% endif %}
                             <div>
-                                <input type="hidden" id="image_vars" data-name="{{entry.name}}" data-metadata="{{entry.metadata}}" data-ipfs_bool="{{entry.ipfs_bool}}" data-deployed_bool="{{entry.deployed_bool}}" data-token_uri="{{entry.ipfs_metadata_path}}" data-id="{{entry.id}}"/>
+                                <input type="hidden" id="image_vars" data-name="{{entry.name}}" data-metadata="{{entry.metadata}}" data-deployed_bool="{{entry.deployed_bool}}" data-id="{{entry.id}}"/>
                                 <p class="no_margin center">{{entry.name}}</p> 
                                 <div class="collection_card_button_container">
                                     <div style='display: none; cursor: default;' class="collection_card_button" style=" cursor: auto;"> 

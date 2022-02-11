@@ -154,7 +154,7 @@ class UserCollection(Model):
     generation_complete = models.BooleanField(default=False)
 
     def __str__(self):
-        return str(self.name)
+        return str(self.collection_name)
 
     def save(self, *args, **kwargs):
         self.collection_name_slug = slugify(self.collection_name)
@@ -171,7 +171,7 @@ class UserCollection(Model):
     #custom functions
     def get_all_minted_collections(self):
         return self.usercollectionmint_set.all()
-    
+
     def wipe_linked_aws_images(self):
         if DEPLOYMENT_INSTANCE:
             storage_manipulator = AwsMediaStorageManipulator()
@@ -219,45 +219,17 @@ class CollectionMint_Shared(Model): #NOT A TABLE IN THE DATABASE - is abstract c
     
 class UserCollectionMint(CollectionMint_Shared):
     collection = models.ForeignKey(UserCollection, on_delete=models.SET_NULL, null=True) #store reference to collection. if collection deleted, this will be set to NULL.
-    # user = models.ForeignKey(User, on_delete=models.CASCADE)
-    #Collection Info
-    # collection_name = models.CharField(max_length=50, unique=False) 
-    # description = models.CharField(max_length=300, unique=False)
-    # contract_type = models.IntegerField(default=0) # 0 = nothing, 1 = privateV1, 2 = publicV1
-
-    # #IPFS
-    # image_uri = models.CharField(max_length=100, unique=False)
-    # base_uri = models.CharField(max_length=100, unique=False)
-
-    # #Smart Contract
-    # contract_address = models.CharField(max_length=50, unique=True)
-    # chain_id = models.CharField(max_length=10, unique=False)
 
     def save(self, *args, **kwargs): #update the collection field names when saving, if a collection is referenced
         if self.collection:
             self.collection_name = self.collection.collection_name
             self.description = self.collection.description
-            self.contract_type = self.collection.contract_type
             self.image_uri = self.collection.image_uri
             self.base_uri = self.collection.base_uri
         super(UserCollectionMint, self).save(*args, **kwargs)
 
 class UserCollectionMintPublic(CollectionMint_Shared):
     pass
-    #Collection Info
-    # collection_name = models.CharField(max_length=50, unique=False) 
-    # description = models.CharField(max_length=300, unique=False)
-    # contract_type = models.IntegerField(default=0) # 0 = nothing, 1 = privateV1, 2 = publicV1
-
-    # user = models.ForeignKey(User, on_delete=models.CASCADE)
-
-    # #IPFS
-    # image_uri = models.CharField(max_length=100, unique=False)
-    # base_uri = models.CharField(max_length=100, unique=False)
-
-    # #Smart Contract
-    # contract_address = models.CharField(max_length=50, unique=True)
-    # chain_id = models.CharField(max_length=10, unique=False)
 
 class CollectionImage(Model):
     linked_collection = models.ForeignKey(UserCollection, on_delete=models.CASCADE)
@@ -267,11 +239,6 @@ class CollectionImage(Model):
     path_compressed = models.TextField(null = True, blank = True, max_length=500)
     metadata = models.TextField(null = True, blank = True, max_length=2048)
 
-    # IPFS
-    ipfs_metadata_path =  models.URLField(null = True, blank = True, max_length=50) # not needed 
-
-    # Private Contract
-    ipfs_bool = models.BooleanField(default=False)
 
     def delete(self):
         if DEPLOYMENT_INSTANCE:

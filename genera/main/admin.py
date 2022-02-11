@@ -31,7 +31,7 @@ class CollectionImage_Admin(AdminNotVisibleMixin, admin.ModelAdmin):
     list_filter = []
 
 class CollectionImage_Inline(admin.TabularInline):
-    readonly_fields = ['name', 'path', 'path_compressed', 'metadata', 'ipfs_metadata_path', 'ipfs_bool']
+    readonly_fields = ['name', 'path', 'path_compressed', 'metadata']
     model = CollectionImage
 
 class UserCollection_Admin(admin.ModelAdmin):
