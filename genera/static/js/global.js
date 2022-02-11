@@ -29,6 +29,17 @@ function get_cookie(name) {
 }
 
 function main() {
+    ethereum.on("accountsChanged", accounts => {
+        console.log()
+        if (accounts.length > 0)
+            console.log(`Account connected: ${accounts[0]}`);
+        else{
+            console.log('Account disconnected');
+            window.location.replace("/logout//")
+        }
+    });
+    
+    
 
     if (typeof(document.getElementById("js_vars")) != 'undefined' && document.getElementById("js_vars") != null) {
         js_vars = document.getElementById("js_vars")

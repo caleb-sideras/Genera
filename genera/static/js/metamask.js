@@ -522,11 +522,6 @@ async function metamask_check(){
         close_deploy_collection()
     }
 }
-async function personal_sign() {
-    ethereum.request({ method: 'eth_personalSign' }).then((response) => {
-        console.log(response)
-    })
-}
 async function startApp(provider) {
     // If the provider returned by detectEthereumProvider is not the same as
     // window.ethereum, something is overwriting it, perhaps another wallet.

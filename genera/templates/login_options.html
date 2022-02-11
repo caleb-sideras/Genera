@@ -1,6 +1,12 @@
 {% extends 'base.html' %}
+{% load static %}
+
+{% block head_block %}
+    <script type="text/javascript" src="{% static 'js/login_options.js' %}"></script>
+{% endblock %}
 
 {% block body_block %}
+<input type="hidden" id="js_vars" data-ajax_url='{{ajax_url}}'/>
     <div class="form_wrapper">
         <div class="background_image_wrapper">
             <div class="cover-image" style="position: absolute"></div>
@@ -10,7 +16,7 @@
             <h2>Login</h2>
             <div style="max-width: 80%;">
                 <a href="{% url 'main:login' %}" style="text-decoration: none">
-                    <div class="login_option top_round_container border_1px login_option_enabled">
+                    <div class="login_option top_round_container border_1px">
                         <img src="/static/icons/logoV1.svg" alt="metamask icon">
                         <div>
                             <p class="no_margin">Regular</p>
@@ -21,10 +27,10 @@
                     </div>
                 </a>
                 
-                <div class="login_option bottom_round_container no_top_border_1px" style="cursor: default; filter: grayscale(1);">
+                <div class="login_option bottom_round_container no_top_border_1px" onclick="initMetamask()">
                     <img src="/static/icons/metamask.svg" alt="metamask icon">
                     <div>
-                        <p class="no_margin" style="color: grey;">Metamask</p>
+                        <p class="no_margin">Metamask</p>
                         <p class="no_margin">Login using browser wallet</p>
                     </div>
                     <div style="flex-grow: 1;"></div>

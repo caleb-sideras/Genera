@@ -54,7 +54,7 @@ class UserManager(BaseUserManager):
         if existing_user:
             return existing_user
         else:
-            random_username = metamask_public_address[:8]
+            random_username = metamask_public_address
             random_password = str(uuid.uuid4())
             return self.create_user(username=random_username, email=random_username + "@genera-temp.com", password=random_password, metamask_public_address=metamask_public_address, is_metamask_user=True)
 

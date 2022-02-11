@@ -1,5 +1,6 @@
 from json.decoder import JSONDecodeError
 from django.shortcuts import render
+from matplotlib.text import Text
 from main.helper_functions import nft_storage_api_store
 from main.view_tools import *
 from genera.settings import DEFAULT_FROM_EMAIL, STRIPE_PRIVATE_KEY, DEPLOYMENT_INSTANCE
@@ -29,6 +30,8 @@ from django.template.loader import render_to_string
 from io import BytesIO
 import stripe
 from web3 import Web3
+from eth_account.messages import encode_defunct,defunct_hash_message
+# from eth_account import messages
 # Create your views here.
 stripe.api_key = STRIPE_PRIVATE_KEY
 
@@ -297,7 +300,7 @@ def metamask_login_handler_view(request):
             received_json_data = json.loads(request.body)
 
             #Add 'metamask_request_nonce': '' to the json data in frontend pls - empty key but so we can distinguish here in the backend
-            if "metamask_request_nonce" and "public_address" in received_json_data: #WHEN USER FIRST CLICKS LOGIN WITH METAMASK - shoot a request here and handle the response
+            if "metamask_request_nonce"  in received_json_data: #WHEN USER FIRST CLICKS LOGIN WITH METAMASK - shoot a request here and handle the response
                 if not Web3.isAddress(received_json_data["public_address"]): #to prevent spamming the server with requests that create a model. consider isChecksumAddress idk?
                     return JsonResponse({"error": "Invalid address"}, status=400)
                 created_temp_user = MetamaskUserAuth.objects.get_or_create(public_address=received_json_data["public_address"])[0] #create the temporary user here.
@@ -306,15 +309,24 @@ def metamask_login_handler_view(request):
                 return JsonResponse({"nonce": created_temp_user.nonce}, status=200) #Catch this in frontned - and sign web3.personal.sign(nonce, public_address) please
             
             #Add 'metamask_auth_user': '' to the json data in frontend pls - empty key but so we can distinguish here in the backend
-            elif "metamask_auth_user" and "public_address" and "signature" in received_json_data:  #After u generate the signatre in frontend, shoot the request here. Pass the public_address and signature to the server.
+            elif "metamask_auth_user"  in received_json_data:  #After u generate the signatre in frontend, shoot the request here. Pass the public_address and signature to the server.
+                
                 def verify_signature_ecRecover(nonce, signature, public_address):
-                    w3 = Web3(Web3.HTTPProvider("infura/alchemy URL")) #TODO: Plug the URL here @Caleb
-                    decrypted_public_address = w3.geth.personal.ecRecover(nonce, signature)
-                    # decrypted_public_address = w3.eth.account.recover_message(nonce, signature)
+                    w3 = Web3(Web3.HTTPProvider("https://mainnet.infura.io/v3/d6c7a2d0b9bd40afa49d2eb06cc5baba")) #TODO: Plug the URL here @Caleb
+
+                    # decrypted_public_address = w3.geth.personal.ecRecover(nonce, signature)
+                    # encoded_message = encode_defunct(bytes(nonce, encoding='utf8'))
+                    message_hash = encode_defunct(text=nonce)
+                    try:
+                        decrypted_public_address = w3.eth.account.recover_message(message_hash, signature=signature)
+                    except Exception as e:
+                        print(e)
+                        return Http404()
+                        
                     if public_address.lower() == decrypted_public_address.lower():
                         return True
                     return False
-
+                print('metamask_auth_user')
                 found_user = MetamaskUserAuth.objects.filter(public_address=received_json_data["public_address"]).first()
                 if not found_user: # user not found - shouldnt happen ever xd
                     return Http404()
@@ -326,6 +338,8 @@ def metamask_login_handler_view(request):
                         metamask_user = User.objects.get_or_create_metamask_user(metamask_public_address=found_user.public_address)
                         found_user.user = metamask_user #attach the user reference to the metamask user object
                         found_user.save()
+
+                    metamask_user = authenticate(metamask_user=metamask_user)
                     login(request, metamask_user)
                     messages.success(request, "Succesfully logged in with metamask!")
                     return ajax_redirect(reverse("main:main_view")) #redirect home page - make sure to catch this in frontend. NOTE: perhaps redirect to profile edit page - to change username/email..
@@ -974,4 +988,6 @@ def public_mint_view(request):
     return render(request, "minting_page.html", context)
 
 def login_options_view(request):
+    if request.user.is_authenticated:
+        raise_permission_denied("Login", "Attempt to Log in when already logged in.")
     return render(request, "login_options.html", {"ajax_url": reverse("main:login_metamask_handler")})

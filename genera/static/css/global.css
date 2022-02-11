@@ -307,7 +307,7 @@ select:disabled{
   cursor: pointer;
 
 }
-.login_option_enabled:hover{
+.login_option:hover{
   background: var(--border-color)
 }
 .login_option > div{
