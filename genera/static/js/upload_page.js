@@ -361,19 +361,38 @@ function update_sliders() {
             button_section_layers.children[i].querySelector(":scope .expand_button_container h5").innerHTML = local_sliders.length
 
             var cum_sum = get_layer_total(local_sliders)
+            var remaining_space = collection_size
+            
             for (var j = 0; j < local_sliders.length; j++) {
                 var slider = local_sliders[j].children[1]
                 var slider_count = local_sliders[j].children[0]
 
-                if (collection_size > 0) {
-                    if (slider.value > 0) //if not empty
-                        slider.max = Number(slider.value) + (collection_size - cum_sum)
-                    else //if empty
-                        slider.max = (collection_size - cum_sum)
+                if (collection_size > 0) { //If collection size isnt 0
+                    if(cum_sum > collection_size) { //Edge case where collection size is less than the sum of all current slider layers
+                        if (remaining_space == 0) { //IF NO MORE SPACE - automatically set value to 0 and max to zero
+                            slider.value = 0
+                            slider.max = 0
+                        } else { //If there is space - deal with 2 cases.
+                            if (Number(slider.value) >= remaining_space) { //case of last element having more value than existing space - cut it down
+                                slider.value = remaining_space
+                                slider.max = remaining_space
+                                remaining_space = 0
+                            } else { //all other elements should have their max equal to their value.
+                                remaining_space -= Number(slider.value)
+                                slider.max = slider.value
+                            }
+                        }
+                    } else { //Normal case where collection size is greater than the sum of all current slider layers
+                        if (slider.value > 0) //if not empty
+                            slider.max = Number(slider.value) + (collection_size - cum_sum)
+                        else //if empty
+                            slider.max = (collection_size - cum_sum)
+                    }
+
                     slider_count.innerHTML =  slider.value
                     slider.disabled = false
                 }
-                else {
+                else { //if collection size is 0 - disable all sliders
                     slider.disabled = true
                     slider_count.innerHTML =  "empty collection"
                 }
