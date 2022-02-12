@@ -309,8 +309,20 @@ function add_smart_input(self, category) {
             return
         }
         var fileList = []
-        for (var i = 0; i < uploadbtn.files.length; i++) {
-            fileList.push(uploadbtn.files[i])
+        var non_png_file_count = 0
+
+        for (var i = 0; i < uploadbtn.files.length; i++) { //verify file types here also
+            //check the that file is PNG
+            if (uploadbtn.files[i].type == "image/png") { //add file ONLY if it is PNG..
+                fileList.push(uploadbtn.files[i])
+            } else {
+                non_png_file_count += 1
+            }
+        }
+
+        if (non_png_file_count == uploadbtn.files.length) {
+            create_notification("No files added", "None of the uploaded files were of PNG format. We only process PNG files for the generation. Thank you for understadning.", duration = 10000, "error") //20 years duration for sins
+            return
         }
 
         var upload_section = ((self.parentNode).parentNode).previousElementSibling
@@ -320,6 +332,7 @@ function add_smart_input(self, category) {
         } else if (category == 2) {
             var section_name = 'Textures'
         }
+
         [section, layer_name, fileList] = await add_uploaded_files(fileList, self, section_name)
         for (const [key, value] of Object.entries(fileList)) {
             var return_compoments = build_upload_section(key, uploadbtn)
@@ -329,7 +342,10 @@ function add_smart_input(self, category) {
         }
         open_images(section, layer_name, fileList)
         if (Object.keys(fileList).length > 0) {
-            create_notification("Upload success", "You have succesfully uploaded " + Object.keys(fileList).length + " file(s) into the selected component", duration = 5000, "success")
+            if (non_png_file_count != 0)
+                create_notification("Upload partial success", `You have succesfully uploaded ${Object.keys(fileList).length} file(s) into the selected component! Note that ${non_png_file_count} file(s) were not added to the layer, as they are not .PNG files. Currently we only support PNG file format for generation. Thank you for understanding.`, duration = 10000, "warning") //20 years duration for sins
+            else 
+                create_notification("Upload success", "You have succesfully uploaded " + Object.keys(fileList).length + " file(s) into the selected component", duration = 5000, "success")
         }      
         expand_button(self.nextElementSibling.lastElementChild)
         uploadbtn.remove()
