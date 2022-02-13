@@ -149,7 +149,7 @@ USE_L10N = True
 
 USE_TZ = True
 
-AUTHENTICATION_BACKENDS = ( 'init_backend.CustomBackend', )
+AUTHENTICATION_BACKENDS = ( 'django.contrib.auth.backends.ModelBackend', 'init_backend.CustomBackend', )
 
 AUTH_USER_MODEL = 'main.User'
 
