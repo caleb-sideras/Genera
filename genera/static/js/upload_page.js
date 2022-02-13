@@ -309,8 +309,20 @@ function add_smart_input(self, category) {
             return
         }
         var fileList = []
-        for (var i = 0; i < uploadbtn.files.length; i++) {
-            fileList.push(uploadbtn.files[i])
+        var non_png_file_count = 0
+
+        for (var i = 0; i < uploadbtn.files.length; i++) { //verify file types here also
+            //check the that file is PNG
+            if (uploadbtn.files[i].type == "image/png") { //add file ONLY if it is PNG..
+                fileList.push(uploadbtn.files[i])
+            } else {
+                non_png_file_count += 1
+            }
+        }
+
+        if (non_png_file_count == uploadbtn.files.length) {
+            create_notification("No files added", "None of the uploaded files were of PNG format. We only process PNG files for the generation. Thank you for understadning.", duration = 10000, "error") //20 years duration for sins
+            return
         }
 
         var upload_section = ((self.parentNode).parentNode).previousElementSibling
@@ -320,6 +332,7 @@ function add_smart_input(self, category) {
         } else if (category == 2) {
             var section_name = 'Textures'
         }
+
         [section, layer_name, fileList] = await add_uploaded_files(fileList, self, section_name)
         for (const [key, value] of Object.entries(fileList)) {
             var return_compoments = build_upload_section(key, uploadbtn)
@@ -329,7 +342,10 @@ function add_smart_input(self, category) {
         }
         open_images(section, layer_name, fileList)
         if (Object.keys(fileList).length > 0) {
-            create_notification("Upload success", "You have succesfully uploaded " + Object.keys(fileList).length + " file(s) into the selected component", duration = 5000, "success")
+            if (non_png_file_count != 0)
+                create_notification("Upload partial success", `You have succesfully uploaded ${Object.keys(fileList).length} file(s) into the selected component! Note that ${non_png_file_count} file(s) were not added to the layer, as they are not .PNG files. Currently we only support PNG file format for generation. Thank you for understanding.`, duration = 10000, "warning") //20 years duration for sins
+            else 
+                create_notification("Upload success", "You have succesfully uploaded " + Object.keys(fileList).length + " file(s) into the selected component", duration = 5000, "success")
         }      
         expand_button(self.nextElementSibling.lastElementChild)
         uploadbtn.remove()
@@ -361,19 +377,38 @@ function update_sliders() {
             button_section_layers.children[i].querySelector(":scope .expand_button_container h5").innerHTML = local_sliders.length
 
             var cum_sum = get_layer_total(local_sliders)
+            var remaining_space = collection_size
+            
             for (var j = 0; j < local_sliders.length; j++) {
                 var slider = local_sliders[j].children[1]
                 var slider_count = local_sliders[j].children[0]
 
-                if (collection_size > 0) {
-                    if (slider.value > 0) //if not empty
-                        slider.max = Number(slider.value) + (collection_size - cum_sum)
-                    else //if empty
-                        slider.max = (collection_size - cum_sum)
+                if (collection_size > 0) { //If collection size isnt 0
+                    if(cum_sum > collection_size) { //Edge case where collection size is less than the sum of all current slider layers
+                        if (remaining_space == 0) { //IF NO MORE SPACE - automatically set value to 0 and max to zero
+                            slider.value = 0
+                            slider.max = 0
+                        } else { //If there is space - deal with 2 cases.
+                            if (Number(slider.value) >= remaining_space) { //case of last element having more value than existing space - cut it down
+                                slider.value = remaining_space
+                                slider.max = remaining_space
+                                remaining_space = 0
+                            } else { //all other elements should have their max equal to their value.
+                                remaining_space -= Number(slider.value)
+                                slider.max = slider.value
+                            }
+                        }
+                    } else { //Normal case where collection size is greater than the sum of all current slider layers
+                        if (slider.value > 0) //if not empty
+                            slider.max = Number(slider.value) + (collection_size - cum_sum)
+                        else //if empty
+                            slider.max = (collection_size - cum_sum)
+                    }
+
                     slider_count.innerHTML =  slider.value
                     slider.disabled = false
                 }
-                else {
+                else { //if collection size is 0 - disable all sliders
                     slider.disabled = true
                     slider_count.innerHTML =  "empty collection"
                 }

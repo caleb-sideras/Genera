@@ -563,18 +563,22 @@ def mint_view(request, username_slug, contract_address):
 
 @requires_user_logged_in
 def all_collections_view(request, username_slug):
-    context = {}
+    context = {"handler_url": ""}
 
     if request.user.is_authenticated and request.user.username_slug != username_slug: #if logged in but trying to view someone elses collection..
         raise_permission_denied("Collections", "You are not authorised to view this collection.")
         
-    user = User.objects.filter(username_slug=username_slug).first()
+    # user = User.objects.filter(username_slug=username_slug).first()
+    user = request.user
     context["user"] = user
 
     if user: ##user exists and is the owner of the profile
         users_collections = UserCollection.objects.filter(user=user)
         if users_collections:
             context["users_collections"] = users_collections
+            incomplete_collection_names = "$$$".join(list(users_collections.filter(generation_complete=False).values_list("collection_name_slug", flat=True)))
+            if incomplete_collection_names:
+                context["handler_url"] = reverse("main:collection_loaded_handler", args=[user.username_slug, incomplete_collection_names])
         # else:
         #     # print("User has no collections.")
         #     return clientside_error_with_redirect(request, "You have no collections!", 'main:all_collections')
@@ -583,11 +587,10 @@ def all_collections_view(request, username_slug):
 
     return render(request, "all_collections.html", context)
 
-def collection_view_loaded_handler(request, username_slug, collection_name_slug):
+def collection_view_loaded_handler(request, username_slug, collection_name_slugs):
     if request.method == "GET":
         if request.user.is_authenticated and request.user.username_slug == username_slug: #request from collection owner user
-            fetched_collection = UserCollection.objects.filter(user=request.user, collection_name_slug=collection_name_slug).first()
-            if fetched_collection and fetched_collection.generation_complete:
+            if UserCollection.objects.filter(user=request.user, collection_name_slug__in=collection_name_slugs.split("$$$"), generation_complete=True).exists():
                 return JsonResponse({"complete": True}, status=200)
             return JsonResponse({"complete": False}, status=200)
     return Http404()
