@@ -1,4 +1,5 @@
 import { b as l, s as a, C as n } from "./ipfs_car.js";
+// import { Car} from "../dist/bundle.js"
 //var base_url = 'http://localhost:8000'
 //var base_url = 'http://genera.us-east-2.elasticbeanstalk.com'
 
@@ -48,10 +49,13 @@ async function filelist_to_carblob({ files: o }) {
             }(e);
         for await (const l of o)
             s.push(l);
-        const r = new Blob(s, {
+        const r = new Blob(s
+            , 
+            {
             type: "application/car"
-        });
-        return {object: r}
+        }
+        );
+        return { object: r}
     }(o);
     return blob_object
 }
@@ -80,7 +84,7 @@ async function create_image_car() {
     let metadata = {
         type: 'image/png'
     };
-    let image_filelist = []
+    var image_filelist = []
     for (let i = 0; i < images.length; i++) {
         try {
             var response = await fetch(`${images[i].children[0].dataset.fullrez}`);
@@ -94,7 +98,19 @@ async function create_image_car() {
         image_filelist.push(file)
     }
     let blob_object = await filelist_to_carblob({ files: image_filelist })
-    set_input_value(blob_object, "dn")
+
+    var arrayBuffer;
+    var fileReader = new FileReader();
+    fileReader.onload = async function () {
+         
+        arrayBuffer = this.result;
+        var byteArray = new Uint8Array(arrayBuffer);
+        const image_uri = await window.split_car(byteArray)
+        set_input_value2(image_uri, "dn", "dn3")
+
+    };
+    fileReader.readAsArrayBuffer(blob_object)
+    
 }
 
 async function create_base_car(){
@@ -113,7 +129,18 @@ async function create_base_car(){
         json_filelist.push(file)
     }
     let blob_object = await filelist_to_carblob({ files: json_filelist })
-    set_input_value(blob_object, "dn2")
+
+    var arrayBuffer;
+    var fileReader = new FileReader();
+    fileReader.onload = async function () {
+
+        arrayBuffer = this.result;
+        var byteArray = new Uint8Array(arrayBuffer);
+        const base_uri = await window.split_car(byteArray)
+        set_input_value2(base_uri, "dn2", "dn4")
+
+    };
+    fileReader.readAsArrayBuffer(blob_object)
 }
 
 function set_input_value(blob_object, class_name) {
@@ -121,4 +148,12 @@ function set_input_value(blob_object, class_name) {
     input_field.value = blob_object
     const event = new Event('change');
     input_field[0].dispatchEvent(event)
+}
+
+function set_input_value2(blob_object, class_name, class_name2) {
+    let input_field = document.getElementsByClassName(class_name)
+    let input_field2 = document.getElementsByClassName(class_name2)
+    input_field.value = blob_object
+    const event = new Event('change');
+    input_field2[0].dispatchEvent(event)
 }

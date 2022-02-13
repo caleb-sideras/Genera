@@ -7,12 +7,13 @@
     <script type="text/javascript" src="{% static 'js/libraries/jszip.min.js' %}"></script>
     <script type="module" crossorigin="" src="{% static 'js/car_generator.js' %}"></script>
     <link rel="modulepreload" href="{% static 'js/ipfs_car.js' %}" />
+    <script src="{% static 'bundled/bundle.js' %}"></script>
 {% endblock %}
 
 {% block body_block %}
     <input type="hidden" id="js_vars" data-collection_name='{{collection_data.collection_name}}' data-ajax_url='{{ajax_url}}' data-ipfs_bool='{{collection_data.collection_ifps_bool}}' data-collection_size='{{collection_data.collection_size}}' data-base_uri='{{collection_data.base_uri}}'/> 
     <!-- data-contract_type='{{collection_data.contract_type}}' -->
-    <a href="{% url 'main:user_mint' user.username_slug  collection_data.collection_name %}" id="redirect" style="display: none;"></a>
+    <a href="{% url 'main:profile' user.username_slug %}" id="redirect" style="display: none;"></a>
 
     <div class="deploy_collection_container border rounded_container_no_padding">
         <img class="dc_close close_button_color" src="/static/icons/remove.svg" onclick="close_deploy_collection()">
@@ -94,7 +95,7 @@
                             {% endif %}
                             <div>
                                 <input type="hidden" id="image_vars" data-name="{{entry.name}}" data-metadata="{{entry.metadata}}" data-deployed_bool="{{entry.deployed_bool}}" data-id="{{entry.id}}"/>
-                                <p class="no_margin center">{{entry.name}}</p> 
+                                <p class="no_margin center">{{entry.name}}</p>  
                                 <div class="collection_card_button_container">
                                     <div style='display: none; cursor: default;' class="collection_card_button" style=" cursor: auto;"> 
                                         <img src="/static/icons/check.svg" alt="check">
@@ -179,5 +180,9 @@
 
 <input class="dn" type="hidden" multiple=""/>
 <input class="dn2" type="hidden" multiple=""/>
+<input class="dn3" type="hidden" multiple=""/>
+<input class="dn4" type="hidden" multiple=""/>
+
+
 
 {% endblock %}

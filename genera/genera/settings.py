@@ -160,6 +160,7 @@ AUTH_USER_MODEL = 'main.User'
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
+    # os.path.join(BASE_DIR, 'static/dist')
 ]
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',

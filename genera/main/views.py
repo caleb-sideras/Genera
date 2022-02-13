@@ -637,86 +637,6 @@ def collection_view(request, username_slug, collection_name_slug):
 
     if request.method == "POST":
         if request.user.is_authenticated:
-            if 'image_car' in request.POST:
-
-                if user_collection.collection_ifps_bool:
-                    return JsonResponse(
-                        {"server_message": "Collection already upladed to IPFS"},
-                        status=202,
-                    )
-
-                if user_collection.image_uri and not user_collection.base_uri:
-                    metadata_list = []
-                    for entry in collection_images:
-                        metadata_list.append(entry.metadata)
-                    return JsonResponse(
-                        {"image_uri" : metadata_list},
-                        status=200
-                    )
-                    
-                for filename in request.FILES.keys():
-                    for file in request.FILES.getlist(filename):
-                        response = nft_storage_api_store(file)
-                        if not response or response['ok'] == False:
-                            print(response)
-                            return JsonResponse(
-                                {"server_message": "Failed to upload to IPFS, please try again"},
-                                status=202,
-                            )
-                        # print(response['value']['cid'])
-                        user_collection.image_uri = response['value']['cid']
-                        user_collection.save()
-                        metadata_list = []    
-                        for count, entry in enumerate(collection_images):
-                            metadata = json.loads(entry.metadata)
-                            metadata["image"] = f"https://{response['value']['cid']}.ipfs.dweb.link/{count}.png"
-                            metadata_list.append(metadata)
-                            entry.metadata = json.dumps(metadata)
-                            entry.save()
-                
-                return JsonResponse(
-                    {
-                        "image_uri" : json.dumps(metadata_list)
-                    },
-                    status=200,
-                )
-            if 'base_car' in request.POST:
-
-                if not user_collection.image_uri:
-                    return JsonResponse(
-                        {"server_message": "Images not deployed"},
-                        status=202,
-                    )
-                if user_collection.collection_ifps_bool:
-                    return JsonResponse(
-                        {"server_message": "Collection already upladed to IPFS"},
-                        status=202,
-                    )
-
-                for filename in request.FILES.keys():
-                    for file in request.FILES.getlist(filename):
-                        response = nft_storage_api_store(file)
-                        if not response or response['ok'] == False:
-                            print(response)
-                            return JsonResponse(
-                                {"server_message": "Failed to upload to IPFS, please try again"},
-                                status=202,
-                            )
-
-                        # print(response['value']['cid'])
-                        user_collection.base_uri = response['value']['cid']
-                        user_collection.collection_ifps_bool = True
-                        user_collection.save()
-                        if DEPLOYMENT_INSTANCE:
-                            user_collection.wipe_linked_aws_images()
-                    
-
-                return JsonResponse(
-                    {
-                        "base_uri" : response['value']['cid']
-                    },
-                    status=200,
-                )
             if "image_name" in request.POST:
                 collection_image = collection_images.filter(name=request.POST.get("entry_name")).first()
                 if collection_image:
@@ -733,7 +653,65 @@ def collection_view(request, username_slug, collection_name_slug):
             try:
                 received_json_data = json.loads(request.body)
                 # make this a async function for speed!!!!! Will need db changes
+                if "image_uri" in received_json_data:
 
+                    if user_collection.collection_ifps_bool:
+                        return JsonResponse(
+                            {"server_message": "Collection already upladed to IPFS"},
+                            status=202,
+                        )
+
+                    if user_collection.image_uri and not user_collection.base_uri:
+                        metadata_list = []
+                        for entry in collection_images:
+                            metadata_list.append(entry.metadata)
+                        return JsonResponse(
+                            {"image_uri" : metadata_list},
+                            status=200
+                        )
+
+                    user_collection.image_uri = received_json_data["image_uri"]
+                    user_collection.save()
+                    metadata_list = []    
+                    for count, entry in enumerate(collection_images):
+                        metadata = json.loads(entry.metadata)
+                        metadata["image"] = f"https://{received_json_data['image_uri']}.ipfs.dweb.link/{count}.png"
+                        metadata_list.append(metadata)
+                        entry.metadata = json.dumps(metadata)
+                        entry.save()
+                    
+                    return JsonResponse(
+                        {
+                            "image_uri" : json.dumps(metadata_list)
+                        },
+                        status=200,
+                    )
+                if "base_uri" in received_json_data:
+
+                    if not user_collection.image_uri:
+                        return JsonResponse(
+                            {"server_message": "Images not deployed"},
+                            status=202,
+                        )
+                    if user_collection.collection_ifps_bool:
+                        return JsonResponse(
+                            {"server_message": "Collection already upladed to IPFS"},
+                            status=202,
+                        )
+   
+                    user_collection.base_uri = received_json_data["base_uri"]
+                    user_collection.collection_ifps_bool = True
+                    user_collection.save()
+                    if DEPLOYMENT_INSTANCE:
+                        user_collection.wipe_linked_aws_images()
+                        
+
+                    return JsonResponse(
+                        {
+                            "base_uri" : received_json_data["base_uri"]
+                        },
+                        status=200,
+                    )
                 if "address_set" in received_json_data:
                     if request.user.is_authenticated:
                         cocker = UserCollectionMint.objects.create(
@@ -902,56 +880,6 @@ def public_mint_view(request):
 
     if request.method == "POST":
         if request.user.is_authenticated:
-            if 'image_car' in request.POST:
-                if len(request.FILES) != 0:
-                    filename = list(request.FILES.keys())[0]
-                    if filename:
-                        file = list(request.FILES.getlist(filename))[0]
-                        if file:
-                            response = nft_storage_api_store(file)
-                            if not response or response['ok'] == False:
-                                user_collection.delete()
-                                return JsonResponse(
-                                    {"server_message": "Failed to upload to IPFS, please try again"},
-                                    status=202,
-                                )
-                            print(response['value']['cid'])
-                            return JsonResponse(
-                                {
-                                    "image_uri" : response['value']['cid']
-                                },
-                                status=200,
-                            )
-                    # user_collection.delete()
-                    return JsonResponse(
-                        {"server_message": "Failed to upload to IPFS, please try again"},
-                        status=202,
-                    )               
-            if 'base_car' in request.POST:
-                if len(request.FILES) != 0:
-                    filename = list(request.FILES.keys())[0]
-                    if filename:
-                        file = list(request.FILES.getlist(filename))[0]
-                        if file:
-                            response = nft_storage_api_store(file)
-                            if not response or response['ok'] == False:
-                                user_collection.delete()
-                                return JsonResponse(
-                                    {"server_message": "Failed to upload to IPFS, please try again"},
-                                    status=202,
-                                )
-                            print(response['value']['cid'])
-                            return JsonResponse(
-                                {
-                                    "base_uri" :  response['value']['cid']
-                                },
-                                status=200,
-                            )
-                    # user_collection.delete()
-                    return JsonResponse(
-                        {"server_message": "Failed to upload to IPFS, please try again"},
-                        status=202,
-                    ) 
             ##AJAX HANDLING SECTION START
             try:
                 received_json_data = json.loads(request.body)
@@ -996,8 +924,7 @@ def public_mint_view(request):
                         return JsonResponse(
                         {"server_message" :"Database error, please try again"},
                         status = 202
-                    )
-                    
+                    )  
                 if "collection_redirect" in received_json_data:
                     return ajax_redirect(reverse("main:user_mint", args=[user.username_slug, received_json_data["contract_address"]]))
             except RawPostDataException:  # NO AJAX DATA PROVIDED - DIFFERENT POST REQUEST INSTEAD

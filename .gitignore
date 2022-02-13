@@ -49,6 +49,10 @@ _migrations/*
 *$py.class 
 
 # Distribution / packaging 
+node_modules/
+webpack.config.js
+package.json
+package-lock.json
 .Python build/ 
 develop-eggs/ 
 dist/ 
