@@ -63,7 +63,7 @@ ALLOWED_HOSTS = ['localhost','genera.link','www.genera.link', 'genera.us-east-2.
 APPS = ['main', 'payments']
 
 INSTALLED_APPS = [
-    'django.contrib.admin',
+    # 'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
