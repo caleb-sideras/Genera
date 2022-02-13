@@ -5,7 +5,6 @@
     <script type="text/javascript" defer src="{% static 'js/all_collections.js' %}"></script>
     <script>
         url = "{{handler_url}}"
-        console.log(url)
      </script>
 {% endblock %}
 
@@ -18,11 +17,6 @@
                 <a {%if collection.generation_complete%} href="{% url 'main:collection' user.username_slug collection.collection_name_slug %}" {%endif%} style="text-decoration: none; color: inherit;">
                     <div class="collection_card border_1px grow rounded_container_no_padding">
                         <img loading="lazy" src="{{collection.thumbnail}}" class="nft_image">
-                        <!-- {% if collection.collection_ifps_bool %}
-                            <img loading="lazy" src="https://{{collection.image_uri}}.ipfs.dweb.link/0.png" class="nft_image">
-                        {% else %}
-                            <img loading="lazy" src="{{collection.thumbnail}}" class="nft_image">
-                        {% endif %} -->
                         <div>
                             <div><p class="no_margin center" id="title">{{collection.collection_name}}</p></div>
                             <div><p style="font-size: smaller;" class="no_margin center">{{collection.description}}</p></div>
