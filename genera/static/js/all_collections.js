@@ -14,16 +14,11 @@ const check_collection_status = (url) => {
             console.log("Collection is not complete")
     })
 }
-if (typeof collection_names !== 'undefined') {
-    
-    if (collection_names.length > 0) {
-        if (typeof username !== 'undefined') {
-            collection_names = collection_names.toString().replace(",","&")
-            url = `user/${username}/collections/${collection_names}/request_status`
-            console.log(url)
-            setInterval(() => check_collection_status(url), 2000);
-        }
-    }
-} 
 
-console.log(collection_names)
+if (typeof url !== 'undefined') {
+    if (url != "") {
+        console.log("URLING")
+        setInterval(() => check_collection_status(url), 5000);
+
+    }
+}

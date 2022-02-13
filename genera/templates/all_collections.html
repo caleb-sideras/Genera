@@ -4,8 +4,8 @@
 {% block head_block %}
     <script type="text/javascript" defer src="{% static 'js/all_collections.js' %}"></script>
     <script>
-        collection_names=[];
-        username = "{{user.username_slug}}";
+        url = "{{handler_url}}"
+        console.log(url)
      </script>
 {% endblock %}
 
@@ -29,12 +29,6 @@
                             <button {%if not collection.generation_complete%}disabled{%endif%} class="collection_card_button sub_color_background collection_card_button_text {%if not collection.generation_complete%}disabled_button{%endif%}">Open</button>
                         </div>
                     </div>
-                    {%if not collection.generation_complete%}
-                        <!-- If a collection is generating, run a script that will check periodically if it is done or not! -->
-                        <script>
-                            collection_names.push("{{collection.collection_name_slug}}");
-                        </script>
-                    {%endif%}
                 </a>
             {% endfor %}
         {% endif %}
