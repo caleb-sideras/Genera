@@ -20,7 +20,7 @@
     </div>
     
     {% if isOwner %}
-    <div v-if="is_owner" class="all_collections_layout">
+    <div v-if="is_owner" class="all_collections_layout" style="justify-content: center;">
         <admin-properties v-show="admin_section" :totalsupply="totalSupply" :supply="supply" :mintcostether="mint_cost_ether" :web3="web3" :balance="balance" :maxperwallet="max_per_wallet" :maxpermint="max_per_mint" :chainid="chain_id" :activeaccount="active_account" :contractaddress="contract_address" :openbool="open_bool"></admin-properties>
     </div>
     {% endif %}  
@@ -715,9 +715,7 @@
             this.web3_infura = new Web3(new Web3.providers.HttpProvider(provider))
             await this.get_all_contract_info(this.contract_address, this.abi_json)
 
-            ethereum.on('chainChanged', (_chainId) => window.location.reload());
-            ethereum.on('disconnect', (ProviderRpcError) => window.location.reload());
-            ethereum.on('accountsChanged', (ProviderRpcError) => window.location.reload());
+            // ethereum.on('chainChanged', (_chainId) => window.location.reload());
         },
         methods:{
             async get_all_contract_info(contract_address, abi_json){
@@ -1141,6 +1139,12 @@
                     />
                     <button class="general_button_no_border main_color_background border right_round_container_5px" style="margin:0; color:white" disabled>Publish</button>  
                 </div>
+            </div>
+            <div class="admin_column">
+                 <h3 style="margin:0">Air Drop</h3>
+                <p>Add addresses separated by commas, you can add the same address mutiple times</p>
+            
+                <textarea style="resize: vertical; flex: 1;" required="" class="inputize" name="description" type="" maxlength="300"></textarea>
             </div>
         </div>    
         `, 

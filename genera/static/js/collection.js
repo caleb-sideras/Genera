@@ -1,7 +1,7 @@
 collection_main = null
 card_element = null
 
-ipfs_bool
+ipfs_bool = null
 
 function main() {
     preview_wrapper = document.getElementsByClassName("image_preview")[0]

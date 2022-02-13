@@ -1,3 +1,4 @@
+
 let web3 = new Web3(Web3.givenProvider);//Web3.givenProvider || "ws://localhost:8545"
 let web3_infura = new Web3(new Web3.providers.HttpProvider("https://rinkeby.infura.io/v3/d6c7a2d0b9bd40afa49d2eb06cc5baba"));
 
@@ -533,7 +534,6 @@ async function startApp(provider) {
             .request({ method: 'eth_requestAccounts' })
             .then((response) =>{
                 active_account = response[0],
-                ethereum.on('accountsChanged', handleAccountsChanged),
                 ethereum.on('chainChanged', handleChainChanged)
             }   
             )
@@ -655,17 +655,15 @@ async function ipfs_deploy() {
 }
 async function create_image_car() {
     var input_field = document.getElementsByClassName("dn")
+    var input_field2 = document.getElementsByClassName("dn3")
     const event = new Event('change');
     input_field[0].dispatchEvent(event)
 
     return new Promise((res) => {
-        input_field[0].onchange = function () {
-            var file_data = new FormData();
-            file_data.append("image_car", "")
-            file_data.append('car_blob', input_field.value);
-            ajax_post_form(file_data)
-                .then(response => {
-                    image_uri = response["image_uri"]
+        input_field2[0].onchange = function () {
+            console.log(input_field.value)
+            ajax_post_json({ 'image_uri': input_field.value})
+                .then(function (response) {
                     res(JSON.parse(response["image_uri"]))
                 })
         }
@@ -673,17 +671,16 @@ async function create_image_car() {
 }
 async function create_base_car(json_list) {
     var input_field = document.getElementsByClassName("dn2")
+    var input_field2 = document.getElementsByClassName("dn4")
     input_field.value = json_list
     const event = new Event('change');
     input_field[0].dispatchEvent(event)
 
     return new Promise((res) => {
-        input_field[0].onchange = function () {
-            var file_data = new FormData();
-            file_data.append("base_car", "")
-            file_data.append('car_blob', input_field.value);
-            ajax_post_form(file_data)
-                .then(response => {
+        input_field2[0].onchange = function () {
+            console.log(input_field.value)
+            ajax_post_json({ 'base_uri': input_field.value})
+                .then(function (response) {
                     res(response["base_uri"])
                 })
         }
