@@ -584,8 +584,10 @@ def all_collections_view(request, username_slug):
 
     return render(request, "all_collections.html", context)
 
-def collection_view_loaded_handler(request, username_slug, collection_name_slug):
+def collection_view_loaded_handler(request, username_slug, collection_name_slugs):
     if request.method == "GET":
+        print(collection_name_slugs)
+        # print(collection_name_slugs.split(","))
         if request.user.is_authenticated and request.user.username_slug == username_slug: #request from collection owner user
             fetched_collection = UserCollection.objects.filter(user=request.user, collection_name_slug=collection_name_slug).first()
             if fetched_collection and fetched_collection.generation_complete:

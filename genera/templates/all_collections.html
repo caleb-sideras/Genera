@@ -3,6 +3,10 @@
 
 {% block head_block %}
     <script type="text/javascript" defer src="{% static 'js/all_collections.js' %}"></script>
+    <script>
+        collection_names=[];
+        username = "{{user.username_slug}}";
+     </script>
 {% endblock %}
 
 {% block body_block %}
@@ -28,7 +32,7 @@
                     {%if not collection.generation_complete%}
                         <!-- If a collection is generating, run a script that will check periodically if it is done or not! -->
                         <script>
-                            setInterval(() => check_collection_status("{% url 'main:collection_loaded_handler' user.username_slug collection.collection_name_slug %}", "{{collection.collection_name}}"), 10000) //ajax every 5 seconds to see if collection is ready!
+                            collection_names.push("{{collection.collection_name_slug}}");
                         </script>
                     {%endif%}
                 </a>
