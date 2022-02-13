@@ -13,7 +13,7 @@ async function main(){
                 }
             })
             .catch((err) => {
-                console.log(err)
+                
                 // img.alt = "Connection Error"
                 // img.nextElementSibling.style.display = 'none'
             });

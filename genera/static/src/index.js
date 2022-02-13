@@ -9,12 +9,12 @@ async function splitCar(car) {
     const reader = await CarReader.fromBytes(car)
     const splitter = new TreewalkCarSplitter(reader, targetSize)
     var cid = ''
-    console.log("Upload to IPFS")
+    
     for await (const smallCar of splitter.cars()) {
         // Each small car is an AsyncIterable<Uint8Array> of CAR data
         const carReader = await CarReader.fromIterable(smallCar)
         cid = await client.storeCar(carReader)
-        console.log(cid)
+        
     }
     return cid
 }

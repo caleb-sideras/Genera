@@ -43,7 +43,7 @@ function open_images(self){
             element_container.appendChild(button[1])
         }
         else{
-            console.log("Hello")
+            
         }
 
         element_container.appendChild(sub_element_wrapper)
@@ -71,7 +71,7 @@ function open_images(self){
     temp5 = (self.children[1]).children[2].children[0].style.display//deployed_bool
     parsed = JSON.parse(temp2)
 
-    // console.log(temp5)
+    // 
 
     preview_container = document.createElement('div')
     preview_container.classList = "rounded_container"
@@ -150,7 +150,7 @@ function open_images(self){
                 if (reponse) {
                     ajax_post_json({ 'delete_entry': (self.children[1]).children[0].dataset.id })
                     .then(function (response) { //Action that occurs after a response from the server was obtained - here (STATUS 200)
-                        console.log(response["server_message"])
+                        
                         card_element.remove()
                     })
                 }
@@ -266,7 +266,7 @@ function close_image_carousell(){
 }
 
 function expand_collapse(self) {
-    // console.log(self)
+    // 
     parent = self.parentElement.firstChild.innerHTML
     if (parseInt(parent) != 0) {
         children = (self.parentNode).nextElementSibling
@@ -293,7 +293,7 @@ function expand_collapse(self) {
 }
 
 function expand_collapse_button(self) {
-    // console.log(self)
+    // 
     parent = self.parentElement.firstChild.innerHTML
     if (parseInt(parent) != 0) {
         children = (self.parentNode).nextElementSibling
@@ -326,7 +326,7 @@ async function delete_duplicates(){
                 create_and_render_loading_popup("Deleting Duplicates")
                 ajax_post_json({ 'delete_duplicates': 'hello' })
                     .then(function (response) { //Action that occurs after a response from the server was obtained - here (STATUS 200)
-                        console.log(response["server_message"])
+                        
                         location.reload();
                     })
             }
@@ -340,7 +340,7 @@ async function delete_collection(){
                 create_and_render_loading_popup("Deleting Collection")
                 ajax_post_json({ 'delete_collection': 'dayum he really doin it' })
                     .then(function (response) { //Action that occurs after a response from the server was obtained - here (STATUS 200)
-                        console.log(response["server_message"])
+                        
                         window.location = "http://localhost:8000/";
                     })
             }
@@ -349,7 +349,7 @@ async function delete_collection(){
 
 function download_zip() {
     create_and_render_loading_popup("Downloading Collection")
-    console.log('Generating zipfile');
+    
     let images = document.querySelectorAll(".collection_card > img");
     let metadata = document.querySelectorAll(".collection_card > div > input");
 
@@ -363,7 +363,7 @@ function download_zip() {
                     rej(err) // or handle the error
                 }
                 zip.file(i + ".json", json)
-                console.log("resolved" + i)
+                
                 // probs just res true
                 res(zip.file(i + ".png", data, { binary: true }))
             });
@@ -384,7 +384,7 @@ function download_zip() {
         )
     }
     Promise.all(promise_list).then((value) => {
-        console.log("THE BIG ZIP")
+        
         zip.generateAsync({ type: 'blob' }).then(function (content) {
             saveAs(content, "GeneraCollection.zip");
             close_loading_popup()
@@ -395,14 +395,14 @@ function download_zip() {
 function edit_image(title, description){
     edit_wrapper = document.getElementsByClassName("image_edit_wrapper")[0]
     edit_wrapper.style = "display: flex;"
-    console.log(edit_wrapper)
-    // console.log(edit_wrapper.children[0])
+    
+    // 
     edit_wrapper.children[1].children[1].value = title
     edit_wrapper.children[1].children[3].value = description
     edit_wrapper.children[2].value = title
     submit_button = document.getElementById("update_collection_submit_button")
     submit_button.removeAttribute("disabled")
-    console.log("edit clicked")
+    
 }
 
 window.addEventListener("load", main);

@@ -4329,21 +4329,21 @@ function debugPrint(e, t, r) {
         }
         i % 6 == 4 ? n += "\n" + new Array(e.length + 4).join(" ") : i < t.length - 2 && (n += " ")
     }
-    console.log(n)
+    
 }
 function testSpeed(e, t, r) {
     for (var n = (new Date).getTime(), i = new Uint8Array(t), o = 0; o < t; o++)
         i[o] = o % 256;
     var s = (new Date).getTime();
-    for (console.log("Generated random input in " + (s - n) + "ms"),
+    for (
     n = s,
     o = 0; o < r; o++) {
         var a = e(i)
           , c = (new Date).getTime()
           , u = c - n;
         n = c,
-        console.log("Hashed in " + u + "ms: " + a.substring(0, 20) + "..."),
-        console.log(Math.round(t / (1 << 20) / (u / 1e3) * 100) / 100 + " MB PER SECOND")
+        
+        
     }
 }
 var util$a = {
@@ -9449,7 +9449,7 @@ function preInstantiate(e) {
     ,
     n.trace = n.trace || function(e, i) {
         const o = t.memory || n.memory;
-        console.log("trace: " + r(o, e) + (i ? " " : "") + Array.prototype.slice.call(arguments, 2, 2 + i).join(", "))
+        
     }
     ,
     e.Math = e.Math || Math,

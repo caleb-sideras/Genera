@@ -11,6 +11,6 @@ def nft_storage_api_store(file):
         response = requests.post(url, data = file, headers=headers)
         base_uri = json.loads(response.content)
     except requests.exceptions.HTTPError as e:
-        print(e.response.text)
+        # print(e.response.text)
         return False
     return base_uri

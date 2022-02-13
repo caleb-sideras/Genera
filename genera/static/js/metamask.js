@@ -319,7 +319,7 @@ function main() {
 
 // bye bye?
 async function deploy_ipfs_request_private() {
-    console.log("Deploying to IPFS")
+    
     loading_deploy_collection(deploy_collection_data['IPFS'][1])
     await ipfs_deploy()
         .then(()=>{
@@ -341,7 +341,7 @@ async function deploy_contract_request_private() {
 }
 
 async function deploy_contract_private(){
-    console.log("deploying contract")
+    
     constructor_paramter = constructor_string(collection_name, token_name);
     try {
         deployed_contract = await ethereum
@@ -363,7 +363,7 @@ async function deploy_contract_private(){
             .then(async function (txHash) {
                 contract_address = await waitForTxToBeMined(txHash)
                 contract_chainid = active_chain_id
-                console.log("Contract mined, address:" + contract_address)
+                
                 save_contract_address()
             })
     } catch (error) {
@@ -375,7 +375,7 @@ async function deploy_contract_private(){
 
 function add_tokens_request_private(){
     if (uri_list.length == collection_size) {
-        console.log('Collection Minted')
+        
         ajax_post_json({'collection_minted': contract_address}).then((reponse) => {
             window.location.reload()
             return
@@ -394,8 +394,8 @@ function add_tokens_request_private(){
 }
 
 async function add_tokens_private() {
-    console.log("Adding tokens to " + contract_address)
-    console.log(ipfs_links)
+    
+    
     loading_deploy_collection(deploy_collection_data['Mint'][1])
     await metamask_check().then(async ()=>{
         await get_chainid().then(async () => {
@@ -406,8 +406,8 @@ async function add_tokens_private() {
             }else{
                 for (let index = 0; index < ipfs_links.length; index++) {
                     token_counter++
-                    console.log(token_counter)
-                    console.log(ipfs_links[index])
+                    
+                    
                     await ethereum //deployed_token = 
                         .request({
                             method: 'eth_sendTransaction',
@@ -423,7 +423,7 @@ async function add_tokens_private() {
                             ],
                         })
                         .then(function (txHash) {
-                            console.log('Transaction sent')
+                            
                             waitForTxToBeMined(txHash, true, index)
                         })
                         .catch((error) => {
@@ -450,16 +450,16 @@ async function waitForTxToBeMined(txHash, ajax = false, index = 0) {
         try {
             txReceipt = await web3.eth.getTransactionReceipt(txHash)
         } catch (err) {
-            return console.log("failure")
+            return 
         }
     }
     if (ajax) {
-        console.log(txReceipt)
+        
         token_counter--
-        console.log(token_counter)
+        
         token_count_check()
     }
-    console.log("Transaction sent " + txReceipt)
+    
     return txReceipt['contractAddress']
 }
 async function get_contract_tokenURIs(contract_address) {
@@ -472,11 +472,11 @@ async function get_contract_tokenURIs(contract_address) {
             let data = await contract.methods.tokenURI(i).call()
             uri_list.push(data)
         } catch (error) {
-            console.log(error)
+            
             alert("Cannot connect to Ethereum, please refresh your page and make sure you have a stable internet connection.")
         }
     }
-    console.log("finished get_contract_tokenURIs")
+    
     return
 }
 // not needed?
@@ -497,7 +497,7 @@ async function check_mint_status() {
             }
         });
     }
-    console.log("finished check_mint_status")
+    
 }
 // not needed?
 function create_ipfs_links() {
@@ -541,7 +541,7 @@ async function startApp(provider) {
                 if (err.code === 4001) {
                     // EIP-1193 userRejectedRequest error
                     // If this happens, the user rejected the connection request.
-                    console.log('Please connect to MetaMask.')
+                    
                     alert('Please connect to MetaMask.');
                     close_deploy_collection()
                     throw(err)
@@ -560,17 +560,17 @@ function handleChainChanged(_chainId) {
 }
 function handleAccountsChanged(accounts) {
     if (accounts.length === 0) {
-        console.log("logged out")
+        
         alert('Logged out of metamask');
         close_deploy_collection()
     } else if (accounts[0] !== active_account) {
         active_account = accounts[0];
-        console.log("New Account!!!")
+        
     }
 }
 function token_count_check(){
     if (token_counter == 0) {
-        console.log('closing token_counter')
+        
         setTimeout(async function () {
             await check_mint_status()
             if (uri_list.length == collection_size) {
@@ -581,7 +581,7 @@ function token_count_check(){
                 window.location.reload()
             }
         }, 20000);
-        console.log('waiting 20 seconds')
+        
     }
 }
 // METAMASK FUNCTIONS //
@@ -627,12 +627,12 @@ async function opensea_metadata_request(){
         alert('Royalty percentage has to be less than 100')
         return
     }
-    console.log("Deploying to IPFS")
+    
     loading_deploy_collection(deploy_collection_data['IPFS'][1])
     if (royalty || royalty_address || url){
         ajax_post_json({ 'opensea_metadata': '', 'royalty_points': royalty, 'royalty_address': royalty_address, 'url': url })
             .then(function (response) {
-                console.log("Open sea king" + response["server_message"])
+                
                 deploy_ipfs_request()
             })
     }else{
@@ -649,9 +649,9 @@ async function deploy_ipfs_request() {
 }
 async function ipfs_deploy() {
     let metadata_list = await create_image_car()
-    // console.log(metadata_list)
+    // 
     base_uri = await create_base_car(metadata_list)
-    // console.log(base_uri)
+    // 
 }
 async function create_image_car() {
     var input_field = document.getElementsByClassName("dn")
@@ -661,7 +661,7 @@ async function create_image_car() {
 
     return new Promise((res) => {
         input_field2[0].onchange = function () {
-            console.log(input_field.value)
+            
             ajax_post_json({ 'image_uri': input_field.value})
                 .then(function (response) {
                     res(JSON.parse(response["image_uri"]))
@@ -678,7 +678,7 @@ async function create_base_car(json_list) {
 
     return new Promise((res) => {
         input_field2[0].onchange = function () {
-            console.log(input_field.value)
+            
             ajax_post_json({ 'base_uri': input_field.value})
                 .then(function (response) {
                     res(response["base_uri"])
@@ -693,7 +693,7 @@ async function create_base_car(json_list) {
 
 // CHOOSE NETWORK//
 async function choose_network(self) {
-    console.log('Connecting to Wallet')
+    
     loading_deploy_collection(deploy_collection_data_public['Network'][1])
     await metamask_check().then(async () => {
         await get_chainid().then(() => {
@@ -758,21 +758,21 @@ async function deploy_contract_public(constructor_parameters, gas_estimate, cont
             ],
         })
         .catch(function (error) {
-            console.log(error)
+            
             close_deploy_collection()
             throw (error)
         })
         .then(async function (txHash) {
             contract_address = await waitForTxToBeMined(txHash)
             contract_chainid = active_chain_id
-            console.log("Contract mined, address:" + contract_address)
+            
             save_contract_address()
         })
 }
 function save_contract_address() {
     ajax_post_json({ 'address_set': contract_address, 'chain_id': active_chain_id, 'contract_type': contract_type })
         .then(function (response) {
-            console.log("Contract adress stored in db " + response["server_message"])
+            
         })
 }
 async function get_contract(type){
@@ -884,13 +884,13 @@ function status_dot_update(section){
 
 // CONTRACT ENCODERS //
 function constructor_string(baseuri, name, symbol, totalSupply, cost, open_bool) {
-    console.log("Contructor");
+    
     temp_constructor_params = web3.eth.abi.encodeParameters(
         ['string', 'string', 'string', 'uint32', 'uint256', 'bool'], 
         [baseuri, name, symbol, totalSupply, cost, open_bool]
     );
     constructor_params = temp_constructor_params.replace('0x', '', '', '', '', '');
-    console.log(constructor_params)
+    
     return constructor_params;
 }
 // make modular

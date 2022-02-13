@@ -786,7 +786,7 @@
                             this.uri_list.push(out['image'])
                         })
                         .catch((err) => {
-                            console.log(err)
+                            
                         });
                 }
                 this.populateImages()
@@ -898,7 +898,7 @@
                                 ],
                             })
                             .then(function (txHash) {
-                                console.log('Transaction sent')
+                                
                             })
                             .catch((error) => {
                                 throw (error)
@@ -948,7 +948,7 @@
                         })
                         .catch((err) => {
                             if (err.code === 4001) {
-                                console.log('Please connect to MetaMask.')
+                                
                                 alert('Please connect to MetaMask.');
                                 throw (err)
                             } else {
@@ -1232,9 +1232,9 @@
                 this.contractInteraction(parameters)
             },
             mintCost(){
-                console.log(mint_cost)
+                
                 let cost_ether = this.web3.utils.toWei(String(this.mint_cost), 'ether')
-                console.log(cost_ether)
+                
                 let parameters = this.web3.eth.abi.encodeFunctionCall(this.cost_abi,[cost_ether])
                 this.contractInteraction(parameters)
             },
@@ -1268,7 +1268,7 @@
                                 ],
                             })
                             .then(function (txHash) {
-                                console.log('Transaction sent')
+                                
                             })
                             .catch((error) => {
                                 if(onError){
@@ -1316,7 +1316,7 @@
                         })
                         .catch((err) => {
                             if (err.code === 4001) {
-                                console.log('Please connect to MetaMask.')
+                                
                                 alert('Please connect to MetaMask.');
                                 throw (err)
                             } else {

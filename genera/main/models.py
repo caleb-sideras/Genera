@@ -143,6 +143,7 @@ class UserCollection(Model):
     dimension_x = models.IntegerField() # not needed?
     dimension_y = models.IntegerField() # not needed?
     collection_size = models.IntegerField(default=0)
+    datetime_created = models.DateTimeField(auto_now_add=True)
 
     path = models.CharField(max_length=250)
 

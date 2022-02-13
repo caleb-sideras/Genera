@@ -30,16 +30,8 @@ function get_cookie(name) {
 
 function main() {
     ethereum.on("accountsChanged", accounts => {
-        console.log()
-        if (accounts.length > 0)
-            console.log(`Account connected: ${accounts[0]}`);
-        else{
-            console.log('Account disconnected');
-            window.location.replace("/logout//")
-        }
+        window.location.replace("/logout//")
     });
-    
-    
 
     if (typeof(document.getElementById("js_vars")) != 'undefined' && document.getElementById("js_vars") != null) {
         js_vars = document.getElementById("js_vars")
@@ -80,7 +72,7 @@ function main() {
             .then(function(response) { //Action that occurs after a response from the server was obtained - here (STATUS 200)
 
                 response[""]
-                console.log(response)
+                
 
             })
             
@@ -134,7 +126,7 @@ function ajax_post_factory(post_type) { //currently supports JSON and FORM data
 
     var generated_post_function = (payload) => {
         return new Promise(function(resolve) {
-            console.log("url posted to: " + ajax_url)
+            
             if (ajax_url == null) {
                 alert("No URL found on the page!")
                 return
@@ -166,7 +158,7 @@ function ajax_post_factory(post_type) { //currently supports JSON and FORM data
                 // Process the server response here (Sent from Django view inside JsonResponse)
                 if (http_request.readyState === XMLHttpRequest.DONE) {
                     if (http_request.status === 200) { //ifstatus is 200 - assume PROPER RESPONSE
-                        // console.log(JSON.parse(http_request.responseText))
+                        // 
                         resolve(JSON.parse(http_request.responseText))
                     }
                     else if (http_request.status === 201) { //handled response from Django view

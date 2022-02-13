@@ -61,7 +61,7 @@ function add_uploaded_layers(layer_name) {
         "Assets":{},
         "Textures" :{}
     }
-    console.log(uploaded_data)
+    
 }
 
 async function add_uploaded_files(filelist, context, section){
@@ -83,7 +83,7 @@ async function add_uploaded_files(filelist, context, section){
             duplicate_flag = true
         }
     }
-    console.log(uploaded_data)
+    
     if (duplicate_flag==true) {
         create_notification("File Name Duplicate", "One or more duplicate file names were detected. These files were not uploaded. Please upload files with unique file names.", duration = 10000, "error")
     }
@@ -98,7 +98,7 @@ function add_smart_input(self, category) {
     //1 == asset, 2 == texture
 
     function expand_button(self) {
-        // console.log(self)
+        // 
         parent = self.parentElement.firstChild.innerHTML
         if (parseInt(parent) != 0) {
             children = (self.parentNode).nextElementSibling
@@ -116,9 +116,9 @@ function add_smart_input(self, category) {
         }
     }
     function close_empty(self){
-        console.log(self)
+        
         parent = self.parentElement.firstChild.innerHTML
-        console.log(parseInt(parent))
+        
         if (parseInt(parent) == 0) {
             children = (self.parentNode).nextElementSibling
             if (children.classList.contains('open')) {
@@ -165,7 +165,7 @@ function add_smart_input(self, category) {
                 // Exclude specified filename
                 if (attachments[i].name != filename) {
                     fileBuffer.items.add(attachments[i]);
-                    // console.log("ADDED FILE: " + attachments[i].name)
+                    // 
                 }
                 else {
                     //remove the file name from the input fields file names
@@ -178,9 +178,9 @@ function add_smart_input(self, category) {
                     if (upload_button.name[0] == "$") //cleanse first  $ meme
                         upload_button.name = upload_button.name.substring(1)
 
-                    // console.log(full_file_name)
-                    // console.log("REMOVED FILE: " + attachments[i].name)
-                    // console.log(upload_button.name)
+                    // 
+                    // 
+                    // 
                 }
             }
             // Assign buffer to file input
@@ -498,11 +498,11 @@ function add_layer() {
             
             document.getElementById("confirm_layer_properties_update").onclick = function() {
 
-                console.log(uploaded_data)
+                
                 if (clicked_layer_name.innerHTML != layer_name_update_field.value) {
 
                     let layers = uploaded_data[clicked_layer_name.innerHTML]
-                    console.log(uploaded_data[clicked_layer_name.innerHTML])
+                    
                     uploaded_data[layer_name_update_field.value] = layers
                     delete uploaded_data[clicked_layer_name.innerHTML]
                     temp = [uploaded_data]
@@ -590,7 +590,7 @@ async function image_URLs(file) {
     img.onerror = function () {
         URL.revokeObjectURL(this.src);
         // Handle the failure properly
-        console.log("Cannot load image");
+        
     };
     return new Promise((resolve) => {
         img.onload = function () {
@@ -618,7 +618,7 @@ async function image_resize(file, res_x, res_y) {
     img.onerror = function () {
         URL.revokeObjectURL(this.src);
         // Handle the failure properly
-        console.log("Cannot load image");
+        
     };
     return new Promise((resolve) => {
         img.onload = function () {
@@ -636,11 +636,11 @@ async function image_resize(file, res_x, res_y) {
                         type: "image/png",
                         lastModified: Date.now()
                     });
-                    console.log("resized")
+                    
                     resolve(resized_file)
                 })//,'image/png', 1
             }else{
-                console.log("not-resized")
+                
                 resolve(file)
             }
             
@@ -677,10 +677,10 @@ function open_images(section, layer, new_items, optional_image = null, double_cl
                 first_file = optional_image
             }
             else{
-                // console.log(section)
-                // console.log(layer)
-                // console.log(uploaded_data[layer][section])
-                // console.log(Object.keys(uploaded_data[layer][section]))
+                // 
+                // 
+                // 
+                // 
                 let [key] = Object.keys(uploaded_data[layer][section])
                 first_file = uploaded_data[layer][section][key]
             }
@@ -688,7 +688,7 @@ function open_images(section, layer, new_items, optional_image = null, double_cl
 
             if (upload_preview.children[0].innerHTML != section_layer) {
                 condition_check = true
-                console.log(condition_check)
+                
                 upload_preview.children[4].innerHTML = ""
                 replace_image(URL.createObjectURL(first_file['file']), first_file['file'].name, section_layer);
                 new_items = uploaded_data[layer][section]
@@ -711,7 +711,7 @@ function open_images(section, layer, new_items, optional_image = null, double_cl
             }
 
             if (condition_check) {
-                console.log(first_file['file'].name)
+                
                 find_carousel(first_file['file'].name, true, section,)
                 condition_check = false
             }
@@ -734,8 +734,8 @@ function highlight_file(context){
 }
 
 function find_file(name, section) {
-    console.log(name)
-    console.log(section)
+    
+    
     if (section=='Assets') {
         var upload_section = document.getElementsByClassName("upload_layers")[0]
     }else {
@@ -761,7 +761,7 @@ function find_carousel(name, active = null, file = null){
     const carousel = document.querySelectorAll("#scroller > li")
     for (const element of carousel) {
         if (element.children[1].innerHTML == name) {
-            console.log(element.children[1].innerHTML)
+            
             if(active){
                 active_carousel = element
             }
@@ -800,14 +800,14 @@ function remove_image(self, context, name){
             }
             else{
                 replace_image(URL.createObjectURL(replace_element['file']), replace_element['file'].name)
-                // console.log(context.upload.previousElementSibling.children[0])
+                // 
                 highlight_file(context.upload.previousElementSibling.children[0])
                 find_carousel(context.upload.previousElementSibling.children[0].innerHTML)
             }
         }
         else{
             replace_image(URL.createObjectURL(replace_element['file']), replace_element['file'].name)
-            // console.log(context.upload.nextElementSibling.children[0])
+            // 
             highlight_file(context.upload.nextElementSibling.children[0])
             find_carousel(context.upload.nextElementSibling.children[0].innerHTML)
         }  
@@ -818,7 +818,7 @@ function remove_image(self, context, name){
 }
 
 function remove_image_carousel(name){
-    console.log(name)
+    
     scroller = upload_preview.children[4]
     name_elements = scroller.querySelectorAll("h5")
     name_elements.forEach(element => {
@@ -876,7 +876,7 @@ function add_collection() {
         add_layer_img = document.createElement('img')
         add_layer_img.src = "media/collections/Void/Void" + step + ".png"
         add_layer_img.classList = "nft_preview"
-        console.log(add_layer_img.src)
+        
         add_layer_img.dataset.layer = add_layer_input.value
 
         layers_row2.appendChild(Object.assign(document.createElement('h4'), { textContent: "#" + step, classList: "nft_text center" }))
@@ -891,7 +891,7 @@ function add_collection() {
 }
 
 function expand_collapse_button(self) {
-    // console.log(self)
+    // 
     parent = self.parentElement.firstChild.innerHTML
     if (parseInt(parent) != 0) {
         children = (self.parentNode).nextElementSibling
@@ -975,7 +975,7 @@ async function preview_button(self){
     properties_list.push(res_y)
     properties_list.push(collection_properties[6].value)
     
-    // console.log(properties_list)
+    // 
 
     layername_list = [] // layer names (metadata)
     layer_buttons = upload_layers.children[2].querySelectorAll(".general_button")
@@ -1096,8 +1096,8 @@ async function preview_layer_search(res_x, res_y, layer_keys){
             texture_list.push(undefined)
         }
     }
-    console.log(asset_list)
-    console.log(texture_list)
+    
+    
     return [asset_list, texture_list]
 }
 
@@ -1143,8 +1143,8 @@ async function validate_and_post_ajax_form() {
     for (const [key, value] of Object.entries(uploaded_data)) {
         var assets = Object.keys(value["Assets"]);
         var textures = Object.keys(value["Textures"]);
-        console.log(key)
-        console.log(value)
+        
+        
         if (assets.length == 0) {
             create_notification("Missing assets", `'${key}' Layer has no file assets attached! Please add some files or remove this layer.`, duration = 10000, "error")
             return
@@ -1169,7 +1169,7 @@ async function validate_and_post_ajax_form() {
     }
 
     // if passed all checks, post the ajax form.
-    console.log("Validation successful");
+    
     create_and_render_loading_popup("Generating collection")
     var form_data = await generate_form_data_for_ajax_post_generate().then(data => data)
 
@@ -1192,7 +1192,7 @@ async function validate_and_post_ajax_form() {
                                 rej(err) // or handle the error
                             }
                             zip.file(i + ".json", json)
-                            console.log("resolved" + i)
+                            
                             // probs just res true
                             res(zip.file(i + ".png", data, { binary: true }))
                         });
@@ -1201,7 +1201,7 @@ async function validate_and_post_ajax_form() {
 
                 let promise_list = []
                 for (let i = 0; i < response['images'].length; i++) {
-                    console.log("pushing"+i)
+                    
                     promise_list.push(
                         zipFiles(
                             `data:image/png;base64,${response['images'][i]}`, 
@@ -1212,7 +1212,7 @@ async function validate_and_post_ajax_form() {
                 }
                 
                 Promise.all(promise_list).then((value)=>{
-                    console.log("THE BIG ZIP")
+                    
                     zip.generateAsync({ type: 'blob' }).then(function (content) {
                         saveAs(content, "GeneraCollection.zip");
                         close_loading_popup()
@@ -1248,15 +1248,15 @@ async function generate_form_data_for_ajax_post_generate() {
 
     sections = ["Assets", "Textures"]
     for (const key of layername_list) {
-        console.log(key)
+        
         for (const section of sections) {
-            console.log(section)
+            
             var section_list = Object.keys(uploaded_data[key][section]);
-            console.log(section_list)
+            
             for (let i = 0; i < section_list.length; i++) {
                 var resized_asset = await image_resize(uploaded_data[key][section][section_list[i]]['file'], res_x, res_y)
                 file_data.append(section + "." + key + "." + section_list[i], resized_asset);
-                console.log(section + "." + key + "." + section_list[i])
+                
             }
         }
     }

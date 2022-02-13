@@ -296,7 +296,7 @@ def create_and_save_collection_paid(tempDict, db_collection, texturedAssetDict, 
 
             image_to_collection_db.save()
         
-        print("Finished generation")
+        # print("Finished generation")
         db_collection.generation_complete = True
         db_collection.save()
         return True
@@ -310,7 +310,7 @@ def create_and_save_collection_paid(tempDict, db_collection, texturedAssetDict, 
         return False
 
 def create_and_save_collection_paid_thread(*args, **kwargs):
-    print("RUNNING FROM THREAD")
+    # print("RUNNING FROM THREAD")
     try:
         thread = threading.Thread(target=create_and_save_collection_paid, args=args, kwargs=kwargs)
         thread.setDaemon(True)
@@ -320,8 +320,8 @@ def create_and_save_collection_paid_thread(*args, **kwargs):
     return True
 
 def create_and_save_collection_free(tempDict):
-    print(tempDict["CollectionName"])
-    print(tempDict["Description"])
+    # print(tempDict["CollectionName"])
+    # print(tempDict["Description"])
 
     rarityArrayAsset = []
     rarityArrayTexture = []
@@ -333,11 +333,11 @@ def create_and_save_collection_free(tempDict):
     metadataDict = {}
 
     texture_map_color = ImageColor.getcolor(tempDict['TextureColor'], "RGB")
-    print(tempDict['TextureColor'])
-    print(texture_map_color)
+    # print(tempDict['TextureColor'])
+    # print(texture_map_color)
     for key, value in tempDict["Layers"].items():
         texturedAsset = 0
-        print(f"Generating {key} layer")
+        # print(f"Generating {key} layer")
 
         if value["Assets"] and value["Textures"]:
 
@@ -415,7 +415,7 @@ def create_and_save_collection_free(tempDict):
         
         watermark = Image.open(staticify("Assets/Background/genera_watermark.png"))
     except:
-        print("Could not open watermark")
+        # print("Could not open watermark")
         return
     
     resized_watermark =  watermark.resize((tempDict["Resolution_x"], tempDict["Resolution_y"]))   
@@ -455,9 +455,9 @@ def create_and_save_collection_free(tempDict):
         timeit_end = time.time()
 
             
-        print(f"Image {img_name} has been generated (max 500px) Time taken: {timeit_end-timeit_start:.2f}s")
+        # print(f"Image {img_name} has been generated (max 500px) Time taken: {timeit_end-timeit_start:.2f}s")
 
-    print("Finished generation") 
+    # print("Finished generation") 
     return bytes_list, metadata_list
 
 

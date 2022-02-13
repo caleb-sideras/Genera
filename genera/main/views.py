@@ -8,7 +8,6 @@ from genera.s3_storage import AwsMediaStorageManipulator
 from main.models import User
 from main.forms import *
 from main.generator_alg import *
-from main.contract_interaction import *
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.contrib.auth import login, logout
@@ -121,7 +120,7 @@ def upload_view(request):
 
                     watermark = Image.open(staticify("Assets/Background/genera_watermark.png"))
                 except:
-                    print("Could not open watermark")
+                    # print("Could not open watermark")
                     return
                 
                 resized_watermark =  watermark.resize((res_x, res_y))
@@ -194,7 +193,7 @@ def upload_view(request):
                     db_collection.save()
 
                 except Exception as e:
-                    print(e)
+                    # print(e)
                     messages.error(request, message="Critical Backend error. Unable to create collection.")
                     return ajax_redirect(reverse("main:upload"))
             
@@ -286,7 +285,7 @@ def upload_view(request):
                         return ajax_redirect(reverse("main:main_view"))
             else:
                 images_list, metadata_list = create_and_save_collection_free(calebs_gay_dict)
-                print("Free collection")
+                # print("Free collection")
                 return JsonResponse(
                     {
                         "images" : images_list,
@@ -328,7 +327,7 @@ def metamask_login_handler_view(request):
                     try:
                         decrypted_public_address = w3.eth.account.recover_message(message_hash, signature=signature)
                     except Exception as e:
-                        print(e)
+                        # print(e)
                         return Http404()
                         
                     if public_address.lower() == decrypted_public_address.lower():
@@ -362,7 +361,7 @@ def metamask_login_handler_view(request):
         return Http404()
 
 def login_view(request, current_extension=404):
-    print("WHY ARE WE STILL HERE")
+    # print("WHY ARE WE STILL HERE")
     form_id = "login_form"
 
     if request.user.is_authenticated:
@@ -506,7 +505,7 @@ def password_reset_handler_view(request, token_url):
                 token.delete()
                 clientside_success_with_redirect(request, "Password Reset Succesful. You may now log in with your new password.", reverse('main:login'))
             else:
-                print(password_reset_form.errors)
+                pass
 
         form_context = {"form": password_reset_form, "button_text": "Confirm password reset!", "identifier": form_id, "title": "Password Reset confirmation"}
 
@@ -606,7 +605,7 @@ def collection_view(request, username_slug, collection_name_slug):
 
             user_collection = UserCollection.objects.filter(user=user, collection_name_slug=collection_name_slug).first()
             if not user_collection.generation_complete:
-                print(f"REDIRECTING to {reverse('main:all_collections', args=[username_slug])}")
+                # print(f"REDIRECTING to {reverse('main:all_collections', args=[username_slug])}")
                 return clientside_error_with_redirect(request, "This collection is still being generated. Please wait a few minutes and try again.", reverse('main:all_collections', args=[username_slug]))
             
             if user_collection or not user_collection.public_mint:
@@ -722,8 +721,8 @@ def collection_view(request, username_slug, collection_name_slug):
                             chain_id = received_json_data["chain_id"],
                             contract_type = 2
                         )
-                        print("KINERMAN")
-                        print(cocker.collection)
+                        # print("KINERMAN")
+                        # print(cocker.collection)
                         return JsonResponse(
                             {"server_message" :"Contract address set"},
                             status = 200
@@ -736,7 +735,7 @@ def collection_view(request, username_slug, collection_name_slug):
                 elif "delete_entry" in received_json_data:
                     if request.user.is_authenticated:
                         collection_query = collection_images.filter(id = received_json_data['delete_entry']).delete() # change to id
-                        print(f"deleted {received_json_data['delete_entry']}")
+                        # print(f"deleted {received_json_data['delete_entry']}")
                         user_collection.collection_size = user_collection.collection_size - 1
                         user_collection.save()
 
@@ -762,10 +761,10 @@ def collection_view(request, username_slug, collection_name_slug):
                                     value_metadata = json.loads(collection_images[j + 1 + i].metadata)
                                     # print(f"{value_metadata} CURRENT METADATA {j + 1 + i}")
                                     if entry_metadata['attributes'] == value_metadata['attributes']:
-                                        print(collection_images[j + 1 + i])
+                                        # print(collection_images[j + 1 + i])
                                         collection_images[j + 1 + i].delete()
                                         user_collection.collection_size = user_collection.collection_size - 1
-                                        print(user_collection.collection_size)
+                                        # print(user_collection.collection_size)
                                         # print(f"{collection_images[j + 1 + i]} deleted {j + 1 + i}")
                                     # user_collection.save()
                                     collection_images = CollectionImage.objects.filter(linked_collection__id=user_collection.id)
@@ -811,7 +810,7 @@ def collection_view(request, username_slug, collection_name_slug):
                         if received_json_data['get_contract'] == '2':
                             with open("static/Contracts/erc1155_public_contract.json", "r") as myfile:
                                 data = myfile.read()
-                                print(data)
+                                # print(data)
                             return JsonResponse(
                                 {"contract": data},
                                 status=200,
@@ -884,7 +883,7 @@ def public_mint_view(request):
             ##AJAX HANDLING SECTION START
             try:
                 received_json_data = json.loads(request.body)
-                print(received_json_data)
+                # print(received_json_data)
                 if "get_contract" in received_json_data:
                     if received_json_data['get_contract'] == 1:
                         with open("static/Contracts/erc1155_private_contract.json", "r") as myfile:

@@ -5,7 +5,6 @@ from genera.settings import MEDIA_DIR, DEFAULT_FROM_EMAIL, BASE_DIR, STRIPE_PUBI
 from main.models import User
 from main.forms import *
 from main.generator_alg import *
-from main.contract_interaction import *
 from django.shortcuts import redirect
 from django.contrib import messages
 import json
@@ -20,7 +19,7 @@ stripe.api_key = STRIPE_PRIVATE_KEY
 
 def checkout_view(request):
     context = {}
-    if request.user.username: 
+    if request.user.username:
         if request.method == "POST":
             if 'product_button' in request.POST:
                 price_id = request.POST.get("product_button")
@@ -35,20 +34,25 @@ def checkout_view(request):
                             },
                         ],
                         mode='payment',
-                        success_url = f"{BASE_URL}/checkout/" + "{CHECKOUT_SESSION_ID}",# reverse('payments:success') # Increment credits
-                        cancel_url = f"{BASE_URL}/checkout/" + "{CHECKOUT_SESSION_ID}",
+                        # reverse('payments:success') # Increment credits
+                        success_url=f"{BASE_URL}/checkout/" + \
+                        "{CHECKOUT_SESSION_ID}",
+                        cancel_url=f"{BASE_URL}/checkout/" + \
+                        "{CHECKOUT_SESSION_ID}",
 
-                        metadata = {"price_id": price_id, "user_id": request.user.id}
+                        metadata={"price_id": price_id,
+                                  "user_id": request.user.id}
                     )
                     request.session.set_expiry(86400)
                     request.session["payment_initial"] = True
                 except Exception as e:
-                    print(e)
+                    # print(e)
                     return render(request, "payments/checkout.html", context)
-                    
+
                 return redirect(checkout_session.url, code=303)
             else:
-                print('Why you try hack us mbro????') # anti-hack page!!! scare them mofos!!
+                pass
+                # print('Why you try hack us mbro????') # anti-hack page!!! scare them mofos!!
     else:
         error_params = {"title": "Permission Denied", "description": "Attempt to Pay for product when not logged in", "code": "325XD"}
         raise PermissionDenied(json.dumps(error_params))
@@ -62,7 +66,8 @@ def handle_checkout_session_view(request, session_id):
     try:
         checkout_session = stripe.checkout.Session.retrieve(session_id)
     except Exception as e:
-        print(e)
+        # print(e)
+        pass
     
     if checkout_session:
 

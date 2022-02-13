@@ -141,12 +141,12 @@
 
           if (!(fileName in parent.$data.files)) {
             parent.$data.files[fileName] = {}
-            console.log( parent.$data.files)
+            
           }
 
           if (!("blob" in parent.$data.files[fileName])) {
             // make this element a data obj?
-            console.log("make blob")
+            
             const canvas = document.createElement("canvas")
             canvas.width = 250
             canvas.height = 250
@@ -776,7 +776,7 @@
 
         return new Promise((res) => {
           input_field2[0].onchange = function () {
-            console.log(input_field.value)
+            
             res(input_field.value)
           }
         })
@@ -791,7 +791,7 @@
 
         return new Promise((res) => {
           input_field2[0].onchange = function () {
-              console.log(input_field.value)
+              
               res(input_field.value)
           }
         })
@@ -862,8 +862,8 @@
         }
       },
       async mintContract(chain_id, constructor_parameters, contract, gasEstimate,active_account){
-        console.log(chain_id)
-        console.log('0x'+chain_id)
+        
+        
         let txHash =  await ethereum
           .request({
             method: 'eth_sendTransaction',
@@ -898,7 +898,7 @@
             throw(err)
           }
         }
-        console.log("Transaction received " + txReceipt)
+        
         return txReceipt['contractAddress']
       },
       async gasEstimate(contract, constructor_parameters){
@@ -917,7 +917,7 @@
       save_contract_address(contract_address, active_chain_id, contract_type, collection_name, description, imageURI, baseURI) {
         ajax_post_json({ 'address_set': contract_address, 'chain_id': '0x' + active_chain_id, 'contract_type': contract_type, 'collection_name': collection_name, 'description': description, 'image_uri' : imageURI, 'base_uri' : baseURI})
           .then(function (response) {
-            console.log("Contract adress stored in db " + response["server_message"])
+            
           })
       },
       create_constructor_string(baseuri, name, symbol, totalSupply, cost, open_bool) {
@@ -1087,11 +1087,11 @@
       `,
     methods :{
       upload(){
-        console.log("1")
+        
         this.$emit('open-upload')
       },
       properties(){
-        console.log("2")
+        
         this.$emit('open-properties')
       }
     }

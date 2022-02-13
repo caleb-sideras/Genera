@@ -20,7 +20,7 @@ def get_absolute_path():
     return BASE_URL
 
 def get_current_path(request):
-    print(request.get_full_path())
+    # print(request.get_full_path())
     return f"{BASE_URL}{request.get_full_path()}"
 
 def generate_token(request, type="A", user=None):
@@ -31,7 +31,7 @@ def generate_token(request, type="A", user=None):
         token_instance.save()
     
     token_url =  f"{get_current_path(request)}/{token_instance.hash}"
-    print(token_url)
+    # print(token_url)
         
     return {"token_instance": token_instance, "token_url": token_url}
 
@@ -94,7 +94,7 @@ def presigned_url_is_expired(url, days_to_expire=7):
         else:
             return False
         expiry = date_time_obj + timedelta(seconds=int(expiry_seconds))
-        print(expiry)
+        # print(expiry)
 
     if datetime.today() > expiry:
         return True
