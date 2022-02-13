@@ -449,6 +449,7 @@ def account_activation_view(request, token_url):
         token_instance.user.is_active = True
         token_instance.user.save()
         token_instance.delete()
+        user = authenticate(token_instance)
         login(request, token_instance.user)
         # print(f"{token_instance.user.username} has been activated")
         return clientside_success_with_redirect(request, "Account activated! You have been logged in automatially!")
