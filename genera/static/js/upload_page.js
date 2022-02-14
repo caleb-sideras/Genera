@@ -6,6 +6,8 @@ active_section = null
 active_layer = null
 active_element = null
 active_carousel = null
+has_collections_generating = null
+collection_names = null
 
 function main() {
     uploaded_data = {}
