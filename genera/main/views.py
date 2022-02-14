@@ -363,7 +363,7 @@ def metamask_login_handler_view(request):
     else:
         return Http404()
 
-def login_view(request, current_extension=404):
+def login_view(request):
     # print("WHY ARE WE STILL HERE")
     form_id = "login_form"
 
@@ -379,10 +379,7 @@ def login_view(request, current_extension=404):
                 candidate_user = login_form.authenticate()
                 login(request, candidate_user)
                 messages.success(request, message="Logged in succesfully!")
-                if current_extension != 404:
-                    return HttpResponseRedirect(current_extension)
                 return redirect(reverse("main:main_view"))
-
             except ValidationError as msg:
                 msg = msg.args[0]
                 messages.error(request, str(msg))

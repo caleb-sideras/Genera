@@ -61,7 +61,7 @@ ALLOWED_HOSTS = ['localhost','genera.link','www.genera.link', 'genera.us-east-2.
 
 # Application definition
 APPS = ['main', 'payments']
-
+DEPLOYMENT_APPS = ['south']
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -71,6 +71,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'storages',
 ] + APPS
+
+if DEPLOYMENT_INSTANCE:
+    INSTALLED_APPS += DEPLOYMENT_APPS
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

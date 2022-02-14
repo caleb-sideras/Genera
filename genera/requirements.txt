@@ -6,3 +6,4 @@ web3==5.25.0
 mysqlclient==2.0.3
 boto3==1.20.49
 django-storages==1.12.3
+South==1.0.2
