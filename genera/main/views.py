@@ -330,14 +330,14 @@ def metamask_login_handler_view(request):
                     # decrypted_public_address = w3.geth.personal.ecRecover(nonce, signature)
                     # encoded_message = encode_defunct(bytes(nonce, encoding='utf8'))
                     try:
-                        message_hash = encode_defunct(text=nonce)
+                        message_hash = defunct_hash_message(text=nonce)
                     except:
                         return "Encode defunct failed"
 
                     print(f"{message_hash} - MESSAGE HASH !!")
 
                     try:
-                        decrypted_public_address = w3.eth.account.recover_message(message_hash, signature=signature)
+                        decrypted_public_address = w3.eth.account.recoverHash(message_hash, signature=signature)
                     except Exception as e:
                         # print(e)
                         return "REDOVER MESSAGE FAILED"
