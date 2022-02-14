@@ -451,7 +451,7 @@ def account_activation_view(request, token_url):
         token_instance.user.is_active = True
         token_instance.user.save()
         token_instance.delete()
-        login(request, token_instance.user)
+        login(request, token_instance.user, backend='django.contrib.auth.backends.ModelBackend')
         # print(f"{token_instance.user.username} has been activated")
         return clientside_success_with_redirect(request, "Account activated! You have been logged in automatially!")
     else:
