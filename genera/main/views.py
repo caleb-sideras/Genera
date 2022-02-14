@@ -319,7 +319,7 @@ def metamask_login_handler_view(request):
                     return JsonResponse({"error": "Invalid address"}, status=400)
                 created_temp_user = MetamaskUserAuth.objects.get_or_create(public_address=received_json_data["public_address"])[0] #create the temporary user here.
                 # created_temp_user.nonce = "NONCE"
-                created_temp_user.nonce = str(random.randint(0,1000000)) #1 in a million, assuming low level understood
+                created_temp_user.nonce = str(random.randrange(1000,9999,4)) #1 in a million, assuming low level understood
                 created_temp_user.save()
                 return JsonResponse({"nonce": created_temp_user.nonce}, status=200) #Catch this in frontned - and sign web3.personal.sign(nonce, public_address) please
             
