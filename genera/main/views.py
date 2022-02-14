@@ -337,7 +337,8 @@ def metamask_login_handler_view(request):
                     print(f"{message_hash} - MESSAGE HASH !!")
 
                     try:
-                        decrypted_public_address = w3.eth.account.recoverHash(f"0x{message_hash}", signature=signature)
+                        message_hash = "0x" + message_hash
+                        decrypted_public_address = w3.eth.account.recoverHash(message_hash, signature=signature)
                     except Exception as e:
                         # print(e)
                         return "REDOVER MESSAGE FAILED"
