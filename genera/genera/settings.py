@@ -96,7 +96,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'genera.context_processors.protecc',
+                # 'genera.context_processors.protecc',
             ],
         },
     },
@@ -180,6 +180,11 @@ MAX_UPLOAD_SIZE = "5242880000"
 #TEST
 STRIPE_PUBILC_KEY = "pk_test_51K9ckjDlWp2mVdKSIZtZWcEmEIogg5LG2Vx9p8IjIM38bOo8CbGqddJuYeDEvbPUCdM11b7MeFD8YGC82V5m2Xqo00cHqVNc07"
 STRIPE_PRIVATE_KEY = "sk_test_51K9ckjDlWp2mVdKSxhtGeV44FHSaO7z89AYlxltSqY6hnSRHP3zhcOfWlQDqUmX8rqtHvjkEnpTconUyBS7K4H5Q00dGzl4yTg"
+
+#LIVE
+STRIPE_PUBILC_KEY_LIVE = "pk_live_51K9ckjDlWp2mVdKSm5NVgmeByiDBjHuIQQIW3xheApnLgbPYLvpBe84ANirJlu2F6T4vRv1dw0860XQiNacW8Lt000ve7MFMzu"
+STRIPE_PRIVATE_KEY_LIVE = "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"
+
 STRIPE_WEBHOOK_SECRET = "cbya-zuur-cfbo-smeo-help"#maybe
 
 #AWS BUCKET STUFF
