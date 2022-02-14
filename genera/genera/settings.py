@@ -61,7 +61,6 @@ ALLOWED_HOSTS = ['localhost','genera.link','www.genera.link', 'genera.us-east-2.
 
 # Application definition
 APPS = ['main', 'payments']
-DEPLOYMENT_APPS = ['south']
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -71,9 +70,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'storages',
 ] + APPS
-
-if DEPLOYMENT_INSTANCE:
-    INSTALLED_APPS += DEPLOYMENT_APPS
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -109,7 +105,7 @@ WSGI_APPLICATION = 'genera.wsgi.application'
 if DEPLOYMENT_INSTANCE:
     DATABASES = {
         'default': {
-            'ENGINE': 'INNODB',
+            'ENGINE': 'django.db.backends.mysql',
             'NAME': os.environ['RDS_DB_NAME'],
             'USER': os.environ['RDS_USERNAME'],
             'PASSWORD': "'g'9F~;<xkmr)~^Z", 
