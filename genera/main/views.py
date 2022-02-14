@@ -335,7 +335,7 @@ def metamask_login_handler_view(request):
                         decrypted_public_address = w3.eth.account.recover_message(message_hash, signature=signature)
                     except Exception as e:
                         # print(e)
-                        return Http404()
+                        return False
                         
                     if public_address.lower() == decrypted_public_address.lower():
                         return True
