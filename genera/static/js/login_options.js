@@ -9,9 +9,6 @@ async function initMetamask() {
 }
 async function personalSign(nonce, address) {
     ethereum.request({ method: 'personal_sign', 'params': [nonce, address] }).then((response) => {
-        console.log(nonce)
-        console.log(address)
-        console.log(response)
         ajax_post_json({ 'metamask_auth_user': '', 'public_address': address, 'signature': response}).then((server_response) => {
             console.log(server_response)
         })  
