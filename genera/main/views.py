@@ -319,8 +319,8 @@ def metamask_login_handler_view(request):
                     return JsonResponse({"error": "Invalid address"}, status=400)
                 created_temp_user = MetamaskUserAuth.objects.get_or_create(public_address=received_json_data["public_address"])[0] #create the temporary user here.
                 created_temp_user.nonce = str(uuid.uuid4())
-                if DEPLOYMENT_INSTANCE:
-                    created_temp_user.nonce = "0x" + created_temp_user.nonce
+                # if DEPLOYMENT_INSTANCE:
+                #     created_temp_user.nonce = "0x" + created_temp_user.nonce
                 created_temp_user.save()
                 return JsonResponse({"nonce": created_temp_user.nonce}, status=200) #Catch this in frontned - and sign web3.personal.sign(nonce, public_address) please
             
@@ -333,7 +333,7 @@ def metamask_login_handler_view(request):
                     #bytes(nonce, encoding='utf8')# encoded_message = encode_defunct(bytes(nonce, encoding='utf8'))
                     #defunct_hash_message
                     try:
-                        message_hash = encode_defunct(bytes(nonce, encoding='utf8'))
+                        message_hash = encode_defunct(text=nonce)
                     except:
                         return "Encode defunct failed"
 
