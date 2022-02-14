@@ -175,7 +175,7 @@ def upload_view(request):
                 if not value:
                     messages.error(request, message=f"An Error has occured - data is missing. Please try again.")
                     return ajax_redirect(reverse("main:upload"))
-                    
+
             layers = {}
             if paid_generation:
                 db_collection = UserCollection.objects.filter(user=request.user, collection_name=calebs_gay_dict["CollectionName"]).first()
@@ -192,9 +192,9 @@ def upload_view(request):
 
                 #CREATE THE FOLDER HERE PERHAPS ?
                 if DEPLOYMENT_INSTANCE:
-                    db_collection.path = f"users/{request.user.username}/collections/{calebs_gay_dict['CollectionName'].strip().replace(' ', '_')}" #TODO: make sure the the 2 parameters a filepath safe
+                    db_collection.path = f"users/{request.user.username_slug}/collections/{db_collection.collection_name_slug}" #TODO: make sure the the 2 parameters a filepath safe
                 else:
-                    db_collection.path = f"/media/users/{request.user.username}/collections/{calebs_gay_dict['CollectionName'].strip().replace(' ', '_')}"
+                    db_collection.path = f"/media/users/{request.user.username_slug}/collections/{db_collection.collection_name_slug}"
 
                 try:
                     db_collection.save()
@@ -753,40 +753,40 @@ def collection_view(request, username_slug, collection_name_slug):
                             {"server_message": "USER NOT LOGGED IN"},
                             status=202,
                         )
-                elif "delete_duplicates" in received_json_data:
-                    if request.user.is_authenticated:
-                        if user_collection.duplicates_deleted == False:
-                            i = 0
-                            while i < len(collection_images):
-                                # print(f"{len(collection_images)} LENGTH OF QUERY")
-                                entry_metadata = json.loads(collection_images[i].metadata)
-                                # print(f"{entry_metadata} COMPARISON METADATA {i}")
-                                for j in range(len(collection_images) - 1 - i):           
-                                    value_metadata = json.loads(collection_images[j + 1 + i].metadata)
-                                    # print(f"{value_metadata} CURRENT METADATA {j + 1 + i}")
-                                    if entry_metadata['attributes'] == value_metadata['attributes']:
-                                        # print(collection_images[j + 1 + i])
-                                        collection_images[j + 1 + i].delete()
-                                        user_collection.collection_size = user_collection.collection_size - 1
-                                        # print(user_collection.collection_size)
-                                        # print(f"{collection_images[j + 1 + i]} deleted {j + 1 + i}")
-                                    # user_collection.save()
-                                    collection_images = CollectionImage.objects.filter(linked_collection__id=user_collection.id)
-                                i = i + 1
+                # elif "delete_duplicates" in received_json_data:
+                #     if request.user.is_authenticated:
+                #         if user_collection.duplicates_deleted == False:
+                #             i = 0
+                #             while i < len(collection_images):
+                #                 # print(f"{len(collection_images)} LENGTH OF QUERY")
+                #                 entry_metadata = json.loads(collection_images[i].metadata)
+                #                 # print(f"{entry_metadata} COMPARISON METADATA {i}")
+                #                 for j in range(len(collection_images) - 1 - i):           
+                #                     value_metadata = json.loads(collection_images[j + 1 + i].metadata)
+                #                     # print(f"{value_metadata} CURRENT METADATA {j + 1 + i}")
+                #                     if entry_metadata['attributes'] == value_metadata['attributes']:
+                #                         # print(collection_images[j + 1 + i])
+                #                         collection_images[j + 1 + i].delete()
+                #                         user_collection.collection_size = user_collection.collection_size - 1
+                #                         # print(user_collection.collection_size)
+                #                         # print(f"{collection_images[j + 1 + i]} deleted {j + 1 + i}")
+                #                     # user_collection.save()
+                #                     collection_images = CollectionImage.objects.filter(linked_collection__id=user_collection.id)
+                #                 i = i + 1
 
-                        user_collection.duplicates_deleted = True
-                        user_collection.save()
+                #         user_collection.duplicates_deleted = True
+                #         user_collection.save()
 
 
-                        return JsonResponse(
-                            {"server_message": "Deleted duplicates"},
-                            status=200,
-                        )
-                    else:
-                        return JsonResponse(
-                            {"server_message": "USER NOT LOGGED IN"},
-                            status=202,
-                        )
+                #         return JsonResponse(
+                #             {"server_message": "Deleted duplicates"},
+                #             status=200,
+                #         )
+                #     else:
+                #         return JsonResponse(
+                #             {"server_message": "USER NOT LOGGED IN"},
+                #             status=202,
+                #         )
                 elif "delete_collection" in received_json_data:
                     if request.user.is_authenticated:
                         user_collection.delete()
