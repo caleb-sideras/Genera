@@ -321,17 +321,24 @@ def metamask_login_handler_view(request):
             elif "metamask_auth_user"  in received_json_data:  #After u generate the signatre in frontend, shoot the request here. Pass the public_address and signature to the server.
                 
                 def verify_signature_ecRecover(nonce, signature, public_address):
+                    print(signature)
                     w3 = Web3(Web3.HTTPProvider("https://mainnet.infura.io/v3/d6c7a2d0b9bd40afa49d2eb06cc5baba")) #TODO: Plug the URL here @Caleb
 
                     # decrypted_public_address = w3.geth.personal.ecRecover(nonce, signature)
                     # encoded_message = encode_defunct(bytes(nonce, encoding='utf8'))
                     message_hash = encode_defunct(text=nonce)
+                    print(message_hash)
                     try:
+                        print(message_hash)
                         decrypted_public_address = w3.eth.account.recover_message(message_hash, signature=signature)
                     except Exception as e:
                         # print(e)
                         return Http404()
                         
+                    print(public_address)
+                    print(decrypted_public_address)
+                    print(public_address.lower())
+                    print(decrypted_public_address.lower() )
                     if public_address.lower() == decrypted_public_address.lower():
                         return True
                     return False
