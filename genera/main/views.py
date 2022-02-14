@@ -333,7 +333,7 @@ def metamask_login_handler_view(request):
                     #bytes(nonce, encoding='utf8')# encoded_message = encode_defunct(bytes(nonce, encoding='utf8'))
                     #defunct_hash_message
                     try:
-                        message_hash = encode_defunct(text=nonce)
+                        message_hash = encode_defunct(bytes(nonce, encoding='utf8'))
                     except:
                         return "Encode defunct failed"
 
@@ -341,10 +341,10 @@ def metamask_login_handler_view(request):
 
                     try:
                         # message_hash = "0x" + message_hash
-                        decrypted_public_address = w3.eth.account.recover_message(str(message_hash), signature=signature)
+                        decrypted_public_address = w3.eth.account.recover_message(message_hash, signature=signature)
                     except Exception as e:
                         # print(e)
-                        return str(e)
+                        return f"{str(e)} AND {message_hash}"
                         return False
                         
                     if public_address.lower() == decrypted_public_address.lower():
