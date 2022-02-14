@@ -1,6 +1,6 @@
 from json.decoder import JSONDecodeError
 from django.shortcuts import render
-# from matplotlib.text import Text
+import string
 from main.helper_functions import nft_storage_api_store
 from main.view_tools import *
 from genera.settings import DEFAULT_FROM_EMAIL, STRIPE_PRIVATE_KEY_LIVE, DEPLOYMENT_INSTANCE
@@ -319,7 +319,7 @@ def metamask_login_handler_view(request):
                     return JsonResponse({"error": "Invalid address"}, status=400)
                 created_temp_user = MetamaskUserAuth.objects.get_or_create(public_address=received_json_data["public_address"])[0] #create the temporary user here.
                 # created_temp_user.nonce = "NONCE"
-                created_temp_user.nonce = str(random.randrange(1000,9999,4)) #1 in a million, assuming low level understood
+                created_temp_user.nonce = ''.join(random.choice(string.ascii_lowercase) for _ in range(5)) #1 in a thousand, assuming low level understood
                 created_temp_user.save()
                 return JsonResponse({"nonce": created_temp_user.nonce}, status=200) #Catch this in frontned - and sign web3.personal.sign(nonce, public_address) please
             
