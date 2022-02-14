@@ -51,7 +51,7 @@ DEPLOYMENT_INSTANCE = 'RDS_DB_NAME' in os.environ
 if DEPLOYMENT_INSTANCE:
     BASE_URL = 'https://www.genera.link'
     EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-    DEBUG = False
+    # DEBUG = False
 
 mimetypes.add_type("application/javascript", ".js", True) #TODO: IDK IF THIS NEEDS BE IN PROD!
 

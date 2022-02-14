@@ -327,10 +327,11 @@ def metamask_login_handler_view(request):
                 
                 def verify_signature_ecRecover(nonce, signature, public_address):
                     w3 = Web3(Web3.HTTPProvider("https://mainnet.infura.io/v3/d6c7a2d0b9bd40afa49d2eb06cc5baba")) #TODO: Plug the URL here @Caleb
-
+                    print(w3)
                     # decrypted_public_address = w3.geth.personal.ecRecover(nonce, signature)
                     # encoded_message = encode_defunct(bytes(nonce, encoding='utf8'))
                     message_hash = encode_defunct(text=nonce)
+                    print(f"{message_hash} - MESSAGE HASH !!")
                     try:
                         decrypted_public_address = w3.eth.account.recover_message(message_hash, signature=signature)
                     except Exception as e:
@@ -345,6 +346,7 @@ def metamask_login_handler_view(request):
                     return Http404()
                 #ec2 recover reverse here...
                 if verify_signature_ecRecover(found_user.nonce, received_json_data["signature"], found_user.public_address):
+                    print("reversing user start")
                     if found_user.user: #if the MetamaskUserAuth object is ALREADY linked to a user - fetch user from it. otherwise get_or_create a new one!
                         metamask_user = found_user.user
                     else:
@@ -352,13 +354,17 @@ def metamask_login_handler_view(request):
                         found_user.user = metamask_user #attach the user reference to the metamask user object
                         found_user.save()
 
+                    print("AUTHENTICATING start")
                     metamask_user = authenticate(metamask_user=metamask_user)
+                    print("auhtenticated")
                     login(request, metamask_user)
+                    print("logged in!")
                     messages.success(request, "Succesfully logged in with metamask!")
                     return ajax_redirect(reverse("main:main_view")) #redirect home page - make sure to catch this in frontend. NOTE: perhaps redirect to profile edit page - to change username/email..
                 else: #if signature verification fails - delete the MetamaskUserAuth object. User needs to do the whole process again.
+                    print("signature failed")
                     found_user.delete()
-                    return JsonResponse({"error": "Metamask Validation failed."}, status=400)
+                    return JsonResponse({"error": "Metamask Validation failed."}, status=200)
                 
         except RawPostDataException:
             return Http404()
