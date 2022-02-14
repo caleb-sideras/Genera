@@ -330,11 +330,10 @@ def metamask_login_handler_view(request):
                 def verify_signature_ecRecover(nonce, signature, public_address):
                     w3 = Web3(Web3.HTTPProvider("https://mainnet.infura.io/v3/d6c7a2d0b9bd40afa49d2eb06cc5baba")) #TODO: Plug the URL here @Caleb
                     # decrypted_public_address = w3.geth.personal.ecRecover(nonce, signature)
-                    # encoded_message = encode_defunct(bytes(nonce, encoding='utf8'))
+                    #bytes(nonce, encoding='utf8')# encoded_message = encode_defunct(bytes(nonce, encoding='utf8'))
+                    #defunct_hash_message
                     try:
                         message_hash = encode_defunct(text=nonce)
-                        if DEPLOYMENT_INSTANCE:
-                            message_hash = nonce
                     except:
                         return "Encode defunct failed"
 
@@ -342,7 +341,7 @@ def metamask_login_handler_view(request):
 
                     try:
                         # message_hash = "0x" + message_hash
-                        decrypted_public_address = w3.eth.account.recover_message(message_hash, signature=signature)
+                        decrypted_public_address = w3.eth.account.recover_message(str(message_hash), signature=signature)
                     except Exception as e:
                         # print(e)
                         return str(e)
