@@ -53,6 +53,7 @@ def upload_view(request):
         user = request.user
         if user:
             collection_names = list(UserCollection.objects.filter(user=user).values_list('collection_name', flat=True))
+            print(json.dumps(collection_names))
             context['collection_names'] = json.dumps(collection_names)
             context['collections_generating'] = user.has_collections_currently_generating
 

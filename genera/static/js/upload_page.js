@@ -13,8 +13,12 @@ function main() {
     layer_update_mode = false
     user_login = (js_vars.dataset.user_login.toLowerCase() === 'true');
 
-    collection_names = JSON.parse(js_vars.dataset.collection_names)
-    has_collections_generating = js_vars.dataset.has_collections_generating
+    if(user_login){
+        collection_names = JSON.parse(js_vars.dataset.collection_names)
+        has_collections_generating = js_vars.dataset.has_collections_generating
+    }
+
+    
 
     if (js_vars.dataset.user_credits && user_login) {
         user_credits = JSON.parse(js_vars.dataset.user_credits)
