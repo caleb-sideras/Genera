@@ -56,11 +56,11 @@ def upload_view(request):
             context['collection_names'] = json.dumps(collection_names)
             context['collections_generating'] = user.has_collections_currently_generating
 
-    def file_to_pil_no_resize(file, res_x, res_y):
+    def file_to_pil_no_resize(file, res_x, res_y, res_thereshold):
         PIL_image = Image.open(BytesIO(file.read()))
         height, width = PIL_image.size
-        if height != res_x or width != res_y or height > 4000 or width > 4000:
-            raise RawPostDataException
+        if height != res_x or width != res_y or height > res_thereshold or width > res_thereshold:
+            raise RawPostDataException #TODO: Consider different raise for optimization
         return PIL_image
 
     def pil_to_bytes(pil_img):
@@ -71,7 +71,7 @@ def upload_view(request):
     calebs_gay_dict = {}
     
     if request.method == "POST":
-   
+    
         if len(request.FILES) != 0:
 
             # Preview handling
@@ -86,15 +86,22 @@ def upload_view(request):
                 layers_list_names = [None] * len(layernames)
                 textures_list_names = [None] * len(layernames)
                 for filename in request.FILES.keys():
-                    for file in request.FILES.getlist(filename):
-                        layer_name = filename.split(".")[0]
-                        count = int(filename.split(".")[1])
-                        if layer_name =="asset":
-                            layers_list[count] = file_to_pil_no_resize(file, res_x, res_y)
-                            layers_list_names[count] = file.name.split(".")[0]
-                        else:
-                            textures_list[count] = file_to_pil_no_resize(file, res_x, res_y)
-                            textures_list_names[count] = file.name.split(".")[0]
+                    try:
+                        for file in request.FILES.getlist(filename):
+                            layer_name = filename.split(".")[0]
+                            count = int(filename.split(".")[1])
+                            if layer_name =="asset":
+                                layers_list[count] = file_to_pil_no_resize(file, res_x, res_y, 500)
+                                layers_list_names[count] = file.name.split(".")[0]
+                            else:
+                                textures_list[count] = file_to_pil_no_resize(file, res_x, res_y, 500)
+                                textures_list_names[count] = file.name.split(".")[0]
+                    except RawPostDataException:
+                        messages.error(request, "Critical error - collection size exceeds allowance.")
+                        # user.delete()
+                        ajax_redirect(reverse("main:main_view"))
+
+
                 im = Image.new (
                     "RGBA", (res_x, res_y), (0, 0, 0, 0)
                 )
@@ -139,36 +146,38 @@ def upload_view(request):
                 )
 
             # Generation Handling
-
-            #Paid or Free Generation
-            if request.user.is_authenticated:
-                coll_size = int(float(request.POST.get("size", default="10001")))
-
+            coll_size = int(float(request.POST.get("size", default="10001")))
+            res_x = int(float(request.POST.get("resolution_x", None)))
+            res_y = int(float(request.POST.get("resolution_y", None)))
+            default_thereshold = 500
+            paid_generation = True
+            if request.user.is_authenticated: #ONLY CAN BE PAID
+                default_thereshold = 4000
                 if coll_size > 10000:
                     messages.error(request, message=f"You've attempted to generate a collection with {coll_size} images. Maximum collection size is 10000!")
                     return ajax_redirect(reverse("main:upload"))
 
-                if coll_size <= request.user.credits:
-                    paid_generation = True
-                elif coll_size > request.user.credits and coll_size <= 100:
-                    paid_generation = False
-
-                else:
-                    messages.error(request, message="Not enough credits.")
+                if coll_size > request.user.credits:
+                    messages.error(request, message=f"Not enough credits for collection size of {coll_size}.")
                     return ajax_redirect(reverse("main:upload"))
-            elif coll_size > 100:
-                messages.error(request, message="Maximum Free Generations are 100.")
-                return ajax_redirect(reverse("main:upload"))
             else:
+                if coll_size > 20:
+                    messages.error(request, message="Maximum 20 images in Free Generations allowed.")
+                    return ajax_redirect(reverse("main:upload"))
+                if res_x > 500 or res_y > 500:
+                    messages.error(request, message="Free generations cannot go over 500px in either dimensions!")
+                    return ajax_redirect(reverse("main:upload"))
                 paid_generation = False
             
             calebs_gay_dict["CollectionName"] = request.POST.get("collection_name")
             calebs_gay_dict["ImageName"]= request.POST.get("image_name")
             calebs_gay_dict["Description"] = request.POST.get("description")
-            calebs_gay_dict["Resolution_x"] = int(float(request.POST.get("resolution_x")))
-            calebs_gay_dict["Resolution_y"] = int(float(request.POST.get("resolution_y")))
+            calebs_gay_dict["Resolution_x"] = res_x
+            calebs_gay_dict["Resolution_y"] = res_y
             calebs_gay_dict["CollectionSize"] = coll_size
             calebs_gay_dict["TextureColor"] = request.POST.get("color")
+
+            print(calebs_gay_dict["CollectionSize"])
 
             new_dict = json.loads(request.POST.get("image_dict"))
             for value in calebs_gay_dict.values():
@@ -200,69 +209,75 @@ def upload_view(request):
                     db_collection.save()
 
                 except Exception as e:
-                    # print(e)
                     messages.error(request, message="Critical Backend error. Unable to create collection.")
                     return ajax_redirect(reverse("main:upload"))
             
-            for filename in request.FILES.keys():
-                for file in request.FILES.getlist(filename): ##for this set of file get layer name and layer type
-                    layer_type = filename.split(".")[0]
-                    layer_name = filename.split(".")[1]
-                    file_name = file.name
-                    file_name_no_extension = file.name.split(".")[0]
-                    file_name_extension = file.name.split(".")[1]
-                    full_file_name = f"{layer_type}.{layer_name}.{file_name_no_extension}.{file_name_extension}"
+            try:
+                for filename in request.FILES.keys():
+                    for file in request.FILES.getlist(filename): ##for this set of file get layer name and layer type
+                        layer_type = filename.split(".")[0]
+                        layer_name = filename.split(".")[1]
+                        file_name = file.name
+                        file_name_no_extension = file.name.split(".")[0]
+                        file_name_extension = file.name.split(".")[1]
+                        full_file_name = f"{layer_type}.{layer_name}.{file_name_no_extension}.{file_name_extension}"
 
-                    if file_name_extension.lower() != "png":
-                        continue
+                        if file_name_extension.lower() != "png":
+                            continue
 
-                    if layer_name not in layers:
-                        layers[layer_name] = {
-                            "Assets": [],
-                            "Textures": [],
-                        }
-                    
-                    if layer_name in layers:
-                        if layer_type == "Assets":
+                        if layer_name not in layers:
+                            layers[layer_name] = {
+                                "Assets": [],
+                                "Textures": [],
+                            }
 
-                            if  0 < int(float(new_dict[layer_name]['Assets'][file_name]['Rarity'])) <= calebs_gay_dict["CollectionSize"]:  # if  0 < rarity < collectionsize 
-                                layers[layer_name]["Assets"].append(
-                                    {
-                                        "Name": file_name_no_extension,
-                                        "PIL": file_to_pil_no_resize(file,
-                                        calebs_gay_dict["Resolution_x"],
-                                        calebs_gay_dict["Resolution_y"]),  # REPLACE WITH file_to_pil(file) WHEN NEED ACTUAL FILE OBJECT IN NUMPY
-                                        "Rarity": int(float(new_dict[layer_name]['Assets'][file_name]['Rarity'])),
-                                    }
-                                )
-                            else:
-                                if paid_generation:
-                                    db_collection.delete()
-                                messages.error(request, message="Data mismatch. Please try again.")
-                                return ajax_redirect(reverse("main:upload"))
-                        if layer_type == "Textures":
+                        if layer_name in layers:
+                            if layer_type == "Assets":
+                                print(calebs_gay_dict["CollectionSize"])
+                                print(int(float(new_dict[layer_name]['Assets'][file_name]['Rarity'])))
+                                if  0 < int(float(new_dict[layer_name]['Assets'][file_name]['Rarity'])) <= calebs_gay_dict["CollectionSize"]:  # if  0 < rarity < collectionsize 
+                                    layers[layer_name]["Assets"].append(
+                                        {
+                                            "Name": file_name_no_extension,
+                                            "PIL": file_to_pil_no_resize(file,
+                                                calebs_gay_dict["Resolution_x"],
+                                                calebs_gay_dict["Resolution_y"],
+                                                default_thereshold),  # REPLACE WITH file_to_pil(file) WHEN NEED ACTUAL FILE OBJECT IN NUMPY
+                                            "Rarity": int(float(new_dict[layer_name]['Assets'][file_name]['Rarity'])),
+                                        }
+                                    )
+                                else:
+                                    if paid_generation:
+                                        db_collection.delete()
+                                    messages.error(request, message="Data mismatch. Please try again.")
+                                    return ajax_redirect(reverse("main:upload"))
 
-                            if 0 < int(float(new_dict[layer_name]['Textures'][file_name]['Rarity'])) <= calebs_gay_dict["CollectionSize"]:  # if  0 < rarity < collectionsize 
-                                layers[layer_name]["Textures"].append(
-                                    {
-                                        "Name": file_name_no_extension,
-                                        "PIL": file_to_pil_no_resize(
-                                            file,
-                                            calebs_gay_dict["Resolution_x"],
-                                            calebs_gay_dict["Resolution_y"]
-                                        ),  # REPLACE WITH file_to_pil(file) WHEN NEED ACTUAL FILE OBJECT IN NUMPY
-                                        "Rarity": int(float(new_dict[layer_name]['Textures'][file_name]['Rarity'])),
-                                    }
-                                )
-                            else:
-                                if paid_generation:
-                                    db_collection.delete()
-                                messages.error(request, message="Data mismatch. Please try again.")
-                                return ajax_redirect(reverse("main:upload"))
+                            if layer_type == "Textures":
+
+                                if 0 < int(float(new_dict[layer_name]['Textures'][file_name]['Rarity'])) <= calebs_gay_dict["CollectionSize"]:  # if  0 < rarity < collectionsize 
+                                    layers[layer_name]["Textures"].append(
+                                        {
+                                            "Name": file_name_no_extension,
+                                            "PIL": file_to_pil_no_resize(
+                                                file,
+                                                calebs_gay_dict["Resolution_x"],
+                                                calebs_gay_dict["Resolution_y"],
+                                                default_thereshold
+                                            ),  # REPLACE WITH file_to_pil(file) WHEN NEED ACTUAL FILE OBJECT IN NUMPY
+                                            "Rarity": int(float(new_dict[layer_name]['Textures'][file_name]['Rarity'])),
+                                        }
+                                    )
+                                else:
+                                    if paid_generation:
+                                        db_collection.delete()
+                                    messages.error(request, message="Data mismatch. Please try again.")
+                                    return ajax_redirect(reverse("main:upload"))
+            except RawPostDataException:
+                messages.error(request, "Critical error - collection size exceeds allowance.")
+                # user.delete()
+                ajax_redirect(reverse("main:main_view"))
 
             calebs_gay_dict["Layers"] = layers  # calebs gay dict complete
-
-            # print(calebs_gay_dict["Layers"])
             
             if paid_generation:
                 try:
@@ -528,7 +543,6 @@ def profile_view(request, username_slug):
     
     users_collections = user.get_all_minted_collections()
 
-
     return render(request, 'user_profile.html', context={"owner":owner, "user":user, "users_collections":users_collections})
 
 def mint_view(request, username_slug, contract_address):
@@ -625,7 +639,6 @@ def collection_view(request, username_slug, collection_name_slug):
                             if image.compressed_path:
                                 image.compressed_path = aws_media_storage_manipulator.create_secure_url(path_to_object=image.compressed_path, expire=604800)
                             image.save() #save image with new links!
-
 
                     context["collection_data"] = user_collection
                     context["collection_images"] = collection_images

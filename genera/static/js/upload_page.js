@@ -1301,8 +1301,8 @@ function validate_size(field_object) {
         }
     }
     else{
-        if (field_object.value > 100) {
-            custom_validation_false(field_object, "Maximum of 100 free generations allowed!")
+        if (field_object.value > 20) {
+            custom_validation_false(field_object, "Maximum of 20 free generations allowed!")
         } else {
             custom_validation_true(field_object)
         }
