@@ -332,27 +332,30 @@ def metamask_login_handler_view(request):
                     try:
                         message_hash = encode_defunct(text=nonce)
                     except:
-                        return JsonResponse({"error": "Encode defunct failed"}, status=200)
+                        return "Encode defunct failed"
 
                     print(f"{message_hash} - MESSAGE HASH !!")
+
                     try:
                         decrypted_public_address = w3.eth.account.recover_message(message_hash, signature=signature)
                     except Exception as e:
                         # print(e)
-                        return JsonResponse({"error": "REDOVER MESSAGE FAILED"}, status=200)
+                        return "REDOVER MESSAGE FAILED"
                         return False
                         
                     if public_address.lower() == decrypted_public_address.lower():
                         return True
                     else:
-                        return JsonResponse({"error": "Encode defunct failed", "add1": public_address.lower(), "add2": decrypted_public_address.lower()}, status=200)
+                        return f"{public_address.lower()} AND {decrypted_public_address.lower()}"
                     return False
                 found_user = MetamaskUserAuth.objects.filter(public_address=received_json_data["public_address"]).first()
                 if not found_user: # user not found - shouldnt happen ever xd
                     return Http404()
 
                 #ec2 recover reverse here...
-                if verify_signature_ecRecover(found_user.nonce, received_json_data["signature"], found_user.public_address):
+                signature_verified = verify_signature_ecRecover(found_user.nonce, received_json_data["signature"], found_user.public_address)
+                
+                if signature_verified == True:
                     print("reversing user start")
                     if found_user.user: #if the MetamaskUserAuth object is ALREADY linked to a user - fetch user from it. otherwise get_or_create a new one!
                         metamask_user = found_user.user
@@ -371,7 +374,7 @@ def metamask_login_handler_view(request):
                 else: #if signature verification fails - delete the MetamaskUserAuth object. User needs to do the whole process again.
                     print("signature failed")
                     found_user.delete()
-                    return JsonResponse({"error": "Metamask Validation failed."}, status=200)
+                    return JsonResponse({"error": signature_verified}, status=200)
                 
         except RawPostDataException:
             return Http404()
