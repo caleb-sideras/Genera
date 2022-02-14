@@ -45,10 +45,10 @@ class FailedGeneratioins_Admin(admin.ModelAdmin):
     search_fields = []
     list_filter = []
 
-
 admin.site.register(User, User_Admin)
 # admin.site.register(UserAsset, UserAsset_Admin)
 admin.site.register(UserCollection, UserCollection_Admin)
 # admin.site.register(CollectionImage, CollectionImage_Admin)
 admin.site.register(FailedUserCollection_Tracker, FailedGeneratioins_Admin)
 admin.site.register(MetamaskUserAuth)
+admin.site.register(UserCollectionMintPublic)
