@@ -333,6 +333,8 @@ def metamask_login_handler_view(request):
                     # encoded_message = encode_defunct(bytes(nonce, encoding='utf8'))
                     try:
                         message_hash = encode_defunct(text=nonce)
+                        if DEPLOYMENT_INSTANCE:
+                            message_hash = nonce
                     except:
                         return "Encode defunct failed"
 
