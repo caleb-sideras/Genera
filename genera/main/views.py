@@ -318,7 +318,7 @@ def metamask_login_handler_view(request):
                 if not Web3.isAddress(received_json_data["public_address"]): #to prevent spamming the server with requests that create a model. consider isChecksumAddress idk?
                     return JsonResponse({"error": "Invalid address"}, status=400)
                 created_temp_user = MetamaskUserAuth.objects.get_or_create(public_address=received_json_data["public_address"])[0] #create the temporary user here.
-                created_temp_user.nonce = str(uuid.uuid4())
+                created_temp_user.nonce = "NONCE"
                 # created_temp_user.nonce = uuid.uuid4().hex
 
                 # if DEPLOYMENT_INSTANCE:
@@ -335,7 +335,7 @@ def metamask_login_handler_view(request):
                     #bytes(nonce, encoding='utf8')# encoded_message = encode_defunct(bytes(nonce, encoding='utf8'))
                     #defunct_hash_message
                     try:
-                        message_hash = defunct_hash_message(text=nonce)
+                        message_hash = encode_defunct(text=nonce)
                     except:
                         return "Encode defunct failed"
 
