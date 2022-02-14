@@ -725,10 +725,7 @@ async function deploy_contract_request_public(){
     }
     minting_cost = web3.utils.toWei(String(contract_inputs[0].value), 'ether')
     contract_type = contract_inputs[1].value
-    deploy_bool = (contract_inputs[2].value.toLowerCase() === 'true');
-        
-    console.log(deploy_bool)
-    console.log(typeof (deploy_bool))
+    deploy_bool = (contract_inputs[2].value.toLowerCase() === 'true')
     token_name = contract_inputs[3].value
 
     loading_deploy_collection(deploy_collection_data_public['Contract'][1])

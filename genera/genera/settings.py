@@ -51,7 +51,7 @@ DEPLOYMENT_INSTANCE = 'RDS_DB_NAME' in os.environ
 if DEPLOYMENT_INSTANCE:
     BASE_URL = 'https://www.genera.link'
     EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-    #DEBUG = False #TODO: Make this FALSE when all is done..
+    # DEBUG = False
 
 mimetypes.add_type("application/javascript", ".js", True) #TODO: IDK IF THIS NEEDS BE IN PROD!
 
@@ -61,7 +61,6 @@ ALLOWED_HOSTS = ['localhost','genera.link','www.genera.link', 'genera.us-east-2.
 
 # Application definition
 APPS = ['main', 'payments']
-
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',

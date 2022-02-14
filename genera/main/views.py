@@ -1,6 +1,6 @@
 from json.decoder import JSONDecodeError
 from django.shortcuts import render
-# from matplotlib.text import Text
+import string
 from main.helper_functions import nft_storage_api_store
 from main.view_tools import *
 from genera.settings import DEFAULT_FROM_EMAIL, STRIPE_PRIVATE_KEY_LIVE, DEPLOYMENT_INSTANCE
@@ -56,11 +56,11 @@ def upload_view(request):
             context['collection_names'] = json.dumps(collection_names)
             context['collections_generating'] = user.has_collections_currently_generating
 
-    def file_to_pil_no_resize(file, res_x, res_y):
+    def file_to_pil_no_resize(file, res_x, res_y, res_thereshold):
         PIL_image = Image.open(BytesIO(file.read()))
         height, width = PIL_image.size
-        if height != res_x or width != res_y or height > 4000 or width > 4000:
-            raise RawPostDataException
+        if height != res_x or width != res_y or height > res_thereshold or width > res_thereshold:
+            raise RawPostDataException #TODO: Consider different raise for optimization
         return PIL_image
 
     def pil_to_bytes(pil_img):
@@ -71,7 +71,7 @@ def upload_view(request):
     calebs_gay_dict = {}
     
     if request.method == "POST":
-   
+    
         if len(request.FILES) != 0:
 
             # Preview handling
@@ -86,15 +86,22 @@ def upload_view(request):
                 layers_list_names = [None] * len(layernames)
                 textures_list_names = [None] * len(layernames)
                 for filename in request.FILES.keys():
-                    for file in request.FILES.getlist(filename):
-                        layer_name = filename.split(".")[0]
-                        count = int(filename.split(".")[1])
-                        if layer_name =="asset":
-                            layers_list[count] = file_to_pil_no_resize(file, res_x, res_y)
-                            layers_list_names[count] = file.name.split(".")[0]
-                        else:
-                            textures_list[count] = file_to_pil_no_resize(file, res_x, res_y)
-                            textures_list_names[count] = file.name.split(".")[0]
+                    try:
+                        for file in request.FILES.getlist(filename):
+                            layer_name = filename.split(".")[0]
+                            count = int(filename.split(".")[1])
+                            if layer_name =="asset":
+                                layers_list[count] = file_to_pil_no_resize(file, res_x, res_y, 500)
+                                layers_list_names[count] = file.name.split(".")[0]
+                            else:
+                                textures_list[count] = file_to_pil_no_resize(file, res_x, res_y, 500)
+                                textures_list_names[count] = file.name.split(".")[0]
+                    except RawPostDataException:
+                        messages.error(request, "Critical error - collection size exceeds allowance.")
+                        # user.delete()
+                        ajax_redirect(reverse("main:main_view"))
+
+
                 im = Image.new (
                     "RGBA", (res_x, res_y), (0, 0, 0, 0)
                 )
@@ -139,31 +146,38 @@ def upload_view(request):
                 )
 
             # Generation Handling
-
-            #Paid or Free Generation
-            if request.user.is_authenticated:
-
-                if int(float(request.POST.get("size"))) <= request.user.credits:
-                    paid_generation = True
-                elif int(float(request.POST.get("size"))) > request.user.credits and int(float(request.POST.get("size"))) <= 100:
-                    paid_generation = False
-
-                else:
-                    messages.error(request, message="Not enough credits.")
+            coll_size = int(float(request.POST.get("size", default="10001")))
+            res_x = int(float(request.POST.get("resolution_x", None)))
+            res_y = int(float(request.POST.get("resolution_y", None)))
+            default_thereshold = 500
+            paid_generation = True
+            if request.user.is_authenticated: #ONLY CAN BE PAID
+                default_thereshold = 4000
+                if coll_size > 10000:
+                    messages.error(request, message=f"You've attempted to generate a collection with {coll_size} images. Maximum collection size is 10000!")
                     return ajax_redirect(reverse("main:upload"))
-            elif int(float(request.POST.get("size"))) > 100:
-                messages.error(request, message="Maximum Free Generations are 100.")
-                return ajax_redirect(reverse("main:upload"))
+
+                if coll_size > request.user.credits:
+                    messages.error(request, message=f"Not enough credits for collection size of {coll_size}.")
+                    return ajax_redirect(reverse("main:upload"))
             else:
+                if coll_size > 20:
+                    messages.error(request, message="Maximum 20 images in Free Generations allowed.")
+                    return ajax_redirect(reverse("main:upload"))
+                if res_x > 500 or res_y > 500:
+                    messages.error(request, message="Free generations cannot go over 500px in either dimensions!")
+                    return ajax_redirect(reverse("main:upload"))
                 paid_generation = False
             
             calebs_gay_dict["CollectionName"] = request.POST.get("collection_name")
             calebs_gay_dict["ImageName"]= request.POST.get("image_name")
             calebs_gay_dict["Description"] = request.POST.get("description")
-            calebs_gay_dict["Resolution_x"] = int(float(request.POST.get("resolution_x")))
-            calebs_gay_dict["Resolution_y"] = int(float(request.POST.get("resolution_y")))
-            calebs_gay_dict["CollectionSize"] = int(float(request.POST.get("size")))
+            calebs_gay_dict["Resolution_x"] = res_x
+            calebs_gay_dict["Resolution_y"] = res_y
+            calebs_gay_dict["CollectionSize"] = coll_size
             calebs_gay_dict["TextureColor"] = request.POST.get("color")
+
+            print(calebs_gay_dict["CollectionSize"])
 
             new_dict = json.loads(request.POST.get("image_dict"))
             for value in calebs_gay_dict.values():
@@ -187,77 +201,83 @@ def upload_view(request):
 
                 #CREATE THE FOLDER HERE PERHAPS ?
                 if DEPLOYMENT_INSTANCE:
-                    db_collection.path = f"users/{request.user.username}/collections/{calebs_gay_dict['CollectionName'].strip().replace(' ', '_')}" #TODO: make sure the the 2 parameters a filepath safe
+                    db_collection.path = f"users/{request.user.username_slug}/collections/{db_collection.collection_name_slug}" #TODO: make sure the the 2 parameters a filepath safe
                 else:
-                    db_collection.path = f"/media/users/{request.user.username}/collections/{calebs_gay_dict['CollectionName'].strip().replace(' ', '_')}"
+                    db_collection.path = f"/media/users/{request.user.username_slug}/collections/{db_collection.collection_name_slug}"
 
                 try:
                     db_collection.save()
 
                 except Exception as e:
-                    # print(e)
                     messages.error(request, message="Critical Backend error. Unable to create collection.")
                     return ajax_redirect(reverse("main:upload"))
             
-            for filename in request.FILES.keys():
-                for file in request.FILES.getlist(filename): ##for this set of file get layer name and layer type
-                    layer_type = filename.split(".")[0]
-                    layer_name = filename.split(".")[1]
-                    file_name = file.name
-                    file_name_no_extension = file.name.split(".")[0]
-                    file_name_extension = file.name.split(".")[1]
-                    full_file_name = f"{layer_type}.{layer_name}.{file_name_no_extension}.{file_name_extension}"
+            try:
+                for filename in request.FILES.keys():
+                    for file in request.FILES.getlist(filename): ##for this set of file get layer name and layer type
+                        layer_type = filename.split(".")[0]
+                        layer_name = filename.split(".")[1]
+                        file_name = file.name
+                        file_name_no_extension = file.name.split(".")[0]
+                        file_name_extension = file.name.split(".")[1]
+                        full_file_name = f"{layer_type}.{layer_name}.{file_name_no_extension}.{file_name_extension}"
 
-                    if file_name_extension.lower() != "png":
-                        continue
+                        if file_name_extension.lower() != "png":
+                            continue
 
-                    if layer_name not in layers:
-                        layers[layer_name] = {
-                            "Assets": [],
-                            "Textures": [],
-                        }
-                    
-                    if layer_name in layers:
-                        if layer_type == "Assets":
+                        if layer_name not in layers:
+                            layers[layer_name] = {
+                                "Assets": [],
+                                "Textures": [],
+                            }
 
-                            if  0 < int(float(new_dict[layer_name]['Assets'][file_name]['Rarity'])) <= calebs_gay_dict["CollectionSize"]:  # if  0 < rarity < collectionsize 
-                                layers[layer_name]["Assets"].append(
-                                    {
-                                        "Name": file_name_no_extension,
-                                        "PIL": file_to_pil_no_resize(file,
-                                        calebs_gay_dict["Resolution_x"],
-                                        calebs_gay_dict["Resolution_y"]),  # REPLACE WITH file_to_pil(file) WHEN NEED ACTUAL FILE OBJECT IN NUMPY
-                                        "Rarity": int(float(new_dict[layer_name]['Assets'][file_name]['Rarity'])),
-                                    }
-                                )
-                            else:
-                                if paid_generation:
-                                    db_collection.delete()
-                                messages.error(request, message="Data mismatch. Please try again.")
-                                return ajax_redirect(reverse("main:upload"))
-                        if layer_type == "Textures":
+                        if layer_name in layers:
+                            if layer_type == "Assets":
+                                print(calebs_gay_dict["CollectionSize"])
+                                print(int(float(new_dict[layer_name]['Assets'][file_name]['Rarity'])))
+                                if  0 < int(float(new_dict[layer_name]['Assets'][file_name]['Rarity'])) <= calebs_gay_dict["CollectionSize"]:  # if  0 < rarity < collectionsize 
+                                    layers[layer_name]["Assets"].append(
+                                        {
+                                            "Name": file_name_no_extension,
+                                            "PIL": file_to_pil_no_resize(file,
+                                                calebs_gay_dict["Resolution_x"],
+                                                calebs_gay_dict["Resolution_y"],
+                                                default_thereshold),  # REPLACE WITH file_to_pil(file) WHEN NEED ACTUAL FILE OBJECT IN NUMPY
+                                            "Rarity": int(float(new_dict[layer_name]['Assets'][file_name]['Rarity'])),
+                                        }
+                                    )
+                                else:
+                                    if paid_generation:
+                                        db_collection.delete()
+                                    messages.error(request, message="Data mismatch. Please try again.")
+                                    return ajax_redirect(reverse("main:upload"))
 
-                            if 0 < int(float(new_dict[layer_name]['Textures'][file_name]['Rarity'])) <= calebs_gay_dict["CollectionSize"]:  # if  0 < rarity < collectionsize 
-                                layers[layer_name]["Textures"].append(
-                                    {
-                                        "Name": file_name_no_extension,
-                                        "PIL": file_to_pil_no_resize(
-                                            file,
-                                            calebs_gay_dict["Resolution_x"],
-                                            calebs_gay_dict["Resolution_y"]
-                                        ),  # REPLACE WITH file_to_pil(file) WHEN NEED ACTUAL FILE OBJECT IN NUMPY
-                                        "Rarity": int(float(new_dict[layer_name]['Textures'][file_name]['Rarity'])),
-                                    }
-                                )
-                            else:
-                                if paid_generation:
-                                    db_collection.delete()
-                                messages.error(request, message="Data mismatch. Please try again.")
-                                return ajax_redirect(reverse("main:upload"))
+                            if layer_type == "Textures":
+
+                                if 0 < int(float(new_dict[layer_name]['Textures'][file_name]['Rarity'])) <= calebs_gay_dict["CollectionSize"]:  # if  0 < rarity < collectionsize 
+                                    layers[layer_name]["Textures"].append(
+                                        {
+                                            "Name": file_name_no_extension,
+                                            "PIL": file_to_pil_no_resize(
+                                                file,
+                                                calebs_gay_dict["Resolution_x"],
+                                                calebs_gay_dict["Resolution_y"],
+                                                default_thereshold
+                                            ),  # REPLACE WITH file_to_pil(file) WHEN NEED ACTUAL FILE OBJECT IN NUMPY
+                                            "Rarity": int(float(new_dict[layer_name]['Textures'][file_name]['Rarity'])),
+                                        }
+                                    )
+                                else:
+                                    if paid_generation:
+                                        db_collection.delete()
+                                    messages.error(request, message="Data mismatch. Please try again.")
+                                    return ajax_redirect(reverse("main:upload"))
+            except RawPostDataException:
+                messages.error(request, "Critical error - collection size exceeds allowance.")
+                # user.delete()
+                ajax_redirect(reverse("main:main_view"))
 
             calebs_gay_dict["Layers"] = layers  # calebs gay dict complete
-
-            # print(calebs_gay_dict["Layers"])
             
             if paid_generation:
                 try:
@@ -313,39 +333,33 @@ def metamask_login_handler_view(request):
                 if not Web3.isAddress(received_json_data["public_address"]): #to prevent spamming the server with requests that create a model. consider isChecksumAddress idk?
                     return JsonResponse({"error": "Invalid address"}, status=400)
                 created_temp_user = MetamaskUserAuth.objects.get_or_create(public_address=received_json_data["public_address"])[0] #create the temporary user here.
-                created_temp_user.nonce = str(uuid.uuid4())
+                # created_temp_user.nonce = "NONCE"
+                created_temp_user.nonce = ''.join(random.choice(string.ascii_lowercase) for _ in range(5)) #1 in a thousand, assuming low level understood
                 created_temp_user.save()
                 return JsonResponse({"nonce": created_temp_user.nonce}, status=200) #Catch this in frontned - and sign web3.personal.sign(nonce, public_address) please
             
             #Add 'metamask_auth_user': '' to the json data in frontend pls - empty key but so we can distinguish here in the backend
             elif "metamask_auth_user"  in received_json_data:  #After u generate the signatre in frontend, shoot the request here. Pass the public_address and signature to the server.
-                
                 def verify_signature_ecRecover(nonce, signature, public_address):
-                    print(signature)
                     w3 = Web3(Web3.HTTPProvider("https://mainnet.infura.io/v3/d6c7a2d0b9bd40afa49d2eb06cc5baba")) #TODO: Plug the URL here @Caleb
-
-                    # decrypted_public_address = w3.geth.personal.ecRecover(nonce, signature)
-                    # encoded_message = encode_defunct(bytes(nonce, encoding='utf8'))
                     message_hash = encode_defunct(text=nonce)
-                    print(message_hash)
+
                     try:
-                        print(message_hash)
                         decrypted_public_address = w3.eth.account.recover_message(message_hash, signature=signature)
                     except Exception as e:
-                        # print(e)
-                        return Http404()
-                        
-                    print(public_address)
-                    print(decrypted_public_address)
-                    print(public_address.lower())
-                    print(decrypted_public_address.lower() )
+                        return False
+
                     if public_address.lower() == decrypted_public_address.lower():
                         return True
+
                     return False
                 found_user = MetamaskUserAuth.objects.filter(public_address=received_json_data["public_address"]).first()
                 if not found_user: # user not found - shouldnt happen ever xd
                     return Http404()
+
                 #ec2 recover reverse here...
+                
+                
                 if verify_signature_ecRecover(found_user.nonce, received_json_data["signature"], found_user.public_address):
                     if found_user.user: #if the MetamaskUserAuth object is ALREADY linked to a user - fetch user from it. otherwise get_or_create a new one!
                         metamask_user = found_user.user
@@ -360,7 +374,7 @@ def metamask_login_handler_view(request):
                     return ajax_redirect(reverse("main:main_view")) #redirect home page - make sure to catch this in frontend. NOTE: perhaps redirect to profile edit page - to change username/email..
                 else: #if signature verification fails - delete the MetamaskUserAuth object. User needs to do the whole process again.
                     found_user.delete()
-                    return JsonResponse({"error": "Metamask Validation failed."}, status=400)
+                    return JsonResponse({"error": signature_verified}, status=200)
                 
         except RawPostDataException:
             return Http404()
@@ -369,7 +383,7 @@ def metamask_login_handler_view(request):
     else:
         return Http404()
 
-def login_view(request, current_extension=404):
+def login_view(request):
     # print("WHY ARE WE STILL HERE")
     form_id = "login_form"
 
@@ -385,16 +399,13 @@ def login_view(request, current_extension=404):
                 candidate_user = login_form.authenticate()
                 login(request, candidate_user)
                 messages.success(request, message="Logged in succesfully!")
-                if current_extension != 404:
-                    return HttpResponseRedirect(current_extension)
                 return redirect(reverse("main:main_view"))
-
             except ValidationError as msg:
                 msg = msg.args[0]
                 messages.error(request, str(msg))
                 login_form.add_error(None, msg)
 
-    form_context = {"form": login_form, "button_text": "Log in", "identifier": form_id, "title": "Log in to Genera", "login_url" : current_extension, "extra" : True}
+    form_context = {"form": login_form, "button_text": "Log in", "identifier": form_id, "title": "Log in to Genera", "extra" : True}
 
     return render(request, 'base_form.html', form_context)
 
@@ -532,7 +543,6 @@ def profile_view(request, username_slug):
     
     users_collections = user.get_all_minted_collections()
 
-
     return render(request, 'user_profile.html', context={"owner":owner, "user":user, "users_collections":users_collections})
 
 def mint_view(request, username_slug, contract_address):
@@ -629,7 +639,6 @@ def collection_view(request, username_slug, collection_name_slug):
                             if image.compressed_path:
                                 image.compressed_path = aws_media_storage_manipulator.create_secure_url(path_to_object=image.compressed_path, expire=604800)
                             image.save() #save image with new links!
-
 
                     context["collection_data"] = user_collection
                     context["collection_images"] = collection_images
@@ -758,40 +767,40 @@ def collection_view(request, username_slug, collection_name_slug):
                             {"server_message": "USER NOT LOGGED IN"},
                             status=202,
                         )
-                elif "delete_duplicates" in received_json_data:
-                    if request.user.is_authenticated:
-                        if user_collection.duplicates_deleted == False:
-                            i = 0
-                            while i < len(collection_images):
-                                # print(f"{len(collection_images)} LENGTH OF QUERY")
-                                entry_metadata = json.loads(collection_images[i].metadata)
-                                # print(f"{entry_metadata} COMPARISON METADATA {i}")
-                                for j in range(len(collection_images) - 1 - i):           
-                                    value_metadata = json.loads(collection_images[j + 1 + i].metadata)
-                                    # print(f"{value_metadata} CURRENT METADATA {j + 1 + i}")
-                                    if entry_metadata['attributes'] == value_metadata['attributes']:
-                                        # print(collection_images[j + 1 + i])
-                                        collection_images[j + 1 + i].delete()
-                                        user_collection.collection_size = user_collection.collection_size - 1
-                                        # print(user_collection.collection_size)
-                                        # print(f"{collection_images[j + 1 + i]} deleted {j + 1 + i}")
-                                    # user_collection.save()
-                                    collection_images = CollectionImage.objects.filter(linked_collection__id=user_collection.id)
-                                i = i + 1
+                # elif "delete_duplicates" in received_json_data:
+                #     if request.user.is_authenticated:
+                #         if user_collection.duplicates_deleted == False:
+                #             i = 0
+                #             while i < len(collection_images):
+                #                 # print(f"{len(collection_images)} LENGTH OF QUERY")
+                #                 entry_metadata = json.loads(collection_images[i].metadata)
+                #                 # print(f"{entry_metadata} COMPARISON METADATA {i}")
+                #                 for j in range(len(collection_images) - 1 - i):           
+                #                     value_metadata = json.loads(collection_images[j + 1 + i].metadata)
+                #                     # print(f"{value_metadata} CURRENT METADATA {j + 1 + i}")
+                #                     if entry_metadata['attributes'] == value_metadata['attributes']:
+                #                         # print(collection_images[j + 1 + i])
+                #                         collection_images[j + 1 + i].delete()
+                #                         user_collection.collection_size = user_collection.collection_size - 1
+                #                         # print(user_collection.collection_size)
+                #                         # print(f"{collection_images[j + 1 + i]} deleted {j + 1 + i}")
+                #                     # user_collection.save()
+                #                     collection_images = CollectionImage.objects.filter(linked_collection__id=user_collection.id)
+                #                 i = i + 1
 
-                        user_collection.duplicates_deleted = True
-                        user_collection.save()
+                #         user_collection.duplicates_deleted = True
+                #         user_collection.save()
 
 
-                        return JsonResponse(
-                            {"server_message": "Deleted duplicates"},
-                            status=200,
-                        )
-                    else:
-                        return JsonResponse(
-                            {"server_message": "USER NOT LOGGED IN"},
-                            status=202,
-                        )
+                #         return JsonResponse(
+                #             {"server_message": "Deleted duplicates"},
+                #             status=200,
+                #         )
+                #     else:
+                #         return JsonResponse(
+                #             {"server_message": "USER NOT LOGGED IN"},
+                #             status=202,
+                #         )
                 elif "delete_collection" in received_json_data:
                     if request.user.is_authenticated:
                         user_collection.delete()

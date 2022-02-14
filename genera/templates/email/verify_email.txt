@@ -1,6 +1,8 @@
 Dear {{username}}, 
 
-Please verify your peoplio email 
+Please verify your Genera email
+
+(Please also check your spam folder if no email arrives)
 
 An account has been registered for this email on {{date}}
 

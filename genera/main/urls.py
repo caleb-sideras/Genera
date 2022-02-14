@@ -14,8 +14,7 @@ urlpatterns = [
 
     path("login/options", login_options_view, name="login_options"),
 
-    path("login/default", login_view, name="login"),
-    path("login/default/<path:current_extension>", login_view, name="login"),
+    path("login/regular", login_view, name="login"),
 
     path("login/metamask", metamask_login_handler_view, name="login_metamask_handler"), #no template for this view - just a url to handle the metamask login stuff
 

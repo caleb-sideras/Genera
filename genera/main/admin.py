@@ -38,15 +38,17 @@ class UserCollection_Admin(admin.ModelAdmin):
     list_display = ['collection_name', 'user']
     search_fields = []
     list_filter = []
-    inlines = [CollectionImage_Inline]
+    # inlines = [CollectionImage_Inline]
 
 class FailedGeneratioins_Admin(admin.ModelAdmin):
     list_display = ['user', 'collection_name', 'collection_size', 'error_message']
     search_fields = []
     list_filter = []
 
+
 admin.site.register(User, User_Admin)
 # admin.site.register(UserAsset, UserAsset_Admin)
 admin.site.register(UserCollection, UserCollection_Admin)
-admin.site.register(CollectionImage, CollectionImage_Admin)
+# admin.site.register(CollectionImage, CollectionImage_Admin)
 admin.site.register(FailedUserCollection_Tracker, FailedGeneratioins_Admin)
+admin.site.register(MetamaskUserAuth)

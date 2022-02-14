@@ -9,8 +9,8 @@ async function initMetamask() {
 }
 async function personalSign(nonce, address) {
     ethereum.request({ method: 'personal_sign', 'params': [nonce, address] }).then((response) => {
-        
         ajax_post_json({ 'metamask_auth_user': '', 'public_address': address, 'signature': response}).then((server_response) => {
+            console.log(server_response)
         })  
     })
 }
@@ -26,7 +26,7 @@ async function startMetmask(provider) {
                 
                 ajax_post_json({ 'metamask_request_nonce': '', 'public_address': response[0] }).then((server_response) => {
                     personalSign(server_response['nonce'], response[0])
-                })  
+                })
             }
             )
             .catch((err) => {
