@@ -142,16 +142,21 @@ def upload_view(request):
 
             #Paid or Free Generation
             if request.user.is_authenticated:
+                coll_size = int(float(request.POST.get("size", default="10001")))
 
-                if int(float(request.POST.get("size"))) <= request.user.credits:
+                if coll_size > 10000:
+                    messages.error(request, message=f"You've attempted to generate a collection with {coll_size} images. Maximum collection size is 10000!")
+                    return ajax_redirect(reverse("main:upload"))
+
+                if coll_size <= request.user.credits:
                     paid_generation = True
-                elif int(float(request.POST.get("size"))) > request.user.credits and int(float(request.POST.get("size"))) <= 100:
+                elif coll_size > request.user.credits and coll_size <= 100:
                     paid_generation = False
 
                 else:
                     messages.error(request, message="Not enough credits.")
                     return ajax_redirect(reverse("main:upload"))
-            elif int(float(request.POST.get("size"))) > 100:
+            elif coll_size > 100:
                 messages.error(request, message="Maximum Free Generations are 100.")
                 return ajax_redirect(reverse("main:upload"))
             else:
@@ -162,7 +167,7 @@ def upload_view(request):
             calebs_gay_dict["Description"] = request.POST.get("description")
             calebs_gay_dict["Resolution_x"] = int(float(request.POST.get("resolution_x")))
             calebs_gay_dict["Resolution_y"] = int(float(request.POST.get("resolution_y")))
-            calebs_gay_dict["CollectionSize"] = int(float(request.POST.get("size")))
+            calebs_gay_dict["CollectionSize"] = coll_size
             calebs_gay_dict["TextureColor"] = request.POST.get("color")
 
             new_dict = json.loads(request.POST.get("image_dict"))
@@ -170,7 +175,7 @@ def upload_view(request):
                 if not value:
                     messages.error(request, message=f"An Error has occured - data is missing. Please try again.")
                     return ajax_redirect(reverse("main:upload"))
-
+                    
             layers = {}
             if paid_generation:
                 db_collection = UserCollection.objects.filter(user=request.user, collection_name=calebs_gay_dict["CollectionName"]).first()
