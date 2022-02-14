@@ -327,23 +327,30 @@ def metamask_login_handler_view(request):
                 
                 def verify_signature_ecRecover(nonce, signature, public_address):
                     w3 = Web3(Web3.HTTPProvider("https://mainnet.infura.io/v3/d6c7a2d0b9bd40afa49d2eb06cc5baba")) #TODO: Plug the URL here @Caleb
-                    print(w3)
                     # decrypted_public_address = w3.geth.personal.ecRecover(nonce, signature)
                     # encoded_message = encode_defunct(bytes(nonce, encoding='utf8'))
-                    message_hash = encode_defunct(text=nonce)
+                    try:
+                        message_hash = encode_defunct(text=nonce)
+                    except:
+                        return JsonResponse({"error": "Encode defunct failed"}, status=200)
+
                     print(f"{message_hash} - MESSAGE HASH !!")
                     try:
                         decrypted_public_address = w3.eth.account.recover_message(message_hash, signature=signature)
                     except Exception as e:
                         # print(e)
+                        return JsonResponse({"error": "REDOVER MESSAGE FAILED"}, status=200)
                         return False
                         
                     if public_address.lower() == decrypted_public_address.lower():
                         return True
+                    else:
+                        return JsonResponse({"error": "Encode defunct failed", "add1": public_address.lower(), "add2": decrypted_public_address.lower()}, status=200)
                     return False
                 found_user = MetamaskUserAuth.objects.filter(public_address=received_json_data["public_address"]).first()
                 if not found_user: # user not found - shouldnt happen ever xd
                     return Http404()
+
                 #ec2 recover reverse here...
                 if verify_signature_ecRecover(found_user.nonce, received_json_data["signature"], found_user.public_address):
                     print("reversing user start")
