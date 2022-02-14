@@ -1,7 +1,7 @@
 from django.shortcuts import render
 import stripe
 from main.view_tools import *
-from genera.settings import MEDIA_DIR, DEFAULT_FROM_EMAIL, BASE_DIR, STRIPE_PUBILC_KEY, STRIPE_PRIVATE_KEY, BASE_URL
+from genera.settings import MEDIA_DIR, DEFAULT_FROM_EMAIL, BASE_DIR, STRIPE_PUBILC_KEY, STRIPE_PRIVATE_KEY_LIVE, BASE_URL
 from main.models import User
 from main.forms import *
 from main.generator_alg import *
@@ -14,7 +14,7 @@ from django.core.exceptions import PermissionDenied
 import json
 # from .models import *
 
-stripe.api_key = STRIPE_PRIVATE_KEY
+stripe.api_key = STRIPE_PRIVATE_KEY_LIVE
 # Create your views here.
 
 def checkout_view(request):

@@ -38,8 +38,7 @@ def main_view(request):
 
     
     context = {}
-    print(STRIPE_PRIVATE_KEY_LIVE)
-    print(generate_stripe_products_context())
+
     context['products'] = generate_stripe_products_context()
     
     return render(request, "home.html", context)
