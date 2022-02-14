@@ -109,7 +109,7 @@ WSGI_APPLICATION = 'genera.wsgi.application'
 if DEPLOYMENT_INSTANCE:
     DATABASES = {
         'default': {
-            'ENGINE': 'django.db.backends.mysql',
+            'ENGINE': 'INNODB',
             'NAME': os.environ['RDS_DB_NAME'],
             'USER': os.environ['RDS_USERNAME'],
             'PASSWORD': "'g'9F~;<xkmr)~^Z", 
