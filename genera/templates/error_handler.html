@@ -3,11 +3,11 @@
 {%block body_block%}
     <div class="error_handler_base">
         <h1 style="color: brown; margin-top: 75px;">ERROR OCURRED</h1>
-        <div class="shadow_weak">
+        <div class="border card_main_color_background">
             <h2 class="center" style="margin-bottom: 25px;">{{title}}</h2>
             <h3><span style="font-weight: 100;">Description:</span> <span style="color: brown;">{{description}}</span></h3>
             <h3><span style="font-weight: 100;">Error code:</span> <span style="color: brown;">{{code}}</span></h3>
         </div>
-        <a style="font-size: larger;" href="{% url 'main:main_view' %}"><button class="general_button_no_border sub_color_background">Take me home ;(</button></a>
+        <a style="font-size: larger;" href="{% url 'main:main_view' %}"><button class="general_button_no_border sub_color_background">Go home</button></a>
     </div>
 {%endblock%}

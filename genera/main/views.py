@@ -3,7 +3,7 @@ from django.shortcuts import render
 # from matplotlib.text import Text
 from main.helper_functions import nft_storage_api_store
 from main.view_tools import *
-from genera.settings import DEFAULT_FROM_EMAIL, STRIPE_PRIVATE_KEY, DEPLOYMENT_INSTANCE
+from genera.settings import DEFAULT_FROM_EMAIL, STRIPE_PRIVATE_KEY_LIVE, DEPLOYMENT_INSTANCE
 from genera.s3_storage import AwsMediaStorageManipulator
 from main.models import User
 from main.forms import *
@@ -32,12 +32,14 @@ from web3 import Web3
 from eth_account.messages import encode_defunct,defunct_hash_message
 # from eth_account import messages
 # Create your views here.
-stripe.api_key = STRIPE_PRIVATE_KEY
+stripe.api_key = STRIPE_PRIVATE_KEY_LIVE
 
 def main_view(request):
 
     
     context = {}
+    print(STRIPE_PRIVATE_KEY_LIVE)
+    print(generate_stripe_products_context())
     context['products'] = generate_stripe_products_context()
     
     return render(request, "home.html", context)
@@ -51,6 +53,7 @@ def upload_view(request):
         user = request.user
         if user:
             collection_names = list(UserCollection.objects.filter(user=user).values_list('collection_name', flat=True))
+            print(json.dumps(collection_names))
             context['collection_names'] = json.dumps(collection_names)
             context['collections_generating'] = user.has_collections_currently_generating
 
@@ -231,7 +234,7 @@ def upload_view(request):
                             else:
                                 if paid_generation:
                                     db_collection.delete()
-                                messages.error(request, message="An Asset Rarity Was Greater than Collection Size")
+                                messages.error(request, message="Data mismatch. Please try again.")
                                 return ajax_redirect(reverse("main:upload"))
                         if layer_type == "Textures":
 
@@ -250,7 +253,7 @@ def upload_view(request):
                             else:
                                 if paid_generation:
                                     db_collection.delete()
-                                messages.error(request, message="A Texture Rarity Was Greater than Collection Size")
+                                messages.error(request, message="Data mismatch. Please try again.")
                                 return ajax_redirect(reverse("main:upload"))
 
             calebs_gay_dict["Layers"] = layers  # calebs gay dict complete
@@ -938,3 +941,9 @@ def login_options_view(request):
     if request.user.is_authenticated:
         raise_permission_denied("Login", "Attempt to Log in when already logged in.")
     return render(request, "login_options.html", {"ajax_url": reverse("main:login_metamask_handler")})
+
+def policy_view(request):
+    return render(request, "privacy_policy.html")
+
+def terms_view(request):
+    return render(request, "terms_and_conditions.html")

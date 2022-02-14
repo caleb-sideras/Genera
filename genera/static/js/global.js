@@ -29,9 +29,9 @@ function get_cookie(name) {
 }
 
 function main() {
-    ethereum.on("accountsChanged", accounts => {
-        window.location.replace("/logout//")
-    });
+    // ethereum.on("accountsChanged", accounts => {
+    //     window.location.replace("/logout//")
+    // });
 
     if (typeof(document.getElementById("js_vars")) != 'undefined' && document.getElementById("js_vars") != null) {
         js_vars = document.getElementById("js_vars")

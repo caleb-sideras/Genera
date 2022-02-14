@@ -90,13 +90,13 @@ def handle_checkout_session_view(request, session_id):
                     fetched_user.credits += int(stripe_price_object["nickname"]) ##NICKnAME (ACTUAL PRICE)
                     fetched_user.save()
                     del request.session["payment_initial"]
-                    messages.success(request, f"You have gained {stripe_price_object['nickname']} credits! ")
+                    messages.success(request, f"You have gained {stripe_price_object['nickname']} credits!")
                 else:
                     messages.error(request, f"CRITICAL ERROR. PLEASE EMAIL GENERA-NOREPLY@gmail.com")
                 ##PROVIDE CONTEXT FOR SUCCESS PAGE
             else:
                 # print(checkout_session["metadata"])
-                messages.error(request, f"NICE TRY BASTARD")
+                messages.error(request, f"Payments already processed by Stripe.")
 
         elif checkout_session["status"] == "expired": ## if session is expired - PAID or NOT PAID AND AUTO EXPIRED
 

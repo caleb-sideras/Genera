@@ -3,7 +3,7 @@
 <!DOCTYPE html>
 <html lang="en">
 
-{%if request.session.enter_page == True%}
+
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" type="text/css" href="{% static 'css/global.css' %}" />
@@ -184,8 +184,8 @@
       <div class="footer_section">
         <h3>LEGAL</h3>
         <ul>
-          <li><a href="">Terms and Conditions</a></li>
-          <li><a href="">Privacy Policy</a></li>
+          <li><a href="{% url 'main:terms' %}">Terms and Conditions</a></li>
+          <li><a href="{% url 'main:privacy' %}">Privacy Policy</a></li>
         </ul> 
       </div>
       <div class="footer_section">
@@ -197,12 +197,6 @@
       </div>
     </div>
   </body>
-  {%else%}
-  <form method="POST" style="display: flex; width: 100vw; height: 100vw; justify-content: center; align-items: center;">
-    {%csrf_token%}
-    <input style="min-width: 200px;" type="password" name="code" placeholder="Enter... passcode..">
 
-  </form>
-  {%endif%}
 
 </html>

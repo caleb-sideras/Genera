@@ -6,8 +6,19 @@
 {%endblock%}
 
 {%block body_block%}
-  <section>
-    <p>Forgot to add something to your cart? Shop around then come back to pay!</p>
-    <h1>YOU HAVE {{request.user.credits}} CREDITS. {%if credits_gained%}YOU GAINED {{credits_gained}} CREDITS. YOU PAID {{amount_paid}} WITH TAX {%else%} YOUR PAYMENT DID NOT GO THROUGH, <a href="{{payment_link}}">PLEASE GO BACK AND PAY</a> {%endif%}</h1>
-  </section>
+  <div class="form_wrapper">
+    <div class="background_image_wrapper">
+      <div class="cover-image" style="position: absolute"></div>
+    </div>
+    <div class="base_form shadow_strong rounded_container_no_padding" style="text-align: center; padding:25px;">
+      <!-- <h1>{%if credits_gained%}Congratulations!{%endif%}</h1> -->
+      <h1>{%if credits_gained%} Congratulations! You gained {{credits_gained}} credits. You paid {{amount_paid}} with tax* {%else%} No charges were made. Your payment did not go through. {%endif%}</h1>
+      <h2>{%if credits_gained%}Please check your email for a receipt.{%endif%}</h2>
+      {%if not credits_gained%}
+      <button class="card_main_color_background general_button_no_border grow">
+        <a href="{{payment_link}}">Return to checkout</a>
+      </button>
+      {%endif%}
+    </div>
+  </div>
 {%endblock%}
