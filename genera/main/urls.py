@@ -40,5 +40,7 @@ urlpatterns = [
     path("mint", public_mint_view, name="mint"),
     path("privacy", policy_view, name="privacy"),
     path("terms", terms_view, name="terms"),
+    path("contact_us/problem_report", problem_report_view, name="problem_report"),
+    path("dashboard/reported_issues", reported_issues_view, name="reported_issues"),
 ]
  

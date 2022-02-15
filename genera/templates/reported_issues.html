@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block body_block %}
+    {%if reports%}
+        <div style="display: flex; flex-wrap: wrap; justify-content: center; align-items: center; height: 100%; gap: 25px; padding: 25px 0;">
+            {%for report in reports%}
+                <div class="rounded_container border card_main_color_background" style="height: 300px; width: 300px; display: flex; flex-direction: column; justify-content: space-between;">
+                    <h2 style="text-align: center;">{% if report.resolved %}Resolved{% else %}In progress{% endif %} - {{report.datetime}}</h2>
+                    <p style="height: 100%; border: none; resize: none; width: 100%; overflow-x: scroll;" class="overflow_ellipsis">{{report.description}}</p>
+                </div>
+            {%endfor%}
+        </div>
+    {%endif%}
+{% endblock %}
+
+

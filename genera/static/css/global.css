@@ -277,7 +277,7 @@ select:disabled{
   margin: 50px 0 0 0;
 }
 
-.base_form input {
+.base_form input, .base_form textarea {
   margin-top: 5px;
   width: 100%;
 }

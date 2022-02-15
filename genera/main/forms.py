@@ -1,7 +1,7 @@
 from django import forms
 from django.forms.fields import ImageField
 from django.forms.widgets import Textarea
-from main.models import UserProfile, User
+from main.models import UserProfile, User, UserProblemReport
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import authenticate
 from django.contrib.auth.password_validation import validate_password
@@ -72,3 +72,8 @@ class Password_Reset_Request_Form(forms.Form):
 class Password_Reset_Form(PasswordConfirmationMixin):
     class Meta:
         fields = ('password', 'password_confirm')
+
+class User_Problem_Report_Form(forms.ModelForm):
+    class Meta:
+        model = UserProblemReport
+        fields = ('description',)

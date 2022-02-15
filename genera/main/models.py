@@ -103,6 +103,10 @@ class User(AbstractBaseUser, PermissionsMixin, Model):
         return [collection for collection in self.usercollectionmintpublic_set.all()] + [collection for collection in self.usercollectionmint_set.all()]
     
     @property
+    def number_of_unresolved_issues(self):
+        return self.userproblemreport_set.filter(resolved=False).count()
+    
+    @property
     def has_collections_currently_generating(self):
         return self.usercollection_set.filter(generation_complete=False).exists() #much faster than count
 
@@ -284,12 +288,22 @@ class Token(Model):
         self.created = make_aware(datetime.datetime.now())
         super(Token, self).save(*args, **kwargs)
 
- 
 
+class UserProblemReport(Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    description = models.TextField(max_length=1000)
 
+    datetime = models.DateTimeField(auto_now_add=True)
 
+    resolved = models.BooleanField(default=False)
+    resolve_info = models.TextField(null=True, blank=True)
 
+    def save(self, *args, **kwargs):
+        self.created = make_aware(datetime.datetime.now())
+        if self.resolved and not self.resolve_info:
+            self.resolve_info = "Issue has been resolved by an administrator. Thank you for your patience."
 
-
-
-
+        super(UserProblemReport, self).save(*args, **kwargs)
+    
+    def __str__(self):
+        return str(self.user.email)

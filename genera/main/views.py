@@ -947,9 +947,7 @@ def public_mint_view(request):
                     return ajax_redirect(reverse("main:user_mint", args=[user.username_slug, received_json_data["contract_address"]]))
             except RawPostDataException:  # NO AJAX DATA PROVIDED - DIFFERENT POST REQUEST INSTEAD
                 pass   
-            ##AJAX HANDLING SECTION END         
-                
-
+            ##AJAX HANDLING SECTION END
     return render(request, "minting_page.html", context)
 
 def login_options_view(request):
@@ -962,3 +960,28 @@ def policy_view(request):
 
 def terms_view(request):
     return render(request, "terms_and_conditions.html")
+
+@requires_user_logged_in
+def problem_report_view(request):
+    problem_report_form = User_Problem_Report_Form(label_suffix="")
+    form_id = "problem_report_view"
+    if request.method == "POST" and form_id in request.POST:
+        if request.user.number_of_unresolved_issues > 8:
+            return clientside_error_with_redirect(request, "You exceeded the maximum limit of (unresolved) open tickets (8).", reverse('main:reported_issues'))
+
+        problem_report_form = User_Problem_Report_Form(request.POST, label_suffix="")
+        if problem_report_form.is_valid():
+            form_model_object = problem_report_form.save(commit=False)
+            form_model_object.user = request.user
+            form_model_object.save()
+            return clientside_success_with_redirect(request, "Your issue has been submitted. Please wait for us to come back to you!", reverse('main:reported_issues'))
+        else:
+            return clientside_error_with_redirect(request, "There was an error submitting your issue. Please try again.", reverse('main:problem_report'))
+
+    form_context = {"form": problem_report_form, "button_text": "Submit problem!", "identifier": form_id, "title": "Report a problem"}
+
+    return render(request, "base_form.html", form_context)
+
+@requires_user_logged_in
+def reported_issues_view(request):    
+    return render(request, "reported_issues.html", {"reports": request.user.userproblemreport_set.all()})
