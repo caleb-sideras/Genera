@@ -106,7 +106,10 @@
     max-width: 100% !important;
   }
   [class="image_preview"] > div > div > div > .info{
-    height: 50% !important;
+    height: 50% ;
+  }
+  [class="background_image_wrapper"]{
+    display: none;
   }
 
   .main_section {
@@ -166,9 +169,6 @@
   [class="main_wrapper"],
   [class="main_section"]{
     height: auto !important;
-  }
-  [class="background_image_wrapper"]{
-    display: none;
   }
     [class*="base_form"]{
     min-width:95% !important;
