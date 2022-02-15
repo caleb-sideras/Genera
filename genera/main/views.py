@@ -805,11 +805,7 @@ def collection_view(request, username_slug, collection_name_slug):
                     if request.user.is_authenticated:
                         user_collection.delete()
                         user.save()
-
-                        return JsonResponse(
-                            {"server_message": "Collection Deleted"},
-                            status=200,
-                        )
+                        return ajax_redirect(reverse("main:all_collections", args=[user_collection.collection_name_slug]))
                     else:
                         return JsonResponse(
                             {"server_message": "USER NOT LOGGED IN"},

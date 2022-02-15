@@ -339,9 +339,6 @@ async function delete_collection(url){
             if (reponse) {
                 create_and_render_loading_popup("Deleting Collection")
                 ajax_post_json({ 'delete_collection': 'dayum he really doin it' })
-                    .then(function (response) { //Action that occurs after a response from the server was obtained - here (STATUS 200)
-                        window.location = url;
-                    })
             }
         })
 }
