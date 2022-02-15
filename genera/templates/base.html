@@ -80,9 +80,6 @@
                 <a href="{% url 'main:all_collections' request.user.username_slug %}">
                   <p>Collections</p>
                 </a>
-                <a href="{% url 'main:reported_issues' %}">
-                  <p>Reported issues</p>
-                </a>
                 <a href="{% url 'main:logout' request.path%}">
                   <p>Log out</p>
                 </a>
@@ -196,6 +193,7 @@
         <ul>
           <li><p>generanft@gmail.com</p></li>
           <li><a href="{% url 'main:problem_report' %}">Report a problem</a></li>
+          {% if request.user.is_authenticated %}<li><a href="{% url 'main:reported_issues' %}">View reported problems</a></li>{% endif %}
         </ul>
         
       </div>
