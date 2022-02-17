@@ -756,8 +756,6 @@ def collection_view(request, username_slug, collection_name_slug):
                         # print(f"deleted {received_json_data['delete_entry']}")
                         user_collection.collection_size = user_collection.collection_size - 1
                         user_collection.save()
-
-
                         return JsonResponse(
                             {"server_message": "Deleted collection_image object"},
                             status=200,
@@ -805,11 +803,8 @@ def collection_view(request, username_slug, collection_name_slug):
                     if request.user.is_authenticated:
                         user_collection.delete()
                         user.save()
-
-                        return JsonResponse(
-                            {"server_message": "Collection Deleted"},
-                            status=200,
-                        )
+                        messages.success(request, f"Collection '{user_collection.collection_name}' deleted succesfully!")
+                        return ajax_redirect(reverse("main:all_collections", args=[request.user.username_slug]))
                     else:
                         return JsonResponse(
                             {"server_message": "USER NOT LOGGED IN"},

@@ -159,7 +159,7 @@
                 {% endif %}
             </div>
             {% if not collection_data.collection_ifps_bool %}
-                <button name="delete_collection" onclick="delete_collection()" class="general_button_no_border red_background shadow_strong rounded_container_no_padding" type="button">
+                <button name="delete_collection" onclick="delete_collection('{{collection_data.path}}')" class="general_button_no_border red_background shadow_strong rounded_container_no_padding" type="button">
                     <h4 class="no_margin generate" style="color: white;">Delete Collection</h4>
                 </button>
             {% endif %}

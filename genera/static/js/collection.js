@@ -333,16 +333,12 @@ async function delete_duplicates(){
         })
 }
 
-async function delete_collection(){
+async function delete_collection(url){
     await yes_no_popup("Delete ENTIRE Collection?", "Delete", "Cancel")
         .then(function (reponse) {
             if (reponse) {
                 create_and_render_loading_popup("Deleting Collection")
                 ajax_post_json({ 'delete_collection': 'dayum he really doin it' })
-                    .then(function (response) { //Action that occurs after a response from the server was obtained - here (STATUS 200)
-                        
-                        window.location = "http://localhost:8000/";
-                    })
             }
         })
 }

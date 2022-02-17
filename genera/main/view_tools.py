@@ -54,7 +54,7 @@ def generate_stripe_products_context():
         product_data["currency"] = price["currency"]
         product_data["price_id"] = price["id"]
         products.append(product_data)
-    return products
+    return products[::-1]
 
 #status = expired/complete/open
 def fetch_stripe_session_history_for_user(status):

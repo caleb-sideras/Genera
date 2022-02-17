@@ -6,6 +6,7 @@
 
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="{% static 'icons/logoV1.svg' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'css/global.css' %}" />
     <link rel="stylesheet" type="text/css" href="{% static 'css/libraries/notifications.css' %}"/>
     <script src="https://unpkg.com/@metamask/detect-provider/dist/detect-provider.min.js"></script>
@@ -79,9 +80,6 @@
                 </a>
                 <a href="{% url 'main:all_collections' request.user.username_slug %}">
                   <p>Collections</p>
-                </a>
-                <a href="{% url 'main:reported_issues' %}">
-                  <p>Reported issues</p>
                 </a>
                 <a href="{% url 'main:logout' request.path%}">
                   <p>Log out</p>
@@ -180,7 +178,7 @@
       <div class="footer_section">
         <h3>JOIN THE COMMUNITY!</h3>
         <ul>
-          <li><a href="https://discord.gg/VagtyF6tmX" target="_blank">Discord</a></li>
+          <li><a href="https://discord.gg/PHn7sFwASM" target="_blank">Discord</a></li>
           <li><a href="https://www.instagram.com/generanft/" target="_blank">Instagram</a></li>
         </ul>
       </div>
@@ -196,6 +194,7 @@
         <ul>
           <li><p>generanft@gmail.com</p></li>
           <li><a href="{% url 'main:problem_report' %}">Report a problem</a></li>
+          {% if request.user.is_authenticated %}<li><a href="{% url 'main:reported_issues' %}">View reported problems</a></li>{% endif %}
         </ul>
         
       </div>
