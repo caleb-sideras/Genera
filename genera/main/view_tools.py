@@ -76,7 +76,6 @@ def fetch_stripe_session_product_and_price(stripe_session_obbject):
 
 staticify = lambda x: f"{STATIC_DIR}/{x}"
 
-
 def presigned_url_is_expired(url, days_to_expire=7):
     url_created = re.findall(r"(?<=Date=).+(?=Z)", url)
     if url_created:

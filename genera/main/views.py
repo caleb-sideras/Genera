@@ -35,8 +35,6 @@ from eth_account.messages import encode_defunct,defunct_hash_message
 stripe.api_key = STRIPE_PRIVATE_KEY_LIVE
 
 def main_view(request):
-
-    
     context = {}
 
     context['products'] = generate_stripe_products_context()
@@ -126,7 +124,6 @@ def upload_view(request):
                 }
                 # could be done in js
                 try:
-
                     watermark = Image.open(staticify("Assets/Background/genera_watermark.png"))
                 except:
                     # print("Could not open watermark")

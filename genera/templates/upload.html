@@ -4,10 +4,14 @@
 {% block head_block %}
   <script type="text/javascript" src="{% static 'js/upload_page.js' %}"></script>
   <script type="text/javascript" src="{% static 'js/libraries/jszip.min.js' %}"></script>
+  <script type="text/javascript" src="{% static 'js/libraries/python/pyodide/init.js' %}"></script>
+  <!-- <script type="text/javascript" src="https://cdn.jsdelivr.net/pyodide/v0.19.0/full/pyodide.js"></script> -->
+  <script type="text/javascript" src="{% static 'js/libraries/python/python_tools.js' %}"></script>
+
 {% endblock %}
 
 {% block body_block %}
-<input type="hidden" id="js_vars" data-ajax_url='{{ajax_url}}' data-user_login='{{user.is_authenticated}}' data-collection_names="{{collection_names}}" data-user_credits='{{request.user.credits}}' data-has_collections_generating="{{collections_generating}}">
+<input type="hidden" id="js_vars" data-pyodide_base_url="{%static 'js/libraries/python/pyodide/loader'%}" data-watermark_url="{%static 'Assets/Background/genera_watermark.png'%}" data-ajax_url='{{ajax_url}}' data-user_login='{{user.is_authenticated}}' data-collection_names="{{collection_names}}" data-user_credits='{{request.user.credits}}' data-has_collections_generating="{{collections_generating}}">
 
 <form method="post" id="upload_form" enctype="multipart/form-data" class="upload_wrapper">
   {% csrf_token %}
@@ -144,6 +148,8 @@
       >
         <h4 class="no_margin generate">Generate</h4>
       </button>
+
+      <input id="test_python" type="file">
 
       <div style="display: none;" class="update_layer_parameters_menu rounded_container border">
         <h3 class="no_margin center">Layer Properties</h3>
