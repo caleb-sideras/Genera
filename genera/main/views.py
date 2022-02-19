@@ -35,8 +35,6 @@ from eth_account.messages import encode_defunct,defunct_hash_message
 stripe.api_key = STRIPE_PRIVATE_KEY_LIVE
 
 def main_view(request):
-
-    
     context = {}
 
     context['products'] = generate_stripe_products_context()
@@ -73,79 +71,7 @@ def upload_view(request):
     if request.method == "POST":
     
         if len(request.FILES) != 0:
-
-            # Preview handling
-            if 'properties' in request.POST:
-                properties = json.loads(request.POST.get('properties'))
-                layernames = json.loads(request.POST.get('layernames'))
-                res_x = int(properties[3])
-                res_y = int(properties[4])
-                texture_color = ImageColor.getcolor(properties[5], "RGB")
-                layers_list = [None] * len(layernames)
-                textures_list = [None] * len(layernames)
-                layers_list_names = [None] * len(layernames)
-                textures_list_names = [None] * len(layernames)
-                for filename in request.FILES.keys():
-                    try:
-                        for file in request.FILES.getlist(filename):
-                            layer_name = filename.split(".")[0]
-                            count = int(filename.split(".")[1])
-                            if layer_name =="asset":
-                                layers_list[count] = file_to_pil_no_resize(file, res_x, res_y, 500)
-                                layers_list_names[count] = file.name.split(".")[0]
-                            else:
-                                textures_list[count] = file_to_pil_no_resize(file, res_x, res_y, 500)
-                                textures_list_names[count] = file.name.split(".")[0]
-                    except RawPostDataException:
-                        messages.error(request, "Critical error - collection size exceeds allowance.")
-                        # user.delete()
-                        ajax_redirect(reverse("main:main_view"))
-
-
-                im = Image.new (
-                    "RGBA", (res_x, res_y), (0, 0, 0, 0)
-                )
-                attributes = []
-                # metadata could be done in js
-                for i in range(len(layernames)):
-                    if layers_list[i] and textures_list[i]:
-                        texturedAsset = textureMapping(layers_list[i], textures_list[i], texture_color)
-                        value = f"{layers_list_names[i]} ({textures_list_names[i]})"
-                        attributes.append({"trait_type": layernames[i], "value": value})
-                        im.paste(texturedAsset, (0, 0), texturedAsset)   
-                    elif layers_list[i]:
-                        im.paste(layers_list[i], (0, 0), layers_list[i])
-                        value = f"{layers_list_names[i]}"
-                        attributes.append({"trait_type": layernames[i], "value": value})
-
-                metadata = {
-                    "name": properties[1],
-                    "description": properties[2],
-                    "image": "",
-                    "attributes": attributes
-                }
-                # could be done in js
-                try:
-
-                    watermark = Image.open(staticify("Assets/Background/genera_watermark.png"))
-                except:
-                    # print("Could not open watermark")
-                    return
-                
-                resized_watermark =  watermark.resize((res_x, res_y))
-                
-                im.paste(resized_watermark, (0,0), resized_watermark)
-                content = pil_to_bytes(im)    
-                # return HttpResponse(content, content_type="application/octet-stream")
-                return JsonResponse(
-                    {
-                        "preview" : content,
-                        "metadata" : metadata
-                    },
-                    status=200,
-                )
-
-            # Generation Handling
+            # Generation Handling - PAID and UNPAID for now.
             coll_size = int(float(request.POST.get("size", default="10001")))
             res_x = int(float(request.POST.get("resolution_x", None)))
             res_y = int(float(request.POST.get("resolution_y", None)))

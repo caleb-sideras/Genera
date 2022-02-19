@@ -8,6 +8,7 @@ active_element = null
 active_carousel = null
 has_collections_generating = null
 collection_names = null
+watermark_img = null
 
 function main() {
     uploaded_data = {}
@@ -20,11 +21,12 @@ function main() {
         has_collections_generating = js_vars.dataset.has_collections_generating
     }
 
-    
-
     if (js_vars.dataset.user_credits && user_login) {
         user_credits = JSON.parse(js_vars.dataset.user_credits)
     }
+
+    watermark_img = new Image()
+    watermark_img.src = js_vars.dataset.watermark_url
 
     initialize_dynamic_form_validation()
     
@@ -940,9 +942,7 @@ async function confirmation_button(){
 }
 
 async function preview_button(self){
-    create_and_render_loading_popup("Generating Preview")
     var upload_layers = document.getElementsByClassName('upload_layers')[0]
-    var texture_layers = document.getElementsByClassName('upload_layers')[1]
     var collection_properties_container = document.getElementsByClassName('upload_properties')[0]
     collection_properties = collection_properties_container.children[0].children[1].querySelectorAll(':scope input, :scope textarea, :scope div input')
     properties_list = [] // collection properites (metadata)
@@ -951,21 +951,22 @@ async function preview_button(self){
     properties_list.push(collection_properties[2].value)
 
     // make modular kings!!!
-    if (!collection_properties[0].value) {
-        alert("Please enter Collection Name")
-        close_loading_popup()
-        return
-    }
-    if (!collection_properties[1].value) {
-        alert("Please enter Image Name")
-        close_loading_popup()
-        return
-    }
-    if (!collection_properties[2].value) {
-        alert("Please enter Description")
-        close_loading_popup()
-        return
-    }
+    // if (!collection_properties[0].value) {
+    //     alert("Please enter Collection Name")
+    //     close_loading_popup()
+    //     return
+    // }
+    // if (!collection_properties[1].value) {
+    //     alert("Please enter Image Name")
+    //     close_loading_popup()
+    //     return
+    // }
+    // if (!collection_properties[2].value) {
+    //     alert("Please enter Description")
+    //     close_loading_popup()
+    //     return
+    // }
+
     if (!collection_properties[4].value || !collection_properties[4].value) {
         alert("Please enter your resolution")
         close_loading_popup() 
@@ -976,12 +977,14 @@ async function preview_button(self){
         return
     }
 
+    await init_python(notify=true) //wont do anything if already initialized so dont worry.
+    
+    create_and_render_loading_popup("Generating Preview")
+    let res_x, res_y
     [res_x, res_y] = preview_image_size(collection_properties[4].value, collection_properties[5].value)
     properties_list.push(res_x)
     properties_list.push(res_y)
     properties_list.push(collection_properties[6].value)
-    
-    // 
 
     layername_list = [] // layer names (metadata)
     layer_buttons = upload_layers.children[2].querySelectorAll(".general_button")
@@ -1000,78 +1003,106 @@ async function preview_button(self){
         close_loading_popup()
         return
     }
-    else{
-        self.disabled = true
-        setTimeout(function () { self.disabled = false; }, 30000);
-    }
 
-    var data = new FormData();
-    request = new XMLHttpRequest();
-    
-    data.append('properties', JSON.stringify(properties_list));
-    data.append('layernames', JSON.stringify(layername_list));
+    js_properties = JSON.stringify(properties_list)
+    js_layernames = JSON.stringify(layername_list)
+    js_filelist = []
     
     if (layer_list.length > 0 ) {
         for (var i = 0; i < layer_list.length; i++) {
-            if (typeof layer_list[i] != 'undefined') {
-                data.append("asset." + [i] + "." + layer_list[i].name, layer_list[i]);
+            if (layer_list[i] instanceof File) {
+                js_filelist.push({ "name": "asset." + [i] + "." + layer_list[i].name, "content": await readFileAsync(layer_list[i]) });
             }
         }
     }
-    //iterate over every file in texture list and append to formdata
+    
     if (texture_list.length > 0) {
         for (var i = 0; i < texture_list.length; i++) {
-            if (typeof texture_list[i] != 'undefined') {
-                data.append("texture." + [i] + "." + texture_list[i].name, texture_list[i]);
+            if (texture_list[i] instanceof File) {
+                js_filelist.push({ "name": "texture." + [i] + "." + texture_list[i].name, "content": await readFileAsync(texture_list[i]) });
             }
         }
-    }   
-    request.open('POST', ajax_url);
-    request.setRequestHeader('X-CSRFToken', get_cookie('csrftoken'));
+    }
+
+    js_filelist = JSON.stringify(js_filelist)
     
-    request.send(data);
+    run_python(`
+        from js import js_properties, js_layernames, js_filelist, js_watermark
+        
+        properties = json.loads(js_properties)
+        layernames = json.loads(js_layernames)
+        filelist = json.loads(js_filelist)
+        res_x = int(properties[3])
+        res_y = int(properties[4])
+        texture_color = ImageColor.getcolor(properties[5], "RGB")
+        layers_list = [None] * len(layernames)
+        textures_list = [None] * len(layernames)
+        layers_list_names = [None] * len(layernames)
+        textures_list_names = [None] * len(layernames)
+        
+        for file in filelist:
+            layer_name = file["name"].split(".")[0]
+            count = int(file["name"].split(".")[1])
+            if layer_name =="asset":
+                layers_list[count] = file_to_pil(file["content"])
+                layers_list_names[count] = layer_name
+            else:
+                textures_list[count] = file_to_pil(file["content"])
+                textures_list_names[count] = layer_name
 
-    request.onreadystatechange = function () {
-        // Process the server response here (Sent from Django view inside JsonResponse)
-        if (request.readyState === XMLHttpRequest.DONE) {
-            if (request.status === 200) { //ifstatus is 200 - assume PROPER RESPONSE
-                //print httpresponse
-                json_response = JSON.parse(request.response)
-                var img_object = json_response['preview']
-                var metadata = JSON.stringify(json_response['metadata'])
-                var img_src = `data:image/png;base64,${img_object}`
-                upload_preview.children[4].innerHTML = ""
-                replace_image(img_src, (json_response['metadata'])['name'], 'Preview')
+        im = Image.new("RGBA", (res_x, res_y), (0, 0, 0, 0))
+        attributes = []
+        
+        for i in range(len(layernames)):
+            if layers_list[i] and textures_list[i]:
+                texturedAsset = textureMapping(layers_list[i], textures_list[i], texture_color)
+                value = f"{layers_list_names[i]} ({textures_list_names[i]})"
+                attributes.append({"trait_type": layernames[i], "value": value})
+                im.paste(texturedAsset, (0, 0), texturedAsset)   
+            elif layers_list[i]:
+                im.paste(layers_list[i], (0, 0), layers_list[i])
+                value = f"{layers_list_names[i]}"
+                attributes.append({"trait_type": layernames[i], "value": value})
 
-                function add_scroll_element(element, data, bool, funct, name){
-                    var new_element = document.createElement('li')
-                    var new_element_img = document.createElement(element)
-                    var new_element_text = document.createElement('h5')
-                    new_element_text.innerHTML = name
-                    if (bool) {
-                        new_element_img.src = data
-                        new_element.addEventListener('click', function () { funct(data, (json_response['metadata'])['name'], 'Preview') })
-                    }
-                    else{
-                        new_element_img.innerHTML = data
-                        new_element.addEventListener('click', function () { funct(data, 'Metadata', 'Preview') })
-                    }
-                    new_element.style = "cursor: pointer;"
-                    new_element.appendChild(new_element_img)
-                    new_element.appendChild(new_element_text)
-                    document.getElementById("scroller").appendChild(new_element)
-                }
-                add_scroll_element('img', img_src, true, replace_image, (json_response['metadata'])['name'])
-                add_scroll_element('pre', metadata, false, replace_metadata, 'Metadata')
-            }
-            else { //unhandled error
-                alert("Unkown server error")
-                return
-            }
+        metadata_final = json.dumps({
+            "name": properties[1],
+            "description": properties[2],
+            "image": "",
+            "attributes": attributes
+        })
+        
+        watermark = file_to_pil(js_watermark)
+        resized_watermark =  watermark.resize((res_x, res_y))
+        im.paste(resized_watermark, (0,0), resized_watermark)
+        preview_image_final = pil_to_bytes(im)    
+    `)
+
+    var img_src = `data:image/png;base64,${get_python_variable("preview_image_final")}`
+    var metadata = get_python_variable("metadata_final")
+    upload_preview.children[4].innerHTML = ""
+    replace_image(img_src, metadata['name'], 'Preview')
+
+    function add_scroll_element(element, data, bool, funct, name){
+        var new_element = document.createElement('li')
+        var new_element_img = document.createElement(element)
+        var new_element_text = document.createElement('h5')
+        new_element_text.innerHTML = name
+        if (bool) {
+            new_element_img.src = data
+            new_element.addEventListener('click', function () { funct(data, metadata['name'], 'Preview') })
         }
-        close_loading_popup()   
-    };
-    
+        else{
+            new_element_img.innerHTML = data
+            new_element.addEventListener('click', function () { funct(data, 'Metadata', 'Preview') })
+        }
+        new_element.style = "cursor: pointer;"
+        new_element.appendChild(new_element_img)
+        new_element.appendChild(new_element_text)
+        document.getElementById("scroller").appendChild(new_element)
+    }
+    add_scroll_element('img', img_src, true, replace_image, metadata['name'])
+    add_scroll_element('pre', metadata, false, replace_metadata, 'Metadata')
+    close_loading_popup()
 }
 // get better understanding of async/await/promises and make somehow async
 // aka global promise list that is resolved so multiple images can be converting without await?

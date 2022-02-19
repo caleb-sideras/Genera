@@ -1,5 +1,6 @@
 //recolor the notification colors - already done the warning one
 ajax_url = null
+
 function create_notification(title, message, duration = 5000, theme) { // success, info, warning, error, and none
     window.createNotification({ theme: theme, showDuration: duration })({ title: title, message: message })
 }
