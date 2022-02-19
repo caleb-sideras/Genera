@@ -39,7 +39,7 @@ const run_python = (python_code_string) => { //use safe keyword if you know for 
 async function init_python(notify=false) { //safely initializes pyodide - if already initialized, does nothing. Make sure to set notify=true for a loading popup to appear for user during initialization.
   if (typeof pyodide !== 'undefined') return
 
-  if (notify) create_and_render_loading_popup("Initializing preview system. Please be patient - subsequent previews will be much faster.")
+  if (notify) create_and_render_loading_popup("Generating first preview. Please be patient - Subsequent previews will be much faster!")
 
   globalThis.pyodide = await loadPyodide({
     //indexURL: "https://cdn.jsdelivr.net/pyodide/v0.19.0/full/", //PULLS FROM OFFICIAL CDN - in case something goes wrong serving manually
