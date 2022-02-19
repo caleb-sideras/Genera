@@ -1,0 +1,346 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block head_block %}
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.min.js"></script>
+<script src="https://unpkg.com/vue@next"></script>
+<link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@300;400;600&display=swap" rel="stylesheet">
+{% endblock %}
+
+{% block body_block %}
+<div id="app">
+    <div class="home-body">
+        <large-carousel></large-carousel>
+
+        <div class="carousel_header">
+            <div></div>
+            <div>Trending NFT Collections</div>
+            <div style="text-align: end;">See all</div>
+        </div>
+
+        <div class="carousel_wrapper">
+            <small-carousel v-for="(value) in popular_collection_list" :name="value.name" :description="value.description" :imageurl="value.img_url" :collectionurl="value.img_url">
+        </div>
+
+        <div class="carousel_header">
+            <div></div>
+            <div>Top Artists</div>
+            <div style="text-align: end;">See all</div>
+        </div>
+
+        <div class="carousel_header">
+            <div></div>
+            <div>Recently Added</div>
+            <div style="text-align: end;">See all</div>
+        </div>
+
+        <div class="carousel_wrapper">
+            <small-carousel v-for="(value) in popular_collection_list" :name="value.name" :description="value.description"
+                :imageurl="value.img_url" :collectionurl="value.img_url">
+        </div>
+    </div>
+    
+</div>
+
+<script>
+    const app = Vue.createApp({
+        data() {
+            return {
+                popular_collection_list: [
+                    {
+                        'name':'Void Collection',
+                        'description':'Collection that shows the emptiness of the soul',
+                        'img_url':'https://bafybeib6pchn32uwdvutl3qdzagctgoqs6ttguxqgwwpoodlcf5kqwqnqa.ipfs.dweb.link/0.png',
+                        'collection_url':''
+                    },
+                    {
+                        'name': 'Happiness is King',
+                        'description': 'Happiness is the king of the world in the world.',
+                        'img_url': 'https://bafybeib6pchn32uwdvutl3qdzagctgoqs6ttguxqgwwpoodlcf5kqwqnqa.ipfs.dweb.link/0.png',
+                        'collection_url': ''
+                    },
+                    {
+                        'name': 'Happiness is King',
+                        'description': 'Happiness is the king of the world in the world.',
+                        'img_url': 'https://bafybeib6pchn32uwdvutl3qdzagctgoqs6ttguxqgwwpoodlcf5kqwqnqa.ipfs.dweb.link/0.png',
+                        'collection_url': ''
+                    },
+                    {
+                        'name': 'Happiness is King',
+                        'description': 'Happiness is the king of the world in the world.',
+                        'img_url': 'https://bafybeib6pchn32uwdvutl3qdzagctgoqs6ttguxqgwwpoodlcf5kqwqnqa.ipfs.dweb.link/0.png',
+                        'collection_url': ''
+                    },
+                    {
+                        'name': 'Happiness is King',
+                        'description': 'Happiness is the king of the world in the world.',
+                        'img_url': 'https://bafybeib6pchn32uwdvutl3qdzagctgoqs6ttguxqgwwpoodlcf5kqwqnqa.ipfs.dweb.link/0.png',
+                        'collection_url': ''
+                    }
+                ],
+                top_artists:[
+                    {
+                        'name':'Caleb',
+                        'count':'5'
+                    },
+                    {
+                        'name': 'Caleb',
+                        'count': '5'
+                    },
+                    {
+                        'name': 'Caleb',
+                        'count': '5'
+                    },
+                    {
+                        'name': 'Caleb',
+                        'count': '5'
+                    },
+                    {
+                        'name': 'Caleb',
+                        'count': '5'
+                    },
+                    {
+                        'name': 'Caleb',
+                        'count': '5'
+                    }
+                ]
+            }
+        }
+        
+    })
+
+    app.component('large-carousel', {
+        template:`
+        <div class="top_element rounded_container_no_padding border">
+            <div class="top_element_left">
+                <h1 class="no_margin">Discover, create and sell your own NFTs</h1>
+                <div>
+                    <a href="{% url 'main:mint' %}">
+                        <button class="border grow">Sell</button>
+                    </a> 
+                    <a href="{% url 'main:upload' %}">
+                        <button class="border grow">Create</button>
+                    </a> 
+                </div>
+            </div>
+            <div class="top_element_right">
+                <img src="/static/Assets/Images/homepage_art1.png">
+            </div>
+        </div>`,
+    })
+
+    app.component('small-carousel', {
+        delimiters: ["[[", "]]"],
+        props:['imageurl', 'name', 'description', 'collectionurl'],
+        template:`
+        <a href="[[collectionurl]]">
+            <div class="carousel_card border_1px rounded_container_no_padding" style="height:500px; max-height:auto;">
+                <div>
+                    <img loading="lazy" style="max-width: 350px;" src="https://bafybeib6pchn32uwdvutl3qdzagctgoqs6ttguxqgwwpoodlcf5kqwqnqa.ipfs.dweb.link/0.png" >
+                </div>
+                <div>
+                    <div>[[name]]</div>
+                    <div>[[description]]</div>
+                    <div>Open</div>
+                </div>
+            </div>
+        </a>
+        `,
+        methods:{
+            
+        }
+    })
+
+    app.component('top-artists', {
+
+    })
+    app.mount('#app')
+</script>
+
+<style>
+.home-body {
+    margin: 0px auto;
+    max-width: min(1280px, 100% - 40px);
+    width: 100%;
+    flex-wrap: wrap;
+}
+
+.top_element{
+    background: linear-gradient(110deg, rgb(232, 171, 127) 20%, rgb(146, 148, 231) 100%);
+    height: 300px;
+    align-items: center;
+    display: flex;
+    margin: auto;
+    margin-top: 25px;
+}
+.top_element_content{
+   display: flex;
+}
+.top_element_left{
+    width: 100%;
+    max-width: 60%;
+    height: 100%;
+    padding: 10px 0px 10px 65px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+}
+.top_element_left >h1{
+    color: white; 
+    font-size:2.5rem;
+}
+.top_element_left button{
+    border-radius: 25px;
+    padding: 10px 5px;
+    width: 150px;
+    font-size: 1.1rem;
+    margin: 0;
+    font-weight: bold;
+    cursor: pointer;
+}
+.top_element_left > div{
+    margin-top: 10px;
+}
+.top_element_left > div > :nth-child(1) > button{
+    background: white;
+    color:#E8AB7F;
+    margin-right: 15px;
+}
+.top_element_left > div > :nth-child(2) > button{
+    background: none;
+    color: white;
+}
+.top_element_right{
+    width: 100%;
+    max-width: 40%;
+    height: 100%;
+    overflow: hidden;
+    justify-content: center;
+    display: flex;
+}
+.top_element_right img{
+    height: 300px;
+}
+
+.secondary_element{
+    height: 175px;
+    align-items: center;
+    display: flex;
+    max-width: 1000px;
+    margin: auto;
+}
+.carousel_header{
+    display: grid; 
+    grid-template-columns: 1fr 2fr 1fr;
+}
+.carousel_header >div{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+.carousel_header >div:nth-child(2){
+    margin: 55px; 
+    font-size: 1.5rem; 
+    font-weight: bold; 
+}
+.carousel_header >div:nth-child(3){
+    color: grey;
+    cursor: pointer;
+}
+.carousel_card{
+    height: 500px;
+    max-width: 350px;
+    background: #9294E7;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    padding-bottom: 15px;
+    cursor: pointer;
+}
+.carousel_card >div:nth-child(2){
+    flex-direction: column;
+    height: 209px;
+    padding: 20px 20px 10px;
+    -webkit-box-align: center;
+    align-items: center;
+    display: flex;
+}
+.carousel_card>div >div:nth-child(1){
+    color: white;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    font-weight: 600;
+    font-size: 20px;
+    text-align: center;
+}
+.carousel_card>div >div:nth-child(2){
+    color: white;
+    font-size: 14px;
+    font-weight: 400;
+    max-width: 90%;
+    margin: 20px auto 4px;
+    overflow: hidden;
+    text-align: center;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+.carousel_card>div>div:nth-child(3){
+    margin-top: auto;
+    border-radius: 10px;
+    color: rgb(255, 255, 255);
+    border: 1px solid rgb(255, 255, 255);
+    font-weight: 500;
+    font-size: 14px;
+    padding: 4px 10px;
+}
+.carousel_wrapper{
+    flex-direction: row;
+    display: flex;
+    -webkit-box-align: center;
+    align-items: center;
+    width: 100%;
+    gap: 20px;
+    overflow: scroll;
+    /* max-width: var(--totalWidth);
+    --totalWidth: 440px; */
+}
+
+/* @media only screen and (min-width: 1200px){
+    [class="carousel_wrapper"]{
+        max-width: calc(3 * var(--totalWidth));
+    }
+}
+@media only screen and (min-width: 815px){
+    [class="carousel_wrapper"]{
+        max-width: calc(2 * var(--totalWidth));
+    }
+} */
+@media only screen and (max-width: 815px) {
+    [class*="top_element"]{
+        height: 200px;
+        padding: 10px;
+    }
+    [class="top_element_left"]{
+        padding:0;
+        align-items: center;
+        text-align: center;
+        max-width: 100%;
+    }
+    [class="top_element_right"]{
+        display: none;
+    }
+    [class="top_element_left"] h1{
+        font-size: 1.7rem;
+    }
+    [class="top_element_left"] button{
+        font-size: 1rem;
+        width: 100px
+    }
+}
+</style>
+
+{% endblock %}

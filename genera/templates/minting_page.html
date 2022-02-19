@@ -13,27 +13,27 @@
 {% block body_block %}
 <input type="hidden" id="js_vars" data-ajax_url='{{ajax_url}}' data-user_login='{{user.is_authenticated}}' data-users_collections='{{users_collections}}'>
 
-<div id="add-files-component" class="view_collection_main" style="display: block;">
+<div id="add-files-component" class="view_collection_main_2" style="display: block;">
   <section-toggle @open-upload="openUpload" @open-properties="openProperties" :openupload="open_upload" :openproperties="open_properties"></section-toggle>
   
-    <div class="collection_structure"> 
+  <div class="collection_structure"> 
 
-      <add-files v-if:="open_upload"></add-files>
-      <div v-show="open_upload" class="all_collections_layout" style="justify-content: center;"> 
-        <file-preview
-          v-if:="open_upload"
-          v-for="(value, name, index) in files"
-          :name="name"
-          :imagename="JSON.parse(value.metadata).name"
-          :blob="value.blob"
-          :fullrender="value.fullrender"
-        ></file-preview>
-      </div>
-
-      <div v-show="open_properties" class="all_collections_layout" style="justify-content: center;">
-        <properties :collectionsize="imgCounter" @close-loading="closeLoading"></properties>
-      </div>  
+    <add-files v-if:="open_upload"></add-files>
+    <div v-show="open_upload" class="all_collections_layout" style="justify-content: center;"> 
+      <file-preview
+        v-if:="open_upload"
+        v-for="(value, name, index) in files"
+        :name="name"
+        :imagename="JSON.parse(value.metadata).name"
+        :blob="value.blob"
+        :fullrender="value.fullrender"
+      ></file-preview>
     </div>
+
+    <div v-show="open_properties" class="all_collections_layout" style="justify-content: center;">
+      <properties :collectionsize="imgCounter" @close-loading="closeLoading"></properties>
+    </div>  
+  </div>
   <template v-if:="Object.entries(active_element) != 0">
     <carousel :activeelement="active_element" :activekey="Object.keys(active_element)[0]" @next-carousel="nextDictEntry" @prev-carousel="prevDictEntry" @delete-active="deleteActive"></carousel>
   </template>
@@ -1068,7 +1068,7 @@
     props: [ 'openupload', 'openproperties'],
     template:`
       <div style="justify-content: center; display: flex; width: 100%;">
-        <div class="upload_section_swap rounded_container border" style="width: 400px;">
+        <div class="upload_section_swap rounded_container border" style="width:100%;max-width: 400px;">
           <template v-if:="openupload">
            <h2 class="rounded_container" @click="upload" style="background: var( --border-color);">Upload</h2> 
           </template> 

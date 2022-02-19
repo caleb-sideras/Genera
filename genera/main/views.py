@@ -980,3 +980,7 @@ def problem_report_view(request):
 @requires_user_logged_in
 def reported_issues_view(request):    
     return render(request, "reported_issues.html", {"reports": request.user.userproblemreport_set.all()})
+
+def test_view(request):
+
+    return render(request, "home2.html",  context = {"cock": "cock"})

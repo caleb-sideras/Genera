@@ -160,6 +160,9 @@
     display: inline-grid !important;
     margin: 10px !important;
   }
+  [class="view_collection_main_2"]{
+    margin: 10px !important;
+  }
   [class="collection_structure"]{
     order: 2;
   }
@@ -1450,6 +1453,13 @@ input[type='number']{
   min-height: calc(100vh - var(--header-height));
   display: flex;
   /* gap: 20px; */
+  margin-right: 20px;
+}
+
+.view_collection_main_2 {
+  margin-top: 30px;
+  min-height: calc(100vh - var(--header-height));
+  display: flex;
   margin-right: 20px;
 }
 
