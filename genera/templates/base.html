@@ -198,9 +198,11 @@
       <div class="footer_section">
         <h3>CONTACT US</h3>
         <ul>
-          <li><p>generanft@gmail.com</p></li>
-          <li><a href="{% url 'main:problem_report' %}">Report a problem</a></li>
-          {% if request.user.is_authenticated %}<li><a href="{% url 'main:reported_issues' %}">View reported problems</a></li>{% endif %}
+          <li><a href="mailto:generanft@gmail.com">generanft@gmail.com</a></li>
+          {% if request.user.is_authenticated %}
+            <li><a href="{% url 'main:problem_report' %}">Report a problem</a></li>
+            <li><a href="{% url 'main:reported_issues' %}">View reported problems</a></li>
+          {% endif %}
         </ul>
         
       </div>
