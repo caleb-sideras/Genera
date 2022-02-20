@@ -223,13 +223,15 @@ class FailedUserCollection_Tracker(Model):
 
 class UserCollectionMint(Model):
     collection = models.ForeignKey(UserCollection, on_delete=models.SET_NULL, null=True) #store reference to collection. if collection deleted, this will be set to NULL.
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
 
     #collection info
     collection_name = models.CharField(max_length=50, unique=False) 
     description = models.CharField(max_length=300, unique=False)
     contract_type = models.IntegerField(default=0) # 0 = nothing, 1 = privateV1, 2 = publicV1
-    private = models.BooleanField(default=False) 
+
+    private = models.BooleanField(default=False)  #private or public minting
+    fully_minted = models.BooleanField(default=False)
 
     #IPFS
     image_uri = models.CharField(max_length=100, unique=False)

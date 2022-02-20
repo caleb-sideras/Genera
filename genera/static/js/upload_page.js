@@ -1327,7 +1327,6 @@ async function generate_collection_free() {
         from js import js_sus_dict, js_watermark, dealloc_js_dict
 
         sus_dict = json.loads(js_sus_dict)
-        print("Deallocating memory in js")
         dealloc_js_dict()
         sus_dict["CollectionSize"] = int(float(sus_dict["CollectionSize"]))
         sus_dict["Resolution_x"] = int(float(sus_dict["Resolution_x"]))
