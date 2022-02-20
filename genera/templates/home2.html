@@ -124,7 +124,7 @@
 
     app.component('large-carousel', {
         template:`
-        <div class="top_element rounded_container_no_padding border">
+        <div class="top_element rounded_container_no_padding">
             <div class="top_element_left">
                 <h1 class="no_margin">Discover, create and sell your own NFTs</h1>
                 <div>
@@ -386,20 +386,28 @@
 .carousel_card{
     height: 500px;
     max-width: 350px;
-    /* background: #9294E7; */
     overflow: hidden;
     display: flex;
     flex-direction: column;
     padding-bottom: 15px;
     cursor: pointer;
 }
+.carousel_card img{
+    width: 350px;
+    max-height: 100%;
+    object-fit: contain;  
+}
+.carousel_card >div:nth-child(1){
+    height: 70%;
+}
 .carousel_card >div:nth-child(2){
     flex-direction: column;
-    height: 209px;
+    /* height: 209px; */
     padding: 20px 20px 10px;
     -webkit-box-align: center;
     align-items: center;
     display: flex;
+    flex-grow: 1;
 }
 .carousel_card>div >div:nth-child(1){
     color: white;

@@ -35,6 +35,8 @@ from eth_account.messages import encode_defunct,defunct_hash_message
 stripe.api_key = STRIPE_PRIVATE_KEY_LIVE
 
 def home_view(request):
+
+    # return json lists, recent, trending, artists
     return render(request, "home2.html")
 
 def main_view(request):
@@ -475,20 +477,12 @@ def mint_view(request, username_slug, contract_address):
         context["isOwner"] = (request.user == user)
         # ask artem if better way to do this
         user_collection = UserCollectionMint.objects.filter(user=user, contract_address=contract_address).first()
-        user_collection_public = UserCollectionMintPublic.objects.filter(user=user, contract_address=contract_address).first()
         if user_collection:
             if user_collection.contract_type == 2:
                 context['contract_address'] = user_collection.contract_address
                 context['chain_id'] = user_collection.chain_id
                 context['description'] = user_collection.description
                 context['collection_name'] = user_collection.collection_name
-                
-        elif user_collection_public:
-            if user_collection_public.contract_type == 2:
-                context['contract_address'] = user_collection_public.contract_address
-                context['chain_id'] = user_collection_public.chain_id
-                context['description'] = user_collection_public.description
-                context['collection_name'] = user_collection_public.collection_name
             else:
                 raise_permission_denied("Collection", "Permission Error")
         else:
@@ -653,7 +647,7 @@ def collection_view(request, username_slug, collection_name_slug):
                     )
                 if "address_set" in received_json_data:
                     if request.user.is_authenticated:
-                        cocker = UserCollectionMint.objects.create(
+                        UserCollectionMint.objects.create(
                             collection = user_collection,
                             user = request.user, 
                             contract_address = received_json_data["address_set"],
@@ -810,7 +804,7 @@ def public_mint_view(request):
         user = User.objects.filter(username=request.user.username_slug).first()
         context["user"] = user
         context["ajax_url"] = reverse("main:mint")
-    user_collection =''
+    
 
     if request.method == "POST":
         if request.user.is_authenticated:
@@ -838,9 +832,8 @@ def public_mint_view(request):
                         status=202,
                     )
                 if "address_set" in received_json_data:
-
                     try:
-                        user_collection = UserCollectionMintPublic.objects.create(
+                        UserCollectionMint.objects.create(
                             user = request.user, 
                             collection_name = received_json_data['collection_name'],
                             contract_address = received_json_data["address_set"],

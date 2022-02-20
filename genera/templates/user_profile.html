@@ -33,7 +33,7 @@
  
                     </div>
                 </div>
-                <a href="{% url 'main:user_mint' user.username_slug collection.contract_address%}"style="text-decoration: none;"></a>
+                <a href="{% url 'main:user_mint' user.username_slug collection.contract_address%}"style="text-decoration: none; display: none;"></a>
                 {% endif %}
             {% endfor %}
         {% endif %}
