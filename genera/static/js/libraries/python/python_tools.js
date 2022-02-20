@@ -116,43 +116,30 @@ async function init_python(notify=false) { //safely initializes pyodide - if alr
         for key, value in tempDict["Layers"].items():
           texturedAsset = 0
           if value["Assets"] and value["Textures"]:
-            # adding assets/textures to individual arrays
             rarityAppend(value, "Assets", rarityArrayAsset, rarityDictAsset)
             rarityAppend(value, "Textures", rarityArrayTexture, rarityDictTexture)
             while rarityArrayAsset:
-              # randomly choosing assets/textures
               tempAsset = random.choice(rarityArrayAsset)
               texturedAsset = rarityDictAsset[tempAsset]
               tempMetadata = tempAsset
               if rarityArrayTexture: 
                 tempTexture = random.choice(rarityArrayTexture)    
-                # mapping texture to asset
                 texturedAsset = textureMapping(rarityDictAsset[tempAsset], rarityDictTexture[tempTexture], texture_map_color)
-                # metadata variable
                 tempMetadata = f"{tempAsset} ({tempTexture})"
-                # removing used texture
                 rarityArrayTexture.remove(tempTexture)
 
-              # adding final asset
               texturedAssetArray.append(texturedAsset)
-              # adding metadata
               metadataArray.append(tempMetadata)
-              # removing used asset
               rarityArrayAsset.remove(tempAsset)
 
           else:
             if value["Assets"]:
               rarityAppend2(value, "Assets", rarityArrayAsset, rarityDictAsset)
               arrayRange = len(rarityArrayAsset)
-              # adding just assets to an individual array
               for _ in range(arrayRange):
-                # randomly choosing assets
                 tempAsset = random.choice(rarityArrayAsset)
-                # adding final asset
                 texturedAssetArray.append(rarityDictAsset[tempAsset])
-                # adding metadata
                 metadataArray.append(f"{tempAsset}")
-                # removing used asset
                 rarityArrayAsset.remove(tempAsset)
                         
           name = key
@@ -163,7 +150,6 @@ async function init_python(notify=false) { //safely initializes pyodide - if alr
           rarityDictAsset = {}
           rarityDictTexture = {}
         
-        # getting longest layer
         longest_layer = 0
         for value in texturedAssetDict:
           if len(texturedAssetDict[value]) > longest_layer:
@@ -175,12 +161,10 @@ async function init_python(notify=false) { //safely initializes pyodide - if alr
         watermark = file_to_pil(js_watermark)
         resized_watermark =  watermark.resize((tempDict["Resolution_x"], tempDict["Resolution_y"]))   
     
-        # iterating over textured assets dictionary, and combining them
         for i in range(longest_layer):
           im = Image.new(
               "RGBA", (tempDict["Resolution_x"], tempDict["Resolution_y"]), (0, 0, 0, 0)
           )
-          # creating json template
           temp_json = {
               "name": f"{tempDict['ImageName']}#{i}",
               "description": tempDict["Description"],
@@ -189,10 +173,8 @@ async function init_python(notify=false) { //safely initializes pyodide - if alr
           temp_list = []
           
           for value in texturedAssetDict:
-              # print(texturedAssetDict[value])
               if len(texturedAssetDict[value]) > i: # we already iterate over texturedAssetDict, save len values in array and use them # also, lots of double checks happening, find a way using len values for this not to happen
                   temp_asset = texturedAssetDict[value][i]
-                  # creating attributes in metadata
                   im.paste(temp_asset, (0, 0), temp_asset)
                   temp_list.append(
                       {"trait_type": value, "value": metadataDict[value][i]}
