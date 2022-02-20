@@ -100,7 +100,7 @@ class User(AbstractBaseUser, PermissionsMixin, Model):
     
     #Custom functions
     def get_all_minted_collections(self):
-        return [collection for collection in self.usercollectionmintpublic_set.all()] + [collection for collection in self.usercollectionmint_set.all()]
+        return [collection for collection in self.usercollectionmint_set.all()]
     
     @property
     def number_of_unresolved_issues(self):
@@ -220,13 +220,16 @@ class FailedUserCollection_Tracker(Model):
         self.credits_refunded = self.collection.collection_size
         super(FailedUserCollection_Tracker, self).save(*args, **kwargs)
 
-class CollectionMint_Shared(Model): #NOT A TABLE IN THE DATABASE - is abstract class
+
+class UserCollectionMint(Model):
+    collection = models.ForeignKey(UserCollection, on_delete=models.SET_NULL, null=True) #store reference to collection. if collection deleted, this will be set to NULL.
     user = models.ForeignKey(User, on_delete=models.CASCADE)
 
     #collection info
     collection_name = models.CharField(max_length=50, unique=False) 
     description = models.CharField(max_length=300, unique=False)
     contract_type = models.IntegerField(default=0) # 0 = nothing, 1 = privateV1, 2 = publicV1
+    private = models.BooleanField(default=False) 
 
     #IPFS
     image_uri = models.CharField(max_length=100, unique=False)
@@ -236,22 +239,19 @@ class CollectionMint_Shared(Model): #NOT A TABLE IN THE DATABASE - is abstract c
     contract_address = models.CharField(max_length=50, unique=True)
     chain_id = models.CharField(max_length=10, unique=False)
 
-    class Meta:
-        abstract = True
+    #Sorting
+    created = models.DateTimeField(auto_now_add=True, null=True, blank=True)
     
-class UserCollectionMint(CollectionMint_Shared):
-    collection = models.ForeignKey(UserCollection, on_delete=models.SET_NULL, null=True) #store reference to collection. if collection deleted, this will be set to NULL.
-
+    #Artem we not want this explain
     def save(self, *args, **kwargs): #update the collection field names when saving, if a collection is referenced
         if self.collection:
             self.collection_name = self.collection.collection_name
             self.description = self.collection.description
             self.image_uri = self.collection.image_uri
             self.base_uri = self.collection.base_uri
+            self.collection_size = self.collection_size
         super(UserCollectionMint, self).save(*args, **kwargs)
 
-class UserCollectionMintPublic(CollectionMint_Shared):
-    pass
 
 class CollectionImage(Model):
     linked_collection = models.ForeignKey(UserCollection, on_delete=models.CASCADE)
