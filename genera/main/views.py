@@ -95,6 +95,10 @@ def upload_view(request):
                     return ajax_redirect(reverse("main:upload"))
                 paid_generation = False
             
+            if not paid_generation:
+                messages.error(request, message="Not a Paid generation. Abort")
+                return ajax_redirect(reverse("main:main_view"))
+            
             calebs_gay_dict["CollectionName"] = request.POST.get("collection_name")
             calebs_gay_dict["ImageName"]= request.POST.get("image_name")
             calebs_gay_dict["Description"] = request.POST.get("description")
@@ -103,7 +107,7 @@ def upload_view(request):
             calebs_gay_dict["CollectionSize"] = coll_size
             calebs_gay_dict["TextureColor"] = request.POST.get("color")
 
-            print(calebs_gay_dict["CollectionSize"])
+            # print(calebs_gay_dict["CollectionSize"])
 
             new_dict = json.loads(request.POST.get("image_dict"))
             for value in calebs_gay_dict.values():
@@ -112,31 +116,30 @@ def upload_view(request):
                     return ajax_redirect(reverse("main:upload"))
 
             layers = {}
-            if paid_generation:
-                db_collection = UserCollection.objects.filter(user=request.user, collection_name=calebs_gay_dict["CollectionName"]).first()
-                if not db_collection: #new collection created
-                    db_collection = UserCollection.objects.create(
-                        user=request.user,
-                        collection_name=calebs_gay_dict["CollectionName"],
-                        description = calebs_gay_dict["Description"],
-                        dimension_x = calebs_gay_dict["Resolution_x"],
-                        dimension_y = calebs_gay_dict["Resolution_y"]
-                    )
-                else:
-                    return ajax_cancel_generation("A collection with that name already exists!", reverse("main:upload"))
+            
+            db_collection = UserCollection.objects.filter(user=request.user, collection_name=calebs_gay_dict["CollectionName"]).first()
+            if not db_collection: #new collection created
+                db_collection = UserCollection.objects.create(
+                    user=request.user,
+                    collection_name=calebs_gay_dict["CollectionName"],
+                    description = calebs_gay_dict["Description"],
+                    dimension_x = calebs_gay_dict["Resolution_x"],
+                    dimension_y = calebs_gay_dict["Resolution_y"]
+                )
+            else:
+                return ajax_cancel_generation("A collection with that name already exists!", reverse("main:upload"))
 
-                #CREATE THE FOLDER HERE PERHAPS ?
-                if DEPLOYMENT_INSTANCE:
-                    db_collection.path = f"users/{request.user.username_slug}/collections/{db_collection.collection_name_slug}" #TODO: make sure the the 2 parameters a filepath safe
-                else:
-                    db_collection.path = f"/media/users/{request.user.username_slug}/collections/{db_collection.collection_name_slug}"
+            #CREATE THE FOLDER HERE PERHAPS ?
+            if DEPLOYMENT_INSTANCE:
+                db_collection.path = f"users/{request.user.username_slug}/collections/{db_collection.collection_name_slug}" #TODO: make sure the the 2 parameters a filepath safe
+            else:
+                db_collection.path = f"/media/users/{request.user.username_slug}/collections/{db_collection.collection_name_slug}"
 
-                try:
-                    db_collection.save()
-
-                except Exception as e:
-                    messages.error(request, message="Critical Backend error. Unable to create collection.")
-                    return ajax_redirect(reverse("main:upload"))
+            try:
+                db_collection.save()
+            except Exception as e:
+                messages.error(request, message="Critical Backend error. Unable to create collection.")
+                return ajax_redirect(reverse("main:upload"))
             
             try:
                 for filename in request.FILES.keys():
@@ -146,7 +149,6 @@ def upload_view(request):
                         file_name = file.name
                         file_name_no_extension = file.name.split(".")[0]
                         file_name_extension = file.name.split(".")[1]
-                        full_file_name = f"{layer_type}.{layer_name}.{file_name_no_extension}.{file_name_extension}"
 
                         if file_name_extension.lower() != "png":
                             continue
@@ -173,8 +175,7 @@ def upload_view(request):
                                         }
                                     )
                                 else:
-                                    if paid_generation:
-                                        db_collection.delete()
+                                    db_collection.delete()
                                     messages.error(request, message="Data mismatch. Please try again.")
                                     return ajax_redirect(reverse("main:upload"))
 
@@ -194,10 +195,10 @@ def upload_view(request):
                                         }
                                     )
                                 else:
-                                    if paid_generation:
-                                        db_collection.delete()
+                                    db_collection.delete()
                                     messages.error(request, message="Data mismatch. Please try again.")
                                     return ajax_redirect(reverse("main:upload"))
+                                    
             except RawPostDataException:
                 messages.error(request, "Critical error - collection size exceeds allowance.")
                 # user.delete()
@@ -205,42 +206,31 @@ def upload_view(request):
 
             calebs_gay_dict["Layers"] = layers  # calebs gay dict complete
             
-            if paid_generation:
-                try:
-                    required_dicts = instantiate_collection(calebs_gay_dict, db_collection) ##this updates collection size and stuff.
-                except Exception as msg:
-                    FailedUserCollection_Tracker.objects.create(user=user, collection=db_collection, error_message=str(msg))
-                    db_collection.delete()
-                    messages.error(request, message="Something went wrong. Generation failed. Sorry! Your credits have not been deducted.")
-                    return ajax_redirect(reverse("main:main_view"))
-                
-                user.credits -= db_collection.collection_size
-                user.save()
+            try:
+                required_dicts = instantiate_collection(calebs_gay_dict, db_collection) ##this updates collection size and stuff.
+            except Exception as msg:
+                FailedUserCollection_Tracker.objects.create(user=user, collection=db_collection, error_message=str(msg))
+                db_collection.delete()
+                messages.error(request, message="Something went wrong. Generation failed. Sorry! Your credits have not been deducted.")
+                return ajax_redirect(reverse("main:main_view"))
+            
+            user.credits -= db_collection.collection_size
+            user.save()
 
-                if db_collection.collection_size > 20: #put on a thread if > 20, else we can handle normally
-                    if create_and_save_collection_paid_thread(calebs_gay_dict, db_collection, required_dicts[0], required_dicts[1], request.user): #checks if thread has started! if so - redirect to all collections page!
-                        messages.success(request, message="Your collection is quite large and is being generated. You've been redirected to your collections page! Thank you for your patience.")
-                        return ajax_redirect(reverse("main:all_collections", args=[request.user.username_slug]))
-                    else:
-                        messages.error(request, message="Something went wrong. Generation failed. Sorry! Your credits have been refunded.")
-                        return ajax_redirect(reverse("main:main_view"))
-                else:       
-                    if create_and_save_collection_paid(calebs_gay_dict, db_collection, required_dicts[0], required_dicts[1], request.user):
-                        messages.success(request, message="Collection generated. Redirected to collection page!")
-                        return ajax_redirect(reverse("main:collection", args=[user.username_slug, db_collection.collection_name_slug]))
-                    else:
-                        messages.error(request, message="Something went wrong. Generation failed. Sorry! Your credits have been refunded.")
-                        return ajax_redirect(reverse("main:main_view"))
-            else:
-                images_list, metadata_list = create_and_save_collection_free(calebs_gay_dict)
-                # print("Free collection")
-                return JsonResponse(
-                    {
-                        "images" : images_list,
-                        "metadata" : metadata_list
-                    },
-                    status=200,
-                )
+            if db_collection.collection_size > 20: #put on a thread if > 20, else we can handle normally
+                if create_and_save_collection_paid_thread(calebs_gay_dict, db_collection, required_dicts[0], required_dicts[1], request.user): #checks if thread has started! if so - redirect to all collections page!
+                    messages.success(request, message="Your collection is quite large and is being generated. You've been redirected to your collections page! Thank you for your patience.")
+                    return ajax_redirect(reverse("main:all_collections", args=[request.user.username_slug]))
+                else:
+                    messages.error(request, message="Something went wrong. Generation failed. Sorry! Your credits have been refunded.")
+                    return ajax_redirect(reverse("main:main_view"))
+            else:       
+                if create_and_save_collection_paid(calebs_gay_dict, db_collection, required_dicts[0], required_dicts[1], request.user):
+                    messages.success(request, message="Collection generated. Redirected to collection page!")
+                    return ajax_redirect(reverse("main:collection", args=[user.username_slug, db_collection.collection_name_slug]))
+                else:
+                    messages.error(request, message="Something went wrong. Generation failed. Sorry! Your credits have been refunded.")
+                    return ajax_redirect(reverse("main:main_view"))
             
         else:  # no files submitted
             messages.error(request, message="No files recieved by the server")
@@ -300,7 +290,9 @@ def metamask_login_handler_view(request):
                     return ajax_redirect(reverse("main:main_view")) #redirect home page - make sure to catch this in frontend. NOTE: perhaps redirect to profile edit page - to change username/email..
                 else: #if signature verification fails - delete the MetamaskUserAuth object. User needs to do the whole process again.
                     found_user.delete()
-                    return JsonResponse({"error": signature_verified}, status=200)
+                    messages.error(request, "Metamask verification failed. Please try again.")
+                    return ajax_redirect(reverse("main:login_options")) #redirect home page - make sure to catch this in frontend. NOTE: perhaps redirect to profile edit page - to change username/email..
+
                 
         except RawPostDataException:
             return Http404()
