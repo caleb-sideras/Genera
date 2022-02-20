@@ -1336,7 +1336,7 @@ async function generate_collection_free() {
     `)
 
     var returned_images = JSON.parse(get_python_variable("python_images_list"))
-    var returned_metadata = get_python_variable("python_metadata_list")
+    var returned_metadata = JSON.parse(get_python_variable("python_metadata_list"))
 
     let zip = new JSZip();
     function zipFiles(img_data, json, i){
