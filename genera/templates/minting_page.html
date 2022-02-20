@@ -736,8 +736,11 @@
         }
 
         let fileList = []
-        for (const [key, value] of Object.entries(this.$root.$data.files)) {
-          fileList.push(value.file)
+        for (const [index, [key, value]] of Object.entries(Object.entries(this.$root.$data.files))) {
+
+          var blob = value.file.slice(0, value.file.size, value.file.type);
+          var newFile = new File([blob], `${index}.png`, { type: 'image/png' });
+          fileList.push(newFile)
         }
 
         let imageURI = await this.imageCar(fileList)
