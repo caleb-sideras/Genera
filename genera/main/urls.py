@@ -9,7 +9,8 @@ from main.views import *
 app_name = "main"
 urlpatterns = [
     # include other apps
-    path("", main_view, name="main_view"),
+    path("", home_view, name="home"),
+    path("learn", main_view, name="main_view"),
     path("upload", upload_view, name="upload"),
 
     path("login/options", login_options_view, name="login_options"),
@@ -42,6 +43,5 @@ urlpatterns = [
     path("terms", terms_view, name="terms"),
     path("contact_us/problem_report", problem_report_view, name="problem_report"),
     path("dashboard/reported_issues", reported_issues_view, name="reported_issues"),
-    path("test", test_view, name="test"),
 ]
  

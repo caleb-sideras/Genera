@@ -1,4 +1,5 @@
 :root {
+  --genera-color: #9294E7;
   --text-color: #000000;
   --text-color-2: #333333;
   --text-color-3: #666565;
@@ -7,7 +8,7 @@
   --background-color-2: #F7F8FA;
   --background-color-3: #F7F8FA;
   --main-card-color: #FFFFFF;
-  --main-color: #627EEA;
+  --main-color: #9294E7;
   --sub-color: #A8B6F4;
   --sub-color-light: #cdd5f9;
   --image-text-color: #A8B6F4;
@@ -23,7 +24,7 @@
   --disabled-background-color: #EAEAEA;
   --disabled-text-color: #A6A6A6;
   /* --filter-color: invert(15%) sepia(91%) saturate(4511%) hue-rotate(321deg) brightness(78%) contrast(110%); */
-  --filter-color: invert(52%) sepia(52%) saturate(1041%) hue-rotate(200deg) brightness(88%) contrast(111%);
+  --filter-color: invert(79%) sepia(37%) saturate(6062%) hue-rotate(202deg) brightness(97%) contrast(86%);;
   --icon-color: invert(0%) sepia(3%) saturate(7485%) hue-rotate(139deg) brightness(87%) contrast(101%);
   --dark-grey-color-2: brightness(0) saturate(100%) invert(14%) sepia(0%) saturate(1%) hue-rotate(116deg) brightness(94%) contrast(82%);
   --tab-img-color: invert(100%) sepia(4%) saturate(16%) hue-rotate(186deg) brightness(107%) contrast(106%);
@@ -33,6 +34,7 @@
 }
 
 .dark-mode-root { 
+  --genera-color: #E8AB7F;
   --text-color: #FFFFFF;
   --text-color-2: #F2F2F2;
   --dark-grey-color: #FFFFFF;
@@ -43,8 +45,8 @@
   --background-color-2: #2a2e34;
   --background-color-3: #2a2e34;
   --main-card-color: #191B1F;
-  --main-color: #755A7A;
-  --sub-color: #a894ab; 
+  --main-color: #E8AB7F;
+  --sub-color: #f3c9aa; 
   --sub-color-light: #e3dce4;
   --image-text-color: #4c6993;
   --white-color: #212429;
@@ -58,7 +60,7 @@
   --disabled-background-color: #D8D8D8;
   --disabled-text-color: #A6A6A6;
   --p-text-color:rgb(204, 204, 204);
-  --filter-color: invert(41%) sepia(9%) saturate(1467%) hue-rotate(244deg) brightness(87%) contrast(85%);
+  --filter-color: invert(70%) sepia(59%) saturate(336%) hue-rotate(336deg) brightness(96%) contrast(88%);;
   --dark-grey-color-2: invert(100%) sepia(100%) saturate(0%) hue-rotate(78deg) brightness(105%) contrast(101%);
   --tab-img-color: invert(0%) sepia(100%) saturate(21%) hue-rotate(2deg) brightness(101%) contrast(107%);
    --remove-button-color: invert(9%) sepia(4%) saturate(2336%) hue-rotate(179deg) brightness(92%) contrast(87%);
@@ -534,7 +536,8 @@ a{
 }
 
 body {
-  background-image: var(--background-image);
+  background: var(--main-card-color);
+  /* background-image: var(--background-image); */
   font-family: "Roboto Condensed", sans-serif;
   color: var(--text-color);
   margin: 0;
@@ -553,6 +556,10 @@ body {
 
 .card_main_color_background {
   background-color: var(--main-card-color);
+}
+
+.card_main_color_background_text {
+  color: var(--main-card-color);
 }
 
 .dark_grey_background {
@@ -577,6 +584,10 @@ body {
 
 .white_background {
   background-color: var(--white-color);
+}
+
+.genera_background{
+  background: var(--genera-color);
 }
 
 .error_color {
@@ -691,12 +702,8 @@ body {
   text-align: center;
   color: var(--text-color-2);
 }
-.general_button_no_border > h4 {
-  color:var(--text-button-color-2);
-  font-weight: bold;
   
-}
-.general_button_no_border > .generate {
+.general_button_no_border > h4 {
   color: var(--text-button-color-1);
   font-weight: bold;
   
@@ -2015,24 +2022,16 @@ text-align: left;
 }
 .info_card {
   padding: 15px;
-  width: 275.75px;
-  background-color: var(--white-color);
-  border-style: solid;
-  border-width: 1px;
+  width: 200px;
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
   padding-bottom: 15px;
-  border-color: var(--border-color);
 }
 
 .info_card > .nft_image {
-  /* max-height: 150px; */
-  aspect-ratio: 0;
-  /* height: 70%;
-  width: 100%;
-  margin-bottom: 15px; */
+  width: 125px;
+  align-self: center;
 }
 
 .info_card > div {
@@ -2041,15 +2040,16 @@ text-align: left;
   align-items: center;
   justify-content: center;
   gap: 5px;
-  height: 50%;
 }
 .info_card > div >div{
   height: 40%;
-  overflow: hidden;
 }
 
 .info_card > div > :last-child {
   flex-grow: 1;
+}
+.info_card > div > div > p{
+  color: grey;
 }
 
 .info_card > div > p{
@@ -2058,7 +2058,6 @@ text-align: left;
   font-weight: bold;
 }
 .features_wrapper{
- background: var(--background-color);
  padding-top: 50px;
  padding-bottom: 100px;
 }
@@ -2068,7 +2067,7 @@ text-align: left;
   flex-wrap: wrap;
   /* width: 90vw; */
   gap: 25px;
-  max-width: 1000px;
+  max-width: 800px;
   margin: auto;
   margin-top: 15px;
   justify-content: center;
@@ -2331,7 +2330,6 @@ display: inline-block;
 }
 
 .credits_button{
-  color: var(--text-button-color-2);
   border-radius: 0 10px 10px 0;
   margin-right: 15px;
   font-weight: 900;

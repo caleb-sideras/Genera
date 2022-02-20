@@ -13,6 +13,8 @@
     <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
     <script type="text/javascript" src="{% static 'js/global.js' %}"></script>
     <script type="text/javascript" src="{% static 'js/libraries/notifications.js' %}"></script>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet">
     {% block head_block %}{% endblock %}
   </head>
 
@@ -31,7 +33,7 @@
 
     <div class="nav_bar_wrapper top_bottom_border">
       <div class="left_navbar">
-        <a href="{% url 'main:main_view' %}">
+        <a href="{% url 'main:home' %}">
           <img src="/static/icons/logoV1.svg" class="logo1" alt="" />
           <img
             src="{% static 'Assets/Background/genera4.png' %}"
@@ -167,7 +169,7 @@
       <div class="footer_section">
         <h3>PAGES</h3>
         <ul>
-          <li><a href="{% url 'main:main_view' %}">Home</a></li>
+          <li><a href="{% url 'main:home' %}">Home</a></li>
           <li><a href="{% url 'main:upload' %}">NFT Maker/Minter</a></li>
           <li><a href="{% url 'main:mint' %}">NFT Minter</a></li>
           <li><a href="{% url 'main:about' %}">About</a></li>

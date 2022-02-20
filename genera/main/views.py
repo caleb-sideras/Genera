@@ -34,6 +34,9 @@ from eth_account.messages import encode_defunct,defunct_hash_message
 # Create your views here.
 stripe.api_key = STRIPE_PRIVATE_KEY_LIVE
 
+def home_view(request):
+    return render(request, "home2.html")
+
 def main_view(request):
     context = {}
 
@@ -906,7 +909,3 @@ def problem_report_view(request):
 @requires_user_logged_in
 def reported_issues_view(request):    
     return render(request, "reported_issues.html", {"reports": request.user.userproblemreport_set.all()})
-
-def test_view(request):
-
-    return render(request, "home2.html",  context = {"cock": "cock"})
