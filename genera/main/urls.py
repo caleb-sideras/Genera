@@ -9,8 +9,8 @@ from main.views import *
 app_name = "main"
 urlpatterns = [
     # include other apps
-    path("", home_view, name="home"),
-    path("learn", main_view, name="main_view"),
+    path("testermannoshot", home_view, name="home"),
+    path("", main_view, name="main_view"),
     path("upload", upload_view, name="upload"),
 
     path("login/options", login_options_view, name="login_options"),

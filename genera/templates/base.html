@@ -33,7 +33,7 @@
 
     <div class="nav_bar_wrapper top_bottom_border">
       <div class="left_navbar">
-        <a href="{% url 'main:home' %}">
+        <a href="{% url 'main:main_view' %}">
           <img src="/static/icons/logoV1.svg" class="logo1" alt="" />
           <img
             src="{% static 'Assets/Background/genera4.png' %}"
@@ -73,48 +73,29 @@
         <button class="btn_toggle">Toggle Theme</button>
         
         {% if request.user.is_authenticated%}
-        <div class="dropdown" style="margin-right: 40px;">
-          <div style="align-items: center;max-width: 200px;display: flex;gap: 10px; cursor: pointer;" >
-            <div class="profile-picture main_color_background" style="width: 50px;height: 50px;margin-bottom: 0;"></div>
-            <div>
-              <div style="overflow: hidden;max-width: 100px;text-overflow: ellipsis;font-weight: bold;font-size: 1.1rem; white-space: pre;">{{request.user.username}}</div>
-              <div class="expand_button_container" style="align-items: center; color: white; font-weight: bold; padding: 1px; width: 50px;">{{request.user.credits}}</div>
+          <div class="dropdown" style="margin-right: 40px;">
+            <div style="align-items: center;max-width: 200px;display: flex;gap: 10px; cursor: pointer;" >
+              <div class="profile-picture main_color_background" style="width: 50px;height: 50px;margin-bottom: 0;"></div>
+              <div>
+                <div style="overflow: hidden;max-width: 100px;text-overflow: ellipsis;font-weight: bold;font-size: 1.1rem; white-space: pre;">{{request.user.username}}</div>
+                <div class="expand_button_container" style="align-items: center; color: white; font-weight: bold; padding: 1px; width: 50px;">{{request.user.credits}}</div>
+              </div>
+              <span style="font-family: 'Material Icons';margin-bottom: 24px;font-size: 19px;">
+                expand_more
+              </span>
             </div>
-            <span style="font-family: 'Material Icons';margin-bottom: 24px;font-size: 19px;">
-              expand_more
-            </span>
-          </div>
-          <div class="dropdown-content rounded_container_no_padding shadow_strong">
-            <a href="{% url 'main:profile' request.user.username_slug %}">
-              <p>Profile</p>
-            </a>
-            <a href="{% url 'main:all_collections' request.user.username_slug %}">
-              <p>Collections</p>
-            </a>
-            <a href="{% url 'main:logout' request.path%}">
-              <p>Log out</p>
-            </a>
-          </div>
-        </div>
-          <!-- <div class="dropdown">
-            <button class="dropbtn main_color_background  rounded_container_no_padding">Logged in: {{request.user.username}}</button>
             <div class="dropdown-content rounded_container_no_padding shadow_strong">
-              {% if request.user.is_authenticated %}
-                <a href="{% url 'main:profile' request.user.username_slug %}">
-                  <p>Profile</p>
-                </a>
-                <a href="{% url 'main:all_collections' request.user.username_slug %}">
-                  <p>Collections</p>
-                </a>
-                <a href="{% url 'main:logout' request.path%}">
-                  <p>Log out</p>
-                </a>
-              {% endif %}
+              <a href="{% url 'main:profile' request.user.username_slug %}">
+                <p>Profile</p>
+              </a>
+              <a href="{% url 'main:all_collections' request.user.username_slug %}">
+                <p>Collections</p>
+              </a>
+              <a href="{% url 'main:logout' request.path%}">
+                <p>Log out</p>
+              </a>
             </div>
           </div>
-          <a href="{% url 'payments:checkout'%}">
-            <button class="credits_button sub_color_background dropbtn" title="Credits">{{request.user.credits}}</button>
-          </a> -->
         {% endif %} 
       </div>
       <div class="right_navbar">
@@ -192,7 +173,7 @@
       <div class="footer_section">
         <h3>PAGES</h3>
         <ul>
-          <li><a href="{% url 'main:home' %}">Home</a></li>
+          <li><a href="{% url 'main:main_view' %}">Home</a></li>
           <li><a href="{% url 'main:upload' %}">NFT Maker/Minter</a></li>
           <li><a href="{% url 'main:mint' %}">NFT Minter</a></li>
           <li><a href="{% url 'main:about' %}">About</a></li>
