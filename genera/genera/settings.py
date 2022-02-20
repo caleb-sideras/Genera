@@ -45,19 +45,29 @@ DEFAULT_FROM_EMAIL = 'generanft@gmail.com'
 EMAIL_USE_TLS = True
 
 DEBUG = True #TODO:
-
+#'172.31.24.181', 'ec2-3-134-42-144.us-east-2.compute.amazonaws.com'
+ALLOWED_HOSTS = ['genera.link','www.genera.link', 'genera.us-east-2.elasticbeanstalk.com']
 DEPLOYMENT_INSTANCE = 'RDS_DB_NAME' in os.environ
-
 if DEPLOYMENT_INSTANCE:
+    import requests
+    try:
+        internal_ip = requests.get('http://instance-data/latest/meta-data/local-ipv4').text
+    except requests.exceptions.ConnectionError:
+        pass
+    else:
+        ALLOWED_HOSTS.append(internal_ip)
+    del requests
+
     BASE_URL = 'https://www.genera.link'
     EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
     DEBUG = False
+else:
+    ALLOWED_HOSTS.append('localhost')
 
 mimetypes.add_type("application/javascript", ".js", True) #TODO: IDK IF THIS NEEDS BE IN PROD!
 
 #172.31.24.181 is the single EC2 instance private ip !!!!
 #ec2-3-134-42-144.us-east-2.compute.amazonaws.com
-ALLOWED_HOSTS = ['localhost','genera.link','www.genera.link', 'genera.us-east-2.elasticbeanstalk.com', '172.31.24.181', 'ec2-3-134-42-144.us-east-2.compute.amazonaws.com']
 
 # Application definition
 APPS = ['main', 'payments']

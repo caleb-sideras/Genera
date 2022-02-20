@@ -2430,6 +2430,10 @@ display: inline-block;
 .footer_section p, a{
   color: var(--text-color-2);
 }
+
+.footer_section p:hover, a:hover{
+  color: var(--main-color);
+}
 /* FOOTER */
 
 /* ANIMATED LOOP IN CENTER */
