@@ -249,7 +249,6 @@ class UserCollectionMint(Model):
             self.description = self.collection.description
             self.image_uri = self.collection.image_uri
             self.base_uri = self.collection.base_uri
-            self.collection_size = self.collection_size
         super(UserCollectionMint, self).save(*args, **kwargs)
 
 
