@@ -25,6 +25,7 @@ __pycache__
 db.sqlite3
 db.sql
 media
+vue-frontend
 _migrations/*
 
 # Backup files # 
@@ -67,6 +68,7 @@ wheels/
 *.egg 
 *.manifest 
 *.spec 
+node_modules/
 
 # Installer logs 
 pip-log.txt 
@@ -146,3 +148,7 @@ artem_db_changes.bat
 .elasticbeanstalk/*
 !.elasticbeanstalk/*.cfg.yml
 !.elasticbeanstalk/*.global.yml
+
+# Vue cli
+index.html
+base-vue.html

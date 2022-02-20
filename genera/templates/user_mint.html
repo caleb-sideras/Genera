@@ -997,7 +997,8 @@
         props: ['admin', 'collection'],
         template:`
         <div style="justify-content: center; display: flex; width: 100%; margin-top: 20px;">
-            <div class="upload_section_swap rounded_container border" style="width: 400px;">
+            <div class="upload_section_swap rounded_container border" style="width: 100%;
+    max-width: 400px;">
             <template v-if:="collection">
             <h2 class="rounded_container" @click="collectionSection" style="background: var( --border-color);">Collection</h2> 
             </template> 
