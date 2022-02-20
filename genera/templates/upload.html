@@ -136,20 +136,29 @@
         class="general_button_no_border sub_color_background border rounded_container_no_padding"
         onclick="preview_button(this)"
       >
-        <h4 class="no_margin">Preview</h4>
+        <h4 class="no_margin">Preview (Watermarked)</h4>
       </button>
       <p id="cooldown">30 second cooldown</p>
       <input type="hidden" name="rarity_map" id="rarity_map" value="">
       <input type="hidden" name="uploaded_data_dict" id="uploaded_data_dict" value="">
+
       <button
-        type="button"
-        id="upload_button_submit"
-        class="general_button_no_border main_color_background border rounded_container_no_padding"
+          type="button"
+          id="upload_button_submit_free"
+          class="general_button_no_border sub_color_background border rounded_container_no_padding"
       >
-        <h4 class="no_margin generate">Generate</h4>
+          <h4 class="no_margin generate">Free Generation (Watermarked)</h4>
       </button>
 
-      <input id="test_python" type="file">
+      {%if request.user.is_authenticated%}
+        <button
+          type="button"
+          id="upload_button_submit_paid"
+          class="general_button_no_border main_color_background border rounded_container_no_padding"
+        >
+          <h4 class="no_margin generate">Paid Generation</h4>
+        </button>
+      {%endif%}
 
       <div style="display: none;" class="update_layer_parameters_menu rounded_container border">
         <h3 class="no_margin center">Layer Properties</h3>

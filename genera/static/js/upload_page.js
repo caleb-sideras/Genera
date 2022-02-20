@@ -19,6 +19,23 @@ function main() {
     if(user_login){
         collection_names = JSON.parse(js_vars.dataset.collection_names)
         has_collections_generating = js_vars.dataset.has_collections_generating
+
+        document.getElementById("upload_button_submit_paid").addEventListener("click", () => {
+            if (has_collections_generating == "True") {
+                if (confirm("You already have a collection being generated. Are you sure you want to start generating another one? Note that our website does support such action, and it is encouraged, but we are just giving you a heads up in case you were not aware :)")) {
+                    has_collections_generating = false //if user agrees, then dont show this popup again!
+                } else {
+                    create_notification("Generation Cancelled", "You have cancelled the generation of this collection.", duration = 10000, "warning")
+                    return
+                }
+            }
+            yes_no_popup('Generate Paid Collection?', 'Yes', 'No').then((response) =>{
+                if (response) {
+                    validate_and_process_form(free=false);
+                }
+    
+            })
+        })
     }
 
     if (js_vars.dataset.user_credits && user_login) {
@@ -35,20 +52,11 @@ function main() {
             add_layer()
     })
 
-    document.getElementById("upload_button_submit").addEventListener("click", () => {
-        if (has_collections_generating == "True") {
-            if (confirm("You already have a collection being generated. Are you sure you want to start generating another one? Note that our website does support such action, and it is encouraged, but we are just giving you a heads up in case you were not aware :)")) {
-                has_collections_generating = false //if user agrees, then dont show this popup again!
-            } else {
-                create_notification("Generation Cancelled", "You have cancelled the generation of this collection.", duration = 10000, "warning")
-                return
-            }
-        }
-        yes_no_popup('Generate Collection?', 'Yes', 'No').then((response) =>{
+    document.getElementById("upload_button_submit_free").addEventListener("click", () => {
+        yes_no_popup('Generate Free Collection?', 'Yes', 'No').then((response) =>{
             if (response) {
-                validate_and_post_ajax_form();
+                validate_and_process_form(free=true);
             }
-
         })
     })
 
@@ -659,14 +667,14 @@ async function image_resize(file, res_x, res_y) {
 }
 
 function preview_image_size(res_x, res_y){
-    if (res_y > 500 || res_x > 500){
+    if (res_y > 1000 || res_x > 100){
         if (res_x > res_y){
-            res_y = parseInt((res_y * 500) / res_x)
-            res_x = 500
+            res_y = parseInt((res_y * 1000) / res_x)
+            res_x = 1000
         }
         else {
-            res_x = parseInt((res_x * 500) / res_y)
-            res_y = 500
+            res_x = parseInt((res_x * 1000) / res_y)
+            res_y = 1000
         }
     }
     return [res_x, res_y]
@@ -950,36 +958,16 @@ async function preview_button(self){
     properties_list.push(collection_properties[1].value)
     properties_list.push(collection_properties[2].value)
 
-    // make modular kings!!!
-    // if (!collection_properties[0].value) {
-    //     alert("Please enter Collection Name")
-    //     close_loading_popup()
-    //     return
-    // }
-    // if (!collection_properties[1].value) {
-    //     alert("Please enter Image Name")
-    //     close_loading_popup()
-    //     return
-    // }
-    // if (!collection_properties[2].value) {
-    //     alert("Please enter Description")
-    //     close_loading_popup()
-    //     return
-    // }
-
     if (!collection_properties[4].value || !collection_properties[4].value) {
-        alert("Please enter your resolution")
+        create_notification("Missing input", "Please specify the resolution for the preview.", duration = 10000, "error")
         close_loading_popup() 
         return
     } else if (collection_properties[4].value > 4000 || collection_properties[5].value > 4000) {
-        alert("Please make sure your resolution is lower than 4000")
+        create_notification("Resolution", "Resolution above 4000px is not allowed for free previews.", duration = 10000, "error")
         close_loading_popup() 
         return
     }
 
-    await init_python(notify=true) //wont do anything if already initialized so dont worry.
-    
-    create_and_render_loading_popup("Generating Preview")
     let res_x, res_y
     [res_x, res_y] = preview_image_size(collection_properties[4].value, collection_properties[5].value)
     properties_list.push(res_x)
@@ -991,18 +979,16 @@ async function preview_button(self){
     layer_buttons.forEach(element => {
         layername_list.push(element.querySelectorAll("h5")[0].innerHTML)
     });
-    
     [layer_list, texture_list] = await preview_layer_search(res_x, res_y, layername_list)
+
     if (layer_list.length == 0) {
-        alert("Upload images to use preview")
+        create_notification("Missing input", "Please upload images to use the preview function!", duration = 10000, "error")
         close_loading_popup()
         return
     }
 
-    if (self.disabled == true) {
-        close_loading_popup()
-        return
-    }
+    await init_python(notify=true)
+    create_and_render_loading_popup("Generating Preview")
 
     js_properties = JSON.stringify(properties_list)
     js_layernames = JSON.stringify(layername_list)
@@ -1133,8 +1119,7 @@ async function preview_layer_search(res_x, res_y, layer_keys){
             texture_list.push(undefined)
         }
     }
-    
-    
+
     return [asset_list, texture_list]
 }
 
@@ -1156,7 +1141,7 @@ function initialize_dynamic_form_validation() {
     }
 }
 
-async function validate_and_post_ajax_form() {
+async function validate_and_process_form(free=false) {
     var form = document.getElementById("upload_form")
     var fields = form.querySelectorAll(".upload_properties input:not(input[type='color']), .upload_properties textarea")
 
@@ -1205,10 +1190,14 @@ async function validate_and_post_ajax_form() {
         //maybe check for file presence inside the file object? - idk if neccessary since we checking rarities anyways.
     }
 
-    // if passed all checks, post the ajax form.
-    
+    //if all checks passed - proceed to generate
+    if (free) { //if free - generate the collection
+        await generate_collection_free()
+        return
+    }
+     
     create_and_render_loading_popup("Generating collection")
-    var form_data = await generate_form_data_for_ajax_post_generate().then(data => data)
+    var form_data = await generate_form_data_for_paid_collection().then(data => data)
 
     ajax_post_form(form_data)
         .then(response => {
@@ -1219,47 +1208,10 @@ async function validate_and_post_ajax_form() {
                 close_loading_popup()
                 create_notification("Generation cancelled", response["message"], duration = 1000, "warning")
             }
-            else if(response['images']){
-                let zip = new JSZip();
-
-                function zipFiles(img_data, json, i){
-                    return new Promise((res, rej) => {
-                        JSZipUtils.getBinaryContent(img_data, function (err, data) {
-                            if (err) {
-                                rej(err) // or handle the error
-                            }
-                            zip.file(i + ".json", json)
-                            
-                            // probs just res true
-                            res(zip.file(i + ".png", data, { binary: true }))
-                        });
-                    })
-                }
-
-                let promise_list = []
-                for (let i = 0; i < response['images'].length; i++) {
-                    
-                    promise_list.push(
-                        zipFiles(
-                            `data:image/png;base64,${response['images'][i]}`, 
-                            JSON.stringify(response['metadata'][i]),
-                            i
-                        )
-                    )
-                }
-                
-                Promise.all(promise_list).then((value)=>{
-                    
-                    zip.generateAsync({ type: 'blob' }).then(function (content) {
-                        saveAs(content, "GeneraCollection.zip");
-                        close_loading_popup()
-                    });
-                })
-            }   
         })
 }
 
-async function generate_form_data_for_ajax_post_generate() {
+async function generate_form_data_for_paid_collection() {
     var upload_layers = document.getElementsByClassName('upload_layers')[0]
     var collection_properties_container = document.getElementsByClassName('upload_properties')[0]
     collection_properties = collection_properties_container.children[0].children[1].querySelectorAll(':scope input, :scope textarea, :scope div input')
@@ -1269,15 +1221,8 @@ async function generate_form_data_for_ajax_post_generate() {
         layername_list.push(element.querySelectorAll("h5")[0].innerHTML)
     });
 
-    if (user_login) {
-        res_x = collection_properties[4].value
-        res_y = collection_properties[5].value
-    }
-    else{
-        [res_x, res_y] = preview_image_size(collection_properties[4].value, collection_properties[5].value)
-        collection_properties[4].value = res_y
-        collection_properties[5].value = res_x
-    }
+    var res_x = collection_properties[4].value
+    var res_y = collection_properties[5].value
 
     var upload_form = document.getElementById('upload_form');
     var file_data = new FormData(upload_form);
@@ -1293,12 +1238,139 @@ async function generate_form_data_for_ajax_post_generate() {
             for (let i = 0; i < section_list.length; i++) {
                 var resized_asset = await image_resize(uploaded_data[key][section][section_list[i]]['file'], res_x, res_y)
                 file_data.append(section + "." + key + "." + section_list[i], resized_asset);
-                
             }
         }
     }
     return file_data
 }
+
+async function generate_collection_free() {
+    var upload_layers = document.getElementsByClassName('upload_layers')[0]
+    var collection_properties_container = document.getElementsByClassName('upload_properties')[0]
+    var collection_properties = collection_properties_container.children[0].children[1].querySelectorAll(':scope input, :scope textarea, :scope div input')
+    var layername_list = [] // layer names (metadata)
+    var layer_buttons = upload_layers.children[2].querySelectorAll(".general_button")
+
+    if ((collection_properties[3].value) > 100) {
+        create_notification("Generation cancelled", "You cannot generate more than 100 images during a free generation! Generation cancelled", duration = 5000, "error")
+        return
+    }
+    
+    create_and_render_loading_popup("Generating FREE collection.. Please be patient!")
+    await init_python()
+    
+    layer_buttons.forEach(element => {
+        layername_list.push(element.querySelectorAll("h5")[0].innerHTML)
+    });
+
+    let res_x,res_y
+    [res_x, res_y] = preview_image_size(collection_properties[4].value, collection_properties[5].value)
+    collection_properties[4].value = res_y
+    collection_properties[5].value = res_x
+
+    js_sus_dict = {}
+    js_sus_dict["CollectionName"] = collection_properties[0].value
+    js_sus_dict["ImageName"]= collection_properties[1].value
+    js_sus_dict["Description"] = collection_properties[2].value
+    js_sus_dict["Resolution_x"] = res_x
+    js_sus_dict["Resolution_y"] = res_y
+    js_sus_dict["CollectionSize"] = collection_properties[3].value
+    js_sus_dict["TextureColor"] = collection_properties[6].value
+
+    var file_map = []
+    for (const key of layername_list) {
+        for (const section of ["Assets", "Textures"]) {
+            var section_list = Object.keys(uploaded_data[key][section]);
+            for (let i = 0; i < section_list.length; i++) {
+                var resized_asset = await image_resize(uploaded_data[key][section][section_list[i]]['file'], res_x, res_y)
+                file_map.push({"name": section + "." + key + "." + section_list[i], "content": resized_asset}); 
+            }
+        }
+    }
+
+    var js_layers = {}
+    for (let file of file_map) {
+        var layer_type = file.name.split(".")[0]
+        var layer_name = file.name.split(".")[1]
+        var file_name_no_extension = file.name.split(".")[2]
+        var file_name_extension = file.name.split(".")[3]
+        var file_name = `${file_name_no_extension}.${file_name_extension}`
+        var full_file_name = `${layer_type}.${layer_name}.${file_name_no_extension}.${file_name_extension}`
+
+        if (js_layers[layer_name] === undefined) {
+            console.log("initializing layers")
+            js_layers[layer_name] = {"Assets": [], "Textures": []}
+        }
+
+        if (layer_type == "Assets") {
+            if (0 < Number(uploaded_data[layer_name]['Assets'][file_name]['Rarity']) <= js_sus_dict["CollectionSize"]) {
+                js_layers[layer_name]['Assets'].push({"Name": full_file_name, "PIL": await readFileAsync(file.content), "Rarity": Number(uploaded_data[layer_name]['Assets'][file_name]['Rarity']) })
+            }
+        }
+        if (layer_type == "Textures") {
+            if (0 < Number(uploaded_data[layer_name]['Textures'][file_name]['Rarity']) <= js_sus_dict["CollectionSize"]) {
+                js_layers[layer_name]['Textures'].push({"Name": full_file_name, "PIL": await readFileAsync(file.content), "Rarity": Number(uploaded_data[layer_name]['Textures'][file_name]['Rarity']) })
+            }
+        }
+    }
+    
+    js_sus_dict["Layers"] = js_layers
+    js_sus_dict = JSON.stringify(js_sus_dict)
+
+    run_python(
+    `
+        from js import js_sus_dict, js_watermark
+
+        sus_dict = json.loads(js_sus_dict)
+        sus_dict["CollectionSize"] = int(float(sus_dict["CollectionSize"]))
+        sus_dict["Resolution_x"] = int(float(sus_dict["Resolution_x"]))
+        sus_dict["Resolution_y"] = int(float(sus_dict["Resolution_y"]))
+
+        for layer in sus_dict["Layers"].values():
+            for asset in layer["Assets"]:
+                asset["PIL"] = file_to_pil(asset["PIL"])
+            for texture in layer["Textures"]:
+                texture["PIL"] = file_to_pil(texture["PIL"])
+        
+        python_images_list, python_metadata_list = create_and_save_collection_free(sus_dict, js_watermark)
+    `)
+
+    var returned_images = JSON.parse(get_python_variable("python_images_list"))
+    var returned_metadata = JSON.parse(get_python_variable("python_metadata_list"))
+
+    let zip = new JSZip();
+    function zipFiles(img_data, json, i){
+        return new Promise((res, rej) => {
+            JSZipUtils.getBinaryContent(img_data, function (err, data) {
+                if (err) {
+                    rej(err) // or handle the error
+                }
+                zip.file(i + ".json", json)
+                // probs just res true
+                res(zip.file(i + ".png", data, { binary: true }))
+            });
+        })
+    }
+
+    let promise_list = []
+    for (let i = 0; i < returned_images.length; i++) {
+        promise_list.push(
+            zipFiles(
+                `data:image/png;base64,${returned_images[i]}`, 
+                JSON.stringify(returned_metadata[i]),
+                i
+            )
+        )
+    }
+    
+    Promise.all(promise_list).then((value)=>{
+        zip.generateAsync({ type: 'blob' }).then(function (content) {
+            saveAs(content, "GeneraCollection.zip");
+            close_loading_popup()
+        });
+    })
+}
+
 
 function validate_collection(field_object){
     if (field_object.value == "") {

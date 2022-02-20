@@ -320,9 +320,6 @@ def create_and_save_collection_paid_thread(*args, **kwargs):
     return True
 
 def create_and_save_collection_free(tempDict):
-    # print(tempDict["CollectionName"])
-    # print(tempDict["Description"])
-
     rarityArrayAsset = []
     rarityArrayTexture = []
     texturedAssetArray = []
@@ -333,67 +330,48 @@ def create_and_save_collection_free(tempDict):
     metadataDict = {}
 
     texture_map_color = ImageColor.getcolor(tempDict['TextureColor'], "RGB")
-    # print(tempDict['TextureColor'])
-    # print(texture_map_color)
     for key, value in tempDict["Layers"].items():
         texturedAsset = 0
-        # print(f"Generating {key} layer")
 
         if value["Assets"] and value["Textures"]:
-
             # adding assets/textures to individual arrays
             rarityAppend(value, "Assets", rarityArrayAsset, rarityDictAsset)
             rarityAppend(value, "Textures", rarityArrayTexture, rarityDictTexture)
-
             while rarityArrayAsset:
                 # randomly choosing assets/textures
                 tempAsset = random.choice(rarityArrayAsset)
                 texturedAsset = rarityDictAsset[tempAsset]
                 tempMetadata = tempAsset
-                if rarityArrayTexture:
-                    
-                    tempTexture = random.choice(rarityArrayTexture)
-                        
+                if rarityArrayTexture: 
+                    tempTexture = random.choice(rarityArrayTexture)    
                     # mapping texture to asset
-                    texturedAsset = textureMapping(
-                        rarityDictAsset[tempAsset], rarityDictTexture[tempTexture], texture_map_color
-                    )
-
+                    texturedAsset = textureMapping(rarityDictAsset[tempAsset], rarityDictTexture[tempTexture], texture_map_color)
                     # metadata variable
                     tempMetadata = f"{tempAsset} ({tempTexture})"
-                    
                     # removing used texture
                     rarityArrayTexture.remove(tempTexture)
 
                 # adding final asset
                 texturedAssetArray.append(texturedAsset)
-
                 # adding metadata
                 metadataArray.append(tempMetadata)
-
                 # removing used asset
                 rarityArrayAsset.remove(tempAsset)
-
         else:
-
             if value["Assets"]:
-
                 rarityAppend2(value, "Assets", rarityArrayAsset, rarityDictAsset)
                 arrayRange = len(rarityArrayAsset)
                 # adding just assets to an individual array
                 for _ in range(arrayRange):
-
                     # randomly choosing assets
                     tempAsset = random.choice(rarityArrayAsset)
-                    
                     # adding final asset
                     texturedAssetArray.append(rarityDictAsset[tempAsset])
                     # adding metadata
                     metadataArray.append(f"{tempAsset}")
                     # removing used asset
                     rarityArrayAsset.remove(tempAsset)
-
-
+                    
         name = key
         texturedAssetDict.update({name: texturedAssetArray})
         metadataDict.update({name: metadataArray})
@@ -412,7 +390,6 @@ def create_and_save_collection_free(tempDict):
     metadata_list = []
 
     try:
-        
         watermark = Image.open(staticify("Assets/Background/genera_watermark.png"))
     except:
         # print("Could not open watermark")
@@ -422,9 +399,6 @@ def create_and_save_collection_free(tempDict):
 
     # iterating over textured assets dictionary, and combining them
     for i in range(longest_layer):
-
-        timeit_start = time.time()
-        img_name = f"{tempDict['ImageName']} {i+1}"
 
         im = Image.new(
             "RGBA", (tempDict["Resolution_x"], tempDict["Resolution_y"]), (0, 0, 0, 0)
@@ -451,10 +425,6 @@ def create_and_save_collection_free(tempDict):
         metadata_list.append(temp_json)
 
         bytes_list.append(pil_to_bytes(im)) 
-        
-        timeit_end = time.time()
-
-            
         # print(f"Image {img_name} has been generated (max 500px) Time taken: {timeit_end-timeit_start:.2f}s")
 
     # print("Finished generation") 
