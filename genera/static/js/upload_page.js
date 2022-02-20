@@ -194,9 +194,6 @@ function add_smart_input(self, category) {
                     if (upload_button.name[0] == "$") //cleanse first  $ meme
                         upload_button.name = upload_button.name.substring(1)
 
-                    // 
-                    // 
-                    // 
                 }
             }
             // Assign buffer to file input
@@ -209,17 +206,7 @@ function add_smart_input(self, category) {
             else if (category == 2)
                 return "texture." + this.previousElementSibling.innerHTML.toLowerCase() + "." + filename
         }.bind(self)
-
-        var dict_rarity_add = function (value) {
-            if (category == 1) {
-                var section_name = 'Assets'
-            } else if (category == 2) {
-                var section_name = 'Textures'
-            }
-            uploaded_data[this.previousElementSibling.innerHTML][section_name][filename]['Rarity'] = value
-        }.bind(self)
-
-        
+    
         full_file_name = generate_full_filename(category)
 
         if (upload_button.name == "") {
@@ -264,7 +251,6 @@ function add_smart_input(self, category) {
             this.slider_1.title = this.slider_1.value
             this.slider_value.innerHTML = this.slider_1.value
 
-            dict_rarity_add(this.slider_1.value)
             update_sliders()
         }.bind({slider_1: slider_1, slider_value: slider_value, category: category}))
 
@@ -388,6 +374,7 @@ function update_sliders() {
         var button_section_layers = document.getElementsByClassName("upload_layers_buttons")[k]
         for (var i = 0; i < button_section_layers.children.length; i++) { //all layers within component 
             //button_section_layers.children[i] is specific layer access
+            var layer_name = button_section_layers.children[i].querySelector(":scope > h5").innerHTML
 
             var local_sliders = button_section_layers.children[i].querySelectorAll(":scope .upload_slider_section")
             button_section_layers.children[i].querySelector(":scope .expand_button_container h5").innerHTML = local_sliders.length
@@ -406,7 +393,6 @@ function update_sliders() {
                             slider.max = 0
                         } else { //If there is space - deal with 2 cases.
                             if (Number(slider.value) >= remaining_space) { //case of last element having more value than existing space - cut it down
-                                slider.value = remaining_space
                                 slider.max = remaining_space
                                 remaining_space = 0
                             } else { //all other elements should have their max equal to their value.
@@ -421,7 +407,14 @@ function update_sliders() {
                             slider.max = (collection_size - cum_sum)
                     }
 
-                    slider_count.innerHTML =  slider.value
+                    slider_count.innerHTML = slider.value
+
+                    if (Object.keys(uploaded_data[layer_name]["Assets"]).length > 0)
+                        uploaded_data[layer_name]["Assets"][local_sliders[j].previousElementSibling.innerHTML]['Rarity'] = slider.value
+
+                    if (Object.keys(uploaded_data[layer_name]["Textures"]).length > 0)
+                        uploaded_data[layer_name]["Textures"][local_sliders[j].previousElementSibling.innerHTML]['Rarity'] = slider.value
+                    
                     slider.disabled = false
                 }
                 else { //if collection size is 0 - disable all sliders
@@ -1063,8 +1056,17 @@ async function preview_button(self){
         preview_image_final = pil_to_bytes(im)    
     `)
 
+    js_filelist = null
     var img_src = `data:image/png;base64,${get_python_variable("preview_image_final")}`
     var metadata = get_python_variable("metadata_final")
+
+    run_python( //wipe python variables
+    `
+        del filelist
+        del js_watermark
+        del preview_image_final
+    `)
+
     upload_preview.children[4].innerHTML = ""
     replace_image(img_src, metadata['name'], 'Preview')
 
@@ -1244,6 +1246,10 @@ async function generate_form_data_for_paid_collection() {
     return file_data
 }
 
+dealloc_js_dict = () => {
+    js_sus_dict = null
+}
+
 async function generate_collection_free() {
     var upload_layers = document.getElementsByClassName('upload_layers')[0]
     var collection_properties_container = document.getElementsByClassName('upload_properties')[0]
@@ -1295,33 +1301,34 @@ async function generate_collection_free() {
         var file_name_no_extension = file.name.split(".")[2]
         var file_name_extension = file.name.split(".")[3]
         var file_name = `${file_name_no_extension}.${file_name_extension}`
-        var full_file_name = `${layer_type}.${layer_name}.${file_name_no_extension}.${file_name_extension}`
 
         if (js_layers[layer_name] === undefined) {
-            console.log("initializing layers")
             js_layers[layer_name] = {"Assets": [], "Textures": []}
         }
 
         if (layer_type == "Assets") {
             if (0 < Number(uploaded_data[layer_name]['Assets'][file_name]['Rarity']) <= js_sus_dict["CollectionSize"]) {
-                js_layers[layer_name]['Assets'].push({"Name": full_file_name, "PIL": await readFileAsync(file.content), "Rarity": Number(uploaded_data[layer_name]['Assets'][file_name]['Rarity']) })
+                js_layers[layer_name]['Assets'].push({"Name": file_name_no_extension, "PIL": await readFileAsync(file.content), "Rarity": Number(uploaded_data[layer_name]['Assets'][file_name]['Rarity']) })
             }
         }
         if (layer_type == "Textures") {
             if (0 < Number(uploaded_data[layer_name]['Textures'][file_name]['Rarity']) <= js_sus_dict["CollectionSize"]) {
-                js_layers[layer_name]['Textures'].push({"Name": full_file_name, "PIL": await readFileAsync(file.content), "Rarity": Number(uploaded_data[layer_name]['Textures'][file_name]['Rarity']) })
+                js_layers[layer_name]['Textures'].push({"Name": file_name_no_extension, "PIL": await readFileAsync(file.content), "Rarity": Number(uploaded_data[layer_name]['Textures'][file_name]['Rarity']) })
             }
         }
     }
     
     js_sus_dict["Layers"] = js_layers
+    js_layers = null
     js_sus_dict = JSON.stringify(js_sus_dict)
 
     run_python(
     `
-        from js import js_sus_dict, js_watermark
+        from js import js_sus_dict, js_watermark, dealloc_js_dict
 
         sus_dict = json.loads(js_sus_dict)
+        print("Deallocating memory in js")
+        dealloc_js_dict()
         sus_dict["CollectionSize"] = int(float(sus_dict["CollectionSize"]))
         sus_dict["Resolution_x"] = int(float(sus_dict["Resolution_x"]))
         sus_dict["Resolution_y"] = int(float(sus_dict["Resolution_y"]))
@@ -1338,6 +1345,17 @@ async function generate_collection_free() {
     var returned_images = JSON.parse(get_python_variable("python_images_list"))
     var returned_metadata = JSON.parse(get_python_variable("python_metadata_list"))
 
+    run_python( //wipe python variables
+    `
+        del sus_dict
+        del python_images_list
+        del python_metadata_list
+        del js_watermark
+    `
+    )
+
+    js_sus_dict = null //dealloc
+        
     let zip = new JSZip();
     function zipFiles(img_data, json, i){
         return new Promise((res, rej) => {
@@ -1366,6 +1384,8 @@ async function generate_collection_free() {
     Promise.all(promise_list).then((value)=>{
         zip.generateAsync({ type: 'blob' }).then(function (content) {
             saveAs(content, "GeneraCollection.zip");
+            returned_images = null //dealloc
+            returned_metadata = null //dealloc
             close_loading_popup()
         });
     })

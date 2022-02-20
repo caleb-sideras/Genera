@@ -203,7 +203,6 @@ async function init_python(notify=false) { //safely initializes pyodide - if alr
   
           bytes_list.append(pil_to_bytes(im)) 
     
-        # print("Finished generation") 
         return json.dumps(bytes_list), json.dumps(metadata_list)
         
     `);
