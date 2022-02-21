@@ -72,7 +72,7 @@ class User(AbstractBaseUser, PermissionsMixin, Model):
     email = models.EmailField(unique=True)
 
     is_active = models.BooleanField(default=True)
-    date_joined = models.DateTimeField(default=timezone.now)
+    date_joined = models.DateTimeField(auto_now_add=True)
     is_staff = models.BooleanField(default=False)
     
     credits = models.IntegerField(default=0)
@@ -209,6 +209,8 @@ class FailedUserCollection_Tracker(Model):
 
     credits_refunded = models.IntegerField()
 
+    datetime_created = models.DateTimeField(default=timezone.now)
+
     error_message = models.CharField(max_length=500, unique=False, blank=True, null=True)
 
     def save(self, *args, **kwargs):
@@ -242,7 +244,7 @@ class UserCollectionMint(Model):
     chain_id = models.CharField(max_length=10, unique=False)
 
     #Sorting
-    created = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+    created = models.DateTimeField(auto_now_add=True, null=True, blank=True, )
     
     #Artem we not want this explain
     def save(self, *args, **kwargs): #update the collection field names when saving, if a collection is referenced
@@ -277,7 +279,7 @@ class Token(Model):
     hash = models.UUIDField(default=uuid.uuid4, editable=True) #editable since we will generate new hashes every time this is requested
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True) #can be empty - if no user is tracked by the token (AnonymousUser)
 
-    created = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+    created = models.DateTimeField(auto_now_add=True, null=True, blank=True, )
 
     class Types(models.TextChoices):
         PASSWORD_RESET = 'P', 'password reset token',
@@ -294,7 +296,7 @@ class UserProblemReport(Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     description = models.TextField(max_length=1000)
 
-    datetime = models.DateTimeField(auto_now_add=True)
+    datetime = models.DateTimeField(auto_now_add=True, )
 
     resolved = models.BooleanField(default=False)
     resolve_info = models.TextField(null=True, blank=True)
