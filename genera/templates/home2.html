@@ -8,39 +8,40 @@
 {% endblock %}
 
 {% block body_block %}
+<input type="hidden" id="js_vars" data-ajax_url='{{ajax_url}}' data-popular='{{popular}}' data-recent='{{recent}}' data-artists='{{artists}}'/>
+
 <div id="app">
     <div class="home-body">
         <large-carousel></large-carousel>
 
         <div class="carousel_header">
             <div></div>
-            <div>Trending NFT Collections</div>
-            <div style="text-align: end;">See all</div>
+            <div>Popular NFT Collections</div>
+            <div style="text-align: end;"></div>
         </div>
 
         <div class="carousel_wrapper">
-            <small-carousel v-for="(value) in popular_collection_list" :name="value.name" :description="value.description" :imageurl="value.img_url" :collectionurl="value.img_url">
+            <small-carousel v-for="(value) in popular_collection" :name="value.name" :description="value.description" :imageurl="value.img_url" :collectionurl="value.collection_url">
         </div>
 
         <div class="carousel_header">
             <div></div>
             <div>Top Artists</div>
-            <div style="text-align: end;">See all</div>
+            <div style="text-align: end;"></div>
         </div>
         <div class="carousel_wrapper">
-            <top-artists v-for="(value) in top_artists" :name="value.name" :description="value.description"
-                :imageurl="value.img_url" :collectionurl="value.img_url">
+            <top-artists v-for="(value, name, index) in top_artists" :name="name" :description="value.description"
+                :imageurl="" :collectionurl="value.profile_url">
         </div>
 
         <div class="carousel_header">
             <div></div>
             <div>Recently Added</div>
-            <div style="text-align: end;">See all</div>
+            <div style="text-align: end;"></div>
         </div>
-
         <div class="carousel_wrapper">
-            <small-carousel v-for="(value) in popular_collection_list" :name="value.name" :description="value.description"
-                :imageurl="value.img_url" :collectionurl="value.img_url">
+            <small-carousel v-for="(value) in recent_collection" :name="value.name" :description="value.description"
+                :imageurl="value.img_url" :collectionurl="value.collection_url">
         </div>
 
         <features></features>
@@ -52,74 +53,11 @@
     const app = Vue.createApp({
         data() {
             return {
-                popular_collection_list: [
-                    {
-                        'name':'Void Collection',
-                        'description':'Collection that shows the emptiness of the soul',
-                        'img_url':'https://bafybeib6pchn32uwdvutl3qdzagctgoqs6ttguxqgwwpoodlcf5kqwqnqa.ipfs.dweb.link/0.png',
-                        'collection_url':''
-                    },
-                    {
-                        'name': 'Happiness is King',
-                        'description': 'Happiness is the king of the world in the world.',
-                        'img_url': 'https://bafybeib6pchn32uwdvutl3qdzagctgoqs6ttguxqgwwpoodlcf5kqwqnqa.ipfs.dweb.link/0.png',
-                        'collection_url': ''
-                    },
-                    {
-                        'name': 'Happiness is King',
-                        'description': 'Happiness is the king of the world in the world.',
-                        'img_url': 'https://bafybeib6pchn32uwdvutl3qdzagctgoqs6ttguxqgwwpoodlcf5kqwqnqa.ipfs.dweb.link/0.png',
-                        'collection_url': ''
-                    },
-                    {
-                        'name': 'Happiness is King',
-                        'description': 'Happiness is the king of the world in the world.',
-                        'img_url': 'https://bafybeib6pchn32uwdvutl3qdzagctgoqs6ttguxqgwwpoodlcf5kqwqnqa.ipfs.dweb.link/0.png',
-                        'collection_url': ''
-                    },
-                    {
-                        'name': 'Happiness is King',
-                        'description': 'Happiness is the king of the world in the world.',
-                        'img_url': 'https://bafybeib6pchn32uwdvutl3qdzagctgoqs6ttguxqgwwpoodlcf5kqwqnqa.ipfs.dweb.link/0.png',
-                        'collection_url': ''
-                    }
-                ],
-                top_artists:[
-                    {
-                        'name':'sojaboja',
-                        'description':'the emptiness of the heart is the beginning of evil',
-                        'img_url':'',
-                        'collection_url': ''
-                    },
-                    {
-                        'name': 'sojaboja',
-                        'description': 'the emptiness of the heart is the beginning of evil',
-                        'img_url': '',
-                        'collection_url': ''
-                    },
-                    {
-                        'name': 'sojaboja',
-                        'description': 'the emptiness of the heart is the beginning of evil',
-                        'img_url': '',
-                        'collection_url': ''
-                    },
-                    {
-                        'name': 'sojaboja',
-                        'description': 'the emptiness of the heart is the beginning of evil',
-                        'img_url': '',
-                        'collection_url': ''
-                    },
-                    {
-                        'name': 'sojaboja',
-                        'description': 'the emptiness of the heart is the beginning of evil',
-                        'img_url': '',
-                        'collection_url': ''
-                    },
-                        
-                ]
+                popular_collection: JSON.parse(js_vars.dataset.popular),
+                top_artists: JSON.parse(js_vars.dataset.artists),
+                recent_collection: JSON.parse(js_vars.dataset.recent)
             }
         }
-        
     })
 
     app.component('large-carousel', {
@@ -155,10 +93,10 @@
         delimiters: ["[[", "]]"],
         props:['imageurl', 'name', 'description', 'collectionurl'],
         template:`
-        <a href="[[collectionurl]]">
+        <a :href="[[collectionurl]]">
             <div class="carousel_card border_1px rounded_container_no_padding genera_background">
                 <div>
-                    <img loading="lazy" style="max-width: 350px;" src="https://bafybeib6pchn32uwdvutl3qdzagctgoqs6ttguxqgwwpoodlcf5kqwqnqa.ipfs.dweb.link/0.png" >
+                    <img loading="lazy" style="max-width: 350px;" :src="[[imageurl]]" >
                 </div>
                 <div>
                     <div>[[name]]</div>
@@ -177,10 +115,10 @@
         delimiters: ["[[", "]]"],
         props: ['imageurl', 'name', 'description', 'collectionurl'],
         template:`
-        <a href="[[collectionurl]]">
+        <a :href="[[collectionurl]]">
             <div class="profile_card_wrapper">
                 <div class="profile-picture genera_background"></div>
-                <div class="profile_card border rounded_container">
+                <div class="profile_card border rounded_container border_hover">
                     <div>[[name]]</div>
                     <div>[[description]]</div>    
                 </div>
@@ -366,7 +304,7 @@
 }
 .carousel_header{
     display: grid; 
-    grid-template-columns: 1fr 2fr 1fr;
+    grid-template-columns: 0fr 1fr 0fr;
 }
 .carousel_header >div{
     display: flex;
@@ -458,6 +396,10 @@
     flex-direction: column;
     align-items: center;
     margin-bottom: 5px;
+}
+.profile_card_wrapper:hover .profile_card{
+    border-color: var(--main-color);
+    transition: all 0.1s ease-in-out;
 }
 .profile_card_wrapper >div:nth-child(1){
     width: 160px;

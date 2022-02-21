@@ -1,4 +1,5 @@
 from re import S
+from django import views
 from django.db import models
 import uuid
 from genera.settings import DEPLOYMENT_INSTANCE
@@ -229,6 +230,7 @@ class UserCollectionMint(Model):
     collection_name = models.CharField(max_length=50, unique=False) 
     description = models.CharField(max_length=300, unique=False)
     contract_type = models.IntegerField(default=0) # 0 = nothing, 1 = privateV1, 2 = publicV1
+    collection_views = models.IntegerField(default=0)
 
     private = models.BooleanField(default=False)  #private or public minting
     fully_minted = models.BooleanField(default=False)

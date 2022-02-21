@@ -35,9 +35,32 @@ from eth_account.messages import encode_defunct,defunct_hash_message
 stripe.api_key = STRIPE_PRIVATE_KEY_LIVE
 
 def home_view(request):
-
+    recent_collections = UserCollectionMint.objects.filter(fully_minted = False, chain_id="0x1" or "0x13881").order_by('-created')[:10]
+    popular_collections = UserCollectionMint.objects.filter(fully_minted = False, chain_id="0x4" or "0x13881").order_by('-collection_views')[:10]
+    
+    popular_collections_list = []
+    recent_collections_list = []
+    popular_artists={}
+    for count, value in enumerate(recent_collections):
+        popular_collections_list.append({
+            'name':popular_collections[count].collection_name,
+            'description':popular_collections[count].description,
+            'img_url':f'https://{popular_collections[count].image_uri}.ipfs.dweb.link/0.png',
+            'collection_url': reverse("main:user_mint", args=[popular_collections[count].user.username_slug, popular_collections[count].contract_address])
+        })
+        recent_collections_list.append({
+            'name':recent_collections[count].collection_name,
+            'description':recent_collections[count].description,
+            'img_url':f'https://{recent_collections[count].image_uri}.ipfs.dweb.link/0.png',
+            'collection_url': reverse("main:user_mint", args=[recent_collections[count].user.username_slug, recent_collections[count].contract_address])
+        })
+        if  recent_collections[count].user.username not in popular_artists:
+            popular_artists[recent_collections[count].user.username] = {
+                'profile_url' : reverse("main:profile", args=[recent_collections[count].user.username_slug])
+            }
+    
     # return json lists, recent, trending, artists
-    return render(request, "home2.html")
+    return render(request, "home2.html", context={"recent": json.dumps(recent_collections_list),"popular": json.dumps(popular_collections_list), "artists": json.dumps(popular_artists)})
 
 def main_view(request):
     context = {}
@@ -483,12 +506,37 @@ def mint_view(request, username_slug, contract_address):
                 context['chain_id'] = user_collection.chain_id
                 context['description'] = user_collection.description
                 context['collection_name'] = user_collection.collection_name
+                if not context["isOwner"]:
+                    user_collection.collection_views += 1
+                    user_collection.save()
             else:
                 raise_permission_denied("Collection", "Permission Error")
         else:
             raise_permission_denied("Collection", "This Collection does not exist")
     elif not user:
         raise_permission_denied("Profile", "Profile does not exist")
+
+    if request.method == "POST":
+            ##AJAX HANDLING SECTION START
+        try:
+            received_json_data = json.loads(request.body)
+            if "contract_minted_check" in received_json_data:
+                if not user_collection.fully_minted:
+                    with open("static/Contracts/erc1155_public_contract.json", "r") as myfile:
+                        data = json.loads(myfile.read())
+                    w3 = Web3(Web3.HTTPProvider("https://rinkeby.infura.io/v3/d6c7a2d0b9bd40afa49d2eb06cc5baba"))
+                    contract = w3.eth.contract(address=user_collection.contract_address, abi=data['abi'])
+                    total_supply = contract.functions.totalSupply().call()
+                    supply = contract.functions.supply().call()
+                    if supply >= total_supply:
+                        user_collection.fully_minted = True
+                        user_collection.save()
+                        return JsonResponse(
+                            {"server_message": "success"},
+                            status=200,
+                        )
+        except RawPostDataException:  # NO AJAX DATA PROVIDED - DIFFERENT POST REQUEST INSTEAD
+            pass  
 
     return render(request, "user_mint.html", context)
 

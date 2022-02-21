@@ -554,6 +554,10 @@ body {
   background-color: var(--main-color);
 }
 
+.main_color_background_text {
+  color: var(--main-color);
+}
+
 .card_main_color_background {
   background-color: var(--main-card-color);
 }
@@ -615,7 +619,6 @@ body {
   box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px,
     rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;
 }
-
 .grow {
   transition: all 0.1s ease-in-out;
 
@@ -2431,7 +2434,8 @@ display: inline-block;
   color: var(--text-color-2);
 }
 
-.footer_section p:hover, a:hover{
+/* a:hover */
+.footer_section p:hover{
   color: var(--main-color);
 }
 /* FOOTER */

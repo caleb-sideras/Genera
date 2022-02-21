@@ -7,7 +7,8 @@
 {% endblock %}
 
 {% block body_block %}
-<input type="hidden" id="js_vars" data-contract_address='{{contract_address}}' data-chain_id='{{chain_id}}' data-is_owner='{{isOwner}}'/>
+<input type="hidden" id="js_vars" data-contract_address='{{contract_address}}' data-chain_id='{{chain_id}}' data-is_owner='{{isOwner}}' data-ajax_url='{{ajax_url}}'/>
+
 <div id="mint-wrapper" class="mint_wrapper">
     
     <section-toggle v-if="is_owner" @collection-section="openCollection" @admin-section="openAdmin" :collection="collection_section" :admin="admin_section"></section-toggle>
@@ -15,7 +16,7 @@
     <div v-show="collection_section" class="mint_body">
         <nft-title></nft-title>
         <nft-images :baseuri="base_uri" :totalsupply="totalSupply"></nft-images>
-        <nft-mint :web3="web3" :totalsupply="totalSupply" :supply="supply" :mintcostwei="mintCostWei" :tokenname="token_name" :chainid="chain_id" :contractaddress="contract_address" :openbool="open_bool"></nft-mint>
+        <nft-mint :web3="web3" :totalsupply="totalSupply" :supply="supply" :mintcostwei="mintCostWei" :tokenname="token_name" :chainid="chain_id" :contractaddress="contract_address" :openbool="open_bool" :contract="contract"></nft-mint>
         <nft-description ></nft-description>
     </div>
     
@@ -32,6 +33,8 @@
     const app = Vue.createApp({
         data() {
         return {
+            contract: null,
+            provider: null,
             contract_address: js_vars.dataset.contract_address,
             chain_id: js_vars.dataset.chain_id,
             is_owner: (js_vars.dataset.is_owner.toLowerCase() === 'true'),
@@ -46,7 +49,6 @@
             base_uri: null,
             open_bool: null,
             web3: null,
-            web3_infura: null,
             token_name: null,
             collection_section: true,
             admin_section: false,
@@ -694,44 +696,46 @@
         },
         async mounted(){
             if (this.chain_id == "0x1") {
-                var provider = "https://mainnet.infura.io/v3/d6c7a2d0b9bd40afa49d2eb06cc5baba"
+                this.provider = "https://mainnet.infura.io/v3/d6c7a2d0b9bd40afa49d2eb06cc5baba"
                 this.token_name = 'ETH'
             }
             else if (this.chain_id  == "0x4") {
-                var provider = "https://rinkeby.infura.io/v3/d6c7a2d0b9bd40afa49d2eb06cc5baba"
+                this.provider = "https://rinkeby.infura.io/v3/d6c7a2d0b9bd40afa49d2eb06cc5baba"
                 this.token_name = 'ETH'
             }
             else if (this.chain_id  == "0x89" || this.chain_id  == "0x137"){
                 chain_id = "0x89"
-                var provider = "https://polygon-mainnet.infura.io/v3/d6c7a2d0b9bd40afa49d2eb06cc5baba"
+                this.provider = "https://polygon-mainnet.infura.io/v3/d6c7a2d0b9bd40afa49d2eb06cc5baba"
                 this.token_name = 'MATIC'
             }
             else if (this.chain_id  == "0x13881" || this.chain_id  == "0x80001"){
                 chain_id = "0x13881"
-                var provider = "https://polygon-mumbai.infura.io/v3/d6c7a2d0b9bd40afa49d2eb06cc5baba"
+                this.provider = "https://polygon-mumbai.infura.io/v3/d6c7a2d0b9bd40afa49d2eb06cc5baba"
                 this.token_name = 'MATIC'
             }
             this.web3 = new Web3(Web3.givenProvider)
-            this.web3_infura = new Web3(new Web3.providers.HttpProvider(provider))
+            this.web3_infura = new Web3(new Web3.providers.HttpProvider(this.provider))
             await this.get_all_contract_info(this.contract_address, this.abi_json)
 
             // ethereum.on('chainChanged', (_chainId) => window.location.reload());
         },
         methods:{
             async get_all_contract_info(contract_address, abi_json){
-                contract = new this.web3_infura.eth.Contract(abi_json['abi'], contract_address)
-                let _supply = await contract.methods.supply().call()
+                this.contract = new this.web3_infura.eth.Contract(abi_json['abi'], contract_address)
+                let _supply = await this.contract.methods.supply().call()
                 this.supply = parseInt(_supply)
-                let _totalSupply = await contract.methods.totalSupply().call()
+                let _totalSupply = await this.contract.methods.totalSupply().call()
                 this.totalSupply = parseInt(_totalSupply)
-                this.mintCostWei = await contract.methods.cost().call()
+                this.mintCostWei = await this.contract.methods.cost().call()
                 this.mint_cost_ether = parseFloat(this.web3.utils.fromWei(this.mintCostWei, 'ether'))
-                this.base_uri = await contract.methods.baseUri().call()
-                this.open_bool = await contract.methods.open().call()
-
+                this.base_uri = await this.contract.methods.baseUri().call()
+                if(this.supply < this.totalSupply){
+                    this.open_bool = await this.contract.methods.open().call()
+                }
+                
                 if(this.is_owner){
-                    this.max_per_wallet = await contract.methods.maxPerWallet().call()
-                    this.max_per_mint = await contract.methods.maxPerMint().call()
+                    this.max_per_wallet = await this.contract.methods.maxPerWallet().call()
+                    this.max_per_mint = await this.contract.methods.maxPerMint().call()
                     let balanceWei = await new this.web3_infura.eth.getBalance( contract_address)
                     this.balance = parseFloat(this.web3.utils.fromWei(balanceWei, 'ether'))
                 }
@@ -752,7 +756,7 @@
         template:`
         <div class="mint_title center"> 
             <h1 class="no_margin">{{collection_name}}</h1>             
-            <h2 class="no_margin">by {{owner.username}}</h2>
+            <h2 class="no_margin">by <a class="main_color_background_text" href="{% url 'main:profile' request.user.username_slug %}">{{owner.username}}</a></h2>
         </div>
         `
     })
@@ -830,7 +834,7 @@
 
     app.component('nft-mint',{
         delimiters: ["[[", "]]"],
-        props: ['totalsupply','supply','web3','mintcostwei', 'tokenname', 'chainid', 'contractaddress','openbool'],
+        props: ['totalsupply','supply','web3','mintcostwei', 'tokenname', 'chainid', 'contractaddress','openbool', 'contract'],
         data(){
             return{
                 mint_number: 1,
@@ -897,8 +901,20 @@
                                     },
                                 ],
                             })
-                            .then(function (txHash) {
-                                
+                            .then(async (txHash) => {
+                                let txReceipt
+                                while (!txReceipt) {
+                                    try {
+                                        txReceipt = await this.web3.eth.getTransactionReceipt(txHash)
+                                    } catch (err) {
+                                        return
+                                    }
+                                }
+                                let supply = await this.contract.methods.supply().call()
+                                let totalSupply = await this.contract.methods.totalSupply().call()
+                                if (parseInt(supply) >= parseInt(totalSupply)){
+                                    ajax_post_json({'contract_minted_check': '' })
+                                }  
                             })
                             .catch((error) => {
                                 throw (error)

@@ -11,7 +11,7 @@
 {% endblock %}
 
 {% block body_block %}
-<input type="hidden" id="js_vars" data-ajax_url='{{ajax_url}}' data-user_login='{{user.is_authenticated}}' data-users_collections='{{users_collections}}'>
+<input type="hidden" id="js_vars" data-ajax_url='{{ajax_url}}'>
 
 <div id="add-files-component" class="view_collection_main_2" style="display: block;">
   <section-toggle @open-upload="openUpload" @open-properties="openProperties" :openupload="open_upload" :openproperties="open_properties"></section-toggle>
