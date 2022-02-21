@@ -11,7 +11,7 @@ urlpatterns = [
     # include other apps
     path("testermannoshot", home_view, name="home"),
     path("", main_view, name="main_view"),
-    path("upload", upload_view, name="upload"),
+    path("make", upload_view, name="upload"),
 
     path("login/options", login_options_view, name="login_options"),
 
@@ -29,7 +29,7 @@ urlpatterns = [
     path("reset/<uuid:token_url>", password_reset_handler_view, name="password_reset_handler"),
 
     path("about", about_view, name="about"),
-    path("documentation", documentation_view, name="documentation"),
+    path("docs", documentation_view, name="documentation"),
     path("user/<slug:username_slug>/profile", profile_view, name="profile"),
     
     path("user/<slug:username_slug>/profile/<str:contract_address>", mint_view, name="user_mint"),
