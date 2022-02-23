@@ -69,7 +69,43 @@
                 </a>
               </div>
         </div>
-        <div id="burger_flex" style="flex: 1;"></div>
+        <div style="    flex: 1;
+    display: flex;
+    justify-content: center;">
+        <div id="burger_flex" style="    cursor: text;
+    display: flex;
+    width: 100%; max-width: 700px;" class="border rounded_container_no_padding white_background">
+          <div style="    -webkit-box-pack: center;
+          justify-content: center;    flex-direction: column; display: flex;margin: 0px 8px 0px 8px; box-sizing: border-box; margin: 0px 15px 0px 15px;">
+          <i color="gray" value="search" size="24" class="material-icons" style="    font-family: 'Material Icons';
+    font-weight: normal;
+    font-style: normal;
+    line-height: 1;
+    letter-spacing: normal;
+    text-transform: none;
+    display: inline-block;
+    white-space: nowrap;
+    word-wrap: normal;
+    direction: ltr;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizelegibility;
+    color: rgb(138, 147, 155);
+    font-feature-settings: 'liga' !important;
+    font-size: 24px !important;">search</i>
+          </div>
+          <input aria-invalid="false" aria-controls="NavSearch--results" aria-multiline="false"
+            placeholder="Search collections and artists" role="searchbox" type="text" value="" style="    cursor: text;
+    background-color: transparent;
+    border: none;
+    outline: none;
+    width: 100%;
+    min-height: 20px;
+    color: inherit;
+    font: inherit;
+    margin: 0px;" id="search_query_input">
+        
+        </div>
+        </div>
         <button class="btn_toggle">Toggle Theme</button>
         
         {% if request.user.is_authenticated%}

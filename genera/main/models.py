@@ -245,6 +245,7 @@ class UserCollectionMint(Model):
 
     #Sorting
     created = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+    collection_name_slug = models.SlugField(unique=True) 
     
     #Artem we not want this explain
     def save(self, *args, **kwargs): #update the collection field names when saving, if a collection is referenced
@@ -253,6 +254,7 @@ class UserCollectionMint(Model):
             self.description = self.collection.description
             self.image_uri = self.collection.image_uri
             self.base_uri = self.collection.base_uri
+            self.collection_name_slug = slugify(self.collection_name)
         super(UserCollectionMint, self).save(*args, **kwargs)
 
 
