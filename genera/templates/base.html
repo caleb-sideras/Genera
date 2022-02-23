@@ -26,9 +26,9 @@
     </script>
 
     {% if messages %}
-        {% for message in messages %}
-          <input type="hidden" id="server_message" value="{{message}}${{message.level_tag}}">
-        {% endfor %}
+      {% for message in messages %}
+          <input type="hidden" class="server_message" data-message="{{message}}" data-type="{{message.level_tag}}">
+      {% endfor %}
     {% endif %}
 
     <div class="nav_bar_wrapper top_bottom_border">
