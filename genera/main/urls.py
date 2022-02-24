@@ -16,7 +16,7 @@ urlpatterns = [
     path("login/options", login_options_view, name="login_options"),
 
     path("login/regular", login_view, name="login"),
-
+    
     path("login/metamask", metamask_login_handler_view, name="login_metamask_handler"), #no template for this view - just a url to handle the metamask login stuff
 
     path("logout", logout_view, name="logout"),
@@ -30,14 +30,16 @@ urlpatterns = [
 
     path("about", about_view, name="about"),
     path("docs", documentation_view, name="documentation"),
-    path("user/<slug:username_slug>/profile", profile_view, name="profile"),
-    
-    path("user/<slug:username_slug>/profile/<str:contract_address>", mint_view, name="user_mint"),
 
+    path("search=<slug:search_query>", search_view, name="search_view"),
+
+    path("user/<slug:username_slug>/profile", profile_view, name="profile"),
+    path("user/<slug:username_slug>/profile/<str:contract_address>", mint_view, name="user_mint"),
     path("user/<slug:username_slug>/collections", all_collections_view, name="all_collections"),
     path("user/<slug:username_slug>/collections/<slug:collection_name_slug>", collection_view, name="collection"),
     path("user/<slug:username_slug>/collections/<str:collection_name_slugs>/request_status", collection_view_loaded_handler, name="collection_loaded_handler"),
     # path("create-checkout-session", checkout_session, name="create-checkout-session")
+
     path("mint", public_mint_view, name="mint"),
     path("privacy", policy_view, name="privacy"),
     path("terms", terms_view, name="terms"),

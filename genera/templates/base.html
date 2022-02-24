@@ -16,7 +16,15 @@
     <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
     <script type="text/javascript" src="{% static 'js/global.js' %}"></script>
     <script type="text/javascript" src="{% static 'js/libraries/notifications.js' %}"></script>
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons"rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-56SN7B683C"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() { dataLayer.push(arguments); }
+      gtag('js', new Date());
+
+      gtag('config', 'G-56SN7B683C');
+    </script>
     {% block head_block %}{% endblock %}
   </head>
 
@@ -63,15 +71,55 @@
         <div class="dropdown">
             <div><p>Info</p></div>
               <div class="dropdown-content shadow_strong">
-                <a href="{% url 'main:documentation' %}">
-                  <p>Docs</p>
-                </a>
                 <a href="{% url 'main:about' %}">
                   <p>About</p>
                 </a>
+                <a href="{% url 'payments:checkout' %}">
+                  <p>Credits</p>
+                </a>
+                <a href="{% url 'main:documentation' %}">
+                  <p>Docs</p>
+                </a>
+                
               </div>
         </div>
-        <div id="burger_flex" style="flex: 1;"></div>
+        <div style="    flex: 1;
+    display: flex;
+    justify-content: center;">
+        <div id="burger_flex" style="    cursor: text;
+    display: flex;
+    width: 100%; max-width: 700px;" class="border rounded_container_no_padding white_background">
+          <div style="    -webkit-box-pack: center;
+          justify-content: center;    flex-direction: column; display: flex;margin: 0px 8px 0px 8px; box-sizing: border-box; margin: 0px 15px 0px 15px;">
+          <i color="gray" value="search" size="24" class="material-icons" style="    font-family: 'Material Icons';
+    font-weight: normal;
+    font-style: normal;
+    line-height: 1;
+    letter-spacing: normal;
+    text-transform: none;
+    display: inline-block;
+    white-space: nowrap;
+    word-wrap: normal;
+    direction: ltr;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizelegibility;
+    color: rgb(138, 147, 155);
+    font-feature-settings: 'liga' !important;
+    font-size: 24px !important;">search</i>
+          </div>
+          <input aria-invalid="false" aria-controls="NavSearch--results" aria-multiline="false"
+            placeholder="Search collections and artists" role="searchbox" type="text" value="" style="    cursor: text;
+    background-color: transparent;
+    border: none;
+    outline: none;
+    width: 100%;
+    min-height: 20px;
+    color: inherit;
+    font: inherit;
+    margin: 0px;" id="search_query_input">
+        
+        </div>
+        </div>
         <button class="btn_toggle">Toggle Theme</button>
         
         {% if request.user.is_authenticated%}
@@ -80,7 +128,9 @@
               <div class="profile-picture main_color_background" style="width: 50px;height: 50px;margin-bottom: 0;"></div>
               <div>
                 <div style="overflow: hidden;max-width: 100px;text-overflow: ellipsis;font-weight: bold;font-size: 1.1rem; white-space: pre;">{{request.user.username}}</div>
-                <div class="expand_button_container" style="align-items: center; color: white; font-weight: bold; padding: 1px; width: 50px;">{{request.user.credits}}</div>
+                <a href="{% url 'payments:checkout' %}">
+                  <div class="expand_button_container" style="align-items: center; color: white; font-weight: bold; padding: 1px; width: 50px;">{{request.user.credits}}</div>
+                </a>
               </div>
               <span style="font-family: 'Material Icons';margin-bottom: 24px;font-size: 19px;">
                 expand_more

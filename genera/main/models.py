@@ -73,7 +73,7 @@ class User(AbstractBaseUser, PermissionsMixin, Model):
     email = models.EmailField(unique=True)
 
     is_active = models.BooleanField(default=True)
-    date_joined = models.DateTimeField(auto_now_add=True)
+
     is_staff = models.BooleanField(default=False)
     
     credits = models.IntegerField(default=0)
@@ -246,15 +246,19 @@ class UserCollectionMint(Model):
     chain_id = models.CharField(max_length=10, unique=False)
 
     #Sorting
-    created = models.DateTimeField(auto_now_add=True, null=True, blank=True, )
+    created = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+    collection_name_slug = models.SlugField(unique=False) 
     
-    #Artem we not want this explain
+
     def save(self, *args, **kwargs): #update the collection field names when saving, if a collection is referenced
         if self.collection:
             self.collection_name = self.collection.collection_name
+            self.collection_name_slug = self.collection.collection_name_slug
             self.description = self.collection.description
             self.image_uri = self.collection.image_uri
             self.base_uri = self.collection.base_uri
+        else:
+            self.collection_name_slug = slugify(self.collection_name)
         super(UserCollectionMint, self).save(*args, **kwargs)
 
 
@@ -281,7 +285,7 @@ class Token(Model):
     hash = models.UUIDField(default=uuid.uuid4, editable=True) #editable since we will generate new hashes every time this is requested
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True) #can be empty - if no user is tracked by the token (AnonymousUser)
 
-    created = models.DateTimeField(auto_now_add=True, null=True, blank=True, )
+    created = models.DateTimeField(auto_now_add=True, null=True, blank=True)
 
     class Types(models.TextChoices):
         PASSWORD_RESET = 'P', 'password reset token',
@@ -298,7 +302,7 @@ class UserProblemReport(Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     description = models.TextField(max_length=1000)
 
-    datetime = models.DateTimeField(auto_now_add=True, )
+    datetime = models.DateTimeField(auto_now_add=True)
 
     resolved = models.BooleanField(default=False)
     resolve_info = models.TextField(null=True, blank=True)

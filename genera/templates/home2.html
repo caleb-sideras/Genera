@@ -8,7 +8,7 @@
 {% endblock %}
 
 {% block body_block %}
-<input type="hidden" id="js_vars" data-ajax_url='{{ajax_url}}' data-popular='{{popular}}' data-recent='{{recent}}' data-artists='{{artists}}'/>
+<input type="hidden" id="js_vars" data-ajax_url='{{ajax_url}}' data-popular='{{popular}}' data-recent='{{recent}}'/>
 
 <div id="app">
     <div class="home-body">
@@ -19,9 +19,8 @@
             <div>Popular NFT Collections</div>
             <div style="text-align: end;"></div>
         </div>
-
         <div class="carousel_wrapper">
-            <small-carousel v-for="(value) in popular_collection" :name="value.name" :description="value.description" :imageurl="value.img_url" :collectionurl="value.collection_url">
+            <small-carousel v-for="(value) in popular_collection" :collectionname="value.collection_name" :description="value.description" :imageuri="value.image_uri" :contract_address="value.contract_address" :username_slug="value.user__username_slug">
         </div>
 
         <div class="carousel_header">
@@ -30,8 +29,7 @@
             <div style="text-align: end;"></div>
         </div>
         <div class="carousel_wrapper">
-            <top-artists v-for="(value, name, index) in top_artists" :name="name" :description="value.description"
-                :imageurl="" :collectionurl="value.profile_url">
+            <top-artists v-for="(value) in popular_artists" :username="value.user__username" :username_slug="value.user__username_slug" :imageurl="">
         </div>
 
         <div class="carousel_header">
@@ -40,8 +38,9 @@
             <div style="text-align: end;"></div>
         </div>
         <div class="carousel_wrapper">
-            <small-carousel v-for="(value) in recent_collection" :name="value.name" :description="value.description"
-                :imageurl="value.img_url" :collectionurl="value.collection_url">
+            <small-carousel v-for="(value) in recent_collection" :collectionname="value.collection_name"
+                :description="value.description" :imageuri="value.image_uri" :contract_address="value.contract_address"
+                :username_slug="value.user__username_slug">
         </div>
 
         <features></features>
@@ -54,9 +53,25 @@
         data() {
             return {
                 popular_collection: JSON.parse(js_vars.dataset.popular),
-                top_artists: JSON.parse(js_vars.dataset.artists),
-                recent_collection: JSON.parse(js_vars.dataset.recent)
+                recent_collection: JSON.parse(js_vars.dataset.recent),
+                popular_artists : null
             }
+        },
+        mounted(){
+            _popular_artists = []
+            for (const [key, value] of Object.entries(this.popular_collection)) {
+                if(_popular_artists.length > 0 ){
+                    for (const [key2, value2] of Object.entries(_popular_artists)) {
+                        if (value.user__username_slug != value2.user__username_slug) {
+                            _popular_artists.push(value)
+                        }
+                    }
+                }
+                else{
+                    _popular_artists.push(value)
+                }
+            }
+            this.popular_artists = _popular_artists
         }
     })
 
@@ -64,7 +79,7 @@
         template:`
         <div class="top_element rounded_container_no_padding">
             <div class="top_element_left">
-                <h1 class="no_margin">Discover, create and sell your own NFTs</h1>
+                <h1 class="no_margin">Discover, create and sell your own NFT collections</h1>
                 <div>
                     <div>
                         <a href="{% url 'main:mint' %}">
@@ -91,40 +106,45 @@
 
     app.component('small-carousel', {
         delimiters: ["[[", "]]"],
-        props:['imageurl', 'name', 'description', 'collectionurl'],
-        template:`
-        <a :href="[[collectionurl]]">
-            <div class="carousel_card border_1px rounded_container_no_padding genera_background">
+        props: ['imageuri', 'collectionname', 'description', 'contract_address', 'username_slug'],
+        template: `
+            <div class="carousel_card border_1px rounded_container_no_padding genera_background " @click="redirect">
                 <div>
-                    <img loading="lazy" style="max-width: 350px;" :src="[[imageurl]]" >
+                    <img loading="lazy" style="max-width: 350px;" :src="" ref="image" class="top_round_container">
                 </div>
                 <div>
-                    <div>[[name]]</div>
+                    <div>[[collectionname]]</div>
                     <div>[[description]]</div>
                     <div>Open</div>
                 </div>
             </div>
-        </a>
-        `,
-        methods:{
-            
+            `,
+        mounted() {
+            this.$refs.image.src = `https://${this.imageuri}.ipfs.dweb.link/0.png`
+        },
+        methods: {
+            redirect() {
+                window.location.replace("/user/" + this.username_slug + "/profile/" + this.contract_address)
+            }
         }
     })
 
     app.component('top-artists', {
         delimiters: ["[[", "]]"],
-        props: ['imageurl', 'name', 'description', 'collectionurl'],
-        template:`
-        <a :href="[[collectionurl]]">
-            <div class="profile_card_wrapper">
+        props: ['username', 'username_slug', 'imageurl'],
+        template: `
+            <div class="profile_card_wrapper" @click="redirect">
                 <div class="profile-picture genera_background"></div>
                 <div class="profile_card border rounded_container border_hover">
-                    <div>[[name]]</div>
-                    <div>[[description]]</div>    
+                    <div>[[username]]</div>
                 </div>
             </div>
-        </a>
-        `
+        `,
+        methods: {
+            redirect() {
+                window.location.replace("/user/" + this.username_slug + "/profile")
+            }
+        }
     })
     
     app.component('features', {
@@ -324,7 +344,7 @@
 .carousel_card{
     height: 500px;
     max-width: 350px;
-    overflow: hidden;
+    /* overflow: hidden; */
     display: flex;
     flex-direction: column;
     padding-bottom: 15px;
@@ -386,8 +406,7 @@
     width: 100%;
     gap: 20px;
     overflow: scroll;
-    /* max-width: var(--totalWidth);
-    --totalWidth: 440px; */
+    justify-content: center;
 }
 
 .profile_card_wrapper{
@@ -472,6 +491,9 @@
     [class="top_element_left"] button{
         font-size: 1rem;
         width: 100px
+    }
+    [class*="carousel_wrapper"]{
+        justify-content:start
     }
 }
 </style>

@@ -1,0 +1,255 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block head_block %}
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.min.js"></script>
+<script src="https://unpkg.com/vue@next"></script>
+<link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@300;400;600&display=swap" rel="stylesheet">
+{% endblock %}
+
+{% block body_block %}
+<input type="hidden" id="js_vars" data-ajax_url='{{ajax_url}}' data-accounts='{{accounts}}' data-collections='{{collections}}' data-query='{{query}}' />
+
+<div id="app">
+    <div class="home-body">
+
+        <div class="carousel_header">
+            <div></div>
+            <div>Artists</div>
+            <div style="text-align: end;"></div>
+        </div>
+        <div class="carousel_wrapper">
+            <top-artists v-for="(value) in accounts" :username="value.username" :username_slug="value.username_slug" :imageurl="">
+        </div>
+
+        <div class="carousel_header">
+            <div></div>
+            <div>Collections</div>
+            <div style="text-align: end;"></div>
+        </div>
+        <div class="carousel_wrapper">
+            <small-carousel v-for="(value) in collections" :collectionname="value.collection_name" :description="value.description" :imageuri="value.image_uri" :contract_address="value.contract_address" :username_slug="value.user__username_slug">
+        </div>
+
+    </div>
+</div>
+
+<script>
+    const app = Vue.createApp({
+        data() {
+            return {
+                accounts: JSON.parse(js_vars.dataset.accounts),
+                collections: JSON.parse(js_vars.dataset.collections),
+                query: js_vars.dataset.query
+            }
+        },
+        mounted(){
+            console.log(this.query)
+            console.log(this.accounts)
+            console.log(this.collections)
+        }
+    })
+
+    app.component('small-carousel', {
+        delimiters: ["[[", "]]"],
+        props: ['imageuri', 'collectionname', 'description', 'contract_address', 'username_slug'],
+        template: `
+            <div class="carousel_card border_1px rounded_container_no_padding genera_background grow" @click="redirect">
+                <div>
+                    <img loading="lazy" style="max-width: 350px;" :src="" ref="image">
+                </div>
+                <div>
+                    <div>[[collectionname]]</div>
+                    <div>[[description]]</div>
+                    <div>Open</div>
+                </div>
+            </div>
+            `,
+        mounted(){
+            console.log(this.imageuri)
+           this.$refs.image.src = `https://${this.imageuri}.ipfs.dweb.link/0.png`
+        },
+        methods: {
+            redirect() {
+                window.location.replace("/user/" + this.username_slug + "/profile/" + this.contract_address)
+            }
+        }
+    })
+
+    app.component('top-artists', {
+        delimiters: ["[[", "]]"],
+        props: ['username', 'username_slug', 'imageurl'],
+        template: `
+            <div class="profile_card_wrapper" @click="redirect">
+                <div class="profile-picture genera_background"></div>
+                <div class="profile_card border rounded_container border_hover">
+                    <div>[[username]]</div>
+                </div>
+            </div>
+        `,
+        methods:{
+            redirect(){
+                window.location.replace("/user/"+ this.username_slug +"/profile")
+            }
+        }
+    })
+
+    app.mount('#app')
+</script>
+
+<style>
+.home-body {
+        margin: 0px auto;
+        max-width: min(1280px, 100% - 40px);
+        width: 100%;
+        flex-wrap: wrap;
+}
+.secondary_element{
+    height: 175px;
+    align-items: center;
+    display: flex;
+    max-width: 1000px;
+    margin: auto;
+}
+.carousel_header{
+    display: grid; 
+    grid-template-columns: 0fr 1fr 0fr;
+}
+.carousel_header >div{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+.carousel_header >div:nth-child(2){
+    margin: 55px; 
+    font-size: 1.5rem; 
+    font-weight: bold; 
+}
+.carousel_header >div:nth-child(3){
+    color: grey;
+    cursor: pointer;
+}
+.carousel_card{
+    height: 500px;
+    max-width: 350px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    padding-bottom: 15px;
+    cursor: pointer;
+}
+.carousel_card img{
+    width: 350px;
+    max-height: 100%;
+    object-fit: contain;  
+}
+.carousel_card >div:nth-child(1){
+    height: 70%;
+}
+.carousel_card >div:nth-child(2){
+    flex-direction: column;
+    /* height: 209px; */
+    padding: 20px 20px 10px;
+    -webkit-box-align: center;
+    align-items: center;
+    display: flex;
+    flex-grow: 1;
+}
+.carousel_card>div >div:nth-child(1){
+    color: white;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    font-weight: 600;
+    font-size: 20px;
+    text-align: center;
+}
+.carousel_card>div >div:nth-child(2){
+    color: white;
+    font-size: 14px;
+    font-weight: 400;
+    max-width: 90%;
+    margin: 20px auto 4px;
+    overflow: hidden;
+    text-align: center;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+.carousel_card>div>div:nth-child(3){
+    margin-top: auto;
+    border-radius: 10px;
+    color: rgb(255, 255, 255);
+    border: 1px solid rgb(255, 255, 255);
+    font-weight: 500;
+    font-size: 14px;
+    padding: 4px 10px;
+}
+.carousel_wrapper{
+    flex-direction: row;
+    display: flex;
+    -webkit-box-align: center;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.profile_card_wrapper{
+    justify-content: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 5px;
+}
+.profile_card_wrapper:hover .profile_card{
+    border-color: var(--main-color);
+    transition: all 0.1s ease-in-out;
+}
+.profile_card_wrapper >div:nth-child(1){
+    width: 160px;
+    height: 160px;
+    margin-bottom: -80px;
+    z-index: 2;
+    cursor: pointer;
+}
+.profile_card{
+    align-items: center;
+    height: 150px;
+    width: 350px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    padding-bottom: 15px;
+    cursor: pointer;
+    align-items: center;
+    justify-content: space-around;
+}
+.profile_card >div:nth-child(1){
+    margin-top: 80px;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    font-weight: 600;
+    font-size: 20px;
+    text-align: center;
+}
+.profile_card>div:nth-child(2){
+    font-size: 14px;
+    font-weight: 400;
+    max-width: 90%;
+    margin: 0px auto 4px;
+    overflow: hidden;
+    text-align: center;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+</style>
+
+
+{% endblock %}
