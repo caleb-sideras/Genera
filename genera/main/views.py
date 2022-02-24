@@ -37,34 +37,13 @@ stripe.api_key = STRIPE_PRIVATE_KEY_LIVE
 
 def home_view(request):
 
-    #refactor KINGS to new way!
     # , chain_id="0x1" or "0x13881"
-    recent_collections = UserCollectionMint.objects.filter(fully_minted = False).order_by('-created')[:10]
-    popular_collections = UserCollectionMint.objects.filter(fully_minted = False).order_by('-collection_views')[:10]
-    
-    popular_collections_list = []
-    recent_collections_list = []
-    popular_artists={}
-    for count, value in enumerate(recent_collections):
-        popular_collections_list.append({
-            'name':popular_collections[count].collection_name,
-            'description':popular_collections[count].description,
-            'img_url':f'https://{popular_collections[count].image_uri}.ipfs.dweb.link/0.png',
-            'collection_url': reverse("main:user_mint", args=[popular_collections[count].user.username_slug, popular_collections[count].contract_address])
-        })
-        recent_collections_list.append({
-            'name':recent_collections[count].collection_name,
-            'description':recent_collections[count].description,
-            'img_url':f'https://{recent_collections[count].image_uri}.ipfs.dweb.link/0.png',
-            'collection_url': reverse("main:user_mint", args=[recent_collections[count].user.username_slug, recent_collections[count].contract_address])
-        })
-        if  recent_collections[count].user.username not in popular_artists:
-            popular_artists[recent_collections[count].user.username] = {
-                'profile_url' : reverse("main:profile", args=[recent_collections[count].user.username_slug])
-            }
+    recent_collections = json.dumps(list(UserCollectionMint.objects.filter(fully_minted = False).order_by('-created').values('collection_name', 'description', 'image_uri', 'user__username_slug', 'contract_address' )[:10]))
+
+    popular_collections = json.dumps(list(UserCollectionMint.objects.filter(fully_minted = False).order_by('-collection_views').values('collection_name', 'description', 'image_uri', 'user__username_slug', 'contract_address', 'user__username' )[:10]))
     
     # return json lists, recent, trending, artists
-    return render(request, "home2.html", context={"recent": json.dumps(recent_collections_list),"popular": json.dumps(popular_collections_list), "artists": json.dumps(popular_artists), "search_url":reverse("main:upload")})
+    return render(request, "home2.html", context={"recent": recent_collections,"popular": popular_collections})
 
 def main_view(request):
     context = {}
@@ -275,8 +254,8 @@ def search_view(request, search_query):
     # serializers.serialize('json'
 
     all_accounts = json.dumps(list(User.objects.filter(username_slug=search_query).values('username', 'username_slug')))
-    all_collections = json.dumps(list(UserCollectionMint.objects.filter(collection_name=search_query).order_by('collection_views').values('collection_name', 'description', 'image_uri', 'contract_address', 'user__username_slug')))
-
+    all_collections = json.dumps(list(UserCollectionMint.objects.filter(collection_name_slug=search_query).order_by('collection_views').values('collection_name', 'description', 'image_uri', 'contract_address', 'user__username_slug')))
+    
     return render(request, "search_result.html", context={'collections': all_collections, 'accounts' : all_accounts, 'query' : search_query})
 
 def metamask_login_handler_view(request):

@@ -247,13 +247,14 @@ class UserCollectionMint(Model):
     created = models.DateTimeField(auto_now_add=True, null=True, blank=True)
     collection_name_slug = models.SlugField(unique=True) 
     
-    #Artem we not want this explain
     def save(self, *args, **kwargs): #update the collection field names when saving, if a collection is referenced
         if self.collection:
             self.collection_name = self.collection.collection_name
+            self.collection_name_slug = self.collection.collection_name_slug
             self.description = self.collection.description
             self.image_uri = self.collection.image_uri
             self.base_uri = self.collection.base_uri
+        else:
             self.collection_name_slug = slugify(self.collection_name)
         super(UserCollectionMint, self).save(*args, **kwargs)
 
