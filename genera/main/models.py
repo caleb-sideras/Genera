@@ -73,7 +73,7 @@ class User(AbstractBaseUser, PermissionsMixin, Model):
     email = models.EmailField(unique=True)
 
     is_active = models.BooleanField(default=True)
-    date_joined = models.DateTimeField(default=timezone.now)
+
     is_staff = models.BooleanField(default=False)
     
     credits = models.IntegerField(default=0)
@@ -210,6 +210,8 @@ class FailedUserCollection_Tracker(Model):
 
     credits_refunded = models.IntegerField()
 
+    datetime_created = models.DateTimeField(default=timezone.now)
+
     error_message = models.CharField(max_length=500, unique=False, blank=True, null=True)
 
     def save(self, *args, **kwargs):
@@ -247,6 +249,7 @@ class UserCollectionMint(Model):
     created = models.DateTimeField(auto_now_add=True, null=True, blank=True)
     collection_name_slug = models.SlugField(unique=False) 
     
+
     def save(self, *args, **kwargs): #update the collection field names when saving, if a collection is referenced
         if self.collection:
             self.collection_name = self.collection.collection_name

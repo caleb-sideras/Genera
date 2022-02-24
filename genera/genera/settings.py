@@ -118,7 +118,7 @@ if DEPLOYMENT_INSTANCE:
             'ENGINE': 'django.db.backends.mysql',
             'NAME': os.environ['RDS_DB_NAME'],
             'USER': os.environ['RDS_USERNAME'],
-            'PASSWORD': "'g'9F~;<xkmr)~^Z", 
+            'PASSWORD': "ruE4abvB9TA6yNLx", 
             'HOST': os.environ['RDS_HOSTNAME'],
             'PORT': os.environ['RDS_PORT'],
         }
@@ -131,6 +131,7 @@ else:
         }
     }
 
+USE_TZ = True
 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
