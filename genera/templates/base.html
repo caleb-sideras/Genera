@@ -5,6 +5,9 @@
 
 
   <head>
+    <title>Genera - Connecting Artists to Web3</title>
+    <meta name="description" content="Create and deploy NFT collections to Ethereum or Polygon using your Metamask wallet! Using IPFS, your NFT metadata will be safely stored on the decentralized web!">
+    <meta name=”robots” content="index, follow">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/svg+xml" href="{% static 'icons/logoV1.svg' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'css/global.css' %}" />
@@ -13,8 +16,7 @@
     <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
     <script type="text/javascript" src="{% static 'js/global.js' %}"></script>
     <script type="text/javascript" src="{% static 'js/libraries/notifications.js' %}"></script>
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons"
-      rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons"rel="stylesheet">
     {% block head_block %}{% endblock %}
   </head>
 
@@ -34,7 +36,7 @@
     <div class="nav_bar_wrapper top_bottom_border">
       <div class="left_navbar">
         <a href="{% url 'main:main_view' %}">
-          <img src="/static/icons/logoV1.svg" class="logo1" alt="" />
+          <img src="/static/icons/logoV1.svg" class="logo1" alt="Logo" />
           <img
             src="{% static 'Assets/Background/genera4.png' %}"
             class="logo2"
@@ -107,7 +109,7 @@
           </div>
         {% endif %} 
         <div class="burger_toggle" style="display: none;">
-          <img src="/static/icons/menu.svg" alt="">
+          <img src="/static/icons/menu.svg" alt="Menu">
         </div>
       </div>
     </div>

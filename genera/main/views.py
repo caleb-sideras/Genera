@@ -942,3 +942,7 @@ def problem_report_view(request):
 @requires_user_logged_in
 def reported_issues_view(request):    
     return render(request, "reported_issues.html", {"reports": request.user.userproblemreport_set.all()})
+
+def robots_txt_view(request):
+
+    return render(request, "robots.txt", content_type="text/plain")
