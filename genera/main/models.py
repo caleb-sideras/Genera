@@ -73,7 +73,7 @@ class User(AbstractBaseUser, PermissionsMixin, Model):
     email = models.EmailField(unique=True)
 
     is_active = models.BooleanField(default=True)
-
+    date_joined = models.DateTimeField(auto_now_add=True)
     is_staff = models.BooleanField(default=False)
     
     credits = models.IntegerField(default=0)
