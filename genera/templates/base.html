@@ -13,8 +13,15 @@
     <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
     <script type="text/javascript" src="{% static 'js/global.js' %}"></script>
     <script type="text/javascript" src="{% static 'js/libraries/notifications.js' %}"></script>
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons"
-      rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-56SN7B683C"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() { dataLayer.push(arguments); }
+      gtag('js', new Date());
+
+      gtag('config', 'G-56SN7B683C');
+    </script>
     {% block head_block %}{% endblock %}
   </head>
 
@@ -61,12 +68,16 @@
         <div class="dropdown">
             <div><p>Info</p></div>
               <div class="dropdown-content shadow_strong">
-                <a href="{% url 'main:documentation' %}">
-                  <p>Docs</p>
-                </a>
                 <a href="{% url 'main:about' %}">
                   <p>About</p>
                 </a>
+                <a href="{% url 'payments:checkout' %}">
+                  <p>Credits</p>
+                </a>
+                <a href="{% url 'main:documentation' %}">
+                  <p>Docs</p>
+                </a>
+                
               </div>
         </div>
         <div style="    flex: 1;
@@ -114,7 +125,9 @@
               <div class="profile-picture main_color_background" style="width: 50px;height: 50px;margin-bottom: 0;"></div>
               <div>
                 <div style="overflow: hidden;max-width: 100px;text-overflow: ellipsis;font-weight: bold;font-size: 1.1rem; white-space: pre;">{{request.user.username}}</div>
-                <div class="expand_button_container" style="align-items: center; color: white; font-weight: bold; padding: 1px; width: 50px;">{{request.user.credits}}</div>
+                <a href="{% url 'payments:checkout' %}">
+                  <div class="expand_button_container" style="align-items: center; color: white; font-weight: bold; padding: 1px; width: 50px;">{{request.user.credits}}</div>
+                </a>
               </div>
               <span style="font-family: 'Material Icons';margin-bottom: 24px;font-size: 19px;">
                 expand_more

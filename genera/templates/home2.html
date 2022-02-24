@@ -79,7 +79,7 @@
         template:`
         <div class="top_element rounded_container_no_padding">
             <div class="top_element_left">
-                <h1 class="no_margin">Discover, create and sell your own NFTs</h1>
+                <h1 class="no_margin">Discover, create and sell your own NFT collections</h1>
                 <div>
                     <div>
                         <a href="{% url 'main:mint' %}">
@@ -108,9 +108,9 @@
         delimiters: ["[[", "]]"],
         props: ['imageuri', 'collectionname', 'description', 'contract_address', 'username_slug'],
         template: `
-            <div class="carousel_card border_1px rounded_container_no_padding genera_background" @click="redirect">
+            <div class="carousel_card border_1px rounded_container_no_padding genera_background " @click="redirect">
                 <div>
-                    <img loading="lazy" style="max-width: 350px;" :src="" ref="image">
+                    <img loading="lazy" style="max-width: 350px;" :src="" ref="image" class="top_round_container">
                 </div>
                 <div>
                     <div>[[collectionname]]</div>
@@ -344,7 +344,7 @@
 .carousel_card{
     height: 500px;
     max-width: 350px;
-    overflow: hidden;
+    /* overflow: hidden; */
     display: flex;
     flex-direction: column;
     padding-bottom: 15px;
@@ -491,6 +491,9 @@
     [class="top_element_left"] button{
         font-size: 1rem;
         width: 100px
+    }
+    [class*="carousel_wrapper"]{
+        justify-content:start
     }
 }
 </style>

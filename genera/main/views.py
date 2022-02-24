@@ -42,7 +42,6 @@ def home_view(request):
 
     popular_collections = json.dumps(list(UserCollectionMint.objects.filter(fully_minted = False).order_by('-collection_views').values('collection_name', 'description', 'image_uri', 'user__username_slug', 'contract_address', 'user__username' )[:10]))
     
-    # return json lists, recent, trending, artists
     return render(request, "home2.html", context={"recent": recent_collections,"popular": popular_collections})
 
 def main_view(request):
@@ -887,7 +886,7 @@ def public_mint_view(request):
                             {"server_message" :"Contract address set"},
                             status = 200
                         )
-                    except:
+                    except Exception as e:
                         return JsonResponse(
                         {"server_message" :"Database error, please try again"},
                         status = 202

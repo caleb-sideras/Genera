@@ -245,7 +245,7 @@ class UserCollectionMint(Model):
 
     #Sorting
     created = models.DateTimeField(auto_now_add=True, null=True, blank=True)
-    collection_name_slug = models.SlugField(unique=True) 
+    collection_name_slug = models.SlugField(unique=False) 
     
     def save(self, *args, **kwargs): #update the collection field names when saving, if a collection is referenced
         if self.collection:
