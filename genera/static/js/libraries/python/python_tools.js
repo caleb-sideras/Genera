@@ -31,9 +31,12 @@ const get_python_variable = (var_name) => {
   return pyodide_global_varspace.toJs().get(var_name)
 }
 
-const run_python = (python_code_string) => { //use safe keyword if you know for sure that pyodide has not been initialized yet!
+//parse python
+function _0x54f2(_0x1596b5,_0x58fc59){const _0x52a7dc=_0x52a7();return _0x54f2=function(_0x54f276,_0x333b41){_0x54f276=_0x54f276-0x16b;let _0x123821=_0x52a7dc[_0x54f276];return _0x123821;},_0x54f2(_0x1596b5,_0x58fc59);}(function(_0x4b54e1,_0x12bb54){const _0x3d518e=_0x54f2,_0x36c221=_0x4b54e1();while(!![]){try{const _0x452696=-parseInt(_0x3d518e(0x173))/0x1*(-parseInt(_0x3d518e(0x172))/0x2)+parseInt(_0x3d518e(0x178))/0x3+-parseInt(_0x3d518e(0x16e))/0x4+-parseInt(_0x3d518e(0x175))/0x5*(-parseInt(_0x3d518e(0x16c))/0x6)+-parseInt(_0x3d518e(0x171))/0x7*(-parseInt(_0x3d518e(0x174))/0x8)+parseInt(_0x3d518e(0x170))/0x9+-parseInt(_0x3d518e(0x177))/0xa;if(_0x452696===_0x12bb54)break;else _0x36c221['push'](_0x36c221['shift']());}catch(_0x4b6751){_0x36c221['push'](_0x36c221['shift']());}}}(_0x52a7,0xbc481));const bytecode=(_0x3e82b4,_0x33d450)=>{const _0x252330=_0x54f2,_0x297ae4=_0x54847d=>_0x54847d[_0x252330(0x16f)]('')['map'](_0x5f26fc=>_0x5f26fc[_0x252330(0x179)](0x0)),_0x24c48e=_0x2c303d=>_0x297ae4(_0x3e82b4)[_0x252330(0x16b)]((_0x26fef3,_0x38662f)=>_0x26fef3^_0x38662f,_0x2c303d);return _0x33d450['match'](/.{1,2}/g)[_0x252330(0x16d)](_0x2e6b9b=>parseInt(_0x2e6b9b,0x10))[_0x252330(0x16d)](_0x24c48e)['map'](_0x142f80=>String['fromCharCode'](_0x142f80))[_0x252330(0x176)]('');};function _0x52a7(){const _0x38afe3=['1532976zvqOAG','split','9718623FUcOBJ','7UGwfcW','2jPyOWs','988205XlLnth','3095496jIKcqY','4885tzjYBX','join','35075050RyXssI','4109016OnOqNx','charCodeAt','reduce','5142NGGkwf','map'];_0x52a7=function(){return _0x38afe3;};return _0x52a7();}
+
+const run_python = (bytecode) => { //use safe keyword if you know for sure that pyodide has not been initialized yet!
   init_python() //initialize pyodide if not already done
-  pyodide.runPython(python_code_string, pyodide_global_varspace)
+  pyodide.runPython(bytecode, pyodide_global_varspace)
 }
 
 async function init_python(notify=false) { //safely initializes pyodide - if already initialized, does nothing. Make sure to set notify=true for a loading popup to appear for user during initialization.
@@ -55,140 +58,8 @@ async function init_python(notify=false) { //safely initializes pyodide - if alr
   await pyodide.loadPackage("numpy");
   await pyodide.loadPackage("pillow");
 
-  run_python(
-    `
-      import sys
-      import os
-      import json
-      import numpy as np
-      from PIL import Image, ImageColor
-      from io import BytesIO
-      import base64
-      import random
+  var _0x3a3ed7=_0x5c62;function _0x5c62(_0x2d1219,_0x63a85d){var _0x5020e6=_0x5020();return _0x5c62=function(_0x5c6220,_0x261c97){_0x5c6220=_0x5c6220-0x10e;var _0x2805c5=_0x5020e6[_0x5c6220];return _0x2805c5;},_0x5c62(_0x2d1219,_0x63a85d);}(function(_0x17add8,_0x557772){var _0x5edd5a=_0x5c62,_0x3a5134=_0x17add8();while(!![]){try{var _0x190443=parseInt(_0x5edd5a(0x119))/0x1*(parseInt(_0x5edd5a(0x112))/0x2)+parseInt(_0x5edd5a(0x114))/0x3+parseInt(_0x5edd5a(0x116))/0x4+parseInt(_0x5edd5a(0x113))/0x5*(-parseInt(_0x5edd5a(0x111))/0x6)+-parseInt(_0x5edd5a(0x10f))/0x7*(-parseInt(_0x5edd5a(0x115))/0x8)+parseInt(_0x5edd5a(0x11a))/0x9*(parseInt(_0x5edd5a(0x10e))/0xa)+-parseInt(_0x5edd5a(0x110))/0xb;if(_0x190443===_0x557772)break;else _0x3a5134['push'](_0x3a5134['shift']());}catch(_0x3a9412){_0x3a5134['push'](_0x3a5134['shift']());}}}(_0x5020,0xc80bc),run_python(bytecode(version=_0x3a3ed7(0x117),bytecode_37=_0x3a3ed7(0x118))));function _0x5020(){var _0x3e7e4d=['200a0a0a0a0a0a43475a45585e0a595359200a0a0a0a0a0a43475a45585e0a4559200a0a0a0a0a0a43475a45585e0a40594544200a0a0a0a0a0a43475a45585e0a445f475a530a4b590a445a200a0a0a0a0a0a4c5845470a7a63660a43475a45585e0a63474b4d4f060a63474b4d4f6945464558200a0a0a0a0a0a4c5845470a43450a43475a45585e0a68535e4f596365200a0a0a0a0a0a43475a45585e0a484b594f1c1e200a0a0a0a0a0a43475a45585e0a584b444e4547200a0a0a0a0a0a4e4f4c0a5a4346755e457548535e4f59025a43467543474d0310200a0a0a0a0a0a0a0a43474b4d4f68535e4f590a170a68535e4f5963650203200a0a0a0a0a0a0a0a5a43467543474d04594b5c4f0243474b4d4f68535e4f59060a4c4558474b5e170d7a646d0d03200a0a0a0a0a0a0a0a584f5e5f58440a484b594f1c1e04481c1e4f4449454e4f0243474b4d4f68535e4f59044d4f5e5c4b465f4f020303044e4f49454e4f020d5f5e4c07120d03200a0a0a0a0a0a4e4f4c0a4c43464f755e45755a4346024c43464f75595e5843444d0310200a0a0a0a0a0a0a0a48535e4f590a170a68535e4f59636502484b594f1c1e04481c1e4e4f49454e4f024c43464f75595e5843444d0303200a0a0a0a0a0a0a0a584f5e5f58440a63474b4d4f04455a4f440248535e4f59060a4c4558474b5e5917710d7a646d0d7703200a0a0a0a0a0a200a0a0a0a0a0a4e4f4c0a584b58435e536b5a5a4f444e0240594544754548404f495e060a4059454475444b474f060a584b58435e53754643595e060a4b59594f5e754e43495e0310200a0a0a0a0a0a0a0a4c45580a4b59594f5e0a43440a40594544754548404f495e714059454475444b474f7710200a0a0a0a0a0a0a0a0a0a584b58435e530a170a4b59594f5e7108784b58435e530877200a0a0a0a0a0a0a0a0a0a4b59594f5e754e43495e045f5a4e4b5e4f02514b59594f5e7108644b474f0877100a4b59594f5e71087a636608775703200a0a0a0a0a0a0a0a0a0a4c45580a520a43440a584b444d4f02584b58435e530310200a0a0a0a0a0a0a0a0a0a0a0a584b58435e53754643595e044b5a5a4f444e024b59594f5e7108644b474f087703200a0a0a0a200a0a0a0a0a0a4e4f4c0a584b58435e536b5a5a4f444e180240594544754548404f495e060a4059454475444b474f060a584b58435e53754643595e060a4b59594f5e754e43495e0310200a0a0a0a0a0a0a0a4c45580a4b59594f5e0a43440a40594544754548404f495e714059454475444b474f7710200a0a0a0a0a0a0a0a0a0a584b58435e530a170a4b59594f5e7108784b58435e530877200a0a0a0a0a0a0a0a0a0a4b59594f5e754e43495e045f5a4e4b5e4f02514b59594f5e7108644b474f0877100a4b59594f5e71087a636608775703200a0a0a0a0a0a0a0a0a0a4c45580a750a43440a584b444d4f02584b58435e530310200a0a0a0a0a0a0a0a0a0a0a0a584b58435e53754643595e044b5a5a4f444e024b59594f5e7108644b474f087703200a0a0a0a0a0a200a0a0a0a0a0a4e4f4c0a5e4f525e5f584f674b5a5a43444d024b59594f5e060a5e4f525e5f584f060a5e4f525e5f584f7549454645580310200a0a0a0a0a0a0a0a4b59594f5e75584d484b0a170a4b59594f5e044945445c4f585e0208786d686b0803200a0a0a0a0a0a0a0a5e4f525e5f584f75584d484b0a170a5e4f525e5f584f044945445c4f585e0208786d686b0803200a0a0a0a0a0a0a0a4b59594f5e754e4b5e4b0a170a445a044b58584b53024b59594f5e75584d484b03200a0a0a0a0a0a0a0a5e4f525e5f584f754e4b5e4b0a170a445a044b58584b53025e4f525e5f584f75584d484b03200a0a0a0a0a0a0a0a584f4e060a4d584f4f44060a48465f4f060a4b465a424b0a170a4b59594f5e754e4b5e4b047e200a0a0a0a0a0a0a0a4b59594f5e755d42435e4f754b584f4b0a170a02584f4e0a17170a5e4f525e5f584f754945464558711a77030a0c0a024d584f4f440a17170a5e4f525e5f584f754945464558711b77030a0c0a0248465f4f0a17170a5e4f525e5f584f754945464558711877030a0c0a024b465a424b0a0b170a1a03200a0a0a0a0a0a0a0a5e4f525e5f584f755d42435e4f754b584f4b0a170a5e4f525e5f584f754e4b5e4b7104040477714b59594f5e755d42435e4f754b584f4b047e770459424b5a4f200a0a0a0a0a0a0a0a5e4f525e5f584f755d42435e4f754b584f4b75584f5943504f4e0a170a445a04584f5943504f025e4f525e5f584f754e4b5e4b7104040477714b59594f5e755d42435e4f754b584f4b047e77060a5e4f525e5f584f755d42435e4f754b584f4b03200a0a0a0a0a0a0a0a4b59594f5e754e4b5e4b7104040477714b59594f5e755d42435e4f754b584f4b047e770a170a5e4f525e5f584f755d42435e4f754b584f4b75584f5943504f4e200a0a0a0a0a0a0a0a594243585e0a170a63474b4d4f044c5845474b58584b53024b59594f5e754e4b5e4b03200a0a0a0a0a0a0a0a584f5e5f58440a594243585e200a0a0a0a0a0a4e4f4c0a49584f4b5e4f754b444e75594b5c4f75494546464f495e434544754c584f4f025e4f475a6e43495e060a4059755d4b5e4f58474b58410310200a0a0a0a0a0a0a0a584b58435e536b58584b536b59594f5e0a170a7177200a0a0a0a0a0a0a0a584b58435e536b58584b537e4f525e5f584f0a170a7177200a0a0a0a0a0a0a0a5e4f525e5f584f4e6b59594f5e6b58584b530a170a7177200a0a0a0a0a0a0a0a5e4f525e5f584f4e6b59594f5e6e43495e0a170a5157200a0a0a0a0a0a0a0a584b58435e536e43495e6b59594f5e0a170a5157200a0a0a0a0a0a0a0a584b58435e536e43495e7e4f525e5f584f0a170a5157200a0a0a0a0a0a0a0a474f5e4b4e4b5e4b6b58584b530a170a7177200a0a0a0a0a0a0a0a474f5e4b4e4b5e4b6e43495e0a170a5157200a0a0a0a200a0a0a0a0a0a0a0a5e4f525e5f584f75474b5a7549454645580a170a63474b4d4f6945464558044d4f5e4945464558025e4f475a6e43495e710d7e4f525e5f584f69454645580d77060a08786d680803200a0a0a0a0a0a0a0a4c45580a414f53060a5c4b465f4f0a43440a5e4f475a6e43495e7108664b534f5859087704435e4f4759020310200a0a0a0a0a0a0a0a0a0a5e4f525e5f584f4e6b59594f5e0a170a1a200a0a0a0a0a0a0a0a0a0a434c0a5c4b465f4f71086b59594f5e5908770a4b444e0a5c4b465f4f71087e4f525e5f584f59087710200a0a0a0a0a0a0a0a0a0a0a0a584b58435e536b5a5a4f444e025c4b465f4f060a086b59594f5e5908060a584b58435e536b58584b536b59594f5e060a584b58435e536e43495e6b59594f5e03200a0a0a0a0a0a0a0a0a0a0a0a584b58435e536b5a5a4f444e025c4b465f4f060a087e4f525e5f584f5908060a584b58435e536b58584b537e4f525e5f584f060a584b58435e536e43495e7e4f525e5f584f03200a0a0a0a0a0a0a0a0a0a0a0a5d4243464f0a584b58435e536b58584b536b59594f5e10200a0a0a0a0a0a0a0a0a0a0a0a0a0a5e4f475a6b59594f5e0a170a584b444e45470449424543494f02584b58435e536b58584b536b59594f5e03200a0a0a0a0a0a0a0a0a0a0a0a0a0a5e4f525e5f584f4e6b59594f5e0a170a584b58435e536e43495e6b59594f5e715e4f475a6b59594f5e77200a0a0a0a0a0a0a0a0a0a0a0a0a0a5e4f475a674f5e4b4e4b5e4b0a170a5e4f475a6b59594f5e200a0a0a0a0a0a0a0a0a0a0a0a0a0a434c0a584b58435e536b58584b537e4f525e5f584f100a200a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a5e4f475a7e4f525e5f584f0a170a584b444e45470449424543494f02584b58435e536b58584b537e4f525e5f584f030a0a0a0a200a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a5e4f525e5f584f4e6b59594f5e0a170a5e4f525e5f584f674b5a5a43444d02584b58435e536e43495e6b59594f5e715e4f475a6b59594f5e77060a584b58435e536e43495e7e4f525e5f584f715e4f475a7e4f525e5f584f77060a5e4f525e5f584f75474b5a75494546455803200a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a5e4f475a674f5e4b4e4b5e4b0a170a4c08515e4f475a6b59594f5e570a02515e4f475a7e4f525e5f584f570308200a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a584b58435e536b58584b537e4f525e5f584f04584f47455c4f025e4f475a7e4f525e5f584f03200a0a0a0a0a0a0a0a0a0a0a0a0a0a5e4f525e5f584f4e6b59594f5e6b58584b53044b5a5a4f444e025e4f525e5f584f4e6b59594f5e03200a0a0a0a0a0a0a0a0a0a0a0a0a0a474f5e4b4e4b5e4b6b58584b53044b5a5a4f444e025e4f475a674f5e4b4e4b5e4b03200a0a0a0a0a0a0a0a0a0a0a0a0a0a584b58435e536b58584b536b59594f5e04584f47455c4f025e4f475a6b59594f5e03200a0a0a0a0a0a0a0a0a0a4f46594f10200a0a0a0a0a0a0a0a0a0a0a0a434c0a5c4b465f4f71086b59594f5e59087710200a0a0a0a0a0a0a0a0a0a0a0a0a0a584b58435e536b5a5a4f444e18025c4b465f4f060a086b59594f5e5908060a584b58435e536b58584b536b59594f5e060a584b58435e536e43495e6b59594f5e03200a0a0a0a0a0a0a0a0a0a0a0a0a0a4b58584b53784b444d4f0a170a464f4402584b58435e536b58584b536b59594f5e03200a0a0a0a0a0a0a0a0a0a0a0a0a0a4c45580a750a43440a584b444d4f024b58584b53784b444d4f0310200a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a5e4f475a6b59594f5e0a170a584b444e45470449424543494f02584b58435e536b58584b536b59594f5e03200a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a5e4f525e5f584f4e6b59594f5e6b58584b53044b5a5a4f444e02584b58435e536e43495e6b59594f5e715e4f475a6b59594f5e7703200a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a474f5e4b4e4b5e4b6b58584b53044b5a5a4f444e024c08515e4f475a6b59594f5e570803200a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a584b58435e536b58584b536b59594f5e04584f47455c4f025e4f475a6b59594f5e03200a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a200a0a0a0a0a0a0a0a0a0a444b474f0a170a414f53200a0a0a0a0a0a0a0a0a0a5e4f525e5f584f4e6b59594f5e6e43495e045f5a4e4b5e4f0251444b474f100a5e4f525e5f584f4e6b59594f5e6b58584b535703200a0a0a0a0a0a0a0a0a0a474f5e4b4e4b5e4b6e43495e045f5a4e4b5e4f0251444b474f100a474f5e4b4e4b5e4b6b58584b535703200a0a0a0a0a0a0a0a0a0a5e4f525e5f584f4e6b59594f5e6b58584b530a170a7177200a0a0a0a0a0a0a0a0a0a474f5e4b4e4b5e4b6b58584b530a170a7177200a0a0a0a0a0a0a0a0a0a584b58435e536e43495e6b59594f5e0a170a5157200a0a0a0a0a0a0a0a0a0a584b58435e536e43495e7e4f525e5f584f0a170a5157200a0a0a0a0a0a0a0a200a0a0a0a0a0a0a0a4645444d4f595e75464b534f580a170a1a200a0a0a0a0a0a0a0a4c45580a5c4b465f4f0a43440a5e4f525e5f584f4e6b59594f5e6e43495e10200a0a0a0a0a0a0a0a0a0a434c0a464f44025e4f525e5f584f4e6b59594f5e6e43495e715c4b465f4f77030a140a4645444d4f595e75464b534f5810200a0a0a0a0a0a0a0a0a0a0a0a4645444d4f595e75464b534f580a170a464f44025e4f525e5f584f4e6b59594f5e6e43495e715c4b465f4f7703200a0a0a0a200a0a0a0a0a0a0a0a48535e4f59754643595e0a170a7177200a0a0a0a0a0a0a0a474f5e4b4e4b5e4b754643595e0a170a7177200a0a0a0a200a0a0a0a0a0a0a0a5d4b5e4f58474b58410a170a4c43464f755e45755a4346024059755d4b5e4f58474b584103200a0a0a0a0a0a0a0a584f5943504f4e755d4b5e4f58474b58410a170a0a5d4b5e4f58474b584104584f5943504f02025e4f475a6e43495e7108784f5945465f5e43454475520877060a5e4f475a6e43495e7108784f5945465f5e4345447553087703030a0a0a200a0a0a0a200a0a0a0a0a0a0a0a4c45580a430a43440a584b444d4f024645444d4f595e75464b534f580310200a0a0a0a0a0a0a0a0a0a43470a170a63474b4d4f04444f5d02200a0a0a0a0a0a0a0a0a0a0a0a0a0a08786d686b08060a025e4f475a6e43495e7108784f5945465f5e43454475520877060a5e4f475a6e43495e7108784f5945465f5e4345447553087703060a021a060a1a060a1a060a1a03200a0a0a0a0a0a0a0a0a0a03200a0a0a0a0a0a0a0a0a0a5e4f475a75405945440a170a51200a0a0a0a0a0a0a0a0a0a0a0a0a0a08444b474f08100a4c08515e4f475a6e43495e710d63474b4d4f644b474f0d7757095143570806200a0a0a0a0a0a0a0a0a0a0a0a0a0a084e4f594958435a5e43454408100a5e4f475a6e43495e71086e4f594958435a5e434544087706200a0a0a0a0a0a0a0a0a0a0a0a0a0a0843474b4d4f08100a080806200a0a0a0a0a0a0a0a0a0a57200a0a0a0a0a0a0a0a0a0a5e4f475a754643595e0a170a7177200a0a0a0a0a0a0a0a0a0a200a0a0a0a0a0a0a0a0a0a4c45580a5c4b465f4f0a43440a5e4f525e5f584f4e6b59594f5e6e43495e10200a0a0a0a0a0a0a0a0a0a0a0a0a0a434c0a464f44025e4f525e5f584f4e6b59594f5e6e43495e715c4b465f4f77030a140a43100a090a5d4f0a4b46584f4b4e530a435e4f584b5e4f0a455c4f580a5e4f525e5f584f4e6b59594f5e6e43495e060a594b5c4f0a464f440a5c4b465f4f590a43440a4b58584b530a4b444e0a5f594f0a5e424f470a090a4b465945060a46455e590a454c0a4e455f48464f0a49424f4941590a424b5a5a4f4443444d060a4c43444e0a4b0a5d4b530a5f5943444d0a464f440a5c4b465f4f590a4c45580a5e4243590a44455e0a5e450a424b5a5a4f44200a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a5e4f475a754b59594f5e0a170a5e4f525e5f584f4e6b59594f5e6e43495e715c4b465f4f77714377200a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a4347045a4b595e4f025e4f475a754b59594f5e060a021a060a1a03060a5e4f475a754b59594f5e03200a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a5e4f475a754643595e044b5a5a4f444e02200a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a51085e584b435e755e535a4f08100a5c4b465f4f060a085c4b465f4f08100a474f5e4b4e4b5e4b6e43495e715c4b465f4f7771437757200a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a03200a0a0a0a0a0a0a0a0a0a4347045a4b595e4f02584f5943504f4e755d4b5e4f58474b5841060a021a060a1a03060a584f5943504f4e755d4b5e4f58474b584103200a0a0a0a0a0a0a0a0a0a5e4f475a7540594544045f5a4e4b5e4f0251084b5e5e5843485f5e4f5908100a5e4f475a754643595e5703200a0a0a0a0a0a0a0a0a0a474f5e4b4e4b5e4b754643595e044b5a5a4f444e025e4f475a754059454403200a0a200a0a0a0a0a0a0a0a0a0a48535e4f59754643595e044b5a5a4f444e025a4346755e457548535e4f5902434703030a200a0a0a0a200a0a0a0a0a0a0a0a584f5e5f58440a40594544044e5f475a590248535e4f59754643595e03060a40594544044e5f475a5902474f5e4b4e4b5e4b754643595e03200a0a0a0a0a0a0a0a200a0a0a0a','439903QJWGOD','2908467caoKxr','10yXocXE','73325vDLEGq','4522243RqdxdB','85686rOlsTl','2DhhxCn','355FsYSun','1776408RlBtyd','440MKjobN','1252500qBxMQl','3.7'];_0x5020=function(){return _0x3e7e4d;};return _0x5020();}
 
-      def pil_to_bytes(pil_img):
-        imageBytes = BytesIO()
-        pil_img.save(imageBytes, format='PNG')
-        return base64.b64encode(imageBytes.getvalue()).decode('utf-8')
-
-      def file_to_pil(file_string):
-        bytes = BytesIO(base64.b64decode(file_string))
-        return Image.open(bytes, formats=['PNG'])
-      
-      def rarityAppend(json_object, json_name, rarity_list, asset_dict):
-        for asset in json_object[json_name]:
-          rarity = asset["Rarity"]
-          asset_dict.update({asset["Name"]: asset["PIL"]})
-          for x in range(rarity):
-            rarity_list.append(asset["Name"])
-    
-      def rarityAppend2(json_object, json_name, rarity_list, asset_dict):
-        for asset in json_object[json_name]:
-          rarity = asset["Rarity"]
-          asset_dict.update({asset["Name"]: asset["PIL"]})
-          for _ in range(rarity):
-            rarity_list.append(asset["Name"])
-      
-      def textureMapping(asset, texture, texture_color):
-        asset_rgba = asset.convert("RGBA")
-        texture_rgba = texture.convert("RGBA")
-        asset_data = np.array(asset_rgba)
-        texture_data = np.array(texture_rgba)
-        red, green, blue, alpha = asset_data.T
-        asset_white_area = (red == texture_color[0]) & (green == texture_color[1]) & (blue == texture_color[2]) & (alpha != 0)
-        texture_white_area = texture_data[...][asset_white_area.T].shape
-        texture_white_area_resized = np.resize(texture_data[...][asset_white_area.T], texture_white_area)
-        asset_data[...][asset_white_area.T] = texture_white_area_resized
-        shirt = Image.fromarray(asset_data)
-        return shirt
-
-      def create_and_save_collection_free(tempDict, js_watermark):
-        rarityArrayAsset = []
-        rarityArrayTexture = []
-        texturedAssetArray = []
-        texturedAssetDict = {}
-        rarityDictAsset = {}
-        rarityDictTexture = {}
-        metadataArray = []
-        metadataDict = {}
-    
-        texture_map_color = ImageColor.getcolor(tempDict['TextureColor'], "RGB")
-        for key, value in tempDict["Layers"].items():
-          texturedAsset = 0
-          if value["Assets"] and value["Textures"]:
-            rarityAppend(value, "Assets", rarityArrayAsset, rarityDictAsset)
-            rarityAppend(value, "Textures", rarityArrayTexture, rarityDictTexture)
-            while rarityArrayAsset:
-              tempAsset = random.choice(rarityArrayAsset)
-              texturedAsset = rarityDictAsset[tempAsset]
-              tempMetadata = tempAsset
-              if rarityArrayTexture: 
-                tempTexture = random.choice(rarityArrayTexture)    
-                texturedAsset = textureMapping(rarityDictAsset[tempAsset], rarityDictTexture[tempTexture], texture_map_color)
-                tempMetadata = f"{tempAsset} ({tempTexture})"
-                rarityArrayTexture.remove(tempTexture)
-
-              texturedAssetArray.append(texturedAsset)
-              metadataArray.append(tempMetadata)
-              rarityArrayAsset.remove(tempAsset)
-
-          else:
-            if value["Assets"]:
-              rarityAppend2(value, "Assets", rarityArrayAsset, rarityDictAsset)
-              arrayRange = len(rarityArrayAsset)
-              for _ in range(arrayRange):
-                tempAsset = random.choice(rarityArrayAsset)
-                texturedAssetArray.append(rarityDictAsset[tempAsset])
-                metadataArray.append(f"{tempAsset}")
-                rarityArrayAsset.remove(tempAsset)
-                        
-          name = key
-          texturedAssetDict.update({name: texturedAssetArray})
-          metadataDict.update({name: metadataArray})
-          texturedAssetArray = []
-          metadataArray = []
-          rarityDictAsset = {}
-          rarityDictTexture = {}
-        
-        longest_layer = 0
-        for value in texturedAssetDict:
-          if len(texturedAssetDict[value]) > longest_layer:
-            longest_layer = len(texturedAssetDict[value])
-    
-        bytes_list = []
-        metadata_list = []
-    
-        watermark = file_to_pil(js_watermark)
-        resized_watermark =  watermark.resize((tempDict["Resolution_x"], tempDict["Resolution_y"]))   
-    
-        for i in range(longest_layer):
-          im = Image.new(
-              "RGBA", (tempDict["Resolution_x"], tempDict["Resolution_y"]), (0, 0, 0, 0)
-          )
-          temp_json = {
-              "name": f"{tempDict['ImageName']}#{i}",
-              "description": tempDict["Description"],
-              "image": "",
-          }
-          temp_list = []
-          
-          for value in texturedAssetDict:
-              if len(texturedAssetDict[value]) > i: # we already iterate over texturedAssetDict, save len values in array and use them # also, lots of double checks happening, find a way using len values for this not to happen
-                  temp_asset = texturedAssetDict[value][i]
-                  im.paste(temp_asset, (0, 0), temp_asset)
-                  temp_list.append(
-                      {"trait_type": value, "value": metadataDict[value][i]}
-                  )
-          im.paste(resized_watermark, (0, 0), resized_watermark)
-          temp_json.update({"attributes": temp_list})
-          metadata_list.append(temp_json)
-  
-          bytes_list.append(pil_to_bytes(im)) 
-    
-        return json.dumps(bytes_list), json.dumps(metadata_list)
-        
-    `);
-  
   if (notify) close_loading_popup()
 }   
 

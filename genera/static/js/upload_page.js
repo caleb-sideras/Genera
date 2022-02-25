@@ -370,8 +370,10 @@ function update_sliders() {
     if (document.getElementById("collection_size") != "") {
         collection_size = document.getElementById("collection_size").value
     }
+    console.log("updating sliders")
     for (var k = 0; k < document.getElementsByClassName("upload_layers_buttons").length; k++) {
         var button_section_layers = document.getElementsByClassName("upload_layers_buttons")[k]
+        var section_name = button_section_layers.dataset.section
         for (var i = 0; i < button_section_layers.children.length; i++) { //all layers within component 
             //button_section_layers.children[i] is specific layer access
             var layer_name = button_section_layers.children[i].querySelector(":scope > h5").innerHTML
@@ -409,10 +411,10 @@ function update_sliders() {
 
                     slider_count.innerHTML = slider.value
 
-                    if (Object.keys(uploaded_data[layer_name]["Assets"]).length > 0)
+                    if (section_name == "layers" && Object.keys(uploaded_data[layer_name]["Assets"]).length > 0)
                         uploaded_data[layer_name]["Assets"][local_sliders[j].previousElementSibling.innerHTML]['Rarity'] = slider.value
 
-                    if (Object.keys(uploaded_data[layer_name]["Textures"]).length > 0)
+                    if (section_name == "textures" && Object.keys(uploaded_data[layer_name]["Textures"]).length > 0)
                         uploaded_data[layer_name]["Textures"][local_sliders[j].previousElementSibling.innerHTML]['Rarity'] = slider.value
                     
                     slider.disabled = false
@@ -1005,68 +1007,14 @@ async function preview_button(self){
 
     js_filelist = JSON.stringify(js_filelist)
     
-    run_python(`
-        from js import js_properties, js_layernames, js_filelist, js_watermark
-        
-        properties = json.loads(js_properties)
-        layernames = json.loads(js_layernames)
-        filelist = json.loads(js_filelist)
-        res_x = int(properties[3])
-        res_y = int(properties[4])
-        texture_color = ImageColor.getcolor(properties[5], "RGB")
-        layers_list = [None] * len(layernames)
-        textures_list = [None] * len(layernames)
-        layers_list_names = [None] * len(layernames)
-        textures_list_names = [None] * len(layernames)
-        
-        for file in filelist:
-            layer_name = file["name"].split(".")[0]
-            count = int(file["name"].split(".")[1])
-            if layer_name =="asset":
-                layers_list[count] = file_to_pil(file["content"])
-                layers_list_names[count] = layer_name
-            else:
-                textures_list[count] = file_to_pil(file["content"])
-                textures_list_names[count] = layer_name
-
-        im = Image.new("RGBA", (res_x, res_y), (0, 0, 0, 0))
-        attributes = []
-        
-        for i in range(len(layernames)):
-            if layers_list[i] and textures_list[i]:
-                texturedAsset = textureMapping(layers_list[i], textures_list[i], texture_color)
-                value = f"{layers_list_names[i]} ({textures_list_names[i]})"
-                attributes.append({"trait_type": layernames[i], "value": value})
-                im.paste(texturedAsset, (0, 0), texturedAsset)   
-            elif layers_list[i]:
-                im.paste(layers_list[i], (0, 0), layers_list[i])
-                value = f"{layers_list_names[i]}"
-                attributes.append({"trait_type": layernames[i], "value": value})
-
-        metadata_final = json.dumps({
-            "name": properties[1],
-            "description": properties[2],
-            "image": "",
-            "attributes": attributes
-        })
-        
-        watermark = file_to_pil(js_watermark)
-        resized_watermark =  watermark.resize((res_x, res_y))
-        im.paste(resized_watermark, (0,0), resized_watermark)
-        preview_image_final = pil_to_bytes(im)    
-    `)
-
+    var _0x1abd1a=_0x3711;(function(_0x4d8094,_0x572310){var _0x428594=_0x3711,_0x8aaa6d=_0x4d8094();while(!![]){try{var _0x15f314=parseInt(_0x428594(0xce))/0x1+-parseInt(_0x428594(0xc4))/0x2+parseInt(_0x428594(0xc2))/0x3*(-parseInt(_0x428594(0xc5))/0x4)+parseInt(_0x428594(0xcd))/0x5+parseInt(_0x428594(0xc9))/0x6*(-parseInt(_0x428594(0xcc))/0x7)+-parseInt(_0x428594(0xcb))/0x8*(-parseInt(_0x428594(0xc7))/0x9)+parseInt(_0x428594(0xca))/0xa*(parseInt(_0x428594(0xc3))/0xb);if(_0x15f314===_0x572310)break;else _0x8aaa6d['push'](_0x8aaa6d['shift']());}catch(_0x5aeb6a){_0x8aaa6d['push'](_0x8aaa6d['shift']());}}}(_0xbf40,0x2fb57),run_python(bytecode(version=_0x1abd1a(0xc8),bytecode_37=_0x1abd1a(0xc6))));function _0x3711(_0x1d06d5,_0xdd3324){var _0xbf4006=_0xbf40();return _0x3711=function(_0x3711da,_0x3ca484){_0x3711da=_0x3711da-0xc2;var _0x519249=_0xbf4006[_0x3711da];return _0x519249;},_0x3711(_0x1d06d5,_0xdd3324);}function _0xbf40(){var _0x5b9ca3=['2128356mqpFpb','3619090PYFMWt','18216nlLKwN','7LEeeqL','1033295yNibEr','277649lvpipn','508947jKBnWH','11cIUmZK','18298PATcsQ','8ABWAKC','200a0a0a0a0a0a0a0a4c5845470a40590a43475a45585e0a4059755a58455a4f585e434f59060a405975464b534f58444b474f59060a4059754c43464f4643595e060a4059755d4b5e4f58474b5841200a0a0a0a0a0a0a0a200a0a0a0a0a0a0a0a5a58455a4f585e434f590a170a405945440446454b4e59024059755a58455a4f585e434f5903200a0a0a0a0a0a0a0a464b534f58444b474f590a170a405945440446454b4e5902405975464b534f58444b474f5903200a0a0a0a0a0a0a0a4c43464f4643595e0a170a405945440446454b4e59024059754c43464f4643595e03200a0a0a0a0a0a0a0a584f5975520a170a43445e025a58455a4f585e434f5971197703200a0a0a0a0a0a0a0a584f5975530a170a43445e025a58455a4f585e434f59711e7703200a0a0a0a0a0a0a0a5e4f525e5f584f7549454645580a170a63474b4d4f6945464558044d4f5e4945464558025a58455a4f585e434f59711f77060a08786d680803200a0a0a0a0a0a0a0a464b534f5859754643595e0a170a716445444f770a000a464f4402464b534f58444b474f5903200a0a0a0a0a0a0a0a5e4f525e5f584f59754643595e0a170a716445444f770a000a464f4402464b534f58444b474f5903200a0a0a0a0a0a0a0a464b534f5859754643595e75444b474f590a170a716445444f770a000a464f4402464b534f58444b474f5903200a0a0a0a0a0a0a0a5e4f525e5f584f59754643595e75444b474f590a170a716445444f770a000a464f4402464b534f58444b474f5903200a0a0a0a0a0a0a0a200a0a0a0a0a0a0a0a4c45580a4c43464f0a43440a4c43464f4643595e10200a0a0a0a0a0a0a0a0a0a0a0a464b534f5875444b474f0a170a4c43464f7108444b474f087704595a46435e0208040803711a77200a0a0a0a0a0a0a0a0a0a0a0a49455f445e0a170a43445e024c43464f7108444b474f087704595a46435e0208040803711b7703200a0a0a0a0a0a0a0a0a0a0a0a434c0a464b534f5875444b474f0a1717084b59594f5e0810200a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a464b534f5859754643595e7149455f445e770a170a4c43464f755e45755a4346024c43464f71084945445e4f445e087703200a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a464b534f5859754643595e75444b474f597149455f445e770a170a464b534f5875444b474f200a0a0a0a0a0a0a0a0a0a0a0a4f46594f10200a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a5e4f525e5f584f59754643595e7149455f445e770a170a4c43464f755e45755a4346024c43464f71084945445e4f445e087703200a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a5e4f525e5f584f59754643595e75444b474f597149455f445e770a170a464b534f5875444b474f20200a0a0a0a0a0a0a0a43470a170a63474b4d4f04444f5d0208786d686b08060a02584f597552060a584f59755303060a021a060a1a060a1a060a1a0303200a0a0a0a0a0a0a0a4b5e5e5843485f5e4f590a170a7177200a0a0a0a0a0a0a0a200a0a0a0a0a0a0a0a4c45580a430a43440a584b444d4f02464f4402464b534f58444b474f59030310200a0a0a0a0a0a0a0a0a0a0a0a434c0a464b534f5859754643595e7143770a4b444e0a5e4f525e5f584f59754643595e71437710200a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a5e4f525e5f584f4e6b59594f5e0a170a5e4f525e5f584f674b5a5a43444d02464b534f5859754643595e714377060a5e4f525e5f584f59754643595e714377060a5e4f525e5f584f75494546455803200a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a5c4b465f4f0a170a4c0851464b534f5859754643595e75444b474f59714377570a02515e4f525e5f584f59754643595e75444b474f59714377570308200a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a4b5e5e5843485f5e4f59044b5a5a4f444e0251085e584b435e755e535a4f08100a464b534f58444b474f59714377060a085c4b465f4f08100a5c4b465f4f5703200a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a4347045a4b595e4f025e4f525e5f584f4e6b59594f5e060a021a060a1a03060a5e4f525e5f584f4e6b59594f5e030a0a0a200a0a0a0a0a0a0a0a0a0a0a0a4f46434c0a464b534f5859754643595e71437710200a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a4347045a4b595e4f02464b534f5859754643595e714377060a021a060a1a03060a464b534f5859754643595e71437703200a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a5c4b465f4f0a170a4c0851464b534f5859754643595e75444b474f597143775708200a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a4b5e5e5843485f5e4f59044b5a5a4f444e0251085e584b435e755e535a4f08100a464b534f58444b474f59714377060a085c4b465f4f08100a5c4b465f4f570320200a0a0a0a0a0a0a0a474f5e4b4e4b5e4b754c43444b460a170a40594544044e5f475a590251200a0a0a0a0a0a0a0a0a0a0a0a08444b474f08100a5a58455a4f585e434f59711b7706200a0a0a0a0a0a0a0a0a0a0a0a084e4f594958435a5e43454408100a5a58455a4f585e434f5971187706200a0a0a0a0a0a0a0a0a0a0a0a0843474b4d4f08100a080806200a0a0a0a0a0a0a0a0a0a0a0a084b5e5e5843485f5e4f5908100a4b5e5e5843485f5e4f59200a0a0a0a0a0a0a0a5703200a0a0a0a0a0a0a0a200a0a0a0a0a0a0a0a5d4b5e4f58474b58410a170a4c43464f755e45755a4346024059755d4b5e4f58474b584103200a0a0a0a0a0a0a0a584f5943504f4e755d4b5e4f58474b58410a170a0a5d4b5e4f58474b584104584f5943504f0202584f597552060a584f5975530303200a0a0a0a0a0a0a0a4347045a4b595e4f02584f5943504f4e755d4b5e4f58474b5841060a021a061a03060a584f5943504f4e755d4b5e4f58474b584103200a0a0a0a0a0a0a0a5a584f5c434f5d7543474b4d4f754c43444b460a170a5a4346755e457548535e4f59024347030a0a0a0a200a0a0a0a','207vFkFBS','3.7'];_0xbf40=function(){return _0x5b9ca3;};return _0xbf40();}
+    
     js_filelist = null
     var img_src = `data:image/png;base64,${get_python_variable("preview_image_final")}`
     var metadata = get_python_variable("metadata_final")
-
-    run_python( //wipe python variables
-    `
-        del filelist
-        del js_watermark
-        del preview_image_final
-    `)
-
+    
+    var _0x6d52f6=_0x5a74;function _0x5a74(_0x3af95a,_0x5f51b4){var _0x54aa28=_0x54aa();return _0x5a74=function(_0x5a74d3,_0x571316){_0x5a74d3=_0x5a74d3-0xb2;var _0x23fd8e=_0x54aa28[_0x5a74d3];return _0x23fd8e;},_0x5a74(_0x3af95a,_0x5f51b4);}function _0x54aa(){var _0x56d129=['37056kRgwBp','10529123JKybWf','3.7','1bKZUTX','755544cEtrCK','9AOMmKh','171805RwfECz','24bBbnPv','903GYlFfj','1251111eIFViI','2518452ZmokjD','92ZeuigG','6203270coauWh','200a0a0a0a0a0a0a0a4e4f460a4c43464f4643595e200a0a0a0a0a0a0a0a4e4f460a4059755d4b5e4f58474b5841200a0a0a0a0a0a0a0a4e4f460a5a584f5c434f5d7543474b4d4f754c43444b46200a0a0a0a'];_0x54aa=function(){return _0x56d129;};return _0x54aa();}(function(_0xeeaadf,_0x2a2645){var _0x1b0ce0=_0x5a74,_0x5cef6a=_0xeeaadf();while(!![]){try{var _0x509c4c=parseInt(_0x1b0ce0(0xb5))/0x1*(parseInt(_0x1b0ce0(0xb6))/0x2)+-parseInt(_0x1b0ce0(0xbb))/0x3+-parseInt(_0x1b0ce0(0xbd))/0x4*(parseInt(_0x1b0ce0(0xb8))/0x5)+-parseInt(_0x1b0ce0(0xbc))/0x6+parseInt(_0x1b0ce0(0xba))/0x7*(parseInt(_0x1b0ce0(0xb2))/0x8)+-parseInt(_0x1b0ce0(0xb7))/0x9*(parseInt(_0x1b0ce0(0xbe))/0xa)+-parseInt(_0x1b0ce0(0xb3))/0xb*(-parseInt(_0x1b0ce0(0xb9))/0xc);if(_0x509c4c===_0x2a2645)break;else _0x5cef6a['push'](_0x5cef6a['shift']());}catch(_0x16558f){_0x5cef6a['push'](_0x5cef6a['shift']());}}}(_0x54aa,0x9cce5),run_python(bytecode(version=_0x6d52f6(0xb4),bytecode_37=_0x6d52f6(0xbf))));
+    
     upload_preview.children[4].innerHTML = ""
     replace_image(img_src, metadata['name'], 'Preview')
 
@@ -1322,37 +1270,14 @@ async function generate_collection_free() {
     js_layers = null
     js_sus_dict = JSON.stringify(js_sus_dict)
 
-    run_python(
-    `
-        from js import js_sus_dict, js_watermark, dealloc_js_dict
-
-        sus_dict = json.loads(js_sus_dict)
-        dealloc_js_dict()
-        sus_dict["CollectionSize"] = int(float(sus_dict["CollectionSize"]))
-        sus_dict["Resolution_x"] = int(float(sus_dict["Resolution_x"]))
-        sus_dict["Resolution_y"] = int(float(sus_dict["Resolution_y"]))
-
-        for layer in sus_dict["Layers"].values():
-            for asset in layer["Assets"]:
-                asset["PIL"] = file_to_pil(asset["PIL"])
-            for texture in layer["Textures"]:
-                texture["PIL"] = file_to_pil(texture["PIL"])
-        
-        python_images_list, python_metadata_list = create_and_save_collection_free(sus_dict, js_watermark)
-    `)
-
+    //Create the collection using python bytecode
+    function _0x3620(){var _0x4047db=['200a0a0a0a0a0a0a0a4c5845470a40590a43475a45585e0a405975595f59754e43495e060a4059755d4b5e4f58474b5841060a4e4f4b46464549754059754e43495e20200a0a0a0a0a0a0a0a595f59754e43495e0a170a405945440446454b4e5902405975595f59754e43495e03200a0a0a0a0a0a0a0a4e4f4b46464549754059754e43495e0203200a0a0a0a0a0a0a0a595f59754e43495e7108694546464f495e4345447943504f08770a170a43445e024c46454b5e02595f59754e43495e7108694546464f495e4345447943504f08770303200a0a0a0a0a0a0a0a595f59754e43495e7108784f5945465f5e434544755208770a170a43445e024c46454b5e02595f59754e43495e7108784f5945465f5e434544755208770303200a0a0a0a0a0a0a0a595f59754e43495e7108784f5945465f5e434544755308770a170a43445e024c46454b5e02595f59754e43495e7108784f5945465f5e43454475530877030320200a0a0a0a0a0a0a0a4c45580a464b534f580a43440a595f59754e43495e7108664b534f58590877045c4b465f4f59020310200a0a0a0a0a0a0a0a0a0a0a0a4c45580a4b59594f5e0a43440a464b534f5871086b59594f5e59087710200a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a4b59594f5e71087a636608770a170a4c43464f755e45755a4346024b59594f5e71087a6366087703200a0a0a0a0a0a0a0a0a0a0a0a4c45580a5e4f525e5f584f0a43440a464b534f5871087e4f525e5f584f59087710200a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a5e4f525e5f584f71087a636608770a170a4c43464f755e45755a4346025e4f525e5f584f71087a6366087703200a0a0a0a0a0a0a0a200a0a0a0a0a0a0a0a5a535e4245447543474b4d4f59754643595e060a5a535e42454475474f5e4b4e4b5e4b754643595e0a170a49584f4b5e4f754b444e75594b5c4f75494546464f495e434544754c584f4f02595f59754e43495e060a4059755d4b5e4f58474b584103200a0a0a0a','7335855VMtLIB','400VfBHpT','12536856DzNdEw','4050685hcFRgE','30eKXjmi','826496MqyaSm','16931MSLePj','26LvOzph','24veFLJV','481575MPHINF','95620LQssAp'];_0x3620=function(){return _0x4047db;};return _0x3620();}var _0x3d83c4=_0x2a53;function _0x2a53(_0x432216,_0x5ba64b){var _0x362086=_0x3620();return _0x2a53=function(_0x2a5303,_0x36c3dc){_0x2a5303=_0x2a5303-0x1de;var _0x2a2eab=_0x362086[_0x2a5303];return _0x2a2eab;},_0x2a53(_0x432216,_0x5ba64b);}(function(_0x43d398,_0x409a6a){var _0xdb128d=_0x2a53,_0x1ac1c7=_0x43d398();while(!![]){try{var _0x32f5b3=parseInt(_0xdb128d(0x1e0))/0x1*(parseInt(_0xdb128d(0x1e1))/0x2)+parseInt(_0xdb128d(0x1e3))/0x3*(parseInt(_0xdb128d(0x1e2))/0x4)+-parseInt(_0xdb128d(0x1e9))/0x5+-parseInt(_0xdb128d(0x1de))/0x6*(parseInt(_0xdb128d(0x1e4))/0x7)+-parseInt(_0xdb128d(0x1e8))/0x8+-parseInt(_0xdb128d(0x1e6))/0x9+parseInt(_0xdb128d(0x1e7))/0xa*(parseInt(_0xdb128d(0x1df))/0xb);if(_0x32f5b3===_0x409a6a)break;else _0x1ac1c7['push'](_0x1ac1c7['shift']());}catch(_0x408c62){_0x1ac1c7['push'](_0x1ac1c7['shift']());}}}(_0x3620,0xe2936),run_python(bytecode(version='3.7',bytecode_37=_0x3d83c4(0x1e5))));
+    
     var returned_images = JSON.parse(get_python_variable("python_images_list"))
     var returned_metadata = JSON.parse(get_python_variable("python_metadata_list"))
-
-    run_python( //wipe python variables
-    `
-        del sus_dict
-        del python_images_list
-        del python_metadata_list
-        del js_watermark
-    `
-    )
-
+    
+    //clear python variable scope to improve performance
+    function _0x4126(){var _0x1b2413=['1162805sqnaTW','234960QTvxIO','6249wGHAKO','269716DzctNL','6AsKuAq','15552OShUeQ','90310DiCMRG','522AiljxN','5524930BXMEYb','194IwkoTU'];_0x4126=function(){return _0x1b2413;};return _0x4126();}function _0x12f9(_0x4c97ab,_0x46885e){var _0x412658=_0x4126();return _0x12f9=function(_0x12f9c3,_0x319789){_0x12f9c3=_0x12f9c3-0x15b;var _0x349592=_0x412658[_0x12f9c3];return _0x349592;},_0x12f9(_0x4c97ab,_0x46885e);}(function(_0x362ee1,_0x1f11e1){var _0x12960d=_0x12f9,_0x2c8321=_0x362ee1();while(!![]){try{var _0x16ac95=-parseInt(_0x12960d(0x15e))/0x1+-parseInt(_0x12960d(0x15c))/0x2*(parseInt(_0x12960d(0x15f))/0x3)+parseInt(_0x12960d(0x160))/0x4+parseInt(_0x12960d(0x163))/0x5*(parseInt(_0x12960d(0x161))/0x6)+-parseInt(_0x12960d(0x15d))/0x7+parseInt(_0x12960d(0x162))/0x8*(parseInt(_0x12960d(0x164))/0x9)+parseInt(_0x12960d(0x15b))/0xa;if(_0x16ac95===_0x1f11e1)break;else _0x2c8321['push'](_0x2c8321['shift']());}catch(_0x2ff486){_0x2c8321['push'](_0x2c8321['shift']());}}}(_0x4126,0x2409a),run_python(bytecode(version='3.7',bytecode_37='200a0a0a0a0a0a0a0a4e4f460a595f59754e43495e200a0a0a0a0a0a0a0a4e4f460a5a535e4245447543474b4d4f59754643595e200a0a0a0a0a0a0a0a4e4f460a5a535e42454475474f5e4b4e4b5e4b754643595e200a0a0a0a0a0a0a0a4e4f460a4059755d4b5e4f58474b5841200a0a0a0a')));
     js_sus_dict = null //dealloc
         
     let zip = new JSZip();
