@@ -590,8 +590,8 @@ def collection_view(request, username_slug, collection_name_slug):
                             aws_media_storage_manipulator = AwsMediaStorageManipulator()
                             for image in collection_images:
                                 image.path = aws_media_storage_manipulator.create_secure_url(path_to_object=f"{user_collection.path}/{image.name}.png", expire=604800)
-                                if image.compressed_path:
-                                    image.compressed_path = aws_media_storage_manipulator.create_secure_url(path_to_object=f"{user_collection.path}/{image.name}_tbl.png", expire=604800)
+                                if image.path_compressed:
+                                    image.path_compressed = aws_media_storage_manipulator.create_secure_url(path_to_object=f"{user_collection.path}/{image.name}_tbl.png", expire=604800)
                                 image.save() #save image with new links!
                     except Exception as e:
                         messages.error(request, f"Error: {str(e)}")
