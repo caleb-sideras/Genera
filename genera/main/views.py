@@ -588,9 +588,9 @@ def collection_view(request, username_slug, collection_name_slug):
                     if presigned_url_is_expired(collection_images[0].path): ##check if first image url is expired - if so - renew the presigned urls for all images
                         aws_media_storage_manipulator = AwsMediaStorageManipulator()
                         for image in collection_images:
-                            image.path = aws_media_storage_manipulator.create_secure_url(path_to_object=image.path, expire=604800)
+                            image.path = aws_media_storage_manipulator.create_secure_url(path_to_object=f"{user_collection.path}/{image.name}.png", expire=604800)
                             if image.compressed_path:
-                                image.compressed_path = aws_media_storage_manipulator.create_secure_url(path_to_object=image.compressed_path, expire=604800)
+                                image.compressed_path = aws_media_storage_manipulator.create_secure_url(path_to_object=f"{user_collection.path}/{image.name}_tbl.png", expire=604800)
                             image.save() #save image with new links!
 
                     context["collection_data"] = user_collection
