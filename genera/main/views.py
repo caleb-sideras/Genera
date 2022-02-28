@@ -585,17 +585,13 @@ def collection_view(request, username_slug, collection_name_slug):
                 collection_images = CollectionImage.objects.filter(linked_collection__id=user_collection.id)
 
                 if collection_images:
-                    try:
-                        if presigned_url_is_expired(collection_images[0].path): ##check if first image url is expired - if so - renew the presigned urls for all images
-                            aws_media_storage_manipulator = AwsMediaStorageManipulator()
-                            for image in collection_images:
-                                image.path = aws_media_storage_manipulator.create_secure_url(path_to_object=f"{user_collection.path}/{image.name}.png", expire=604800)
-                                if image.path_compressed:
-                                    image.path_compressed = aws_media_storage_manipulator.create_secure_url(path_to_object=f"{user_collection.path}/{image.name}_tbl.png", expire=604800)
-                                image.save() #save image with new links!
-                    except Exception as e:
-                        messages.error(request, f"Error: {str(e)}")
-                        return redirect(reverse('main:all_collections', args=[username_slug]))
+                    if presigned_url_is_expired(collection_images[0].path): ##check if first image url is expired - if so - renew the presigned urls for all images
+                        aws_media_storage_manipulator = AwsMediaStorageManipulator()
+                        for image in collection_images:
+                            image.path = aws_media_storage_manipulator.create_secure_url(path_to_object=f"{user_collection.path}/{image.name}.png", expire=604800)
+                            if image.path_compressed:
+                                image.path_compressed = aws_media_storage_manipulator.create_secure_url(path_to_object=f"{user_collection.path}/{image.name}_tbl.png", expire=604800)
+                            image.save() #save image with new links!
 
                     context["collection_data"] = user_collection
                     context["collection_images"] = collection_images
