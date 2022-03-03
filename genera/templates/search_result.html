@@ -2,8 +2,8 @@
 {% load static %}
 
 {% block head_block %}
-<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.min.js"></script>
-<script src="https://unpkg.com/vue@next"></script>
+<!-- <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.min.js"></script> -->
+<script src="https://unpkg.com/vue@next/dist/vue.global.prod.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@300;400;600&display=swap" rel="stylesheet">
 {% endblock %}
 
@@ -44,9 +44,9 @@
             }
         },
         mounted(){
-            console.log(this.query)
-            console.log(this.accounts)
-            console.log(this.collections)
+            // console.log(this.query)
+            // console.log(this.accounts)
+            // console.log(this.collections)
         }
     })
 
@@ -71,7 +71,7 @@
         },
         methods: {
             redirect() {
-                window.location.replace("/user/" + this.username_slug + "/profile/" + this.contract_address)
+                window.location.replace("/@" + this.username_slug + "/" + this.contract_address)
             }
         }
     })
@@ -89,7 +89,7 @@
         `,
         methods:{
             redirect(){
-                window.location.replace("/user/"+ this.username_slug +"/profile")
+                window.location.replace("/@"+ this.username_slug)
             }
         }
     })

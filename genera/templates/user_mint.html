@@ -2,8 +2,8 @@
 {% load static %}
 
 {% block head_block %}
-<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.min.js"></script>
-<script src="https://unpkg.com/vue@next"></script>
+<!-- <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.min.js"></script> -->
+<script src="https://unpkg.com/vue@next/dist/vue.global.prod.js"></script>
 {% endblock %}
 
 {% block body_block %}
@@ -756,7 +756,7 @@
         template:`
         <div class="mint_title center"> 
             <h1 class="no_margin">{{collection_name}}</h1>             
-            <h2 class="no_margin">by <a class="main_color_background_text" href="{% url 'main:profile' request.user.username_slug %}">{{owner.username}}</a></h2>
+            <h2 class="no_margin">by <a class="main_color_background_text" href="{% url 'main:profile' owner.username_slug %}">{{owner.username}}</a></h2>
         </div>
         `
     })

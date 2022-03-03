@@ -66,7 +66,7 @@
    --remove-button-color: invert(9%) sepia(4%) saturate(2336%) hue-rotate(179deg) brightness(92%) contrast(87%);
 }
 
-@media only screen and (max-width: 815px) {
+@media only screen and (max-width: 820px) {
   /* For mobile phones: */
   [class*="col-"],
   [class="upload_layers_wrapper"],
@@ -117,13 +117,16 @@
   .main_section {
     height: auto !important;
   }
+  [class*="card_title"]{
+    text-align: center;
+  }
 
   .credit_buttons_wrapper {
     flex-wrap: wrap;
   }
 }
 
-@media only screen and (min-width: 815px) {
+@media only screen and (min-width: 820px) {
 
   [class="burger_navbar"]{
     display: none !important;
@@ -138,6 +141,8 @@
   [class*="payments_description"]
   {
     display: block !important; 
+    padding: 0px !important;
+    padding-top: 10px !important;
   }
   [class*="pic_section"],
   [class="team_card_info"]{
@@ -177,6 +182,13 @@
   }
     [class*="base_form"]{
     min-width:95% !important;
+  }
+  [class="payments_wrapper"]{
+    padding: 0px !important;
+  }
+
+  [class*="credit_section"]>ul{
+    padding: auto !important;
   }
 }
 
@@ -1918,6 +1930,7 @@ text-align: left;
   height: calc(100vh - var(--header-height));
   position: relative;
   justify-content: center;
+  padding: 25px;
 }
 
 .sub_section{

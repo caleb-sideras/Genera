@@ -19,8 +19,9 @@ stripe.api_key = STRIPE_PRIVATE_KEY_LIVE
 
 def checkout_view(request):
     context = {}
-    if request.user.username:
-        if request.method == "POST":
+    
+    if request.method == "POST":
+        if request.user.username:
             if 'product_button' in request.POST:
                 price_id = request.POST.get("product_button")
                 try:
@@ -41,7 +42,7 @@ def checkout_view(request):
                         "{CHECKOUT_SESSION_ID}",
 
                         metadata={"price_id": price_id,
-                                  "user_id": request.user.id}
+                                "user_id": request.user.id}
                     )
                     request.session.set_expiry(86400)
                     request.session["payment_initial"] = True
@@ -52,10 +53,11 @@ def checkout_view(request):
                 return redirect(checkout_session.url, code=303)
             else:
                 pass
-                # print('Why you try hack us mbro????') # anti-hack page!!! scare them mofos!!
-    else:
-        error_params = {"title": "Permission Denied", "description": "Attempt to Pay for product when not logged in", "code": "325XD"}
-        raise PermissionDenied(json.dumps(error_params))
+            # print('Why you try hack us mbro????') # anti-hack page!!! scare them mofos!!
+        else:
+            error_params = {"title": "Permission Denied", "description": "Attempt to Pay for product when not logged in", "code": "325XD"}
+            raise PermissionDenied(json.dumps(error_params))
+    
     
     context['products'] = generate_stripe_products_context()
     return render(request, "payments/checkout.html", context)

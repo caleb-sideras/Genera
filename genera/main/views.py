@@ -36,10 +36,10 @@ from eth_account.messages import encode_defunct,defunct_hash_message
 stripe.api_key = STRIPE_PRIVATE_KEY_LIVE
 
 def home_view(request):
-
-    recent_collections = json.dumps(list(UserCollectionMint.objects.filter(fully_minted = False, chain_id="0x1" or "0x13881").order_by('-created').values('collection_name', 'description', 'image_uri', 'user__username_slug', 'contract_address' )[:10]))
-
-    popular_collections = json.dumps(list(UserCollectionMint.objects.filter(fully_minted = False, chain_id="0x1" or "0x13881").order_by('-collection_views').values('collection_name', 'description', 'image_uri', 'user__username_slug', 'contract_address', 'user__username' )[:10]))
+# , chain_id="0x1" or "0x13881"
+    recent_collections = json.dumps(list(UserCollectionMint.objects.filter(fully_minted = False).order_by('-created').values('collection_name', 'description', 'image_uri', 'user__username_slug', 'contract_address' )[:10]))
+# , chain_id="0x1" or "0x13881"
+    popular_collections = json.dumps(list(UserCollectionMint.objects.filter(fully_minted = False).order_by('-collection_views').values('collection_name', 'description', 'image_uri', 'user__username_slug', 'contract_address', 'user__username' )[:10]))
     
     return render(request, "home2.html", context={"recent": recent_collections,"popular": popular_collections})
 
@@ -106,7 +106,7 @@ def upload_view(request):
             
             if not paid_generation:
                 messages.error(request, message="Not a Paid generation. Abort")
-                return ajax_redirect(reverse("main:main_view"))
+                return ajax_redirect(reverse("main:home"))
             
             calebs_gay_dict["CollectionName"] = request.POST.get("collection_name")
             calebs_gay_dict["ImageName"]= request.POST.get("image_name")
@@ -211,7 +211,7 @@ def upload_view(request):
             except RawPostDataException:
                 messages.error(request, "Critical error - collection size exceeds allowance.")
                 # user.delete()
-                ajax_redirect(reverse("main:main_view"))
+                ajax_redirect(reverse("main:home"))
 
             calebs_gay_dict["Layers"] = layers  # calebs gay dict complete
             
@@ -221,7 +221,7 @@ def upload_view(request):
                 FailedUserCollection_Tracker.objects.create(user=user, collection=db_collection, error_message=str(msg))
                 db_collection.delete()
                 messages.error(request, message="Something went wrong. Generation failed. Sorry! Your credits have not been deducted.")
-                return ajax_redirect(reverse("main:main_view"))
+                return ajax_redirect(reverse("main:home"))
             
             user.credits -= db_collection.collection_size
             user.save()
@@ -232,14 +232,14 @@ def upload_view(request):
                     return ajax_redirect(reverse("main:all_collections", args=[request.user.username_slug]))
                 else:
                     messages.error(request, message="Something went wrong. Generation failed. Sorry! Your credits have been refunded.")
-                    return ajax_redirect(reverse("main:main_view"))
+                    return ajax_redirect(reverse("main:home"))
             else:       
                 if create_and_save_collection_paid(calebs_gay_dict, db_collection, required_dicts[0], required_dicts[1], request.user):
                     messages.success(request, message="Collection generated. Redirected to collection page!")
                     return ajax_redirect(reverse("main:collection", args=[user.username_slug, db_collection.collection_name_slug]))
                 else:
                     messages.error(request, message="Something went wrong. Generation failed. Sorry! Your credits have been refunded.")
-                    return ajax_redirect(reverse("main:main_view"))
+                    return ajax_redirect(reverse("main:home"))
             
         else:  # no files submitted
             messages.error(request, message="No files recieved by the server")
@@ -305,7 +305,7 @@ def metamask_login_handler_view(request):
                     metamask_user = authenticate(metamask_user=metamask_user)
                     login(request, metamask_user)
                     messages.success(request, "Succesfully logged in with metamask!")
-                    return ajax_redirect(reverse("main:main_view")) #redirect home page - make sure to catch this in frontend. NOTE: perhaps redirect to profile edit page - to change username/email..
+                    return ajax_redirect(reverse("main:home")) #redirect home page - make sure to catch this in frontend. NOTE: perhaps redirect to profile edit page - to change username/email..
                 else: #if signature verification fails - delete the MetamaskUserAuth object. User needs to do the whole process again.
                     found_user.delete()
                     messages.error(request, "Metamask verification failed. Please try again.")
@@ -335,7 +335,7 @@ def login_view(request):
                 candidate_user = login_form.authenticate()
                 login(request, candidate_user)
                 messages.success(request, message="Logged in succesfully!")
-                return redirect(reverse("main:main_view"))
+                return redirect(reverse("main:home"))
             except ValidationError as msg:
                 msg = msg.args[0]
                 messages.error(request, str(msg))
@@ -353,7 +353,7 @@ def logout_view(request, current_extension=None):
     messages.success(request, 'Logged out Succesfully!')
     if current_extension:
         return HttpResponseRedirect(current_extension)
-    return redirect(reverse("main:main_view"))
+    return redirect(reverse("main:home"))
 
 def register_view(request):
     if request.user.is_authenticated:
@@ -487,6 +487,7 @@ def mint_view(request, username_slug, contract_address):
     if user:
         context ={}
         context["owner"] = user
+        print(user)
         context["isOwner"] = (request.user == user)
         # ask artem if better way to do this
         user_collection = UserCollectionMint.objects.filter(user=user, contract_address=contract_address).first()
@@ -502,7 +503,7 @@ def mint_view(request, username_slug, contract_address):
             else:
                 raise_permission_denied("Collection", "Permission Error")
         else:
-            raise_permission_denied("Collection", "This Collection does not exist")
+            raise_permission_denied("Collection", "This Collection does not exist!")
     elif not user:
         raise_permission_denied("Profile", "Profile does not exist")
 

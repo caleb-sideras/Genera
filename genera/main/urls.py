@@ -9,8 +9,8 @@ from main.views import *
 app_name = "main"
 urlpatterns = [
     # include other apps
-    path("testermannoshot", home_view, name="home"),
-    path("", main_view, name="main_view"),
+    path("", home_view, name="home"),
+    path("learn", main_view, name="main_view"),
     path("make", upload_view, name="upload"),
 
     path("login/options", login_options_view, name="login_options"),
@@ -33,11 +33,11 @@ urlpatterns = [
 
     path("search=<slug:search_query>", search_view, name="search_view"),
 
-    path("user/<slug:username_slug>/profile", profile_view, name="profile"),
-    path("user/<slug:username_slug>/profile/<str:contract_address>", mint_view, name="user_mint"),
-    path("user/<slug:username_slug>/collections", all_collections_view, name="all_collections"),
-    path("user/<slug:username_slug>/collections/<slug:collection_name_slug>", collection_view, name="collection"),
-    path("user/<slug:username_slug>/collections/<str:collection_name_slugs>/request_status", collection_view_loaded_handler, name="collection_loaded_handler"),
+    path("@<slug:username_slug>", profile_view, name="profile"),
+    path("@<slug:username_slug>/<str:contract_address>", mint_view, name="user_mint"),
+    path("@<slug:username_slug>/collections/all", all_collections_view, name="all_collections"),
+    path("@<slug:username_slug>/collections/<slug:collection_name_slug>", collection_view, name="collection"),
+    path("@<slug:username_slug>/collections/<str:collection_name_slugs>/request_status", collection_view_loaded_handler, name="collection_loaded_handler"),
     # path("create-checkout-session", checkout_session, name="create-checkout-session")
 
     path("mint", public_mint_view, name="mint"),

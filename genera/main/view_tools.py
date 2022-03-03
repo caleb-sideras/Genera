@@ -104,15 +104,15 @@ def raise_permission_denied(title, description, code="404"):
     error_params = {"title": title, "description": description, "code": code}
     raise PermissionDenied(json.dumps(error_params))
 
-def clientside_error_with_redirect(request, message, redirect_url="main:main_view"):
+def clientside_error_with_redirect(request, message, redirect_url="main:home"):
     messages.error(request, message)
-    if redirect_url == "main:main_view":
+    if redirect_url == "main:home":
         return redirect(reverse(redirect_url))
     return redirect(redirect_url)
     
-def clientside_success_with_redirect(request, message, redirect_url="main:main_view"):
+def clientside_success_with_redirect(request, message, redirect_url="main:home"):
     messages.success(request, message)
-    if redirect_url == "main:main_view":
+    if redirect_url == "main:home":
         return redirect(reverse(redirect_url))
     return redirect(redirect_url)
     
