@@ -200,7 +200,7 @@ class UserCollection(Model):
 
 class FailedUserCollection_Tracker(Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    collection = models.ForeignKey(UserCollection, on_delete=models.SET_NULL, null=True)
+    collection = models.ForeignKey(UserCollection, on_delete=models.SET_NULL, null=True, blank=True)
 
     collection_name = models.CharField(max_length=50, unique=False)
     description = models.CharField(max_length=300, unique=False)
@@ -225,8 +225,8 @@ class FailedUserCollection_Tracker(Model):
 
 
 class UserCollectionMint(Model):
-    collection = models.ForeignKey(UserCollection, on_delete=models.SET_NULL, null=True) #store reference to collection. if collection deleted, this will be set to NULL.
-    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    collection = models.ForeignKey(UserCollection, on_delete=models.SET_NULL, null=True, blank=True) #store reference to collection. if collection deleted, this will be set to NULL.
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
 
     #collection info
     collection_name = models.CharField(max_length=50, unique=False) 
