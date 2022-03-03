@@ -45,5 +45,7 @@ urlpatterns = [
     path("terms", terms_view, name="terms"),
     path("contact_us/problem_report", problem_report_view, name="problem_report"),
     path("dashboard/reported_issues", reported_issues_view, name="reported_issues"),
+
+    path("robots.txt", robots_txt_view, name="robots"),
 ]
  

@@ -6,12 +6,11 @@ function create_notification(title, message, duration = 5000, theme) { // succes
 }
 
 function create_server_notification() { // success, info, warning, error, and none
-    //if server message exists, create notification
-    if (typeof(document.getElementById("server_message")) != 'undefined' && document.getElementById("server_message") != null) {
-        var [server_message, message_type] = document.getElementById("server_message").value.split("$") 
-        create_notification("Server message", server_message, duration=5000, theme=message_type)
-    }
+    //if at least one server message exists - create notifications for all of them
+    if (typeof(document.querySelector(".server_message")) != 'undefined')
+        document.querySelectorAll(".server_message").forEach(message => create_notification("Server message", message.dataset.message, duration=5000, theme=message.dataset.type))
 }
+
 
 function get_cookie(name) {
     let cookieValue = null;
