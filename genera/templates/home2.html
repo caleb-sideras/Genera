@@ -62,11 +62,18 @@
             _popular_artists = []
             for (const [key, value] of Object.entries(this.popular_collection)) {
                 if(_popular_artists.length > 0 ){
+                    var comparison = true
                     for (const [key2, value2] of Object.entries(_popular_artists)) {
-                        if (value.user__username_slug != value2.user__username_slug) {
-                            _popular_artists.push(value)
+                        
+                        if (value.user__username_slug == value2.user__username_slug) {
+                            comparison =false
+                            break
                         }
                     }
+                    if(comparison){
+                        _popular_artists.push(value)
+                    }
+                    
                 }
                 else{
                     _popular_artists.push(value)
@@ -407,7 +414,7 @@
     width: 100%;
     gap: 20px;
     overflow: scroll;
-    justify-content: center;
+    /* justify-content: center; */
 }
 
 .profile_card_wrapper{
@@ -495,7 +502,7 @@
         width: 100px
     }
     [class*="carousel_wrapper"]{
-        justify-content:start;
+        /* justify-content:start; */
         scroll-snap-type: x mandatory;
     }
     [class="carousel_header"] >:nth-child(2){
