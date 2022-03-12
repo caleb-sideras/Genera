@@ -1159,9 +1159,10 @@
             </div>
             <div class="admin_column">
                  <h3 style="margin:0">Air Drop</h3>
-                <p>Add addresses separated by commas, you can add the same address mutiple times</p>
+                <p>Add addresses separated by spaces, you can add the same address mutiple times</p>
             
-                <textarea style="resize: vertical; flex: 1;" required="" class="inputize" name="description" type="" maxlength="300"></textarea>
+                <textarea style="resize: vertical; flex: 1; width: auto;" required="" class="inputize" name="description" type="" maxlength="300" v-model="airdrop_addresses"></textarea>
+                <button class="general_button_no_border main_color_background border round_container_5px" style="margin:0; color:white" @click="airDrop">Publish</button> 
             </div>
         </div>    
         `, 
@@ -1172,6 +1173,7 @@
                 max_per_mint: null,
                 max_per_wallet: null,
                 open_bool: false,
+                airdrop_addresses: null,
                 withdraw_abi: {
                     "inputs": [],
                     "name": "withdraw",
@@ -1231,6 +1233,19 @@
                                 "stateMutability": "nonpayable",
                                     "type": "function"
                 },
+                airdrop: {
+                    "inputs": [
+                        {
+                            "internalType": "address[]",
+                            "name": "to",
+                            "type": "address[]"
+                        }
+                    ],
+                    "name": "airdrop",
+                    "outputs": [],
+                    "stateMutability": "nonpayable",
+                    "type": "function"
+                },
             }
         },
         methods:{
@@ -1267,6 +1282,15 @@
                 this.open_bool = !this.open_bool
                 let parameters = this.web3.eth.abi.encodeFunctionCall(this.set_open_abi,[this.open_bool])
                 this.contractInteraction(parameters, true)
+            },
+            airDrop(){
+                if(this.airdrop_addresses){
+                    const address_array = this.airdrop_addresses.split(" ");
+                    let parameters = this.web3.eth.abi.encodeFunctionCall(this.airdrop, [address_array])
+                    this.contractInteraction(parameters)
+                }
+                
+                
             },
             async contractInteraction(parameter, onError=null){
                 await this.metamask_check().then(async () =>{

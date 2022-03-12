@@ -36,10 +36,8 @@ from eth_account.messages import encode_defunct,defunct_hash_message
 stripe.api_key = STRIPE_PRIVATE_KEY_LIVE
 
 def home_view(request):
-# , chain_id="0x1" or "0x13881"
-    recent_collections = json.dumps(list(UserCollectionMint.objects.filter(fully_minted = False).order_by('-created').values('collection_name', 'description', 'image_uri', 'user__username_slug', 'contract_address' )[:10]))
-# , chain_id="0x1" or "0x13881"
-    popular_collections = json.dumps(list(UserCollectionMint.objects.filter(fully_minted = False).order_by('-collection_views').values('collection_name', 'description', 'image_uri', 'user__username_slug', 'contract_address', 'user__username' )[:10]))
+    recent_collections = json.dumps(list(UserCollectionMint.objects.filter(fully_minted = False, chain_id="0x1" or "0x13881").order_by('-created').values('collection_name', 'description', 'image_uri', 'user__username_slug', 'contract_address' )[:10]))
+    popular_collections = json.dumps(list(UserCollectionMint.objects.filter(fully_minted = False, chain_id="0x1" or "0x13881").order_by('-collection_views').values('collection_name', 'description', 'image_uri', 'user__username_slug', 'contract_address', 'user__username' )[:10]))
     
     return render(request, "home2.html", context={"recent": recent_collections,"popular": popular_collections})
 
