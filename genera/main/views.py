@@ -36,11 +36,10 @@ from eth_account.messages import encode_defunct,defunct_hash_message
 stripe.api_key = STRIPE_PRIVATE_KEY_LIVE
 
 def home_view(request):
-# , chain_id="0x1" or "0x13881"
-    recent_collections = json.dumps(list(UserCollectionMint.objects.filter(fully_minted = False, chain_id="0x1" or "0x89").order_by('-created').values('collection_name', 'description', 'image_uri', 'user__username_slug', 'contract_address' )[:10]))
-# , chain_id="0x1" or "0x89"
-    popular_collections = json.dumps(list(UserCollectionMint.objects.filter(fully_minted = False, chain_id="0x1" or "0x89").order_by('-collection_views').values('collection_name', 'description', 'image_uri', 'user__username_slug', 'contract_address', 'user__username' )[:10]))
-    
+# , chain_id="0x4" or "0x13881"
+    recent_collections = json.dumps(list(UserCollectionMint.objects.filter(fully_minted = False,chain_id__in=["0x1","0x89"]).order_by('-created').values('collection_name', 'description', 'image_uri', 'user__username_slug', 'contract_address','chain_id' )[:10]))
+    popular_collections = json.dumps(list(UserCollectionMint.objects.filter(fully_minted = False, chain_id__in=["0x1","0x89"] ).order_by('-collection_views').values('collection_name', 'description', 'image_uri', 'user__username_slug', 'contract_address', 'user__username','chain_id' )[:10]))
+    print(popular_collections)
     return render(request, "home2.html", context={"recent": recent_collections,"popular": popular_collections})
 
 def main_view(request):
@@ -226,7 +225,7 @@ def upload_view(request):
             user.credits -= db_collection.collection_size
             user.save()
 
-            if db_collection.collection_size > 20 or (DEPLOYMENT_INSTANCE and db_collection.collection_size > 5): #put on a thread if > 20, else we can handle normally. on thread if >5 on AWS (for now)
+            if db_collection.collection_size > 20: #put on a thread if > 20, else we can handle normally
                 if create_and_save_collection_paid_thread(calebs_gay_dict, db_collection, required_dicts[0], required_dicts[1], request.user): #checks if thread has started! if so - redirect to all collections page!
                     messages.success(request, message="Your collection is quite large and is being generated. You've been redirected to your collections page! Thank you for your patience.")
                     return ajax_redirect(reverse("main:all_collections", args=[request.user.username_slug]))
