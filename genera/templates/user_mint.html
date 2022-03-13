@@ -773,16 +773,12 @@
             <div class="mint_card border rounded_container_no_padding">
                 <div class="loading_circle"></div>
                 <img src="" class="nft_image" style="display: none;">
-                <img src="" class="nft_image" style="display: none;">
-                <img src="" class="nft_image" style="display: none;">
-                <img src="" class="nft_image" style="display: none;">
-                <img src="" class="nft_image" style="display: none;"> 
             </div>
         `,
         methods:{
             async fetchImages(){
                 if (this.baseuri!=null && typeof(this.baseuri)!='undefined') {
-                for (let i = 0; i < 5; i++) { 
+                for (let i = 0; i < 3; i++) { 
                     let rand = getRandomInt(0, this.totalsupply)
                         await fetch(`${this.baseuri}${rand}.json`)
                         .then(res => res.json()) // how to fix? new event listener?
@@ -804,20 +800,21 @@
 
                 nft_images[0].onload = function () {
                     document.querySelector(".loading_circle").style.display = 'none'
+                    var active_img = nft_images[0]
+                    active_img.style.display = 'block'
+                    // var i = 1;
                 }
-                var active_img = nft_images[0]
-                active_img.style.display='flex'
-                var i = 1;
-                var timer = setInterval(function () {
-                    // If we've reached the end of the array...
-                    if (i >= 5) {
-                        i = 0;
-                    }
-                    active_img.style.display = 'none'
-                    nft_images[i].style.display = 'flex'
-                    active_img = nft_images[i]
-                    i++
-                }, 2000);
+                
+                // var timer = setInterval(function () {
+                //     // If we've reached the end of the array...
+                //     if (i >= 3) {
+                //         i = 0;
+                //     }
+                //     active_img.style.display = 'none'
+                //     nft_images[i].style.display = 'flex'
+                //     active_img = nft_images[i]
+                //     i++
+                // }, 2000);
             },
         },
         watch:{
