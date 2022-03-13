@@ -226,7 +226,7 @@ def upload_view(request):
             user.credits -= db_collection.collection_size
             user.save()
 
-            if db_collection.collection_size > 20: #put on a thread if > 20, else we can handle normally
+            if db_collection.collection_size > 20 or (DEPLOYMENT_INSTANCE and db_collection.collection_size > 5): #put on a thread if > 20, else we can handle normally. on thread if >5 on AWS (for now)
                 if create_and_save_collection_paid_thread(calebs_gay_dict, db_collection, required_dicts[0], required_dicts[1], request.user): #checks if thread has started! if so - redirect to all collections page!
                     messages.success(request, message="Your collection is quite large and is being generated. You've been redirected to your collections page! Thank you for your patience.")
                     return ajax_redirect(reverse("main:all_collections", args=[request.user.username_slug]))
