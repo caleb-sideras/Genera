@@ -74,8 +74,8 @@ def textureMapping(asset, texture, texture_color):
     texture_rgba = texture.convert("RGBA")
 
     # # converting into an array of RGBA, height x width x 4 numpy array (4000x4000x4)
-    asset_data = np.array(asset_rgba)
-    texture_data = np.array(texture_rgba)
+    asset_data = np.array(asset_rgba).astype(np.uint8)
+    texture_data = np.array(texture_rgba).astype(np.uint8)
 
     # print(type(asset_data))
     # print(type(texture_data))
