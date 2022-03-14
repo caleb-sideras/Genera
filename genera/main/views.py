@@ -37,8 +37,9 @@ stripe.api_key = STRIPE_PRIVATE_KEY_LIVE
 
 def home_view(request):
 # , chain_id="0x4" or "0x13881"
-    recent_collections = json.dumps(list(UserCollectionMint.objects.filter(fully_minted = False,chain_id__in=["0x1","0x89"]).order_by('-created').values('collection_name', 'description', 'image_uri', 'user__username_slug', 'contract_address','chain_id' )[:10]))
-    popular_collections = json.dumps(list(UserCollectionMint.objects.filter(fully_minted = False, chain_id__in=["0x1","0x89"] ).order_by('-collection_views').values('collection_name', 'description', 'image_uri', 'user__username_slug', 'contract_address', 'user__username','chain_id' )[:10]))
+# chain_id__in=["0x1","0x89"]
+    recent_collections = json.dumps(list(UserCollectionMint.objects.filter(fully_minted = False).order_by('-created').values('collection_name', 'description', 'image_uri', 'user__username_slug', 'contract_address','chain_id' )[:10]))
+    popular_collections = json.dumps(list(UserCollectionMint.objects.filter(fully_minted = False ).order_by('-collection_views').values('collection_name', 'description', 'image_uri', 'user__username_slug', 'contract_address', 'user__username','chain_id' )[:10]))
     print(popular_collections)
     return render(request, "home2.html", context={"recent": recent_collections,"popular": popular_collections})
 
