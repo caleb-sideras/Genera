@@ -46,7 +46,7 @@ EMAIL_USE_TLS = True
 
 DEBUG = True #TODO:
 #'172.31.24.181', 'ec2-3-134-42-144.us-east-2.compute.amazonaws.com'
-ALLOWED_HOSTS = ['genera.link','www.genera.link', 'genera.us-east-2.elasticbeanstalk.com', '18.224.228.147', 'ec2-18-224-228-147.us-east-2.compute.amazonaws.com']
+ALLOWED_HOSTS = ['genera.link','www.genera.link', 'genera.us-east-2.elasticbeanstalk.com']
 DEPLOYMENT_INSTANCE = 'RDS_DB_NAME' in os.environ
 if DEPLOYMENT_INSTANCE:
     import requests
