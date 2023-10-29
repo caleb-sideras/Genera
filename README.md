@@ -7,7 +7,7 @@
 
 <p align="center">
   <a aria-label="Genera">
-    <img src="https://img.shields.io/badge/MADE%20BY%20Caleb%20&%20Artem-000000.svg?style=for-the-badge&logo=Go&labelColor=000">
+    <img src="https://img.shields.io/badge/MADE%20BY%20Caleb%20&%20Artem-000000.svg?style=for-the-badge&logo=Python&labelColor=000">
   </a>
 </p>
 
