@@ -16,7 +16,7 @@
 Discover create and sell your own NFT collections
 
 ## Features
-<div display="flex" flex-wrap="wrap">
+<div display="flex" flex-wrap="wrap" align="center">
     <picture>
       <img src="genera/static/gh/1.jpg" height="256">
     </picture>
@@ -52,11 +52,11 @@ Discover create and sell your own NFT collections
 
 ## HomePage
 
-<div display="flex" flex-wrap="wrap">
+<div display="flex" flex-wrap="wrap" align="center">
     <picture>
-      <img src="genera/static/gh/11.jpg" height="256">
+      <img src="genera/static/gh/11.jpg" height="512">
     </picture>
     <picture>
-      <img src="genera/static/gh/12.jpg" height="256">
+      <img src="genera/static/gh/12.jpg" height="512">
     </picture>
 </div>
