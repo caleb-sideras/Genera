@@ -1,9 +1,62 @@
-# website
-Aims to create and publish offchain generative NFTs user designed textures and assets
+<div align="center">
+    <picture>
+      <img src="genera/static/gh/logo.png" height="128">
+    </picture>
+    <h1 align="center">Genera</h1>
+</div>
 
-Google docs [smart contract](https://docs.google.com/document/d/1IuSrBSUHXAv7mEJjRwG08_NwMaPuTiDfSNi3Ruw67r4/edit?usp=sharing) quick guide 
-  - Adding to it everyday, can make you an editor if you send me your email
-  
-[Website wireframe1](https://www.figma.com/file/BXqilU0jXjFbFyCTe5KUeH/NFT-Generator---Layers?node-id=0%3A1)
-[Website wireframe2](https://www.figma.com/file/uzalYH3mnwYdUncKNCMKby/Mint-Page?node-id=0%3A1)
-[Website wireframe3](https://www.figma.com/file/n2wxwStvbH16tlKWbPXhIH/View-Collection-page?node-id=0%3A1)
+<p align="center">
+  <a aria-label="Genera">
+    <img src="https://img.shields.io/badge/MADE%20BY%20Caleb%20&%20Artem-000000.svg?style=for-the-badge&logo=Go&labelColor=000">
+  </a>
+</p>
+
+## What is Genera
+
+Discover create and sell your own NFT collections
+
+## Features
+<div display="flex" flex-wrap="wrap">
+    <picture>
+      <img src="genera/static/gh/1.jpg" height="256">
+    </picture>
+    <picture>
+      <img src="genera/static/gh/2.jpg" height="256">
+    </picture>
+    <picture>
+      <img src="genera/static/gh/3.jpg" height="256">
+    </picture>
+    <picture>
+      <img src="genera/static/gh/4.jpg" height="256">
+    </picture>
+    <picture>
+      <img src="genera/static/gh/5.jpg" height="256">
+    </picture>
+    <picture>
+      <img src="genera/static/gh/6.jpg" height="256">
+    </picture>
+    <picture>
+      <img src="genera/static/gh/7.jpg" height="256">
+    </picture>
+    <picture>
+      <img src="genera/static/gh/8.jpg" height="256">
+    </picture>
+    <picture>
+      <img src="genera/static/gh/9.jpg" height="256">
+    </picture>
+    <picture>
+      <img src="genera/static/gh/10.jpg" height="256">
+    </picture>
+    
+</div>
+
+## HomePage
+
+<div display="flex" flex-wrap="wrap">
+    <picture>
+      <img src="genera/static/gh/11.jpg" height="256">
+    </picture>
+    <picture>
+      <img src="genera/static/gh/12.jpg" height="256">
+    </picture>
+</div>

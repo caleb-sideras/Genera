@@ -25,7 +25,7 @@ TEMPLATE_DIR = os.path.join(BASE_DIR, 'templates')
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-!h$vhss##+00p6$09#!6ejcmx1+!q#x%-+#uj^@(vghcn%)-!o'
+SECRET_KEY = ''
 
 BASE_URL = 'http://localhost:8000'
 
@@ -36,8 +36,8 @@ EMAIL_PORT = 587
 EMAIL_ACTIVE_FIELD = 'is_active'
 EMAIL_SERVER = 'smtp.gmail.com'
 EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PASSWORD = 'xlstriwxtynxjftg'
-EMAIL_HOST_PASSWORD = 'xlstriwxtynxjftg'
+EMAIL_PASSWORD = ''
+EMAIL_HOST_PASSWORD = ''
 EMAIL_HOST_USER = "generanft@gmail.com"
 EMAIL_ADDRESS = 'generanft@gmail.com'
 EMAIL_FROM_ADDRESS = 'generanft@gmail.com'
@@ -188,20 +188,20 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 MAX_UPLOAD_SIZE = "5242880000"
 
 #TEST
-STRIPE_PUBILC_KEY = "pk_test_51K9ckjDlWp2mVdKSIZtZWcEmEIogg5LG2Vx9p8IjIM38bOo8CbGqddJuYeDEvbPUCdM11b7MeFD8YGC82V5m2Xqo00cHqVNc07"
-STRIPE_PRIVATE_KEY = "sk_test_51K9ckjDlWp2mVdKSxhtGeV44FHSaO7z89AYlxltSqY6hnSRHP3zhcOfWlQDqUmX8rqtHvjkEnpTconUyBS7K4H5Q00dGzl4yTg"
+STRIPE_PUBILC_KEY = ""
+STRIPE_PRIVATE_KEY = ""
 
 #LIVE
-STRIPE_PUBILC_KEY_LIVE = "pk_live_51K9ckjDlWp2mVdKSm5NVgmeByiDBjHuIQQIW3xheApnLgbPYLvpBe84ANirJlu2F6T4vRv1dw0860XQiNacW8Lt000ve7MFMzu"
-STRIPE_PRIVATE_KEY_LIVE = "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"
+STRIPE_PUBILC_KEY_LIVE = ""
+STRIPE_PRIVATE_KEY_LIVE = ""
 
-STRIPE_WEBHOOK_SECRET = "cbya-zuur-cfbo-smeo-help"#maybe
+STRIPE_WEBHOOK_SECRET = ""#maybe
 
 #AWS BUCKET STUFF
 AWS_STORAGE_BUCKET_NAME = 'genera-media'
 if DEPLOYMENT_INSTANCE: #NOTE: remove this if statement if you want to test s3 locally!!!
-    AWS_ACCESS_KEY_ID = 'AKIAYWR7VJZHQI73U2X4'
-    AWS_SECRET_ACCESS_KEY = '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'
+    AWS_ACCESS_KEY_ID = ''
+    AWS_SECRET_ACCESS_KEY = ''
     AWS_S3_REGION_NAME = 'us-east-2'
     AWS_S3_SIGNATURE_VERSION = 's3v4'
     AWS_S3_CUSTOM_DOMAIN = f'https://{AWS_STORAGE_BUCKET_NAME}.s3.{AWS_S3_REGION_NAME}.amazonaws.com/'
